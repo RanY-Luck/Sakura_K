@@ -15,7 +15,7 @@ from fastapi import UploadFile
 from utils.file.file_base import FileBase
 
 
-class FileManager(FileBase):
+class FileManage(FileBase):
     """
     上传文件管理
     """
