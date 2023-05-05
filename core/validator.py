@@ -14,7 +14,7 @@
 import re
 
 
-def vail_telephone(value: str) -> str:
+def vali_telephone(value: str) -> str:
     """
     手机号码验证器
     :param value: 手机号
@@ -22,9 +22,7 @@ def vail_telephone(value: str) -> str:
     """
     if not value or len(value) != 11 or not value.isdigit():
         raise ValueError("请输入正确手机号")
-
     regex = r'^1(3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8[0-9]|9[0-9])\d{8}$'
-
     if not re.match(regex, value):
         raise ValueError("请输入正确手机号")
     return value
@@ -38,10 +36,7 @@ def vali_email(value: str) -> str:
     """
     if not value:
         raise ValueError("请输入邮箱地址")
-
     regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-
     if not re.match(regex, value):
         raise ValueError("请输入正确邮箱地址")
-
     return value

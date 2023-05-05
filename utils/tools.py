@@ -130,19 +130,34 @@ def import_modules(modules: list, desc: str, **kwargs):
     最后，该函数并没有返回任何值，仅仅是在运行过程中动态导入了一些模块，调用了一些函数。
     """
     for module in modules:
-        if not modules:
+        if not module:
             continue
         try:
             # 动态导入模块
-            module_pag = importlib.import_module(modules[0:modules.rindex(".")])
-            getattr(module_pag, module[module.rindex(".") + 1:](**kwargs))
+            module_pag = importlib.import_module(module[0:module.rindex(".")])
+            getattr(module_pag, module[module.rindex(".") + 1:])(**kwargs)
         except ModuleNotFoundError:
             logger.error(f"AttributeError：导入{desc}失败，未找到该模块：{module}")
         except AttributeError:
             logger.error(f"ModuleNotFoundError：导入{desc}失败，未找到该模块下的方法：{module}")
 
 
-if __name__ == '__main__':
-    print(int(datetime.datetime.now().timestamp()))
-    print(datetime.datetime.today() + datetime.timedelta(days=7))
-    print(generate_string())
+async def import_modules_async(modules: list, desc: str, **kwargs):
+    """
+
+    :param modules:
+    :param desc:
+    :param kwargs:
+    :return:
+    """
+    for module in modules:
+        if not module:
+            continue
+        try:
+            # 动态导入模块
+            module_pag = importlib.import_module(module[0:module.rindex(".")])
+            await getattr(module_pag, module[module.rindex(".") + 1:])(**kwargs)
+        except ModuleNotFoundError:
+            logger.error(f"AttributeError：导入{desc}失败，未找到该模块：{module}")
+        except AttributeError:
+            logger.error(f"ModuleNotFoundError：导入{desc}失败，未找到该模块下的方法：{module}")

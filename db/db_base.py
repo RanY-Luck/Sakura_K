@@ -6,7 +6,6 @@
 # @File    : db_base.py
 # @Software: PyCharm
 # @desc    : 数据库公共ORM模型
-
 """
 这里介绍下alembic，他的作用是：
 1、创建、修改和删除数据库表结构；

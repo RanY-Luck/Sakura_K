@@ -42,7 +42,7 @@ def create_async_engine_session(database_url: str, database_type: str = "mysql")
         pool_recycle=3600,
         future=True,
         max_overflow=5,
-        connect_args={'check_same_thread': False, "timeout": 30} if database_type == 'sqlite3' else {}
+        connect_args={"check_same_thread": False, "timeout": 30} if database_type == "sqlite3" else {}
     )
     return sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=True, class_=AsyncSession)
 
@@ -69,8 +69,17 @@ class Base:
 
 """
 创建基本映射类
+稍后，我们将继承该类，创建每个 ORM 模型
 """
-Model = declarative_base(name="Model", cls=Base)
+Model = declarative_base(name='Model', cls=Base)
+
+""" 
+附上两个SQLAlchemy教程
+Python3+SQLAlchemy+Sqlite3实现ORM教程
+https://www.cnblogs.com/jiangxiaobo/p/12350561.html
+SQLAlchemy基础知识 Autoflush和Autocommit
+https://www.jianshu.com/p/b219c3dd4d1e
+"""
 
 
 async def db_getter():

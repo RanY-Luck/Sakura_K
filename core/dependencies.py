@@ -81,5 +81,5 @@ class IdList:
     Id列表
     """
 
-    def __init__(self, ids: List[int] = Body(None, title="ID 列表")):
+    def __init__(self, ids: List[int] = Body(..., title="ID 列表")):
         self.ids = ids

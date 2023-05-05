@@ -66,6 +66,6 @@ def aes_decrypt(data):
 
 
 if __name__ == '__main__':
-    _data = '16658273438153332588-95YEUPJR'  # 需要加密的内容
+    _data = '123456'  # 需要加密的内容
     enctext = aes_encrypt(_data)
     print(enctext)

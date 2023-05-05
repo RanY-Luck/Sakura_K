@@ -54,7 +54,7 @@ class ImportManage:
         :return:
         """
         if file.content_type not in cls.file_type:
-            raise CustomException(msg="文件类型必须是xlsx类型", code=status.HTTP_ERROR)
+            raise CustomException(msg="文件类型必须为xlsx类型", code=status.HTTP_ERROR)
 
     async def get_table_data(self) -> None:
         """
@@ -68,7 +68,22 @@ class ImportManage:
         self.__table_data = es.readlines(min_row=2, max_col=len(self.headers))
         es.close()
 
-    def _check_row(self, row: list) -> tuple:
+    def check_table_data(self) -> None:
+        """
+        检查表格数据
+        :return:
+        """
+        for row in self.__table_data:
+            result = self.__check_row(row)
+            if not result[0]:
+                row.append(result[1])
+                self.errors.append(row)
+                self.error_number += 1
+            else:
+                self.success_number += 1
+                self.success.append(result[1])
+
+    def __check_row(self, row: list) -> tuple:
         """
         检查行数据
         检查条件：

@@ -40,7 +40,7 @@ class Telephone(str):
     代码解释：
     定义了一个继承自 Python 标准库中的字符串类 str 的新类 Telephone，并给该类添加了两个方法：__get_validators__() 和 validate()。
     Telephone 类通过重写 __get_validators__() 方法，将 validate() 方法注册为类型验证器，使得在使用 Pydantic 进行数据验证时，可以将 Telephone 当作一个数据类型来使用。
-    validate() 方法接收一个参数 v，用于对数据进行验证。在该方法中，它调用了 vail_telephone(v) 函数来判断参数 v 是否符合 Telephone 号码的格式要求，并将结果返回。
+    validate() 方法接收一个参数 v，用于对数据进行验证。在该方法中，它调用了 vali_telephone(v) 函数来判断参数 v 是否符合 Telephone 号码的格式要求，并将结果返回。
     例如，如果传入 '12345678901' 字符串，则调用 Telephone.validate() 方法后会返回原始字符串，表明该字符串是一个合法的 Telephone 号码。
     如果传入的字符串不符合 Telephone 号码的格式要求，则会引发异常。
     """
@@ -51,7 +51,7 @@ class Telephone(str):
 
     @classmethod
     def validate(cls, v):
-        return vail_telephone(v)
+        return vali_telephone(v)
 
 
 class Email(str):

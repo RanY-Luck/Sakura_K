@@ -28,8 +28,13 @@ DEMO = not DEBUG
 演示功能白名单
 """
 DEMO_WHITE_LIST_PATH = [
-    "/auth/login/"
+    "/auth/login/",
+    "/auth/token/refresh/",
+    "/auth/wx/login/",
+    "/vadmin/system/dict/types/details/",
+    "/vadmin/auth/user/export/query/list/to/excel/"
 ]
+
 """
 引入数据库配置
 """
@@ -53,12 +58,12 @@ OAUTH_ENABLE = True
 """
 登录认证试图
 """
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/logon/", auto_error=False) if OAUTH_ENABLE else lambda: ""
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/", auto_error=False) if OAUTH_ENABLE else lambda: ""
 
 """
-安全的随机秘钥，该秘钥将用于对JWT令牌进行签名 CMD运行: >>>openssl rand -hex 32<<< 生成key
+安全的随机秘钥，该秘钥将用于对JWT令牌进行签名
 """
-SECRET_KEY = '9bbd1331a0bd8b46ba618d0c4b122686164db70afd1f3a88b872ae8992ea4f66'
+SECRET_KEY = 'vgb0tnl9d58+6n-6h-ea&u^1#s0ccp!794=kbvqacjq75vzps$'
 
 """
 用于设定JWT令牌签名算法

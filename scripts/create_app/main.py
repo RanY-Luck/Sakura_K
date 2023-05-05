@@ -41,9 +41,9 @@ class CreateApp:
         5、最后，程序会打印出提示信息，表示应用程序目录已经创建完成。
         """
         if self.exist(self.app_path):
-            print(f"{self.app_path} 已经存在，无法自动创建，请删除后，重新执行")
+            print(f"{self.app_path} 已经存在，无法自动创建，请删除后，重新执行。")
             return False
-        print("开始生成 App 目录:", self.path)
+        print("开始生成 App 目录：", self.path)
         path = []
         for item in self.path.split("/"):
             path.append(item)
@@ -138,8 +138,3 @@ class CreateApp:
         content = template.read()
         template.close()
         return content
-
-
-if __name__ == '__main__':
-    app = CreateApp("vadmin/auth")
-    app.run()

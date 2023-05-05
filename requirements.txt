@@ -16,7 +16,7 @@ aliyun-python-sdk-kms==2.16.0
 anyio==3.6.2
 asgiref==3.5.2
 async-timeout==4.0.2
-asyncmy==0.2.5
+asyncmy==0.2.7
 attrs==22.1.0
 bcrypt==4.0.1
 certifi==2022.9.24
@@ -45,7 +45,6 @@ MarkupSafe==2.1.1
 motor==3.1.1
 multidict==6.0.2
 openpyxl==3.0.10
-orjson==3.8.2
 oss2==2.16.0
 passlib==1.7.4
 Pillow==9.3.0
@@ -81,3 +80,4 @@ yarl==1.8.1
 zipp==3.10.0
 zope.event==4.5.0
 zope.interface==5.5.2
+orjson==3.8.2
