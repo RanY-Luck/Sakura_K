@@ -9,6 +9,8 @@
 import datetime
 import os
 import uuid
+from typing import Optional
+
 from fastapi import UploadFile
 from core.exception import CustomException
 from utils import status
@@ -71,7 +73,7 @@ class FileBase:
         return True
 
     @classmethod
-    def get_file_type(cls, content_type: str) -> str | None:
+    def get_file_type(cls, content_type: str) -> Optional[str]:
         """
         获取文件类型
         :param content_type:

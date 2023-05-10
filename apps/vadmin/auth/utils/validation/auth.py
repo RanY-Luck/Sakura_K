@@ -4,6 +4,7 @@
 # @File           : auth.py
 # @IDE            : PyCharm
 # @desc           : 用户凭证验证装饰器
+from typing import Optional
 
 from fastapi import Request
 import jwt
@@ -33,7 +34,7 @@ class AuthValidation:
     error_code = status.HTTP_401_UNAUTHORIZED
 
     @classmethod
-    def validate_token(cls, request: Request, token: str | None) -> str:
+    def validate_token(cls, request: Request, token: Optional[str]) -> str:
         """
         验证用户 token
         """

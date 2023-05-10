@@ -17,7 +17,7 @@ VERSION = "0.0.2"
 """
 ⚠️安全警告:请不要在正式环境中打开调试运行!!!
 """
-DEBUG = False
+DEBUG = True
 
 """
 是否开启演示功能，开启则取消所有的POST、DELETE、PUT操作权限

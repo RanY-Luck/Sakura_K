@@ -6,6 +6,7 @@
 # @IDE            : PyCharm
 # @desc           : 登录记录模型
 import json
+from typing import Union
 
 from application.settings import LOGIN_LOG_RECORD
 from apps.vadmin.auth.utils.validation import LoginForm, WXLoginForm
@@ -43,7 +44,7 @@ class VadminLoginRecord(BaseModel):
     async def create_login_record(
             cls,
             db: AsyncSession,
-            data: LoginForm | WXLoginForm,
+            data: Union[LoginForm, WXLoginForm],
             status: bool,
             req: Request,
             resp: dict
