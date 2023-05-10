@@ -6,11 +6,9 @@
 # @File    : validator.py
 # @Software: PyCharm
 # @desc    : Pydantic 模型重用验证器针对 手机号、邮箱
-
 """
 官方文档：https://pydantic-docs.helpmanual.io/usage/validators/#reuse-validators
 """
-
 import re
 
 
