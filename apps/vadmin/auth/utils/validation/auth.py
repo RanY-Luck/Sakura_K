@@ -1,13 +1,12 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2023/4/14 17:35
-# @Author  : 冉勇
-# @Site    :
-# @File    : auth.py
-# @Software: PyCharm
-# @desc    :
-import jwt
+# @version        : 1.0
+# @Create Time    : 2021/10/24 16:44
+# @File           : auth.py
+# @IDE            : PyCharm
+# @desc           : 用户凭证验证装饰器
+
 from fastapi import Request
+import jwt
 from pydantic import BaseModel
 from application import settings
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,9 +25,11 @@ class Auth(BaseModel):
 
 
 class AuthValidation:
+
     """
     用于用户每次调用接口时，验证用户提交的token是否正确，并从token中获取用户信息
     """
+
     error_code = status.HTTP_401_UNAUTHORIZED
 
     @classmethod
@@ -47,6 +48,9 @@ class AuthValidation:
                 raise CustomException(msg="未认证，请您重新登录", code=cls.error_code)
             # 计算当前时间 + 缓冲时间是否大于等于 JWT 过期时间
             buffer_time = (datetime.now() + timedelta(minutes=settings.ACCESS_TOKEN_CACHE_MINUTES)).timestamp()
+            # print("过期时间", exp, datetime.fromtimestamp(exp))
+            # print("当前时间", buffer_time, datetime.fromtimestamp(buffer_time))
+            # print("剩余时间", exp - buffer_time)
             if buffer_time >= exp:
                 request.scope["if-refresh"] = 1
             else:
@@ -61,10 +65,6 @@ class AuthValidation:
     async def validate_user(cls, request: Request, user: VadminUser, db: AsyncSession) -> Auth:
         """
         验证用户信息
-        :param request:
-        :param user:
-        :param db:
-        :return:
         """
         if user is None:
             raise CustomException(msg="未认证，请您重新登陆", code=cls.error_code, status_code=cls.error_code)
@@ -83,8 +83,6 @@ class AuthValidation:
     def get_user_permissions(cls, user: VadminUser) -> set:
         """
         获取员工用户所有权限列表
-        :param user:
-        :return:
         """
         if any([role.is_admin for role in user.roles]):
             return {'*.*.*'}

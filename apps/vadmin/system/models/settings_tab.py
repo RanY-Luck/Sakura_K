@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/19 11:18
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : settings_tab.py
 # @Software: PyCharm
 # @desc    : 系统配置分类模型
@@ -21,7 +21,7 @@ tab_label表示tab标题；tab_name表示tab标识符，具有唯一性，不能
 
 class VadminSystemSettingsTab(BaseModel):
     __tablename__ = "vadmin_system_settings_tab"
-    __table_args__ = ({"comment": "系统配置分类表"})
+    __table_args__ = ({'comment': '系统配置分类表'})
     title = Column(String(255), comment="标题")
     classify = Column(String(255), index=True, nullable=False, comment="分类键")
     tab_label = Column(String(255), comment="tab标题")

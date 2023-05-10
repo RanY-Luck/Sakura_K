@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/19 11:47
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : settings.py
 # @Software: PyCharm
 # @desc    : 系统设置模型，用于数据库序列化操作
@@ -34,4 +34,4 @@ class SettingsSimpleOut(Settings):
     update_datetime: DatetimeStr
 
     class Config:
-        orm_mode: True
+        orm_mode = True

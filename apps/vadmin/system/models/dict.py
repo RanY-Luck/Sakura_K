@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/18 19:57
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : dict.py
 # @Software: PyCharm
 # @desc    : 系统字典模型
@@ -28,7 +28,7 @@ back_populates参数表示在VadminDictType表中与之关联的字段。
 
 class VadminDictType(BaseModel):
     __tablename__ = "vadmin_system_dict_type"
-    __table_args__ = ({"comment": "字典类型表"})
+    __table_args__ = ({'comment': '字典类型表'})
     dict_name = Column(String(50), index=True, nullable=False, comment="字典名称")
     dict_type = Column(String(50), index=True, nullable=False, comment="字典类型")
     disabled = Column(Boolean, default=False, comment="字典状态，是否禁用")
@@ -38,12 +38,12 @@ class VadminDictType(BaseModel):
 
 class VadminDictDetails(BaseModel):
     __tablename__ = "vadmin_system_dict_details"
-    __table_args__ = ({"comment": "字典详情表"})
+    __table_args__ = ({'comment': '字典详情表'})
     label = Column(String(50), index=True, nullable=False, comment="字典标签")
     value = Column(String(50), index=True, nullable=False, comment="字典键值")
     disabled = Column(Boolean, default=False, comment="字典状态，是否禁用")
     is_default = Column(Boolean, default=False, comment="是否默认")
     order = Column(Integer, comment="字典排序")
-    dict_type_id = Column(Integer, ForeignKey("vadmin_system_dict_type.id", ondelete="CASCADE"), comment="关联字典类型")
+    dict_type_id = Column(Integer, ForeignKey("vadmin_system_dict_type.id", ondelete='CASCADE'), comment="关联字典类型")
     dict_type = relationship("VadminDictType", foreign_keys=dict_type_id, back_populates="details")
     remark = Column(String(255), comment="备注")

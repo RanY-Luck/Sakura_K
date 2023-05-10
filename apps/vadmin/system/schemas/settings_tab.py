@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/19 16:27
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : settings_tab.py
 # @Software: PyCharm
 # @desc    : 系统设置选项卡模型，用于数据库序列化操作
@@ -21,9 +21,6 @@ from core.data_types import DatetimeStr
 
 
 class SettingsTab(BaseModel):
-    """
-    系统设置选项卡
-    """
     title: str
     classify: str
     tab_label: str

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/19 11:40
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : dict.py
 # @Software: PyCharm
 # @desc    : pydantic 模型，用于数据库序列化操作
@@ -45,7 +45,7 @@ class DictTypeSelectOut(BaseModel):
         orm_mode = True
 
 
-class DictDatails(BaseModel):
+class DictDetails(BaseModel):
     label: str
     value: str
     disabled: Optional[bool] = False
@@ -55,7 +55,7 @@ class DictDatails(BaseModel):
     dict_type_id: int
 
 
-class DictDetailsSimpleOut(DictDatails):
+class DictDetailsSimpleOut(DictDetails):
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/14 16:54
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : views.py
 # @Software: PyCharm
 # @desc    : 获取工作场所
 import datetime
 from fastapi import APIRouter, Depends
 from apps.vadmin.auth.utils.current import AllUserAuth
-from apps.vadmin.auth.utils.validation import Auth
+from apps.vadmin.auth.utils.validation.auth import Auth
 from utils.response import SuccessResponse
 from apps.vadmin.record.crud import LoginRecordDal
 
@@ -21,7 +21,7 @@ app = APIRouter()
 ###########################################################
 @app.get("/total/", summary="获取统计")
 async def get_total(
-        auth: Auth = Depends((AllUserAuth()))
+        auth: Auth = Depends(AllUserAuth())
 ):
     data = {
         "project": 40,

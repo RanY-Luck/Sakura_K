@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
-# @Time    : 2023/4/14 16:54
-# @Author  : 冉勇
-# @Site    : 
-# @File    : views.py
-# @Software: PyCharm
-# @desc    :
+# @version        : 1.0
+# @Create Time    : 2022/10/19 15:41 
+# @File           : views.py
+# @IDE            : PyCharm
+# @desc           : 简要说明
+
 from fastapi import APIRouter, Depends
 from apps.vadmin.auth.utils.current import AllUserAuth
 from utils.response import SuccessResponse
@@ -15,19 +15,19 @@ app = APIRouter()
 
 
 ###########################################################
-#                     图表数据                             #
+#    图表数据
 ###########################################################
 @app.get("/banners/", summary="轮播图")
 async def get_banners(auth: Auth = Depends(AllUserAuth())):
     data = [
         {
-            "id": 1, "image": ""
+            "id": 1, "image": "https://ktianc.oss-cn-beijing.aliyuncs.com/kinit/system/banner/2022-11-14/1.jpg"
         },
         {
-            "id": 2, "image": ""
+            "id": 2, "image": "https://ktianc.oss-cn-beijing.aliyuncs.com/kinit/system/banner/2022-11-09/banner1.png"
         },
         {
-            "id": 3, "image": ""
+            "id": 3, "image": "https://ktianc.oss-cn-beijing.aliyuncs.com/kinit/system/banner/2022-11-09/banner3.png"
         },
     ]
     return SuccessResponse(data)

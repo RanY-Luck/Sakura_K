@@ -19,11 +19,11 @@ from utils.file.aliyun_oss import AliyunOSS, BucketConf
 from utils.aliyun_sms import AliyunSMS
 from utils.file.file_manage import FileManage
 from utils.response import SuccessResponse, ErrorResponse
+from . import schemas, crud
 from core.dependencies import IdList
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
-from . import schemas, crud
-from .params import DictDetailParams, DictTypeParams
+from .params import DictTypeParams, DictDetailParams
 
 app = APIRouter()
 
@@ -31,7 +31,6 @@ app = APIRouter()
 ###########################################################
 #                     字典类型管理                          #
 ###########################################################
-
 @app.get("/dict/types/", summary="获取字典类型列表")
 async def get_dict_types(p: DictTypeParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     datas = await crud.DictTypeDal(auth.db).get_datas(**p.dict())
@@ -39,7 +38,7 @@ async def get_dict_types(p: DictTypeParams = Depends(), auth: Auth = Depends(All
     return SuccessResponse(datas, count=count)
 
 
-@app.post("dict/types/", summary="创建字典类型")
+@app.post("/dict/types/", summary="创建字典类型")
 async def create_dict_types(data: schemas.DictType, auth: Auth = Depends(AllUserAuth())):
     return SuccessResponse(await crud.DictTypeDal(auth.db).create_data(data=data))
 
@@ -64,7 +63,7 @@ async def get_dicts_options(auth: Auth = Depends(AllUserAuth())):
     return SuccessResponse(await crud.DictTypeDal(auth.db).get_select_datas())
 
 
-@app.put("/dict/types/{data_id}", summary="更新字典类型")
+@app.put("/dict/types/{data_id}/", summary="更新字典类型")
 async def put_dict_types(data_id: int, data: schemas.DictType, auth: Auth = Depends(AllUserAuth())):
     return SuccessResponse(await crud.DictTypeDal(auth.db).put_data(data_id, data))
 
@@ -79,14 +78,14 @@ async def get_dict_type(data_id: int, auth: Auth = Depends(AllUserAuth())):
 #                     字典元素管理                          #
 ###########################################################
 @app.post("/dict/details/", summary="创建字典元素")
-async def create_dict_details(data: schemas.DictDatails, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.DictTypeDal(auth.db).create_data(data=data))
+async def create_dict_details(data: schemas.DictDetails, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.DictDetailsDal(auth.db).create_data(data=data))
 
 
 @app.get("/dict/details/", summary="获取单个字典类型下的字典元素列表，分页")
 async def get_dict_details(params: DictDetailParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     if not params.dict_type_id:
-        return ErrorResponse(msg="未获取到字典类型")
+        return ErrorResponse(msg="未获取到字典类型！")
     datas = await crud.DictDetailsDal(auth.db).get_datas(**params.dict())
     count = await crud.DictDetailsDal(auth.db).get_count(**params.to_count())
     return SuccessResponse(datas, count=count)
@@ -99,20 +98,20 @@ async def delete_dict_details(ids: IdList = Depends(), auth: Auth = Depends(AllU
 
 
 @app.put("/dict/details/{data_id}/", summary="更新字典元素")
-async def put_dict_details(data_id: int, data: schemas.DictDatails, auth: Auth = Depends(AllUserAuth())):
+async def put_dict_details(data_id: int, data: schemas.DictDetails, auth: Auth = Depends(AllUserAuth())):
     return SuccessResponse(await crud.DictDetailsDal(auth.db).put_data(data_id, data))
 
 
 @app.get("/dict/details/{data_id}/", summary="获取字典元素详情")
-async def get_dict_details(data_id: int, auth: Auth = Depends(AllUserAuth())):
-    schema = schemas.DictTypeSimpleOut
+async def get_dict_detail(data_id: int, auth: Auth = Depends(AllUserAuth())):
+    schema = schemas.DictDetailsSimpleOut
     return SuccessResponse(await crud.DictDetailsDal(auth.db).get_data(data_id, None, v_schema=schema))
 
 
 ###########################################################
 #                     文件上传管理                          #
 ###########################################################
-@app.post("/upload/image/to/oss/", summary="上传图片到阿里云oss")
+@app.post("/upload/image/to/oss/", summary="上传图片到阿里云OSS")
 async def upload_image_to_oss(file: UploadFile, path: str = Form(...)):
     result = await AliyunOSS(BucketConf(**ALIYUN_OSS)).upload_image(path, file)
     if not result:
@@ -130,7 +129,7 @@ async def upload_image_to_local(file: UploadFile, path: str = Form(...)):
 ###########################################################
 #                     短信服务管理                          #
 ###########################################################
-@app.post("/sms/send/", summary="发送短信验证码(阿里云服务)")
+@app.post("/sms/send/", summary="发送短信验证码（阿里云服务）")
 async def sms_send(telephone: str, rd: Redis = Depends(redis_getter)):
     sms = AliyunSMS(rd, telephone)
     return SuccessResponse(await sms.main_async(AliyunSMS.Scene.login))
@@ -139,7 +138,7 @@ async def sms_send(telephone: str, rd: Redis = Depends(redis_getter)):
 ###########################################################
 #                     系统配置管理                          #
 ###########################################################
-@app.get("/settings/tabs/", summary="获取系统配置标签")
+@app.get("/settings/tabs/", summary="获取系统配置标签列表")
 async def get_settings_tabs(classify: str, auth: Auth = Depends(FullAdminAuth())):
     return SuccessResponse(await crud.SettingsTabDal(auth.db).get_datas(limit=0, classify=classify))
 
@@ -150,11 +149,7 @@ async def get_settings_tabs_values(tab_id: int, auth: Auth = Depends(FullAdminAu
 
 
 @app.put("/settings/tabs/values/", summary="更新系统配置信息")
-async def put_settings_tabs_values(
-        datas: dict = Body(...),
-        auth: Auth = Depends(FullAdminAuth()),
-        rd: Redis = Depends(redis_getter)
-):
+async def put_settings_tabs_values(datas: dict = Body(...), auth: Auth = Depends(FullAdminAuth()), rd: Redis = Depends(redis_getter)):
     return SuccessResponse(await crud.SettingsDal(auth.db).update_datas(datas, rd))
 
 
@@ -164,7 +159,7 @@ async def get_setting_base_config(db: AsyncSession = Depends(db_getter)):
 
 
 @app.get("/settings/privacy/", summary="获取隐私协议")
-async def get_setting_privacy(auth: Auth = Depends(FullAdminAuth())):
+async def get_settings_privacy(auth: Auth = Depends(FullAdminAuth())):
     return SuccessResponse((await crud.SettingsDal(auth.db).get_data(config_key="web_privacy")).config_value)
 
 

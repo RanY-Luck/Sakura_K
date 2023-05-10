@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/19 11:29
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : dict_detail.py
 # @Software: PyCharm
 # @desc    : 查询参数--类依赖项

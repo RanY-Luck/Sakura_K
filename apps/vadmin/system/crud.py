@@ -82,8 +82,8 @@ class DictDetailsDal(DalBase):
     DictDetailsDal类重写了父类的__init__()方法，并在其中调用了父类的__init__()方法。
     该方法需要传入三个参数：db（AsyncSession对象）、models.VadminDictDetails（ORM模型类）和schemas.DictDetailsSimpleOut（Pydantic模型类）。
     这意味着DictDetailsDal类可以通过父类提供的方法，访问名为VadminDictDetails的数据表，并使用DictDetailsSimpleOut模型类来映射数据表中的数据。
-
     """
+
     def __init__(self, db: AsyncSession):
         super(DictDetailsDal, self).__init__(db, models.VadminDictDetails, schemas.DictDetailsSimpleOut)
 
