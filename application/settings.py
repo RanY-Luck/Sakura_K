@@ -12,7 +12,7 @@ from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是
 """
 系统版本
 """
-VERSION = "0.0.1"
+VERSION = "0.0.2"
 
 """
 ⚠️安全警告:请不要在正式环境中打开调试运行!!!
@@ -83,7 +83,7 @@ REFRESH_TOKEN_EXPIRE_MINUTES = 2 * 24 * 60
 """
 access——token 缓存时间，用于刷新token使用：30 Minute
 """
-ACCESS_TOKEN_CACHE_MINUTES = 30
+ACCESS_TOKEN_CACHE_MINUTES = 60 * 2
 
 """
 挂载临时文件，并添加路由访问，此路由不会再接口文档中显示

@@ -6,8 +6,10 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    :
+from aioredis import Redis
 from fastapi import APIRouter, Depends, Body, UploadFile, Request
 from sqlalchemy.orm import joinedload
+from core.database import redis_getter
 from utils.response import SuccessResponse, ErrorResponse
 from core.dependencies import IdList
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
@@ -178,13 +180,14 @@ async def post_users_init_password(
         request: Request,  # 请求对象
         ids: IdList = Depends(),  # 解析出的包含待初始化密码用户ID列表的对象
         # 身份验证，要求验证权限为"auth.user.reset"的FullAdminAuth。
-        auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.reset"]))
+        auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.reset"])),
+        rd: Redis = Depends(redis_getter)
 ):
     # 返回一个成功响应对象（SuccessResponse），
     # 其中data字段为await crud.UserDal(auth.db).init_password_send_sms(ids.ids, request.app.state.redis)的返回结果。
     # 该语句调用了UserDal类中的init_password_send_sms方法，传入ids.ids作为待初始化密码的用户ID列表，
     # 传入request.app.state.redis作为Redis数据库连接对象，使用auth.db获取数据库连接对象，并进行密码初始化和发送通知短信。最终将成功响应对象返回给客户端。
-    return SuccessResponse(await crud.UserDal(auth.db).init_password_send_sms(ids.ids, request.app.state.redis))
+    return SuccessResponse(await crud.UserDal(auth.db).init_password_send_sms(ids.ids, rd))
 
 
 @app.post("/users/init/password/send/email/", summary="初始化所选用户密码并发送通知邮件")
@@ -192,29 +195,30 @@ async def post_users_init_password_send_email(
         request: Request,  # 请求对象
         ids: IdList = Depends(),  # 解析出的包含待初始化密码用户ID列表的对象
         # 身份验证，要求验证权限为"auth.user.reset"的FullAdminAuth。
-        auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.reset"]))
+        auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.reset"])),
+        rd: Redis = Depends(redis_getter)
 ):
     # 返回一个成功响应对象（SuccessResponse），
     # 其中data字段为await crud.UserDal(auth.db).init_password_send_email(ids.ids, request.app.state.redis)的返回结果。
     # 该语句调用了UserDal类中的init_password_send_email方法，传入ids.ids作为待初始化密码的用户ID列表，
     # 传入request.app.state.redis作为Redis数据库连接对象，使用auth.db获取数据库连接对象，并进行密码初始化和发送通知邮件。
     # 最终将成功响应对象返回给客户端。
-    return SuccessResponse(await crud.UserDal(auth.db).init_password_send_email(ids.ids, request.app.state.redis))
+    return SuccessResponse(await crud.UserDal(auth.db).init_password_send_email(ids.ids, rd))
 
 
 @app.put("/users/wx/server/openid/", summary="更新当前用户服务端微信平台OpenId")
 async def put_user_wx_server_openid(
-        request: Request,  # 请求对象
         code: str,  # 客户端传入的微信临时凭证code
-        auth: Auth = Depends(AllUserAuth())  # 身份验证的，要求为AllUserAuth，表示所有用户都可以访问该接口。
+        auth: Auth = Depends(AllUserAuth()),  # 身份验证的，要求为AllUserAuth，表示所有用户都可以访问该接口。
+        rd: Redis = Depends(redis_getter)
 ):
     # 返回一个成功响应对象（SuccessResponse），
     # 其中data字段为await crud.UserDal(auth.db).update_wx_server_openid(code, auth.user, request.app.state.redis)的返回结果。
     # 该语句调用了UserDal类中的update_wx_server_openid方法，传入code作为微信临时凭证code，传入auth.user表示当前用户，
     # 传入request.app.state.redis作为Redis数据库连接对象，更新当前用户的服务端微信平台OpenId，并将成功标志True或False返回给客户端。
     # 最终将成功响应对象返回给客户端。
-    reset = await crud.UserDal(auth.db).update_wx_server_openid(code, auth.user, request.app.state.redis)
-    return SuccessResponse(reset)
+    result = await crud.UserDal(auth.db).update_wx_server_openid(code, auth.user, rd)
+    return SuccessResponse(result)
 
 
 ###########################################################

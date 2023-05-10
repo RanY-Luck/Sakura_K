@@ -68,7 +68,6 @@ async def connect_redis(app: FastAPI, status: bool):
     """
     if status:
         print("正在连接到Redis")
-        assert isinstance(app, FastAPI)
         app.state.redis = aioredis.from_url(REDIS_DB_URL, decode_responses=True, health_check_interval=1)
         await Cache(app.state.redis).cache_tab_names()
     else:

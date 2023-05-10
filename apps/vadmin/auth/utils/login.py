@@ -16,10 +16,11 @@ PassLib 是一个用于处理哈希密码的很棒的 Python 包。它支持许�
 推荐的算法是 「Bcrypt」：pip3 install passlib[bcrypt]
 """
 import jwt
+from aioredis import Redis
 from datetime import timedelta
 from fastapi import APIRouter, Depends, Request, Body
 from sqlalchemy.ext.asyncio import AsyncSession
-from core.database import db_getter
+from core.database import db_getter, redis_getter
 from utils import status
 from utils.response import SuccessResponse, ErrorResponse
 from application import settings
@@ -82,16 +83,16 @@ async def login_for_access_token(
 
 @app.post("/wx/login/", summary="微信服务端一键登录", description="员工登录通道")
 async def wx_login_for_access_token(
-        request: Request,  # FastAPI中的Request对象，用于获取当前的HTTP请求对象
         data: WXLoginForm,  # 自定义的数据模型，用于接收请求中的参数。
-        db: AsyncSession = Depends(db_getter)  # 异步数据库会话（AsyncSession），用于与数据库进行交互。
+        db: AsyncSession = Depends(db_getter),  # 异步数据库会话（AsyncSession），用于与数据库进行交互。
+        rd: Redis = Depends(redis_getter)
 ):
     try:
         # 首先检查请求参数中的platform和method是否为1和2，若不是则抛出ValueError异常。
         if data.platform != "1" or data.method != "2":
             raise ValueError("无效参数")
         # 使用WXOAuth对象解析请求参数中的code字段，获取用户手机号，若手机号无效则抛出ValueError异常。
-        wx = WXOAuth(request.app.state.redis, 0)
+        wx = WXOAuth(rd, 0)
         telephone = await wx.parsing_phone_number(data.code)
         if not telephone:
             raise ValueError("无效Code")

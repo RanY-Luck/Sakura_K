@@ -17,16 +17,24 @@ from core.logger import logger
 
 
 class CustomException(Exception):
-    def __init__(self, msg: str, code: int = status.HTTP_400_BAD_REQUEST, status_code: int = status.HTTP_200_OK):
-        """
 
+    def __init__(
+            self,
+            msg: str,
+            code: int = status.HTTP_400_BAD_REQUEST,
+            status_code: int = status.HTTP_200_OK,
+            desc: str = None
+    ):
+        """
         :param msg: 响应消息的字符串
         :param code: 表示错误代码的整数值，默认为status.HTTP_400_BAD_REQUEST，即表示请求的格式不正确或请求无效。
         :param status_code: 表示HTTP响应状态码的整数值，默认为status.HTTP_200_OK，即表示请求成功。
+        :param desc: 描述
         """
         self.msg = msg
         self.code = code
         self.status_code = status_code
+        self.desc = desc
 
 
 def register_exception(app: FastAPI):
@@ -43,9 +51,15 @@ def register_exception(app: FastAPI):
         :param exc:
         :return:
         """
+        print("请求地址", request.url.__str__())
+        print("捕捉到重写CustomException异常异常：custom_exception_handler")
+        logger.error(exc.desc)
+        logger.error(exc.msg)
+        print(exc.desc)
+        print(exc.msg)
         return JSONResponse(
-            status_code=exc.status_code,
-            content={"message": exc.msg, "code": exc.code}
+            status_code=200,
+            content={"message": exc.msg, "code": exc.code},
         )
 
     @app.exception_handler(StarletteHTTPException)
@@ -56,6 +70,7 @@ def register_exception(app: FastAPI):
         :param exc:
         :return:
         """
+        print("请求地址", request.url.__str__())
         print("捕捉到重写HTTPException异常异常：unicorn_exception_handler")
         logger.error(exc.detail)
         print(exc.detail)
@@ -63,7 +78,7 @@ def register_exception(app: FastAPI):
             status_code=200,
             content={
                 "code": status.HTTP_400_BAD_REQUEST,
-                "message": exc.detail
+                "message": exc.detail,
             }
         )
 
@@ -75,17 +90,20 @@ def register_exception(app: FastAPI):
         :param exc:
         :return:
         """
+        print("请求地址", request.url.__str__())
         print("捕捉到重写请求验证异常异常：validation_exception_handler")
         logger.error(exc.errors())
         print(exc.errors())
         msg = exc.errors()[0].get("msg")
         if msg == "field required":
-            msg = "请求失败,缺少必填项!"
+            msg = "请求失败，缺少必填项！"
         elif msg == "value is not a valid list":
             print(exc.errors())
-            msg = "类型错误,提交参数应该为列表!"
+            msg = f"类型错误，提交参数应该为列表！"
+        elif msg == "value is not a valid int":
+            msg = f"类型错误，提交参数应该为整数！"
         elif msg == "value could not be parsed to a boolean":
-            msg = "类型错误,提交参数应该为布尔值!"
+            msg = f"类型错误，提交参数应该为布尔值！"
         return JSONResponse(
             status_code=200,
             content=jsonable_encoder(
@@ -105,6 +123,7 @@ def register_exception(app: FastAPI):
         :param exc:
         :return:
         """
+        print("请求地址", request.url.__str__())
         print("捕捉到值异常：value_exception_handler")
         logger.error(exc.__str__())
         print(exc.__str__())
@@ -126,6 +145,7 @@ def register_exception(app: FastAPI):
         :param exc:
         :return:
         """
+        print("请求地址", request.url.__str__())
         print("捕捉到全局异常：all_exception_handler")
         logger.error(exc.__str__())
         return JSONResponse(

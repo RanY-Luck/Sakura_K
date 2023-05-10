@@ -38,9 +38,3 @@ level="INFO":定义日志记录的级别，默认为INFO级别，即记录全部
 """
 info = logger.add(log_path_info, rotation="00:00", retention="3 days", enqueue=True, encoding="UTF-8", level="INFO")
 error = logger.add(log_path_error, rotation="00:00", retention="3 days", enqueue=True, encoding="UTF-8", level="INFO")
-
-# 调试下
-if __name__ == '__main__':
-    print(BASE_DIR)
-    retry: int = 1
-    logger.error("未从Redis中获取到配置信息，正在重新更新配置信息，重试次数：{}。".format(retry))

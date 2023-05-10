@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2023/4/14 17:35
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : auth.py
 # @Software: PyCharm
 # @desc    :
@@ -34,10 +34,7 @@ class AuthValidation:
     @classmethod
     def validate_token(cls, request: Request, token: str | None) -> str:
         """
-        验证用户token
-        :param request:
-        :param token:
-        :return:
+        验证用户 token
         """
         if not token:
             raise CustomException(msg="请您先登录！", code=status.HTTP_ERROR)
