@@ -83,6 +83,7 @@ async def login_for_access_token(
 
 @app.post("/wx/login/", summary="微信服务端一键登录", description="员工登录通道")
 async def wx_login_for_access_token(
+        request: Request,
         data: WXLoginForm,  # 自定义的数据模型，用于接收请求中的参数。
         db: AsyncSession = Depends(db_getter),  # 异步数据库会话（AsyncSession），用于与数据库进行交互。
         rd: Redis = Depends(redis_getter)
