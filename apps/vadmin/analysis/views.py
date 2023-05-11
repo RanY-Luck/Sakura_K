@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @version        : 1.0
-# @Create Time    : 2022/10/19 15:41 
-# @File           : views.py
-# @IDE            : PyCharm
-# @desc           : 简要说明
-
+# @Time    : 2023/4/14 16:54
+# @Author  : 冉勇
+# @Site    :
+# @File    : views.py
+# @Software: PyCharm
+# @desc    :
 from fastapi import APIRouter, Depends
 from apps.vadmin.auth.utils.current import AllUserAuth
 from utils.response import SuccessResponse
@@ -15,7 +15,7 @@ app = APIRouter()
 
 
 ###########################################################
-#    图表数据
+#                     图表数据                             #
 ###########################################################
 @app.get("/banners/", summary="轮播图")
 async def get_banners(auth: Auth = Depends(AllUserAuth())):

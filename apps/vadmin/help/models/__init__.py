@@ -1,10 +1,9 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @version        : 1.0
-# @Create Time    : 2023-02-15 20:03:49
-# @File           : __init__.py
-# @IDE            : PyCharm
-# @desc           : 初始化文件
-
-
+# @Time    : 2023-04-14 16:33:42
+# @Author  :
+# @Site    :
+# @File    : __init__.py
+# @Software: PyCharm
+# @desc    : 初始化文件
 from .issue import VadminIssue, VadminIssueCategory

@@ -1,11 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @version        : 1.0
-# @Create Time    : 2022/2/14 21:11 
-# @File           : __init__.py.py
-# @IDE            : PyCharm
-# @desc           : xpath例子
-
-
+# @Time    : 2023-04-14 16:33:42
+# @Author  :
+# @Site    :
+# @File    : __init__.py
+# @Software: PyCharm
+# @desc    : 初始化文件
 from .login import VadminLoginRecord
 from .sms import VadminSMSSendRecord

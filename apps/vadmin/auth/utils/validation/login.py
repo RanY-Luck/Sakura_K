@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @version        : 1.0
-# @Create Time    : 2022/11/9 10:15 
-# @File           : login.py
-# @IDE            : PyCharm
-# @desc           : 登录验证装饰器
-
+# @Time    : 2023/4/24 14:02
+# @Author  : 冉勇
+# @Site    :
+# @File    : login.py
+# @Software: PyCharm
+# @desc    : 登录验证装饰器
 from fastapi import Request
 from pydantic import BaseModel, validator
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -43,13 +43,23 @@ class LoginResult(BaseModel):
 
 
 class LoginValidation:
-
     """
-    验证用户登录时提交的数据是否有效
+    实现了对用户登录表单数据的验证，以及对用户进行验证认证的功能。
+    如果认证失败次数达到设定上限，则会冻结用户。
+    如果验证成功，则会将用户的详细信息存入LoginResult对象中返回给调用者。
     """
 
     def __init__(self, func):
         self.func = func
+
+    """
+    代码解释：
+    __call__方法实现了类似于函数调用的功能，接收四个参数：
+    data表示提交的登录表单数据；db表示异步会话；request表示请求对象，返回一个LoginResult对象。
+    首先，该方法会对提交的数据进行验证，如果发现数据不合法（例如platform或者method的值非法），则直接返回错误信息。
+    接着，通过调用crud.UserDal中的get_data方法，从数据库中获取与提交的手机号相应的用户记录。
+    如果用户不存在，则返回“该手机号不存在！”的错误信息。
+    """
 
     async def __call__(self, data: LoginForm, db: AsyncSession, request: Request) -> LoginResult:
         self.result = LoginResult()

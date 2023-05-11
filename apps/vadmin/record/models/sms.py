@@ -1,12 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @version        : 1.0
-# @Create Time    : 2022/3/21 17:36 
-# @File           : sms.py
-# @IDE            : PyCharm
-# @desc           : 短信发送记录模型
-
-
+# @Time    : 2023/4/24 15:43
+# @Author  : 冉勇
+# @Site    :
+# @File    : sms.py
+# @Software: PyCharm
+# @desc    : 短信发送记录模型
 from db.db_base import BaseModel
 from sqlalchemy import Column, String, Boolean, ForeignKey
 

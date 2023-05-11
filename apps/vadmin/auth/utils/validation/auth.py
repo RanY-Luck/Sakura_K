@@ -1,9 +1,11 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @version        : 1.0
-# @Create Time    : 2021/10/24 16:44
-# @File           : auth.py
-# @IDE            : PyCharm
-# @desc           : 用户凭证验证装饰器
+# @Time    : 2023/4/14 17:35
+# @Author  : 冉勇
+# @Site    :
+# @File    : auth.py
+# @Software: PyCharm
+# @desc    : 用户凭证验证装饰器
 from typing import Optional
 
 from fastapi import Request
