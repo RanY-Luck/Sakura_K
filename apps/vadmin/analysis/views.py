@@ -21,13 +21,13 @@ app = APIRouter()
 async def get_banners(auth: Auth = Depends(AllUserAuth())):
     data = [
         {
-            "id": 1, "image": "https://ktianc.oss-cn-beijing.aliyuncs.com/kinit/system/banner/2022-11-14/1.jpg"
+            "id": 1, "image": "https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         },
         {
-            "id": 2, "image": "https://ktianc.oss-cn-beijing.aliyuncs.com/kinit/system/banner/2022-11-09/banner1.png"
+            "id": 2, "image": "https://images.pexels.com/photos/4014845/pexels-photo-4014845.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         },
         {
-            "id": 3, "image": "https://ktianc.oss-cn-beijing.aliyuncs.com/kinit/system/banner/2022-11-09/banner3.png"
+            "id": 3, "image": "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         },
     ]
     return SuccessResponse(data)
