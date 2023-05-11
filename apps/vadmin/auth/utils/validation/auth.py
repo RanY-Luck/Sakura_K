@@ -51,9 +51,6 @@ class AuthValidation:
                 raise CustomException(msg="未认证，请您重新登录", code=cls.error_code)
             # 计算当前时间 + 缓冲时间是否大于等于 JWT 过期时间
             buffer_time = (datetime.now() + timedelta(minutes=settings.ACCESS_TOKEN_CACHE_MINUTES)).timestamp()
-            # print("过期时间", exp, datetime.fromtimestamp(exp))
-            # print("当前时间", buffer_time, datetime.fromtimestamp(buffer_time))
-            # print("剩余时间", exp - buffer_time)
             if buffer_time >= exp:
                 request.scope["if-refresh"] = 1
             else:

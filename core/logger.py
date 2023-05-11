@@ -15,7 +15,6 @@ from application.settings import BASE_DIR
 日志配置
 更多的配置参考官方文档：https://github.com/Delgan/loguru
 """
-
 # 移除控制台输出
 logger.remove(handler_id=None)
 # 日志存放目录

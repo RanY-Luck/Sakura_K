@@ -6,7 +6,6 @@
 # @File    : crud.py
 # @Software: PyCharm
 # @desc    : 数据库增删改查操作
-
 """
 首先你要了解SQLAlchemy 查询操作：https://segmentfault.com/a/1190000016767008
 sqlalchemy 查询操作（官方文档）: https://www.osgeo.cn/sqlalchemy/orm/queryguide.html
@@ -16,7 +15,6 @@ Mysql中内连接,左连接和右连接的区别总结:https://www.cnblogs.com/r
 selectinload 官方文档：https://www.osgeo.cn/sqlalchemy/orm/loading_relationships.html?highlight=selectinload#sqlalchemy.orm.selectinload
 joinedload 官方文档：https://www.osgeo.cn/sqlalchemy/orm/loading_relationships.html?highlight=selectinload#sqlalchemy.orm.joinedload
 """
-
 import datetime
 from typing import List, Set
 from fastapi import HTTPException
