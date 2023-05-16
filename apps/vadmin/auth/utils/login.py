@@ -36,7 +36,7 @@ app = APIRouter()
 
 
 @app.post(
-    "/login/", summary="手机号密码登录", description="员工登录通道，限制最多输错次数，达到最大值后将is_active=False"
+    "/login", summary="手机号密码登录", description="员工登录通道，限制最多输错次数，达到最大值后将is_active=False"
 )
 async def login_for_access_token(
         request: Request,
@@ -81,7 +81,7 @@ async def login_for_access_token(
         return ErrorResponse(msg=str(e))
 
 
-@app.post("/wx/login/", summary="微信服务端一键登录", description="员工登录通道")
+@app.post("/wx/login", summary="微信服务端一键登录", description="员工登录通道")
 async def wx_login_for_access_token(
         request: Request,
         data: WXLoginForm,  # 自定义的数据模型，用于接收请求中的参数。
@@ -139,7 +139,7 @@ async def wx_login_for_access_token(
     return SuccessResponse(resp)
 
 
-@app.get("/getMenuList/", summary="获取当前用户菜单树")
+@app.get("/getMenuList", summary="获取当前用户菜单树")
 async def get_menu_list(
         # 该参数使用了依赖注入（Depends）来获取一个名为FullAdminAuth的认证依赖对象。
         # FullAdminAuth对象用于验证用户的身份和权限，并返回一个包含用户身份信息的Auth对象。
@@ -153,7 +153,7 @@ async def get_menu_list(
     return SuccessResponse(await MenuDal(auth.db).get_routers(auth.user))
 
 
-@app.post("/token/refresh/", summary="刷新Token")
+@app.post("/token/refresh", summary="刷新Token")
 async def token_refresh(
         # 需要接受一个名为refresh的参数，该参数使用了FastAPI中的Body类来获取POST请求中的数据，即刷新令牌（refresh_token）。
         refresh: str = Body(..., title="刷新Token")

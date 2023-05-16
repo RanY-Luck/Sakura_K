@@ -10,6 +10,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 from core.data_types import DatetimeStr
 from .issue import IssueSimpleOut
+
 """
 代码解释：
 定义了一个Pydantic模型类IssueCategoryPlatformOut，用于表示问题分类和平台相关的数据结构。
@@ -19,11 +20,12 @@ from .issue import IssueSimpleOut
 同时，该模型类中的issues属性使用了List[IssueSimpleOut]类型，表示问题列表是一个由多个IssueSimpleOut实例组成的列表。
 """
 
+
 class IssueCategoryPlatformOut(BaseModel):
     name: Optional[str] = None
     platform: Optional[str] = None
     is_active: Optional[bool] = None
-    user_id: Optional[int] = None
+    create_user_id: Optional[int] = None
 
     id: int
     update_datetime: DatetimeStr
@@ -33,4 +35,3 @@ class IssueCategoryPlatformOut(BaseModel):
 
     class Config:
         orm_mode = True
-

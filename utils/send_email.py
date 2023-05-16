@@ -39,8 +39,8 @@ class EmailSender:
         web_email = await Cache(self.rd).get_tab_name("web_email", retry)
         self.email = web_email.get("email_access")
         self.password = web_email.get("email_password")
-        self.smtp_server = web_email.get("smtp_server")
-        self.smtp_port = int(web_email.get("smtp_port"))
+        self.smtp_server = web_email.get("email_server")
+        self.smtp_port = int(web_email.get("email_port"))
         self.server = smtplib.SMTP(self.smtp_server, self.smtp_port)
         self.server.starttls()
         try:
@@ -81,7 +81,7 @@ class EmailSender:
         try:
             result = self.server.sendmail(self.email, to_emails, message.as_string())
             self.server.quit()
-            print("邮件发送结果", result)
+            print("邮件发送结果:已发送", result)
             if result:
                 return False
             else:

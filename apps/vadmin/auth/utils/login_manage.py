@@ -6,7 +6,6 @@
 # @File    : login_manage.py
 # @Software: PyCharm
 # @desc    : 登录管理
-
 from datetime import datetime, timedelta
 from fastapi import Request
 from application import settings
@@ -14,6 +13,7 @@ import jwt
 from apps.vadmin.auth import models
 from .validation import LoginValidation, LoginForm, LoginResult
 from utils.aliyun_sms import AliyunSMS
+from core.database import redis_getter
 
 
 class LoginManage:
@@ -52,7 +52,7 @@ class LoginManage:
         在验证之前，该函数会根据用户提交的手机号码从Redis数据库中获取相应的验证码，并进行比对。
         如果比对成功，则返回一个status为True、msg为“验证成功”的LoginResult对象，否则返回status为False、msg为“验证码错误”的LoginResult对象。
         """
-        rd = request.app.state.redis
+        rd = redis_getter(request)
         sms = AliyunSMS(rd, data.telephone)
         result = await sms.check_sms_code(data.password)
         if result:

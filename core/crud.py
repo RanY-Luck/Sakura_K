@@ -152,6 +152,7 @@ class DalBase:
             return queryset.scalars().unique().all()
         return [await self.out_dict(i, v_schema=v_schema) for i in queryset.scalars().unique().all()]
 
+    # 获取系统登录次数
     async def get_count(
             self,
             v_options: list = None,

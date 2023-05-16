@@ -19,7 +19,7 @@ app = APIRouter()
 ###########################################################
 #                      工作区管理                          #
 ###########################################################
-@app.get("/total/", summary="获取统计")
+@app.get("/total", summary="获取统计")
 async def get_total(
         auth: Auth = Depends(AllUserAuth())
 ):
@@ -31,7 +31,7 @@ async def get_total(
     return SuccessResponse(data)
 
 
-@app.get("/project/", summary="获取项目")
+@app.get("/project", summary="获取项目")
 async def get_project():
     data = [
         {
@@ -46,7 +46,7 @@ async def get_project():
             "name": 'FastAPI',
             "icon": 'simple-icons:fastapi',
             "message": '一个现代、快速(高性能)的 web 框架',
-            "personal": 'kinit',
+            "personal": 'Sakura_k',
             "link": "https://fastapi.tiangolo.com/zh/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
@@ -54,7 +54,7 @@ async def get_project():
             "name": 'Vue',
             "icon": 'logos:vue',
             "message": '渐进式 JavaScript 框架',
-            "personal": 'kinit',
+            "personal": 'Sakura_k',
             "link": "https://cn.vuejs.org/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
@@ -62,7 +62,7 @@ async def get_project():
             "name": 'Element-plus',
             "icon": 'logos:element',
             "message": '基于 Vue3，面向设计师和开发者的组件库',
-            "personal": 'kinit',
+            "personal": 'Sakura_k',
             "link": "https://element-plus.org/zh-CN/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
@@ -70,7 +70,7 @@ async def get_project():
             "name": 'Typescript',
             "icon": 'vscode-icons:file-type-typescript-official',
             "message": 'TypeScript是JavaScript类型的超集',
-            "personal": 'kinit',
+            "personal": 'Sakura_k',
             "link": "https://www.typescriptlang.org/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
@@ -78,7 +78,7 @@ async def get_project():
             "name": 'Vite',
             "icon": 'vscode-icons:file-type-vite',
             "message": 'Vite 下一代的前端工具链',
-            "personal": 'kinit',
+            "personal": 'Sakura_k',
             "link": "https://cn.vitejs.dev/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         }
@@ -86,13 +86,9 @@ async def get_project():
     return SuccessResponse(data)
 
 
-@app.get("/dynamic/", summary="获取动态")
+@app.get("/dynamic", summary="获取动态")
 async def get_dynamic():
     data = [
-        {
-            "keys": ['workplace.push', 'Github'],
-            "time": datetime.datetime.now().strftime("%Y-%m-%d")
-        },
         {
             "keys": ['workplace.push', 'Github'],
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
@@ -101,7 +97,7 @@ async def get_dynamic():
     return SuccessResponse(data)
 
 
-@app.get("/team/", summary="获取团队信息")
+@app.get("/team", summary="获取团队信息")
 async def get_team():
     data = [
         {
@@ -132,7 +128,7 @@ async def get_team():
     return SuccessResponse(data)
 
 
-@app.get("/shortcuts/", summary="获取快捷操作")
+@app.get("/shortcuts", summary="获取快捷操作")
 async def get_shortcuts():
     data = [
         {

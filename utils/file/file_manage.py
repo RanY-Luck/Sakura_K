@@ -6,13 +6,19 @@
 # @File    : file_manage.py
 # @Software: PyCharm
 # @desc    : 保存图片到本地
+import asyncio
 import datetime
 import os
 import shutil
 import sys
+import aioshutil
 from application.settings import TEMP_DIR, STATIC_ROOT, BASE_DIR, STATIC_URL, STATIC_DIR
 from fastapi import UploadFile
+from pathlib import Path
+from core.exception import CustomException
 from utils.file.file_base import FileBase
+from aiopathlib import AsyncPath as Path
+from aiopathlib import AsyncPath
 
 
 class FileManage(FileBase):
@@ -46,20 +52,19 @@ class FileManage(FileBase):
         :return:
         """
         path = self.path
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             path = self.path.replace("/", "\\")
-        save_path = os.path.join(STATIC_ROOT, path)
-        if not os.path.exists(os.path.dirname(save_path)):
-            os.mkdir(os.path.dirname(save_path))
-        with open(save_path, "wb") as f:
-            f.write(await self.file.read())
+        save_path = AsyncPath(STATIC_ROOT) / path
+        if not await save_path.parent.exists():
+            await save_path.parent.mkdir(parents=True, exist_ok=True)
+        await save_path.write_bytes(await self.file.read())
         return {
-            "local_path": f"{STATIC_URL}/{self.path}",
+            "local_path": f"{STATIC_DIR}/{self.path}",
             "remote_path": f"{STATIC_URL}/{self.path}"
         }
 
     @staticmethod
-    async def save_tmp_file(file: UploadFile):
+    async def save_tmp_file(file: UploadFile) -> str:
         """
         上传的文件保存到临时文件夹中
         :param file: 待上传的文件对象
@@ -71,16 +76,15 @@ class FileManage(FileBase):
         最后返回保存的文件名（包括路径）。
         """
         date = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
-        file_dir = os.path.join(TEMP_DIR, date)
-        if not os.path.exists(file_dir):
-            os.mkdir(file_dir)
-        filename = os.path.join(file_dir, str(int(datetime.datetime.now().timestamp()))) + file.filename
-        with open(filename, 'wb') as f:
-            f.write(await file.read())
-        return filename
+        file_dir = AsyncPath(TEMP_DIR) / date
+        if not await file_dir.exists():
+            await file_dir.mkdir(parents=True, exist_ok=True)
+        filename = file_dir / str(int(datetime.datetime.now().timestamp())) + file.filename
+        await filename.write_bytes(await file.read())
+        return str(filename)
 
     @staticmethod
-    def copy(src: str, dst: str):
+    def copy(src: str, dst: str) -> None:
         """
         复制文件
         :param src: 源文件的路径，根据 BASE_DIR 来确定相对基础目录的路径。
@@ -90,12 +94,41 @@ class FileManage(FileBase):
         首先判断源文件路径是否以斜杠 / 开头，如果是则去掉前导斜杠。接着判断操作系统是否为 Windows，如果是则将路径中的正斜杠 / 替换为反斜杠 \。
         接着使用 os.path.join(BASE_DIR, src) 方法将相对路径转换为绝对路径，并检查目标路径上级目录是否存在，如果不存在则创建该目录。最后使用 shutil.copyfile 方法将源文件复制到目标文件。
         """
+        if sys.platform == "win32":
+            src = src.replace("/", "\\")
+            dst = dst.replace("/", "\\")
+        src = Path(BASE_DIR) / src
+        dst = Path(dst)
+        if not src.exists():
+            raise CustomException("源文件不存在！")
+        if not dst.parent.exists():
+            dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, dst)
+
+    @staticmethod
+    async def async_copy(src: str, dst: str) -> None:
+        """
+        异步复制文件
+        根目录为项目根目录，传过来的文件路径均为相对路径
+        :param src: 原始文件
+        :param dst: 目标路径。绝对路径
+        :return:
+        """
         if src[0] == "/":
             src = src.lstrip("/")
         if sys.platform == "win32":
             src = src.replace("/", "\\")
             dst = dst.replace("/", "\\")
-        src = os.path.join(BASE_DIR, src)
-        if not os.path.exists(os.path.dirname(dst)):
-            os.mkdir(os.path.dirname(dst))
-        shutil.copyfile(src, dst)
+        src = AsyncPath(BASE_DIR) / src
+        if not await src.exists():
+            raise CustomException("源文件不存在！")
+        dst = AsyncPath(dst)
+        if not await dst.parent.exists():
+            await dst.parent.mkdir(parents=True, exist_ok=True)
+        await aioshutil.copyfile(src, dst)
+
+
+if __name__ == '__main__':
+    _src = r""
+    _dst = r""
+    asyncio.run(FileManage.async_copy(_src, _dst))

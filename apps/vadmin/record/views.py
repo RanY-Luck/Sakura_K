@@ -20,7 +20,7 @@ app = APIRouter()
 ###########################################################
 #                      日志管理                            #
 ###########################################################
-@app.get("/logins/", summary="获取登录日志列表")
+@app.get("/logins", summary="获取登录日志列表")
 async def get_record_login(
         p: LoginParams = Depends(),  # 请求中解析出来，并传递给数据访问层（DAL）的 get_datas 方法。
         auth: Auth = Depends(AllUserAuth())  # 用户认证，并获取对应的异步数据库会话（auth.db）。
@@ -34,7 +34,7 @@ async def get_record_login(
     return SuccessResponse(datas, count=count)
 
 
-@app.get("/operations/", summary="获取操作日志列表")
+@app.get("/operations", summary="获取操作日志列表")
 async def get_record_operation(
         p: OperationParams = Depends(),  # 一个OperationParams类型的参数，这是一个Pydantic模型类的实例，用于解析请求中的参数。
         db: DatabaseManage = Depends(get_database),  # 一个DatabaseManage类型的参数，这是一个自定义的类的实例，用于操作数据库。
@@ -48,7 +48,7 @@ async def get_record_operation(
     return SuccessResponse(datas, count=count)
 
 
-@app.get("/sms/send/list/", summary="获取短信发送列表")
+@app.get("/sms/send/list", summary="获取短信发送列表")
 async def get_sms_send_list(
         p: SMSParams = Depends(),  # 一个SMSParams类型的参数，这是一个Pydantic模型类的实例，用于解析请求中的参数。
         auth: Auth = Depends(AllUserAuth())  # 一个Auth类型的参数，这是一个自定义的类的实例，用于进行用户身份验证。
@@ -64,7 +64,7 @@ async def get_sms_send_list(
 ###########################################################
 #                      日志分析                            #
 ###########################################################
-@app.get("/analysis/user/login/distribute/", summary="获取用户登录分布情况列表")
+@app.get("/analysis/user/login/distribute", summary="获取用户登录分布情况列表")
 async def get_user_login_distribute(
         auth: Auth = Depends(AllUserAuth())  # 一个Auth类型的参数，这是一个自定义的类的实例，用于进行用户身份验证。
 ):

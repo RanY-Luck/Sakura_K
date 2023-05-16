@@ -8,7 +8,7 @@
 # @desc    : 缓存
 import json
 from typing import List
-from core import logger
+from core.logger import logger
 from core.database import db_getter
 from apps.vadmin.system.crud import SettingsTabDal
 from aioredis.client import Redis
@@ -34,7 +34,7 @@ Cache类的构造函数接收一个Redis对象rd作为参数，用于连接Redis
 
 
 class Cache:
-    DEFAULT_TAB_NAMES = ["wx_server", "aliyun_sms", "aliyun_oss"]
+    DEFAULT_TAB_NAMES = ["wx_server", "aliyun_sms", "aliyun_oss", "web_email"]
 
     def __init__(self, rd: Redis):
         self.rd = rd

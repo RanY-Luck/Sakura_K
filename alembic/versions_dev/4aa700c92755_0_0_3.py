@@ -1,8 +1,8 @@
-"""0.0.2
+"""0.0.3
 
-Revision ID: ec96b99e59fd
+Revision ID: 4aa700c92755
 Revises: 
-Create Date: 2023-05-10 15:17:46.334421
+Create Date: 2023-05-15 17:51:30.071152
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ec96b99e59fd'
+revision = '4aa700c92755'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -182,8 +182,8 @@ def upgrade():
     sa.Column('name', sa.String(length=50), nullable=False, comment='类别名称'),
     sa.Column('platform', sa.String(length=8), nullable=False, comment='展示平台'),
     sa.Column('is_active', sa.Boolean(), nullable=True, comment='是否可见'),
-    sa.Column('user_id', sa.Integer(), nullable=True, comment='创建人'),
-    sa.ForeignKeyConstraint(['user_id'], ['vadmin_auth_user.id'], ondelete='SET NULL'),
+    sa.Column('create_user_id', sa.Integer(), nullable=True, comment='创建人'),
+    sa.ForeignKeyConstraint(['create_user_id'], ['vadmin_auth_user.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
     comment='常见问题类别表'
     )
@@ -256,9 +256,9 @@ def upgrade():
     sa.Column('content', sa.Text(), nullable=True, comment='内容'),
     sa.Column('view_number', sa.Integer(), nullable=True, comment='查看次数'),
     sa.Column('is_active', sa.Boolean(), nullable=True, comment='是否可见'),
-    sa.Column('user_id', sa.Integer(), nullable=True, comment='创建人'),
+    sa.Column('create_user_id', sa.Integer(), nullable=True, comment='创建人'),
     sa.ForeignKeyConstraint(['category_id'], ['vadmin_help_issue_category.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['user_id'], ['vadmin_auth_user.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['create_user_id'], ['vadmin_auth_user.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
     comment='常见问题记录表'
     )

@@ -24,7 +24,7 @@ app = APIRouter()
 ###########################################################
 #                     用户管理                             #
 ###########################################################
-@app.get("/users/", summary="获取用户列表")
+@app.get("/users", summary="获取用户列表")
 async def get_users(
         params: UserParams = Depends(),
         # 是用于身份验证的，要求验证权限为"auth.user.list"的FullAdminAuth。
@@ -41,7 +41,7 @@ async def get_users(
     return SuccessResponse(datas, count=count)
 
 
-@app.post("/users/", summary="创建用户")
+@app.post("/users", summary="创建用户")
 async def create_user(
         data: schemas.UserIn,
         # 是用于身份验证的，要求验证权限为"auth.user.create"的FullAdminAuth。
@@ -53,7 +53,7 @@ async def create_user(
     return SuccessResponse(await crud.UserDal(auth.db).create_data(data=data))
 
 
-@app.delete("/users/", summary="批量删除用户", description="软删除，删除后清空所关联的角色")
+@app.delete("/users", summary="批量删除用户", description="软删除，删除后清空所关联的角色")
 async def delete_users(
         ids: IdList = Depends(),
         # 是用于身份验证的，要求验证权限为"auth.user.delete"的FullAdminAuth。
@@ -71,7 +71,7 @@ async def delete_users(
     return SuccessResponse("删除成功")
 
 
-@app.put("/users/{data_id}/", summary="更新用户信息")
+@app.put("/users/{data_id}", summary="更新用户信息")
 async def put_user(
         data_id: int,  # 从URL路径中获取的待更新用户的ID
         data: schemas.UserUpdate,  # 请求体中的数据，其类型为UserUpdate，包含了需要更新的用户信息
@@ -83,7 +83,7 @@ async def put_user(
     return SuccessResponse(await crud.UserDal(auth.db).put_data(data_id, data))
 
 
-@app.get("/users/{data_id}/", summary="获取用户信息")
+@app.get("/users/{data_id}", summary="获取用户信息")
 async def get_user(
         data_id: int,  # 从URL路径中获取的待获取用户的ID
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.view", "auth.user.update"]))  # 身份验证
@@ -97,7 +97,7 @@ async def get_user(
     return SuccessResponse(await crud.UserDal(auth.db).get_data(data_id, options, v_schema=schema))
 
 
-@app.post("/user/current/reset/password/", summary="重置当前用户密码")
+@app.post("/user/current/reset/password", summary="重置当前用户密码")
 async def user_current_reset_password(
         data: schemas.ResetPwd,  # 请求体中的数据，包括新旧密码信息
         auth: Auth = Depends(AllUserAuth())  # 身份验证,该身份验证对象的权限必须为AllUserAuth。
@@ -108,7 +108,7 @@ async def user_current_reset_password(
     return SuccessResponse(await crud.UserDal(auth.db).reset_current_password(auth.user, data))
 
 
-@app.post("/user/current/update/info/", summary="更新当前用户基本信息")
+@app.post("/user/current/update/info", summary="更新当前用户基本信息")
 async def post_user_current_update_info(
         data: schemas.UserUpdateBaseInfo,  # 请求体中的数据，包含需要更新的用户基本信息
         auth: Auth = Depends(AllUserAuth())  # 身份验证,该身份验证对象的权限必须为AllUserAuth。
@@ -119,7 +119,7 @@ async def post_user_current_update_info(
     return SuccessResponse(await crud.UserDal(auth.db).update_current_info(auth.user, data))
 
 
-@app.post("/user/current/update/avatar/", summary="更新当前用户头像")
+@app.post("/user/current/update/avatar", summary="更新当前用户头像")
 async def post_user_current_update_avatar(
         file: UploadFile,  # 上传的头像文件
         auth: Auth = Depends(AllUserAuth())  # 身份验证,该身份验证对象的权限必须为AllUserAuth。
@@ -130,7 +130,7 @@ async def post_user_current_update_avatar(
     return SuccessResponse(await crud.UserDal(auth.db).update_current_avatar(auth.user, file))
 
 
-@app.get("/user/admin/current/info/", summary="获取当前管理员信息")
+@app.get("/user/admin/current/info", summary="获取当前管理员信息")
 async def get_user_admin_current_info(
         auth: Auth = Depends(FullAdminAuth())  # 身份验证，该身份验证对象的权限必须为FullAdminAuth。
 ):
@@ -143,7 +143,7 @@ async def get_user_admin_current_info(
     return SuccessResponse(result)
 
 
-@app.post("/user/export/query/list/to/excel/", summary="导出用户查询列表为excel")
+@app.post("/user/export/query/list/to/excel", summary="导出用户查询列表为excel")
 async def post_user_export_query_list(
         header: list = Body(..., title="表头与对应字段"),  # Excel文件表头与对应字段的列表，类型为list
         params: UserParams = Depends(),  # 包含查询参数的用户参数对象，类型为UserParams
@@ -156,7 +156,7 @@ async def post_user_export_query_list(
     return SuccessResponse(await crud.UserDal(auth.db).export_query_list(header, params))
 
 
-@app.get("/user/download/import/template/", summary="下载最新批量导入用户模板")
+@app.get("/user/download/import/template", summary="下载最新批量导入用户模板")
 async def get_user_download_new_import_template(
         auth: Auth = Depends(AllUserAuth())  # 身份验证，该身份验证对象的权限必须为AllUserAuth。
 ):
@@ -165,7 +165,7 @@ async def get_user_download_new_import_template(
     return SuccessResponse(await crud.UserDal(auth.db).download_import_template())
 
 
-@app.post("/import/users/", summary="批量导入用户")
+@app.post("/import/users", summary="批量导入用户")
 async def post_import_users(
         file: UploadFile,  # 上传的Excel文件对象
         # 身份验证，要求验证权限为"auth.user.import"的FullAdminAuth。
@@ -177,7 +177,7 @@ async def post_import_users(
     return SuccessResponse(await crud.UserDal(auth.db).import_users(file))
 
 
-@app.post("/users/init/password/send/sms/", summary="初始化所选用户密码并发送通知短信")
+@app.post("/users/init/password/send/sms", summary="初始化所选用户密码并发送通知短信")
 async def post_users_init_password(
         request: Request,  # 请求对象
         ids: IdList = Depends(),  # 解析出的包含待初始化密码用户ID列表的对象
@@ -192,7 +192,7 @@ async def post_users_init_password(
     return SuccessResponse(await crud.UserDal(auth.db).init_password_send_sms(ids.ids, rd))
 
 
-@app.post("/users/init/password/send/email/", summary="初始化所选用户密码并发送通知邮件")
+@app.post("/users/init/password/send/email", summary="初始化所选用户密码并发送通知邮件")
 async def post_users_init_password_send_email(
         request: Request,  # 请求对象
         ids: IdList = Depends(),  # 解析出的包含待初始化密码用户ID列表的对象
@@ -208,7 +208,7 @@ async def post_users_init_password_send_email(
     return SuccessResponse(await crud.UserDal(auth.db).init_password_send_email(ids.ids, rd))
 
 
-@app.put("/users/wx/server/openid/", summary="更新当前用户服务端微信平台openid")
+@app.put("/users/wx/server/openid", summary="更新当前用户服务端微信平台openid")
 async def put_user_wx_server_openid(
         code: str,  # 客户端传入的微信临时凭证code
         auth: Auth = Depends(AllUserAuth()),  # 身份验证的，要求为AllUserAuth，表示所有用户都可以访问该接口。
@@ -226,7 +226,7 @@ async def put_user_wx_server_openid(
 ###########################################################
 #                     角色管理                             #
 ###########################################################
-@app.get("/roles/", summary="获取角色列表")
+@app.get("/roles", summary="获取角色列表")
 async def get_roles(
         params: RoleParams = Depends(),  # 解析出的包含查询条件的对象
         # 身份验证，要求验证权限为"auth.role.list"的FullAdminAuth。
@@ -242,7 +242,7 @@ async def get_roles(
     return SuccessResponse(datas, count=count)
 
 
-@app.post("/roles/", summary="创建角色信息")
+@app.post("/roles", summary="创建角色信息")
 async def create_role(
         role: schemas.RoleIn,  # 客户端传入的角色信息
         # 身份验证，要求验证权限为"auth.role.create"的FullAdminAuth。
@@ -255,7 +255,7 @@ async def create_role(
     return SuccessResponse(await crud.RoleDal(auth.db).create_data(data=role))
 
 
-@app.delete("/roles/", summary="批量删除角色", description="硬删除, 如果存在用户关联则无法删除")
+@app.delete("/roles", summary="批量删除角色", description="硬删除, 如果存在用户关联则无法删除")
 async def delete_roles(
         ids: IdList = Depends(),  # 客户端传入的待删除角色ID列表
         # 身份验证，要求验证权限为"auth.role.delete"的FullAdminAuth。
@@ -270,7 +270,7 @@ async def delete_roles(
     return SuccessResponse("删除成功")
 
 
-@app.put("/roles/{data_id}/", summary="更新角色信息")
+@app.put("/roles/{data_id}", summary="更新角色信息")
 async def put_role(
         data_id: int,  # 客户端传入的待更新角色的ID
         data: schemas.RoleIn,  # 客户端传入的新的角色信息
@@ -286,7 +286,7 @@ async def put_role(
     return SuccessResponse(await crud.RoleDal(auth.db).put_data(data_id, data))
 
 
-@app.get("/roles/options/", summary="获取角色选择项")
+@app.get("/roles/options", summary="获取角色选择项")
 async def get_role_options(
         # 身份验证，要求验证权限为"auth.role.create"或"auth.user.update"的FullAdminAuth。
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.create", "auth.user.update"]))
@@ -298,7 +298,7 @@ async def get_role_options(
     return SuccessResponse(await crud.RoleDal(auth.db).get_select_datas())
 
 
-@app.get("/roles/{data_id}/", summary="获取角色信息")
+@app.get("/roles/{data_id}", summary="获取角色信息")
 async def get_role(
         data_id: int, # 客户端传入的待获取角色的ID
         # 身份验证，要求验证权限为"auth.role.view"或"auth.role.update"的FullAdminAuth。
@@ -320,7 +320,7 @@ async def get_role(
 ###########################################################
 #                     菜单管理                             #
 ###########################################################
-@app.get("/menus/", summary="获取菜单列表")
+@app.get("/menus", summary="获取菜单列表")
 async def get_menus(
         # 身份验证，要求验证权限为"auth.menu.create"或"auth.menu.update"的FullAdminAuth。
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.menu.list"]))
@@ -334,33 +334,33 @@ async def get_menus(
     return SuccessResponse(datas)
 
 
-@app.get("/menus/tree/options/", summary="获取菜单树选择项，添加/修改菜单时使用")
+@app.get("/menus/tree/options", summary="获取菜单树选择项，添加/修改菜单时使用")
 async def get_menus_options(auth: Auth = Depends(FullAdminAuth(permissions=["auth.menu.create", "auth.menu.update"]))):
     datas = await crud.MenuDal(auth.db).get_tree_list(mode=2)
     return SuccessResponse(datas)
 
 
-@app.get("/menus/role/tree/options/", summary="获取菜单列表树信息，角色权限使用")
+@app.get("/menus/role/tree/options", summary="获取菜单列表树信息，角色权限使用")
 async def get_menus_treeselect(
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.role.create", "auth.role.update"]))
 ):
     return SuccessResponse(await crud.MenuDal(auth.db).get_tree_list(mode=3))
 
 
-@app.post("/menus/", summary="创建菜单信息")
+@app.post("/menus", summary="创建菜单信息")
 async def create_menu(menu: schemas.Menu, auth: Auth = Depends(FullAdminAuth(permissions=["auth.menu.create"]))):
     if menu.parent_id:
         menu.alwaysShow = False
     return SuccessResponse(await crud.MenuDal(auth.db).create_data(data=menu))
 
 
-@app.delete("/menus/", summary="批量删除菜单", description="硬删除, 如果存在角色关联则无法删除")
+@app.delete("/menus", summary="批量删除菜单", description="硬删除, 如果存在角色关联则无法删除")
 async def delete_menus(ids: IdList = Depends(), auth: Auth = Depends(FullAdminAuth(permissions=["auth.menu.delete"]))):
     await crud.MenuDal(auth.db).delete_datas(ids.ids, v_soft=False)
     return SuccessResponse("删除成功")
 
 
-@app.put("/menus/{data_id}/", summary="更新菜单信息")
+@app.put("/menus/{data_id}", summary="更新菜单信息")
 async def put_menus(
         data_id: int,
         data: schemas.Menu, auth: Auth = Depends(FullAdminAuth(permissions=["auth.menu.update"]))
@@ -368,7 +368,7 @@ async def put_menus(
     return SuccessResponse(await crud.MenuDal(auth.db).put_data(data_id, data))
 
 
-@app.get("/menus/{data_id}/", summary="获取菜单信息")
+@app.get("/menus/{data_id}", summary="获取菜单信息")
 async def put_menus(
         data_id: int,
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.menu.view", "auth.menu.update"]))
@@ -377,7 +377,7 @@ async def put_menus(
     return SuccessResponse(await crud.MenuDal(auth.db).get_data(data_id, None, v_schema=schema))
 
 
-@app.get("/role/menus/tree/{role_id}/", summary="获取菜单列表树信息以及角色菜单权限ID，角色权限使用")
+@app.get("/role/menus/tree/{role_id}", summary="获取菜单列表树信息以及角色菜单权限ID，角色权限使用")
 async def get_role_menu_tree(
         role_id: int,
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.role.create", "auth.role.update"]))

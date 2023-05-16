@@ -29,7 +29,6 @@ def create_async_engine_session(database_url: str):
     pool_timeout=20, # 池中没有连接最多等待的时间，否则报错
     pool_recycle=-1  # 多久之后对线程池中的线程进行一次连接的回收（重置）
     :param database_url: dialect+driver://username:password@host:port/database
-    :param database_type:
     :return:
     代码解释：
     该方法使用create_async_engine()方法创建SQLAlchemy引擎对象，
