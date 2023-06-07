@@ -69,7 +69,10 @@ def create_app():
 
 
 @shell_app.command()
-def run():
+def run(
+        host: str = typer.Option(default='0.0.0.0', help='监听主机IP，默认开放给本网络所有主机'),
+        port: int = typer.Option(default=9000, help='监听端口')
+):
     """
     启动项目
     :return:
@@ -81,7 +84,7 @@ def run():
     - lifespan 参数指定应用程序的生命周期管理器，这里设置为 "on" 表示使用 FastAPI 的 Lifespan 生命周期管理器。
     - factory 参数指定是否使用工厂模式启动应用程序。这里设置为 True，表示使用工厂模式启动应用程序。
     """
-    uvicorn.run(app="main:create_app", host="0.0.0.0", port=9000, lifespan="on", factory=True)
+    uvicorn.run(app='main:create_app', host=host, port=port, lifespan="on", factory=True)
 
 
 @shell_app.command()  # 装饰器将该函数注册为命令行命令。当用户在命令行中输入 python main.py init 时，就会执行该函数。
