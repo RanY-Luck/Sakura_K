@@ -127,4 +127,5 @@ def init_app(path: str):
 
 
 if __name__ == '__main__':
+    # 修复git
     shell_app()
