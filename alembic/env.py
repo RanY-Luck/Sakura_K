@@ -1,12 +1,10 @@
-from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
-from alembic import context
-
 import os
 import sys
+from logging.config import fileConfig
+
+from alembic import context
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
 
 from core.database import Model
 
@@ -34,9 +32,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 # 导入项目中的基本映射类，与 需要迁移的 ORM 模型
-from apps.vadmin.auth.models import *
-from apps.vadmin.system.models import *
-from apps.vadmin.record.models import *
 
 # 修改配置中的参数
 target_metadata = Model.metadata

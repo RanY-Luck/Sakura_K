@@ -6,17 +6,18 @@
 # @File    : auth.py
 # @Software: PyCharm
 # @desc    : 用户凭证验证装饰器
+from datetime import timedelta, datetime
 from typing import Optional
 
-from fastapi import Request
 import jwt
+from fastapi import Request
 from pydantic import BaseModel
-from application import settings
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from application import settings
 from apps.vadmin.auth.models import VadminUser
 from core.exception import CustomException
 from utils import status
-from datetime import timedelta, datetime
 
 
 class Auth(BaseModel):
@@ -24,6 +25,7 @@ class Auth(BaseModel):
     db: AsyncSession
 
     class Config:
+        # 接收任意类型
         arbitrary_types_allowed = True
 
 

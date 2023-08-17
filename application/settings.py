@@ -7,12 +7,13 @@
 # @Software: PyCharm
 # @desc    : 主配置文件
 import os
+
 from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是用于在 OAuth2 鉴权方式下获取访问令牌的类。
 
 """
 系统版本
 """
-VERSION = "0.0.3"
+VERSION = "1.10.4"
 
 """
 ⚠️安全警告:请不要在正式环境中打开调试运行!!!
@@ -58,7 +59,7 @@ OAUTH_ENABLE = True
 """
 登录认证试图
 """
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/", auto_error=False) if OAUTH_ENABLE else lambda: ""
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/api/login", auto_error=True) if OAUTH_ENABLE else lambda: ""
 
 """
 安全的随机秘钥，该秘钥将用于对JWT令牌进行签名
@@ -78,12 +79,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 1 * 24 * 60
 """
 refresh_token 过期时间，用于刷新token使用：2 Day
 """
-REFRESH_TOKEN_EXPIRE_MINUTES = 2 * 24 * 60
+REFRESH_TOKEN_EXPIRE_MINUTES = 1440 * 2
 
 """
 access——token 缓存时间，用于刷新token使用：30 Minute
 """
-ACCESS_TOKEN_CACHE_MINUTES = 60 * 2
+ACCESS_TOKEN_CACHE_MINUTES = 30
 
 """
 挂载临时文件，并添加路由访问，此路由不会再接口文档中显示
@@ -160,3 +161,9 @@ MIDDLEWARES = [
     "core.middleware.register_demo_env_middleware" if DEMO else None,
     "core.middleware.register_jwt_refresh_middleware"
 ]
+
+"""
+定时任务配置
+"""
+# 发布/订阅通道，与定时任务程序相互关联
+SUBSCRIBE = 'kinit_queue'

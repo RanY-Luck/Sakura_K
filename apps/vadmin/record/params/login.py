@@ -10,6 +10,7 @@
 类依赖项-官方文档：https://fastapi.tiangolo.com/zh/tutorial/dependencies/classes-as-dependencies/
 """
 from fastapi import Depends
+
 from core.dependencies import Paging, QueryParams
 
 
@@ -25,8 +26,16 @@ class LoginParams(QueryParams):
     值得注意的是，telephone 属性被设置为一个元组，第一个元素是字符串 "like"，第二个元素是传递进来的 telephone 参数。
     这意味着在查询数据库时，telephone 将被用作模糊查询，以便匹配所有包含指定字符串的电话号码。
     """
-    def __init__(self, ip: str = None, address: str = None, telephone: str = None, status: bool = None,
-                 platform: str = None, params: Paging = Depends()):
+
+    def __init__(
+            self,
+            ip: str = None,
+            address: str = None,
+            telephone: str = None,
+            status: bool = None,
+            platform: str = None,
+            params: Paging = Depends()
+    ):
         super().__init__(params)
         self.ip = ("like", ip)
         self.telephone = ("like", telephone)

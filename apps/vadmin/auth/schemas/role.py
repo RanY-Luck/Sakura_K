@@ -16,8 +16,8 @@ RoleOut类继承自RoleSimpleOut类，并新增了menus属性，表示该角色�
 RoleIn类也继承自Role类，但是新增了menu_ids属性，用于接收一个与角色关联的菜单ID列表。这个模型类可以用于角色的创建和更新操作，方便校验参数和进行数据解析。
 RoleSelectOut类表示了一个用于下拉选择框的角色对象，包含了角色ID、名称和是否禁用等属性。
 """
-from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 from .menu import MenuSimpleOut
 
@@ -25,36 +25,33 @@ from .menu import MenuSimpleOut
 class Role(BaseModel):
     name: str
     disabled: bool = False
-    order: Optional[int] = None
-    desc: Optional[str] = None
+    order: int | None = None
+    desc: str | None = None
     role_key: str
     is_admin: bool = False
 
 
 class RoleSimpleOut(Role):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
 
-    class Config:
-        orm_mode = True
-
 
 class RoleOut(RoleSimpleOut):
-    menus: Optional[List[MenuSimpleOut]] = []
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        orm_mode = True
+    menus: list[MenuSimpleOut] = []
 
 
 class RoleIn(Role):
-    menu_ids: Optional[List[int]] = []
+    menu_ids: list[int] = []
 
 
 class RoleSelectOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     disabled: bool
-
-    class Config:
-        orm_mode = True

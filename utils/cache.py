@@ -8,11 +8,15 @@
 # @desc    : 缓存
 import json
 from typing import List
-from core.logger import logger
-from core.database import db_getter
-from apps.vadmin.system.crud import SettingsTabDal
+
 from aioredis.client import Redis
+from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
+
+from apps.vadmin.system.models import VadminSystemSettingsTab
+from core.database import db_getter
 from core.exception import CustomException
+from core.logger import logger
 from utils import status
 
 """
@@ -39,31 +43,66 @@ class Cache:
     def __init__(self, rd: Redis):
         self.rd = rd
 
-    async def cache_tab_names(self, tab_names: List[str] = None):
+    async def __get_tab_name_values(self, tab_names: List[str]):
         """
-        缓存系统配置
-        :param tab_names:
+        获取系统配置标签下的标签信息
+        :param tab_names: 配置标签名称
         :return:
         """
         async_session = db_getter()
         session = await async_session.__anext__()
-        if tab_names:
-            datas = await SettingsTabDal(session).get_tab_name_values(tab_names, hidden=None)
-        else:
-            datas = await SettingsTabDal(session).get_tab_name_values(self.DEFAULT_TAB_NAMES, hidden=None)
+        model = VadminSystemSettingsTab
+        v_options = [joinedload(model.settings)]
+        sql = select(model).where(
+            model.is_delete == False,
+            model.tab_name.in_(tab_names),
+            model.disabled == False
+        ).options(*[load for load in v_options])
+        queryset = await session.execute(sql)
+        datas = queryset.scalars().unique().all()
+        return self.__generate_values(datas)
+
+    @classmethod
+    def __generate_values(cls, datas: List[VadminSystemSettingsTab]):
+        """
+        生成字典值
+        :param datas:
+        :return:
+        """
+        return {
+            tab.tab_name: {
+                item.config_key: item.config_value
+                for item in tab.settings
+                if not item.disabled
+            }
+            for tab in datas
+        }
+
+    async def cache_tab_names(self, tab_names: List[str] = None):
+        """
+        缓存系统配置
+        如果手动修改mysql数据库中的配置
+        那么需要在redis中将对应的tab_name删除
+        :param tab_names:
+        :return:
+        """
+        if not tab_names:
+            tab_names = self.DEFAULT_TAB_NAMES
+        datas = await self.__get_tab_name_values(tab_names)
+
         for k, v in datas.items():
             await self.rd.client().set(k, json.dumps(v))
 
     async def get_tab_name(self, tab_name: str, retry: int = 3):
         """
         获取系统配置
-        :param tab_name: 配置标签名称
+        :param tab_name: 配置表标签名称
         :param retry: 重试次数
         :return:
         """
         result = await self.rd.get(tab_name)
         if not result and retry > 0:
-            logger.error(f"未从Redis中获取到{tab_name}配置信息，正在重新更新配置信息，重试次数：{retry}。")
+            logger.error(f"未从Redis中获取到{tab_name}配置信息，正在重新更新配置信息，重试次数{retry}。")
             await self.cache_tab_names([tab_name])
             return await self.get_tab_name(tab_name, retry - 1)
         elif not result and retry == 0:

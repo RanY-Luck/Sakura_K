@@ -19,18 +19,18 @@ SMSSendRecordSimpleOut 的 Config 类中设置了 orm_mode = True，这表示该
 此外，该代码中还引入了 DatetimeStr 类型，它是一个自定义的 Pydantic 数据类型，用于处理日期时间字符串。
 由于 SMSSendRecordSimpleOut 包含了 create_datetime 和 update_datetime 属性，因此需要使用 DatetimeStr 类型来确保这些属性的值是有效的日期时间字符串。
 """
-from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 
 class SMSSendRecord(BaseModel):
     telephone: str
     status: bool = True
-    user_id: Optional[int] = None
-    content: Optional[str] = None
-    desc: Optional[str] = None
-    scene: Optional[str] = None
+    user_id: int | None = None
+    content: str | None = None
+    desc: str | None = None
+    scene: str | None = None
 
 
 class SMSSendRecordSimpleOut(SMSSendRecord):
@@ -38,5 +38,4 @@ class SMSSendRecordSimpleOut(SMSSendRecord):
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

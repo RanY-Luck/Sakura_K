@@ -12,11 +12,13 @@
 中文文档：https://www.osgeo.cn/sqlalchemy/
 """
 from aioredis import Redis
+from fastapi import Request
+from motor.motor_asyncio import AsyncIOMotorDatabase
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from sqlalchemy.orm import sessionmaker
-from application.settings import SQLALCHEMY_DATABASE_URL, REDIS_DB_ENABLE
-from fastapi import Request
+
+from application.settings import SQLALCHEMY_DATABASE_URL, REDIS_DB_ENABLE, MONGO_DB_ENABLE
 from core.exception import CustomException
 
 
@@ -103,3 +105,16 @@ def redis_getter(request: Request) -> Redis:
         raise CustomException("请先配置Redis数据库链接并启用！", desc="请启用 application/settings.py: REDIS_DB_ENABLE")
     return request.app.state.redis
 
+
+def mongo_getter(request: Request) -> AsyncIOMotorDatabase:
+    """
+    获取mongo数据库对象
+    全局挂载，使用一个数据库对象
+    :param request:
+    :return:
+    """
+    if not MONGO_DB_ENABLE:
+        raise CustomException(
+            msg="请先开启 MongoDB 数据库连接！", desc="请启用 application/settings.py: MONGO_DB_ENABLE"
+        )
+    return request.app.state.mongo

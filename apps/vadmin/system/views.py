@@ -9,21 +9,24 @@
 """
 UploadFile 库依赖：pip3 install python-multipart
 """
-from typing import List
 from aioredis import Redis
-from fastapi import APIRouter, Depends, Body, UploadFile, Request, Form
+from fastapi import APIRouter, Depends, Body, UploadFile, Form
+from motor.motor_asyncio import AsyncIOMotorDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from application.settings import ALIYUN_OSS
-from core.database import db_getter, redis_getter
+from apps.vadmin.auth import crud as vadminAuthCRUD
+from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth, OpenAuth
+from apps.vadmin.auth.utils.validation.auth import Auth
+from core.database import db_getter, redis_getter, mongo_getter
+from core.dependencies import IdList
 from utils.file.aliyun_oss import AliyunOSS, BucketConf
-from utils.aliyun_sms import AliyunSMS
 from utils.file.file_manage import FileManage
 from utils.response import SuccessResponse, ErrorResponse
+from utils.sms.code import CodeSMS
 from . import schemas, crud
-from core.dependencies import IdList
-from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
-from apps.vadmin.auth.utils.validation.auth import Auth
-from .params import DictTypeParams, DictDetailParams
+from .params import DictTypeParams, DictDetailParams, TaskParams
+from .params.task import TaskRecordParams
 
 app = APIRouter()
 
@@ -52,7 +55,7 @@ async def delete_dict_types(ids: IdList = Depends(), auth: Auth = Depends(AllUse
 @app.post("/dict/types/details", summary="获取多个字典类型下的字典元素列表")
 async def post_dicts_details(
         auth: Auth = Depends(AllUserAuth()),
-        dict_types: List[str] = Body(None, title="字典元素列表", description="查询字典元素列表")
+        dict_types: list[str] = Body(None, title="字典元素列表", description="查询字典元素列表")
 ):
     datas = await crud.DictTypeDal(auth.db).get_dicts_details(dict_types)
     return SuccessResponse(datas)
@@ -114,8 +117,18 @@ async def get_dict_detail(data_id: int, auth: Auth = Depends(AllUserAuth())):
 @app.post("/upload/image/to/oss", summary="上传图片到阿里云OSS")
 async def upload_image_to_oss(file: UploadFile, path: str = Form(...)):
     result = await AliyunOSS(BucketConf(**ALIYUN_OSS)).upload_image(path, file)
-    if not result:
-        return ErrorResponse(msg="上传失败")
+    return SuccessResponse(result)
+
+
+@app.post("/upload/video/to/oss", summary="上传视频到阿里云OSS")
+async def upload_video_to_oss(file: UploadFile, path: str = Form(...)):
+    result = await AliyunOSS(BucketConf(**ALIYUN_OSS)).upload_video(path, file)
+    return SuccessResponse(result)
+
+
+@app.post("/upload/file/to/oss", summary="上传文件到阿里云OSS")
+async def upload_file_to_oss(file: UploadFile, path: str = Form(...)):
+    result = await AliyunOSS(BucketConf(**ALIYUN_OSS)).upload_file(path, file)
     return SuccessResponse(result)
 
 
@@ -130,9 +143,12 @@ async def upload_image_to_local(file: UploadFile, path: str = Form(...)):
 #                     短信服务管理                          #
 ###########################################################
 @app.post("/sms/send", summary="发送短信验证码（阿里云服务）")
-async def sms_send(telephone: str, rd: Redis = Depends(redis_getter)):
-    sms = AliyunSMS(rd, telephone)
-    return SuccessResponse(await sms.main_async(AliyunSMS.Scene.login))
+async def sms_send(telephone: str, rd: Redis = Depends(redis_getter), auth: Auth = Depends(OpenAuth())):
+    user = await vadminAuthCRUD.UserDal(auth.db).get_data(telephone=telephone, v_return_none=True)
+    if not user:
+        return ErrorResponse("手机号不存在！")
+    sms = CodeSMS(telephone, rd)
+    return SuccessResponse(await sms.main_async())
 
 
 ###########################################################
@@ -149,7 +165,11 @@ async def get_settings_tabs_values(tab_id: int, auth: Auth = Depends(FullAdminAu
 
 
 @app.put("/settings/tabs/values", summary="更新系统配置信息")
-async def put_settings_tabs_values(datas: dict = Body(...), auth: Auth = Depends(FullAdminAuth()), rd: Redis = Depends(redis_getter)):
+async def put_settings_tabs_values(
+        datas: dict = Body(...),
+        auth: Auth = Depends(FullAdminAuth()),
+        rd: Redis = Depends(redis_getter)
+):
     return SuccessResponse(await crud.SettingsDal(auth.db).update_datas(datas, rd))
 
 
@@ -166,3 +186,81 @@ async def get_settings_privacy(auth: Auth = Depends(FullAdminAuth())):
 @app.get("/settings/agreement", summary="获取用户协议")
 async def get_settings_agreement(auth: Auth = Depends(FullAdminAuth())):
     return SuccessResponse((await crud.SettingsDal(auth.db).get_data(config_key="web_agreement")).config_value)
+
+
+###########################################################
+#                     定时任务管理                          #
+###########################################################
+@app.get("/tasks", summary="获取定时任务列表")
+async def get_tasks(
+        p: TaskParams = Depends(),
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
+    datas, count = await crud.TaskDal(db).get_tasks(**p.dict())
+    return SuccessResponse(datas, count=count)
+
+
+@app.post("/tasks", summary="添加定时任务")
+async def post_tasks(
+        data: schemas.Task,
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        rd: Redis = Depends(redis_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
+    return SuccessResponse(await crud.TaskDal(db).create_task(rd, data))
+
+
+@app.put("/tasks", summary="更新定时任务")
+async def put_tasks(
+        _id: str,
+        data: schemas.Task,
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        rd: Redis = Depends(redis_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
+    return SuccessResponse(await crud.TaskDal(db).delete_task(_id))
+
+
+@app.get("/task", summary="获取定时任务详情")
+async def get_tasks(
+        _id: str,
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
+    return SuccessResponse(await crud.TaskDal(db).get_task(_id, v_schema=schemas.TaskSimpleOut))
+
+
+@app.post("/task", summary="执行一次定时任务")
+async def run_once_task(
+        _id: str,
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        rd: Redis = Depends(redis_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
+    return SuccessResponse(await crud.TaskDal(db).run_once_task(rd, _id))
+
+
+###########################################################
+#                    定时任务分组管理                        #
+###########################################################
+@app.get("/task/group/options", summary="获取定时任务分组选择列表")
+async def get_task_group_options(
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
+    return SuccessResponse(await crud.TaskGroupDal(db).get_datas(limit=0))
+
+
+###########################################################
+#                    定时任务调度日志                        #
+###########################################################
+@app.get("/task/records", summary="获取定时任务调度日志列表")
+async def get_task_records(
+        p: TaskRecordParams = Depends(),
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
+    count = await crud.TaskRecordDal(db).get_count(**p.to_count())
+    datas = await crud.TaskRecordDal(db).get_datas(**p.dict())
+    return SuccessResponse(datas, count=count)

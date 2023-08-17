@@ -9,16 +9,16 @@
 import datetime
 import os
 import uuid
-from typing import Optional
 
 from fastapi import UploadFile
+
 from core.exception import CustomException
 from utils import status
 
 
 class FileBase:
     IMAGE_ACCEPT = ["image/png", "image/jpeg", "image/gif", "image/x-icon"]
-    VIDEO_ACCEPT = ["audio/mp4", "video/mp4", "video/mpeg"]
+    VIDEO_ACCEPT = ["video/mp4", "video/mpeg"]
     ALL_ACCEPT = [*IMAGE_ACCEPT, *VIDEO_ACCEPT]
 
     @classmethod
@@ -39,17 +39,17 @@ class FileBase:
             path = path[1:]
         if path[-1] == "/":
             path = path[:-1]
-        full_data = datetime.datetime.now().date()
+        full_date = int(datetime.datetime.now().timestamp())
         _filename = str(int(datetime.datetime.now().timestamp())) + str(uuid.uuid4())[:8]
-        return f"{path}/{full_data}/{_filename}{os.path.splitext(filename)[-1]}"
+        return f"{path}/{full_date}/{_filename}{os.path.splitext(filename)[-1]}"
 
     @classmethod
     async def validate_file(cls, file: UploadFile, max_size: int = None, mime_types: list = None) -> bool:
         """
         验证文件是否符合格式
-        :param file: 验证的文件对象
-        :param max_size: 文件的最大尺寸，单位MB
-        :param mime_types: 允许上传的文件类型
+        :param file: 文件
+        :param max_size: 文件最大值，单位 MB
+        :param mime_types: 支持的文件类型
         :return:
         代码解释：
         该方法首先判断参数中是否指定了文件的最大尺寸 max_size。
@@ -73,13 +73,12 @@ class FileBase:
         return True
 
     @classmethod
-    def get_file_type(cls, content_type: str) -> Optional[str]:
+    def get_file_type(cls, content_type: str) -> str | None:
         """
         获取文件类型
-        :param content_type:
-        :return:
-        0： 图片
-        1：视屏
+
+        0: 图片
+        1：视频
         """
         if content_type in cls.IMAGE_ACCEPT:
             return "0"

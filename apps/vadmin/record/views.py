@@ -7,11 +7,13 @@
 # @Software: PyCharm
 # @desc    : 主要接口文件
 from fastapi import APIRouter, Depends
-from utils.response import SuccessResponse
-from . import crud, schemas
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
 from apps.vadmin.auth.utils.current import AllUserAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
-from core.mongo import get_database, DatabaseManage
+from core.database import mongo_getter
+from utils.response import SuccessResponse
+from . import crud
 from .params import LoginParams, OperationParams, SMSParams
 
 app = APIRouter()
@@ -37,13 +39,13 @@ async def get_record_login(
 @app.get("/operations", summary="获取操作日志列表")
 async def get_record_operation(
         p: OperationParams = Depends(),  # 一个OperationParams类型的参数，这是一个Pydantic模型类的实例，用于解析请求中的参数。
-        db: DatabaseManage = Depends(get_database),  # 一个DatabaseManage类型的参数，这是一个自定义的类的实例，用于操作数据库。
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),  # 一个DatabaseManage类型的参数，这是一个自定义的类的实例，用于操作数据库。
         auth: Auth = Depends(AllUserAuth())
 ):
     # 首先调用了db.get_count方法，该方法会根据传入的参数查询数据库中符合条件的记录数量。
-    count = await db.get_count("operation_record", **p.to_count())
+    count = await crud.OperationRecordDal(db).get_count(**p.to_count())
     # 接下来，调用了db.get_datas方法，该方法会根据传入的参数查询数据库中符合条件的记录，并使用schemas.OperationRecordSimpleOut对查询结果进行序列化。
-    datas = await db.get_datas("operation_record", v_schema=schemas.OpertionRecordSimpleOut, **p.dict())
+    datas = await crud.OperationRecordDal(db).get_datas(**p.dict())
     # 使用SuccessResponse类将查询到的记录列表和记录数量封装成一个JSON格式的响应返回给客户端。
     return SuccessResponse(datas, count=count)
 

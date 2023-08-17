@@ -10,6 +10,7 @@
 类依赖项-官方文档：https://fastapi.tiangolo.com/zh/tutorial/dependencies/classes-as-dependencies/
 """
 from fastapi import Depends
+
 from core.dependencies import Paging, QueryParams
 
 
@@ -27,9 +28,16 @@ class OperationParams(QueryParams):
     request_method 属性没有被设置为元组，因为它不需要进行模糊查询。
     它只是简单地将传递进来的 request_method 参数赋值给该属性。
     """
-    def __init__(self, summary: str = None, telephone: str = None, request_method: str = None,
-                 params: Paging = Depends()):
+
+    def __init__(
+            self,
+            summary: str = None,
+            telephone: str = None,
+            request_method: str = None,
+            params: Paging = Depends()
+    ):
         super().__init__(params)
         self.summary = ("like", summary)
         self.telephone = ("like", telephone)
         self.request_method = request_method
+        self.v_order = "desc"

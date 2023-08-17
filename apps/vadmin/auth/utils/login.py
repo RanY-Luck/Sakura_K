@@ -15,24 +15,52 @@ JWT 表示 「JSON Web Tokens」。https://jwt.io/
 PassLib 是一个用于处理哈希密码的很棒的 Python 包。它支持许多安全哈希算法以及配合算法使用的实用程序。
 推荐的算法是 「Bcrypt」：pip3 install passlib[bcrypt]
 """
-import jwt
 from datetime import timedelta
+
+import jwt
 from aioredis import Redis
 from fastapi import APIRouter, Depends, Request, Body
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from application import settings
+from apps.vadmin.auth.crud import MenuDal, UserDal
+from apps.vadmin.auth.models import VadminUser
+from apps.vadmin.record.models import VadminLoginRecord
 from core.database import db_getter, redis_getter
+from core.exception import CustomException
 from utils import status
 from utils.response import SuccessResponse, ErrorResponse
-from application import settings
+from utils.wx.oauth import WXOAuth
+from .current import FullAdminAuth
 from .login_manage import LoginManage
 from .validation import LoginForm, WXLoginForm
-from apps.vadmin.record.models import VadminLoginRecord
-from apps.vadmin.auth.crud import MenuDal, UserDal
-from .current import FullAdminAuth
 from .validation.auth import Auth
-from utils.wx.oauth import WXOAuth
 
 app = APIRouter()
+
+
+@app.post("/api/login", summary="API 手机号密码登录", description="Swagger API 文档登录认证")
+async def api_login_for_access_token(
+        request: Request,
+        data: OAuth2PasswordRequestForm = Depends(),
+        db: AsyncSession = Depends(db_getter)
+):
+    user = await UserDal(db).get_data(telephone=data.username, v_return_none=True)
+    if not user:
+        raise CustomException(status_code=401, code=401, msg="该手机号不存在")
+    result = VadminUser.verify_password(data.password, user.password)
+    if not result:
+        raise CustomException(status_code=401, code=401, msg="手机号或密码错误")
+    if not user.is_active:
+        raise CustomException(status_code=401, code=401, msg="此手机号已被冻结")
+    elif not user.is_staff:
+        raise CustomException(status_code=401, code=401, msg="此手机号无权限")
+    access_token = LoginManage.create_token({"sub": user.telephone})
+    record = LoginForm(platform='2', method='0', telephone=data.username, password=data.password)
+    resp = {"access_token": access_token, "token_type": "bearer"}
+    await VadminLoginRecord.create_login_record(db, record, True, request, resp)
+    return resp
 
 
 @app.post(

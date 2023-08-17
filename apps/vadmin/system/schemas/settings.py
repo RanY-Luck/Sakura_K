@@ -14,24 +14,22 @@ Settings类表示一个系统设置，包括了config_label（配置标签，可
 SettingsSimpleOut类继承了Settings类，并增加了id（自增主键）、create_datetime（创建时间）、update_datetime（更新时间）等属性。
 同时，这个类也使用了Config类的orm_mode配置，表示该类可以被用于ORM操作。
 """
-from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 
 class Settings(BaseModel):
-    config_label: Optional[str] = None
+    config_label: str | None = None
     config_key: str
-    config_value: Optional[str] = None
-    remark: Optional[str] = None
-    disabled: Optional[bool] = None
+    config_value: str | None = None
+    remark: str | None = None
+    disabled: bool | None = None
     tab_id: int
 
 
 class SettingsSimpleOut(Settings):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
-
-    class Config:
-        orm_mode = True

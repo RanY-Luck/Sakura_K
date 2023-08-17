@@ -6,12 +6,14 @@
 # @File    : event.py
 # @Software: PyCharm
 # @desc    : 全局事件
+from contextlib import asynccontextmanager
+
 import aioredis
 from fastapi import FastAPI
+from motor.motor_asyncio import AsyncIOMotorClient
+
 from application.settings import REDIS_DB_URL, MONGO_DB_URL, MONGO_DB_NAME, EVENTS
-from core.mongo import db
 from utils.cache import Cache
-from contextlib import asynccontextmanager
 from utils.tools import import_modules_async
 
 
@@ -90,8 +92,10 @@ async def connect_mongo(app: FastAPI, status: bool):
     如果 status 为 False，则会调用 db 模块中的 close_database_connection() 函数，关闭数据库连接。
     """
     if status:
+        client: AsyncIOMotorClient = AsyncIOMotorClient(MONGO_DB_URL, maxPoolSize=10, minPoolSize=10)
+        app.state.mongo_client = client
+        app.state.mongo = client[MONGO_DB_NAME]
         print("正在连接到MongoDB")
-        await db.connect_to_database(path=MONGO_DB_URL, db_name=MONGO_DB_NAME)
     else:
         print("正在关闭MongoDB")
-        await db.close_database_connection()
+        app.state.mongo_client.close()

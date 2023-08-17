@@ -8,17 +8,18 @@
 # @desc    : 保存图片到本地
 import asyncio
 import datetime
-import os
 import shutil
 import sys
-import aioshutil
-from application.settings import TEMP_DIR, STATIC_ROOT, BASE_DIR, STATIC_URL, STATIC_DIR
-from fastapi import UploadFile
 from pathlib import Path
+
+import aioshutil
+from aiopathlib import AsyncPath
+from aiopathlib import AsyncPath as Path
+from fastapi import UploadFile
+
+from application.settings import TEMP_DIR, STATIC_ROOT, BASE_DIR, STATIC_URL, STATIC_DIR
 from core.exception import CustomException
 from utils.file.file_base import FileBase
-from aiopathlib import AsyncPath as Path
-from aiopathlib import AsyncPath
 
 
 class FileManage(FileBase):
@@ -79,7 +80,7 @@ class FileManage(FileBase):
         file_dir = AsyncPath(TEMP_DIR) / date
         if not await file_dir.exists():
             await file_dir.mkdir(parents=True, exist_ok=True)
-        filename = file_dir / str(int(datetime.datetime.now().timestamp())) + file.filename
+        filename = file_dir / (str(int(datetime.datetime.now().timestamp())) + file.filename)
         await filename.write_bytes(await file.read())
         return str(filename)
 

@@ -6,35 +6,35 @@
 # @File    : crud.py
 # @Software: PyCharm
 # @desc    : 增删改查
-from typing import List, Any
+import copy
+from typing import Any
+
 from aioredis import Redis
 from fastapi import UploadFile
-from sqlalchemy.orm import joinedload
-
-from core.exception import CustomException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
-from core.crud import DalBase
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
+
+from application import settings
+from apps.vadmin.system import crud as vadminSystemCRUD
+from core.crud import DalBase
+from core.exception import CustomException
 from core.validator import vali_telephone
-from utils.file.aliyun_oss import AliyunOSS, BucketConf
+from utils import status
 from utils.aliyun_sms import AliyunSMS
+from utils.excel.excel_manage import ExcelManage
 from utils.excel.import_manage import ImportManage, FieldType
 from utils.excel.write_xlsx import WriteXlsx
+from utils.file.aliyun_oss import AliyunOSS, BucketConf
 from utils.send_email import EmailSender
-from .params import UserParams
 from utils.tools import test_password
-from . import models, schemas
-from application import settings
-from utils.excel.excel_manage import ExcelManage
-from apps.vadmin.system import crud as vadminSystemCRUD
-import copy
-from utils import status
 from utils.wx.oauth import WXOAuth
+from . import models, schemas
+from .params import UserParams
 
 
 class UserDal(DalBase):
-
     import_headers = [
         {"label": "姓名", "field": "name", "required": True},
         {"label": "昵称", "field": "nickname", "required": False},
@@ -73,7 +73,7 @@ class UserDal(DalBase):
         password = data.telephone[5:12] if settings.DEFAULT_PASSWORD == "0" else settings.DEFAULT_PASSWORD
         data.password = self.model.get_password_hash(password)
         data.avatar = data.avatar if data.avatar else settings.DEFAULT_AVATAR
-        obj = self.model(**data.dict(exclude={'role_ids'}))
+        obj = self.model(**data.model_dump(exclude={'role_ids'}))
         if data.role_ids:
             roles = await RoleDal(self.db).get_datas(limit=0, id=("in", data.role_ids), v_return_objs=True)
             for role in roles:
@@ -286,7 +286,7 @@ class UserDal(DalBase):
             "error_url": im.generate_error_url()
         }
 
-    async def init_password(self, ids: List[int]):
+    async def init_password(self, ids: list[int]):
         """
         初始化所选用户密码
         将用户密码改为系统默认密码，并将初始化密码状态改为False
@@ -320,7 +320,7 @@ class UserDal(DalBase):
         await self.db.flush()
         return result
 
-    async def init_password_send_sms(self, ids: List[int], rd: Redis):
+    async def init_password_send_sms(self, ids: list[int], rd: Redis):
         """
         初始化所选用户密码并发送通知短信
         将用户密码改为系统默认密码，并将初始化密码状态改为false
@@ -355,7 +355,7 @@ class UserDal(DalBase):
                 user["send_sms_msg"] = e.msg
         return result
 
-    async def init_password_send_email(self, ids: List[int], rd: Redis):
+    async def init_password_send_email(self, ids: list[int], rd: Redis):
         """
         初始化所选用户密码并发送通知邮件
         将用户密码改为系统默认密码，并将初始化密码状态改为false
@@ -410,8 +410,6 @@ class UserDal(DalBase):
         返回上传成功后的图片地址 result。
         """
         result = await AliyunOSS(BucketConf(**settings.ALIYUN_OSS)).upload_image("avatar", file)
-        if not result:
-            raise CustomException(msg="上传失败", code=status.HTTP_ERROR)
         user.avatar = result
         await self.flush(user)
         return result
@@ -437,8 +435,8 @@ class UserDal(DalBase):
         user.wx_server_openid = openid
         await self.flush(user)
         return True
-    
-    async def delete_datas(self, ids: List[int], v_soft: bool = False, **kwargs):
+
+    async def delete_datas(self, ids: list[int], v_soft: bool = False, **kwargs):
         """
         删除多个用户，软删除
         :param ids:
@@ -486,7 +484,7 @@ class RoleDal(DalBase):
         通过 flush 方法将新增记录同步到数据库中，使新创建的角色实例生效。
         如果需要返回新创建的角色实例，则调用 out_dict 方法将其转换为 dict，并根据传入参数返回结果。
         """
-        obj = self.model(**data.dict(exclude={'menu_ids'}))
+        obj = self.model(**data.model_dump(exclude={'menu_ids'}))
         menus = await MenuDal(db=self.db).get_datas(limit=0, id=("in", data.menu_ids), v_return_objs=True)
         if data.menu_ids:
             for menu in menus:
@@ -550,9 +548,9 @@ class RoleDal(DalBase):
         """
         sql = select(self.model)
         queryset = await self.db.execute(sql)
-        return [schemas.RoleSelectOut.from_orm(i).dict() for i in queryset.scalars().all()]
+        return [schemas.RoleSelectOut.model_validate(i).model_dump() for i in queryset.scalars().all()]
 
-    async def delete_datas(self, ids: List[int], v_soft: bool = False, **kwargs):
+    async def delete_datas(self, ids: list[int], v_soft: bool = False, **kwargs):
         """
         删除多个角色，硬删除
         :param ids:
@@ -619,7 +617,7 @@ class MenuDal(DalBase):
         使用 generate_router_tree 方法生成路由表，并使用 menus_order 方法对结果进行排序，最终将结果作为函数的返回值。
         """
         if any([i.is_admin for i in user.roles]):
-            sql = select(self.model)\
+            sql = select(self.model) \
                 .where(self.model.disabled == 0, self.model.menu_type != "2", self.model.is_delete == False)
             queryset = await self.db.execute(sql)
             datas = queryset.scalars().all()
@@ -636,7 +634,7 @@ class MenuDal(DalBase):
         menus = self.generate_router_tree(datas, roots)
         return self.menus_order(menus)
 
-    def generate_router_tree(self, menus: List[models.VadminMenu], nodes: filter, name: str = "") -> list:
+    def generate_router_tree(self, menus: list[models.VadminMenu], nodes: filter, name: str = "") -> list:
         """
         生成路由树
         :param menus: 总菜单列表
@@ -653,16 +651,16 @@ class MenuDal(DalBase):
         """
         data = []
         for root in nodes:
-            router = schemas.RouterOut.from_orm(root)
+            router = schemas.RouterOut.model_validate(root)
             router.name = name + "".join(name.capitalize() for name in router.path.split("/"))
             router.meta = schemas.Meta(title=root.title, icon=root.icon, hidden=root.hidden, alwaysShow=root.alwaysShow)
             if root.menu_type == "0":
                 sons = filter(lambda i: i.parent_id == root.id, menus)
                 router.children = self.generate_router_tree(menus, sons, router.name)
-            data.append(router.dict())
+            data.append(router.model_dump())
         return data
 
-    def generate_tree_list(self, menus: List[models.VadminMenu], nodes: filter) -> list:
+    def generate_tree_list(self, menus: list[models.VadminMenu], nodes: filter) -> list:
         """
         生成菜单树列表
         :param menus: 所有的菜单项
@@ -678,14 +676,14 @@ class MenuDal(DalBase):
         """
         data = []
         for root in nodes:
-            router = schemas.TreeListOut.from_orm(root)
+            router = schemas.TreeListOut.model_validate(root)
             if root.menu_type == "0" or root.menu_type == "1":
                 sons = filter(lambda i: i.parent_id == root.id, menus)
                 router.children = self.generate_tree_list(menus, sons)
-            data.append(router.dict())
+            data.append(router.model_dump())
         return data
 
-    def generate_tree_options(self, menus: List[models.VadminMenu], nodes: filter) -> list:
+    def generate_tree_options(self, menus: list[models.VadminMenu], nodes: filter) -> list:
         """
         生成菜单树选择项
         :param menus: 所有菜单数据
@@ -724,7 +722,7 @@ class MenuDal(DalBase):
                 item[children] = sorted(item[children], key=lambda menu: menu[order])
         return result
 
-    async def delete_datas(self, ids: List[int], v_soft: bool = False, **kwargs):
+    async def delete_datas(self, ids: list[int], v_soft: bool = False, **kwargs):
         """
         删除多个菜单
         如果存在角色关联则无法删除
@@ -744,4 +742,3 @@ class MenuDal(DalBase):
             if obj.roles:
                 raise CustomException("无法删除存在角色关联的菜单", code=400)
         return await super(MenuDal, self).delete_datas(ids, v_soft, **kwargs)
-

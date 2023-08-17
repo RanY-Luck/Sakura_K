@@ -20,30 +20,29 @@ OperationRecord 和 OperationRecordSimpleOut 都是 Pydantic 的 BaseModel 类�
 这意味着它们都具有 Pydantic 的基本功能，例如验证属性的类型、默认值等。
 Config 类中的 orm_mode = True 表示该模型可以被用作 SQLAlchemy ORM 模型的返回类型，确保返回的数据符合 SQLAlchemy ORM 模型的属性要求。
 """
-from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from core.data_types import DatetimeStr
 
 
-class OpertionRecord(BaseModel):
-    telephone: Optional[str] = None
-    user_id: Optional[str] = None
-    user_name: Optional[str] = None
-    status_code: Optional[int] = None
-    client_ip: Optional[str] = None
-    request_method: Optional[str] = None
-    api_path: Optional[str] = None
-    system: Optional[str] = None
-    browser: Optional[str] = None
-    summary: Optional[str] = None
-    route_name: Optional[str] = None
-    description: Optional[str] = None
-    tags: Optional[List[str]] = None
-    process_time: Optional[str] = None
-    params: Optional[str] = None
-    create_datetime: Optional[str] = None
+class OperationRecord(BaseModel):
+    telephone: str | None = None
+    user_id: int | None = None
+    user_name: str | None = None
+    status_code: int | None = None
+    client_ip: str | None = None
+    request_method: str | None = None
+    api_path: str | None = None
+    system: str | None = None
+    browser: str | None = None
+    summary: str | None = None
+    route_name: str | None = None
+    description: str | None = None
+    tags: list[str] | None = None
+    process_time: float | None = None
+    params: str | None = None
 
 
-class OpertionRecordSimpleOut(OpertionRecord):
-
-    class Config:
-        orm_mode = True
+class OperationRecordSimpleOut(OperationRecord):
+    model_config = ConfigDict(from_attributes=True)
+    create_datetime: DatetimeStr

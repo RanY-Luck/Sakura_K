@@ -6,10 +6,11 @@
 # @File    : issue_category.py
 # @Software: PyCharm
 # @desc    : 常见问题类别
-from typing import Optional
-from pydantic import BaseModel, Field
-from core.data_types import DatetimeStr
+from pydantic import BaseModel, Field, ConfigDict
+
 from apps.vadmin.auth.schemas import UserSimpleOut
+from core.data_types import DatetimeStr
+
 """
 代码解释：
 定义了一些Pydantic模型类，用于表示问题分类相关的数据结构。
@@ -25,33 +26,27 @@ user属性使用了apps.vadmin.auth.schemas模块中的UserSimpleOut模型类，
 同样地，使用了Config类中的orm_mode = True参数以方便将数据库查询结果转换成该模型类的实例。
 """
 
-class IssueCategory(BaseModel):
-    name: Optional[str] = None
-    platform: Optional[str] = None
-    is_active: Optional[bool] = None
 
-    create_user_id: Optional[int] = None
+class IssueCategory(BaseModel):
+    name: str | None = None
+    platform: str | None = None
+    is_active: bool | None = None
+    create_user_id: int | None = None
 
 
 class IssueCategorySimpleOut(IssueCategory):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     update_datetime: DatetimeStr
     create_datetime: DatetimeStr
 
-    class Config:
-        orm_mode = True
-
 
 class IssueCategoryListOut(IssueCategorySimpleOut):
+    model_config = ConfigDict(from_attributes=True)
     create_user: UserSimpleOut
-
-    class Config:
-        orm_mode = True
 
 
 class IssueCategoryOptionsOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     label: str = Field(alias='name')
     value: int = Field(alias='id')
-
-    class Config:
-        orm_mode = True

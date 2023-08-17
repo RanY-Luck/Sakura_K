@@ -10,12 +10,12 @@ from aioredis import Redis
 from fastapi import APIRouter, Depends, Body, UploadFile, Request
 from sqlalchemy.orm import joinedload
 
-from core.database import redis_getter
-from utils.response import SuccessResponse, ErrorResponse
-from . import schemas, crud, models
-from core.dependencies import IdList
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
+from core.database import redis_getter
+from core.dependencies import IdList
+from utils.response import SuccessResponse, ErrorResponse
+from . import schemas, crud, models
 from .params import UserParams, RoleParams
 
 app = APIRouter()
@@ -135,7 +135,7 @@ async def get_user_admin_current_info(
         auth: Auth = Depends(FullAdminAuth())  # 身份验证，该身份验证对象的权限必须为FullAdminAuth。
 ):
     # 从数据库获取到的用户信息转化为输出用的UserOut模式的对象，并调用.dict()方法将对象转换为字典形式
-    result = schemas.UserOut.from_orm(auth.user).dict()
+    result = schemas.UserOut.model_validate(auth.user).model_dump()
     # 将当前管理员的所有权限存储在字典对象result的"permissions"字段中，
     # 使用FullAdminAuth类的get_user_permissions方法获取当前管理员的权限列表。
     result["permissions"] = list(FullAdminAuth.get_user_permissions(auth.user))

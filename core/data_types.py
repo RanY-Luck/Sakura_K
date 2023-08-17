@@ -7,86 +7,115 @@
 # @Software: PyCharm
 # @desc    : 自定义数据类型
 """
-自定义数据类型 - 官方文档：https://pydantic-docs.helpmanual.io/usage/types/#custom-data-types
+自定义数据类型 - 官方文档：https://docs.pydantic.dev/dev-v2/usage/types/custom/#adding-validation-and-serialization
 """
+import datetime
+from typing import Annotated, Any
+
+from bson import ObjectId
+from pydantic import AfterValidator, PlainSerializer, WithJsonSchema
+
 from .validator import *
 
 
-class DatetimeStr(str):
+def DatetimeStrVali(value: str | datetime.datetime | int | float | dict):
     """
-    代码解释：
-    定义了一个继承自 Python 标准库中的字符串类 str 的新类 DatetimeStr，并给该类添加了两个方法：__get_validators__() 和 validate()。
-    DatetimeStr 类通过重写 __get_validators__() 方法，将 validate() 方法注册为类型验证器，使得在使用 Pydantic 进行数据验证时，可以将 DatetimeStr 当作一个数据类型来使用。
-    validate() 方法接收一个参数 v，用于对数据进行验证和转换。如果传入的数据类型为 str，则直接返回该字符串；
-    否则将其转换为字符串类型，格式为 %Y-%m-%d %H:%M:%S 的日期时间字符串。其中，v.strftime() 表示将时间对象 v 转换为指定格式的字符串。
-    例如，如果传入 datetime.datetime(2023, 4, 12, 19, 38, 14) （即一个日期时间对象），则调用 DatetimeStr.validate() 方法后会返回字符串 '2023-04-12 19:38:14'。
+    日期时间字符串验证
+    如果我传入的是字符串，那么直接返回，如果我传入的是一个日期类型，那么会转为字符串格式后返回
+    因为在 pydantic 2.0 中是支持 int 或 float 自动转换类型的，所以我这里添加进去，但是在处理时会使这两种类型报错
+
+    官方文档：https://docs.pydantic.dev/dev-v2/usage/types/datetime/
     """
+    if isinstance(value, str):
+        pattern = "%Y-%m-%d %H:%M:%S"
+        try:
+            datetime.datetime.strptime(value, pattern)
+            return value
+        except ValueError:
+            pass
+    elif isinstance(value, datetime.datetime):
+        return value.strftime("%Y-%m-%d %H:%M:%S")
+    elif isinstance(value, dict):
+        # 用于处理 mongodb 日期时间数据类型
+        date_str = value.get("$date")
+        date_format = '%Y-%m-%dT%H:%M:%S.%fZ'
+        # 将字符串转换为datetime.datetime类型
+        datetime_obj = datetime.datetime.strptime(date_str, date_format)
+        # 将datetime.datetime对象转换为指定的字符串格式
+        return datetime_obj.strftime('%Y-%m-%d %H:%M:%S')
+    raise ValueError("无效的日期时间或字符串数据")
 
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
 
-    @classmethod
-    def validate(cls, v):
-        if isinstance(v, str):
-            return v
-        return v.strftime("%Y-%m-%d %H:%M:%S")
+# 实现自定义一个日期时间字符串的数据类型
+DatetimeStr = Annotated[
+    str | datetime.datetime | int | float | dict,
+    AfterValidator(DatetimeStrVali),
+    PlainSerializer(lambda x: x, return_type=str),
+    WithJsonSchema({'type': 'string'}, mode='serialization')
+]
+
+# 实现自定义一个手机号类型
+Telephone = Annotated[
+    str,
+    AfterValidator(lambda x: vali_telephone(x)),
+    PlainSerializer(lambda x: x, return_type=str),
+    WithJsonSchema({'type': 'string'}, mode='serialization')
+]
+
+# 实现自定义一个邮箱类型
+Email = Annotated[
+    str,
+    AfterValidator(lambda x: vali_email(x)),
+    PlainSerializer(lambda x: x, return_type=str),
+    WithJsonSchema({'type': 'string'}, mode='serialization')
+]
 
 
-class Telephone(str):
+def DateStrVali(value: str | datetime.date | int | float):
     """
-    代码解释：
-    定义了一个继承自 Python 标准库中的字符串类 str 的新类 Telephone，并给该类添加了两个方法：__get_validators__() 和 validate()。
-    Telephone 类通过重写 __get_validators__() 方法，将 validate() 方法注册为类型验证器，使得在使用 Pydantic 进行数据验证时，可以将 Telephone 当作一个数据类型来使用。
-    validate() 方法接收一个参数 v，用于对数据进行验证。在该方法中，它调用了 vali_telephone(v) 函数来判断参数 v 是否符合 Telephone 号码的格式要求，并将结果返回。
-    例如，如果传入 '12345678901' 字符串，则调用 Telephone.validate() 方法后会返回原始字符串，表明该字符串是一个合法的 Telephone 号码。
-    如果传入的字符串不符合 Telephone 号码的格式要求，则会引发异常。
+    日期字符串验证
+    如果我传入的是字符串，那么直接返回，如果我传入的是一个日期类型，那么会转为字符串格式后返回
+    因为在 pydantic 2.0 中是支持 int 或 float 自动转换类型的，所以我这里添加进去，但是在处理时会使这两种类型报错
+
+    官方文档：https://docs.pydantic.dev/dev-v2/usage/types/datetime/
     """
+    if isinstance(value, str):
+        pattern = "%Y-%m-%d"
+        try:
+            datetime.datetime.strptime(value, pattern)
+            return value
+        except ValueError:
+            pass
+    elif isinstance(value, datetime.date):
+        return value.strftime("%Y-%m-%d")
+    raise ValueError("无效的日期时间或字符串数据")
 
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
 
-    @classmethod
-    def validate(cls, v):
-        return vali_telephone(v)
+# 实现自定义一个日期字符串的数据类型
+DateStr = Annotated[
+    str | datetime.date | int | float,
+    AfterValidator(DateStrVali),
+    PlainSerializer(lambda x: x, return_type=str),
+    WithJsonSchema({'type': 'string'}, mode='serialization')
+]
 
 
-class Email(str):
+def ObjectIdStrVali(value: str | dict | ObjectId):
     """
-    代码解释：
-    定义了一个继承自 Python 标准库中的字符串类 str 的新类 Email，并给该类添加了两个方法：__get_validators__() 和 validate()。
-    Email 类通过重写 __get_validators__() 方法，将 validate() 方法注册为类型验证器，使得在使用 Pydantic 进行数据验证时，可以将 Email 当作一个数据类型来使用。
-    validate() 方法接收一个参数 v，用于对数据进行验证。在该方法中，它调用了 vali_email(v) 函数来判断参数 v 是否符合 Email 地址的格式要求，并将结果返回。
-    例如，如果传入 'user@example.com' 字符串，则调用 Email.validate() 方法后会返回原始字符串，表明该字符串是一个合法的 Email 地址。
-    如果传入的字符串不符合 Email 地址的格式要求，则会引发异常。
+    官方文档：https://docs.pydantic.dev/dev-v2/usage/types/datetime/
     """
+    if isinstance(value, str):
+        return value
+    elif isinstance(value, dict):
+        return value.get("$oid")
+    elif isinstance(value, ObjectId):
+        return str(value)
+    raise ValueError("无效的 ObjectId 数据类型")
 
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
 
-    @classmethod
-    def validate(cls, v):
-        return vali_email(v)
-
-
-class DateStr(str):
-    """
-    代码解释：
-    定义一个继承自 Python 标准库中的字符串类 str 的新类 DateStr，并给该类添加了两个方法：__get_validators__() 和 validate()。
-    DateStr 类通过重写 __get_validators__() 方法，将 validate() 方法注册为类型验证器，使得在使用 Pydantic 进行数据验证时，可以将 DateStr 当作一个数据类型来使用。
-    validate() 方法接收一个参数 v，用于对数据进行验证和转换。如果传入的数据类型为 str，则直接返回该字符串；
-    否则将其转换为字符串类型，格式为 %Y-%m-%d 的日期字符串。其中，v.strftime() 表示将时间对象 v 转换为指定格式的字符串。
-    例如，如果传入 datetime.date(2023, 4, 12) （即一个日期对象），则调用 DateStr.validate() 方法后会返回字符串 '2023-04-12'。
-    """
-
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if isinstance(v, str):
-            return v
-        return v.strftime("%Y-%m-%d")
+ObjectIdStr = Annotated[
+    Any,  # 这里不能直接使用 any，需要使用 typing.Any
+    AfterValidator(ObjectIdStrVali),
+    PlainSerializer(lambda x: x, return_type=str),
+    WithJsonSchema({'type': 'string'}, mode='serialization')
+]

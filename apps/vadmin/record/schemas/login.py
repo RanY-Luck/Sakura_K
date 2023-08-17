@@ -20,35 +20,33 @@ LoginRecordSimpleOut 继承了 LoginRecord，并扩展了三个属性：id、cre
 LoginRecordSimpleOut 的 Config 类中设置了 orm_mode = True，这表示该模型可以被用作 SQLAlchemy ORM 模型的返回类型。
 这样可以确保返回的数据符合 SQLAlchemy ORM 模型的属性要求。
 """
-from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 
 class LoginRecord(BaseModel):
     telephone: str
     status: bool
-    ip: Optional[str] = None
-    address: Optional[str] = None
-    browser: Optional[str] = None
-    system: Optional[str] = None
-    response: Optional[str] = None
-    request: Optional[str] = None
-    postal_code: Optional[str] = None
-    area_code: Optional[str] = None
-    country: Optional[str] = None
-    province: Optional[str] = None
-    city: Optional[str] = None
-    county: Optional[str] = None
-    operator: Optional[str] = None
-    platform: Optional[str] = None
-    login_method: Optional[str] = None
+    ip: str | None = None
+    address: str | None = None
+    browser: str | None = None
+    system: str | None = None
+    response: str | None = None
+    request: str | None = None
+    postal_code: str | None = None
+    area_code: str | None = None
+    country: str | None = None
+    province: str | None = None
+    city: str | None = None
+    county: str | None = None
+    operator: str | None = None
+    platform: str | None = None
+    login_method: str | None = None
 
 
 class LoginRecordSimpleOut(LoginRecord):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
-
-    class Config:
-        orm_mode = True

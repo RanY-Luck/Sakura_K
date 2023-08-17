@@ -16,7 +16,8 @@ SettingsTabSimpleOut类继承了SettingsTab类，并增加了id（自增主键�
 这些数据模型类都采用了pydantic库实现，利用了其内置的输入数据验证、类型转换等功能，可以在运行前对数据进行预处理和校验。
 而使用继承方式构建数据模型类，可以方便地进行属性的复用和继承。
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 
@@ -29,9 +30,7 @@ class SettingsTab(BaseModel):
 
 
 class SettingsTabSimpleOut(SettingsTab):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
-
-    class Config:
-        orm_mode = True

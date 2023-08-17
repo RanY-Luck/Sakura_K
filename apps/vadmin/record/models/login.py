@@ -9,14 +9,16 @@
 import json
 from typing import Union
 
+from fastapi import Request
+from sqlalchemy import Column, String, Boolean, TEXT
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request as StarletteRequest
+from user_agents import parse
+
 from application.settings import LOGIN_LOG_RECORD
 from apps.vadmin.auth.utils.validation import LoginForm, WXLoginForm
-from utils.ip_manage import IPManage
-from sqlalchemy.ext.asyncio import AsyncSession
 from db.db_base import BaseModel
-from sqlalchemy import Column, String, Boolean, TEXT
-from fastapi import Request
-from user_agents import parse
+from utils.ip_manage import IPManage
 
 
 class VadminLoginRecord(BaseModel):
@@ -46,7 +48,7 @@ class VadminLoginRecord(BaseModel):
             db: AsyncSession,
             data: Union[LoginForm, WXLoginForm],
             status: bool,
-            req: Request,
+            req: Request | StarletteRequest,
             resp: dict
     ):
         """
@@ -66,19 +68,19 @@ class VadminLoginRecord(BaseModel):
         if not LOGIN_LOG_RECORD:
             return None
         header = {}
-        # 从请求对象(req)中获取请求头部信息，并将其存储在header字典中。
         for k, v in req.headers.items():
             header[k] = v
-        body = json.loads((await req.body()).decode())
+        if isinstance(req, StarletteRequest):
+            form = (await req.form()).multi_items()
+            params = json.dumps({"form": form, "headers": header})
+        else:
+            body = json.loads((await req.body()).decode())
+            params = json.dumps({"body": body, "headers": header})
         user_agent = parse(req.headers.get("user-agent"))
         system = f"{user_agent.os.family} {user_agent.os.version_string}"
         browser = f"{user_agent.browser.family} {user_agent.browser.version_string}"
-        # 然后，它使用IPManage类解析请求的客户端IP地址，并获取其所在位置(location)，这些信息都将用于创建登录记录。
         ip = IPManage(req.client.host)
         location = await ip.parse()
-        # 最后，该段代码将请求头和请求体数据组成一个字典params，并将其序列化为JSON字符串。
-        params = json.dumps({"body": body, "headers": header})
-        # 然后使用上述获取到的信息，以及其他传入的参数(data、status、resp等)，构造一个新的VadminLoginRecord对象(obj)。
         obj = VadminLoginRecord(
             **location.dict(),
             telephone=data.telephone if data.telephone else data.code,
@@ -90,6 +92,5 @@ class VadminLoginRecord(BaseModel):
             platform=data.platform,
             login_method=data.method
         )
-        # 最后将该对象添加到会话中(db.add(obj))，并使用await db.flush()提交到数据库中。
         db.add(obj)
         await db.flush()
