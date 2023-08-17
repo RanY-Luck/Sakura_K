@@ -7,11 +7,13 @@
 # @Software: PyCharm
 # @desc    : 用户模型
 import datetime
+
+from passlib.context import CryptContext
+from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
+
 from db.db_base import BaseModel
-from sqlalchemy import Column, String, Boolean, DateTime
-from passlib.context import CryptContext
 from .m2m import vadmin_user_roles
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -53,7 +55,6 @@ class VadminUser(BaseModel):
     is_staff = Column(Boolean, default=False, comment="是否为工作人员")
     wx_server_openid = Column(String(255), comment="服务端微信平台openid")
     is_wx_server_openid = Column(Boolean, default=False, comment="是否已有服务端微信平台openid")
-
     roles = relationship("VadminRole", back_populates='users', secondary=vadmin_user_roles)
 
     # generate hash password

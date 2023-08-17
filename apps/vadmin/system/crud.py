@@ -26,7 +26,7 @@ from sqlalchemy.orm import joinedload
 from application.settings import STATIC_ROOT, SUBSCRIBE
 from core.crud import DalBase
 from core.exception import CustomException
-from core.mongo.mongo_manage import MongoManage
+from core.mongo_manage import MongoManage
 from utils import status
 from utils.file.file_manage import FileManage
 from . import models, schemas

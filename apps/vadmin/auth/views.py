@@ -27,17 +27,13 @@ app = APIRouter()
 @app.get("/users", summary="获取用户列表")
 async def get_users(
         params: UserParams = Depends(),
-        # 是用于身份验证的，要求验证权限为"auth.user.list"的FullAdminAuth。
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.list"]))
 ):
-    # 定义了模型、查询选项和输出模式。
-    model = models.VadminUser  # 指向了VadminUser模型，即用户模型
-    options = [joinedload(model.roles)]  # 加载了模型中的关联数据,这里的roles是指用户拥有的角色
-    schema = schemas.UserOut  # 定义了对模型查询结果的输出模式，即输出到客户端的数据格式，其类型为UserOut。
-    # 使用UserDal类进行数据库操作，分别调用了get_datas()和get_count()方法，从数据库中获取用户列表数据和统计数据条数，并将结果返回给客户端。
+    model = models.VadminUser
+    options = [joinedload(model.roles)]
+    schema = schemas.UserOut
     datas = await crud.UserDal(auth.db).get_datas(**params.dict(), v_options=options, v_schema=schema)
     count = await crud.UserDal(auth.db).get_count(**params.to_count())
-    # 函数返回一个SuccessResponse对象，其中包含了datas（即查询结果data）和count两个字段。
     return SuccessResponse(datas, count=count)
 
 

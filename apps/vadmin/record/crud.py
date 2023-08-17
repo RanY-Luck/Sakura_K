@@ -32,7 +32,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.crud import DalBase
-from core.mongo.mongo_manage import MongoManage
+from core.mongo_manage import MongoManage
 from . import models, schemas
 
 

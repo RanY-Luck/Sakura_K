@@ -34,6 +34,7 @@ from . import models, schemas
 from .params import UserParams
 
 
+# 用户DAL
 class UserDal(DalBase):
     import_headers = [
         {"label": "姓名", "field": "name", "required": True},
@@ -457,6 +458,7 @@ class UserDal(DalBase):
         return await super(UserDal, self).delete_datas(ids, v_soft, **kwargs)
 
 
+# 角色DAL
 class RoleDal(DalBase):
 
     def __init__(self, db: AsyncSession):
@@ -568,6 +570,7 @@ class RoleDal(DalBase):
         return await super(RoleDal, self).delete_datas(ids, v_soft, **kwargs)
 
 
+# 菜单DAL
 class MenuDal(DalBase):
 
     def __init__(self, db: AsyncSession):
