@@ -175,7 +175,21 @@ email_port
 
 ```
 # 进入项目根目录下执行,初始化数据: 这里执行dev环境
-python main.py init - -env dev
+python3 main.py init --env dev
 #运行程序
 python3 main.py run
 ```
+
+
+mac系统安装虚拟环境和激活虚拟环境
+一、安装virtualenv
+> sudo pip install virtualenv
+
+二、创建虚拟环境
+> virtualenv venv  # venv为虚拟环境的名称，可以根据需要自定义
+
+注意，如果你想使用Python3创建虚拟环境，需要添加--python选项：
+> virtualenv --python=python3 env
+
+三、激活虚拟环境
+> source env/bin/activate
