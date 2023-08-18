@@ -31,11 +31,13 @@ class IssueCategory(BaseModel):
     name: str | None = None
     platform: str | None = None
     is_active: bool | None = None
+
     create_user_id: int | None = None
 
 
 class IssueCategorySimpleOut(IssueCategory):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     update_datetime: DatetimeStr
     create_datetime: DatetimeStr
@@ -43,10 +45,12 @@ class IssueCategorySimpleOut(IssueCategory):
 
 class IssueCategoryListOut(IssueCategorySimpleOut):
     model_config = ConfigDict(from_attributes=True)
+
     create_user: UserSimpleOut
 
 
 class IssueCategoryOptionsOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
     label: str = Field(alias='name')
     value: int = Field(alias='id')

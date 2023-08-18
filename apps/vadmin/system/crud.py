@@ -121,8 +121,6 @@ class SettingsDal(DalBase):
     async def get_tab_values(self, tab_id: int) -> dict:
         """
         获取系统配置标签下的信息
-        :param tab_id:
-        :return:
         """
         datas = await self.get_datas(limit=0, tab_id=tab_id, v_return_objs=True)
         result = {}
@@ -134,9 +132,9 @@ class SettingsDal(DalBase):
     async def update_datas(self, datas: dict, rd: Redis):
         """
         更新系统配置信息
-        :param datas:
-        :param rd:
-        :return:
+
+        更新ico图标步骤：先将文件上传到本地，然后点击提交后，获取到文件地址，将上传的新文件覆盖原有文件
+        原因：ico图标的路径是在前端的index.html中固定的，所以目前只能改变图片，不改变路径
         """
         for key, value in datas.items():
             if key == "web_ico":
@@ -161,7 +159,6 @@ class SettingsDal(DalBase):
     async def get_base_config(self):
         """
         获取系统基本信息
-        :return:
         """
         ignore_configs = ["wx_server_app_id", "wx_server_app_secret"]
         datas = await self.get_datas(limit=0, tab_id=("in", ["1", "9"]), disabled=False, v_return_objs=True)
@@ -209,7 +206,7 @@ class SettingsTabDal(DalBase):
             v_return_objs=True,
             hidden=hidden
         )
-        return self.generate_values(datas)
+        return self.__generate_values(datas)
 
     async def get_tab_name_values(self, tab_names: list[str], hidden: bool | None = False):
         """
@@ -228,7 +225,7 @@ class SettingsTabDal(DalBase):
             v_return_objs=True,
             hidden=hidden
         )
-        return self.generate_values(datas)
+        return self.__generate_values(datas)
 
     @classmethod
     def __generate_values(cls, datas: list[models.VadminSystemSettingsTab]):
@@ -253,7 +250,8 @@ class TaskDal(MongoManage):
         super(TaskDal, self).__init__(db, "vadmin_system_task", schemas.TaskSimpleOut)
 
     async def get_task(
-            self, _id: str = None,
+            self,
+            _id: str = None,
             v_return_none: bool = False,
             v_schema: Any = None,
             **kwargs
@@ -270,7 +268,8 @@ class TaskDal(MongoManage):
         :return:
         """
         if _id:
-            kwargs["_id"] = ("objectId", _id)
+            kwargs["_id"] = ("ObjectId", _id)
+
         params = self.filter_condition(**kwargs)
         pipeline = [
             {
@@ -335,14 +334,19 @@ class TaskDal(MongoManage):
         if not data and v_return_none:
             return None
         elif not data:
-            raise CustomException("未查到对应数据", code=status.HTTP_404_NOT_FOUND)
+            raise CustomException("未查找到对应数据", code=status.HTTP_404_NOT_FOUND)
         data = data[0]
         if data and v_schema:
             return jsonable_encoder(v_schema(**data))
         return data
 
     async def get_tasks(
-            self, page: int = 1, limit: int = 10, v_schema: Any = None, v_order: str = None, v_order_field: str = None,
+            self,
+            page: int = 1,
+            limit: int = 10,
+            v_schema: Any = None,
+            v_order: str = None,
+            v_order_field: str = None,
             **kwargs
     ):
         """
@@ -358,7 +362,7 @@ class TaskDal(MongoManage):
         :param kwargs:
         :return:
         """
-        v_order_field = v_order_field if v_order_field else "create_datetime"
+        v_order_field = v_order_field if v_order_field else 'create_datetime'
         v_order = -1 if v_order in self.ORDER_FIELD else 1
         params = self.filter_condition(**kwargs)
         pipeline = [
@@ -420,6 +424,7 @@ class TaskDal(MongoManage):
                 }
             }
         ]
+
         # 执行聚合查询
         cursor = self.collection.aggregate(pipeline)
         result = await cursor.to_list(length=None)
@@ -428,7 +433,7 @@ class TaskDal(MongoManage):
         if count == 0:
             return [], 0
         elif v_schema:
-            datas = [jsonable_encoder(v_schema(**datas)) for data in datas]
+            datas = [jsonable_encoder(v_schema(**data)) for data in datas]
         elif self.schema:
             datas = [jsonable_encoder(self.schema(**data)) for data in datas]
         return datas, count
@@ -448,16 +453,16 @@ class TaskDal(MongoManage):
             "expression": data.get("expression")
         }
         if exec_strategy == "interval" or exec_strategy == "cron":
-            job_params["start_data"] = data.get("start_data")
-            job_params["end_data"] = data.get("end_data")
+            job_params["start_date"] = data.get("start_date")
+            job_params["end_date"] = data.get("end_date")
         message = {
-            "operation": self.get("exec_strategy"),
+            "operation": self.JobOperation.add.value,
             "task": {
                 "exec_strategy": data.get("exec_strategy"),
                 "job_params": job_params
             }
         }
-        return await rd.publish(SUBSCRIBE, json.dumps(message).encode("utf-8"))
+        return await rd.publish(SUBSCRIBE, json.dumps(message).encode('utf-8'))
 
     async def create_task(self, rd: Redis, data: schemas.Task) -> dict:
         """
@@ -467,19 +472,22 @@ class TaskDal(MongoManage):
         :return:
         """
         data_dict = data.model_dump()
-        is_active = data_dict.pop("is_active")
+        is_active = data_dict.pop('is_active')
         insert_result = await super().create_data(data_dict)
         obj = await self.get_task(insert_result.inserted_id, v_schema=schemas.TaskSimpleOut)
+
         # 如果分组不存在则新增分组
         group = await TaskGroupDal(self.db).get_data(value=data.group, v_return_none=True)
         if not group:
             await TaskGroupDal(self.db).create_data({"value": data.group})
+
         result = {
             "subscribe_number": 0,
             "is_active": is_active
         }
+
         if is_active:
-            # 创建任务成功后，如果任务状态为True，则向消息队列中发送任务
+            # 创建任务成功后, 如果任务状态为 True，则向消息队列中发送任务
             result['subscribe_number'] = await self.add_task(rd, obj)
         return result
 
@@ -492,36 +500,39 @@ class TaskDal(MongoManage):
         :return:
         """
         data_dict = data.model_dump()
-        is_active = data_dict.pop(_id, data)
+        is_active = data_dict.pop('is_active')
         await super(TaskDal, self).put_data(_id, data)
         obj: dict = await self.get_task(_id, v_schema=schemas.TaskSimpleOut)
+
         # 如果分组不存在则新增分组
         group = await TaskGroupDal(self.db).get_data(value=data.group, v_return_none=True)
         if not group:
             await TaskGroupDal(self.db).create_data({"value": data.group})
+
         try:
-            # 删除正在运行的Job
+            # 删除正在运行中的 Job
             await SchedulerTaskJobsDal(self.db).delete_data(_id)
         except CustomException as e:
             pass
+
         result = {
             "subscribe_number": 0,
             "is_active": is_active
         }
+
         if is_active:
             # 更新任务成功后, 如果任务状态为 True，则向消息队列中发送任务
-            result["subscribe_number"] = await self.add_task(rd, obj)
+            result['subscribe_number'] = await self.add_task(rd, obj)
         return result
 
     async def delete_task(self, _id: str) -> bool:
         """
         删除任务
-        :param _id:
-        :return:
         """
         result = await super(TaskDal, self).delete_data(_id)
+
         try:
-            # 删除正在运行的Job
+            # 删除正在运行中的 Job
             await SchedulerTaskJobsDal(self.db).delete_data(_id)
         except CustomException as e:
             pass
@@ -530,9 +541,6 @@ class TaskDal(MongoManage):
     async def run_once_task(self, rd: Redis, _id: str) -> int:
         """
         执行一次任务
-        :param rd:
-        :param _id:
-        :return:
         """
         obj: dict = await self.get_data(_id, v_schema=schemas.TaskSimpleOut)
         message = {
@@ -545,19 +553,22 @@ class TaskDal(MongoManage):
                 }
             }
         }
-        return await rd.publish(SUBSCRIBE, json.dumps(message).encode("utf-8"))
+        return await rd.publish(SUBSCRIBE, json.dumps(message).encode('utf-8'))
 
 
 class TaskGroupDal(MongoManage):
+
     def __init__(self, db: AsyncIOMotorDatabase):
         super(TaskGroupDal, self).__init__(db, "vadmin_system_task_group")
 
 
 class TaskRecordDal(MongoManage):
+
     def __init__(self, db: AsyncIOMotorDatabase):
         super(TaskRecordDal, self).__init__(db, "scheduler_task_record")
 
 
 class SchedulerTaskJobsDal(MongoManage):
+
     def __init__(self, db: AsyncIOMotorDatabase):
         super(SchedulerTaskJobsDal, self).__init__(db, "scheduler_task_jobs", is_object_id=False)

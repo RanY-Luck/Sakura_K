@@ -16,7 +16,7 @@ from sqlalchemy.orm import joinedload
 from apps.vadmin.system.models import VadminSystemSettingsTab
 from core.database import db_getter
 from core.exception import CustomException
-from core.logger import logger
+from core.logger import logger  # 注意：报错就在这里，如果只写 core.logger 会写入日志报错，很难排查
 from utils import status
 
 """
@@ -46,8 +46,6 @@ class Cache:
     async def __get_tab_name_values(self, tab_names: List[str]):
         """
         获取系统配置标签下的标签信息
-        :param tab_names: 配置标签名称
-        :return:
         """
         async_session = db_getter()
         session = await async_session.__anext__()
@@ -66,8 +64,6 @@ class Cache:
     def __generate_values(cls, datas: List[VadminSystemSettingsTab]):
         """
         生成字典值
-        :param datas:
-        :return:
         """
         return {
             tab.tab_name: {
@@ -81,11 +77,10 @@ class Cache:
     async def cache_tab_names(self, tab_names: List[str] = None):
         """
         缓存系统配置
-        如果手动修改mysql数据库中的配置
+        如果手动修改了mysql数据库中的配置
         那么需要在redis中将对应的tab_name删除
-        :param tab_names:
-        :return:
         """
+
         if not tab_names:
             tab_names = self.DEFAULT_TAB_NAMES
         datas = await self.__get_tab_name_values(tab_names)
@@ -96,13 +91,12 @@ class Cache:
     async def get_tab_name(self, tab_name: str, retry: int = 3):
         """
         获取系统配置
-        :param tab_name: 配置表标签名称
-        :param retry: 重试次数
-        :return:
+        :params tab_name: 配置表标签名称
+        :params retry_num: 重试次数
         """
         result = await self.rd.get(tab_name)
         if not result and retry > 0:
-            logger.error(f"未从Redis中获取到{tab_name}配置信息，正在重新更新配置信息，重试次数{retry}。")
+            logger.error(f"未从Redis中获取到{tab_name}配置信息，正在重新更新配置信息，重试次数：{retry}。")
             await self.cache_tab_names([tab_name])
             return await self.get_tab_name(tab_name, retry - 1)
         elif not result and retry == 0:

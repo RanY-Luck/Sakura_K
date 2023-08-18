@@ -9,8 +9,6 @@
 """
 类依赖项-官方文档：https://fastapi.tiangolo.com/zh/tutorial/dependencies/classes-as-dependencies/
 """
-from typing import Union
-
 from fastapi import Depends
 
 from core.dependencies import Paging, QueryParams
@@ -31,11 +29,11 @@ class UserParams(QueryParams):
 
     def __init__(
             self,
-            name: str = None,
-            telephone: str = None,
-            email: str = None,
-            is_active: Union[bool, str] = None,
-            is_staff: Union[bool, str] = None,
+            name: str | None = None,
+            telephone: str | None = None,
+            email: str | None = None,
+            is_active: bool | None = None,
+            is_staff: bool | None = None,
             params: Paging = Depends()
     ):
         super().__init__(params)
@@ -44,5 +42,3 @@ class UserParams(QueryParams):
         self.email = ("like", email)
         self.is_active = is_active
         self.is_staff = is_staff
-
-

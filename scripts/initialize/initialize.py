@@ -9,12 +9,14 @@
 import os
 import subprocess
 from enum import Enum
-from core.database import db_getter
-from utils.excel.excel_manage import ExcelManage
+
+from sqlalchemy.sql.schema import Table
+
 from application.settings import BASE_DIR, VERSION
 from apps.vadmin.auth import models as auth_models
 from apps.vadmin.system import models as system_models
-from sqlalchemy.sql.schema import Table
+from core.database import db_getter
+from utils.excel.excel_manage import ExcelManage
 
 
 class Environment(str, Enum):
@@ -61,10 +63,12 @@ class InitializeData():
         # 首先调用了一个名为"subprocess.check_call"的函数，该函数用于在命令行中执行指定的命令。这里执行的命令是使用Alembic库进行模型迁移的命令，具体命令如下：
         # alembic --name {env.value} revision --autogenerate -m "{VERSION}"
         # 其中，"{env.value}"表示要映射到的数据库环境的名称，"{VERSION}"表示模型版本号。这个命令会自动生成一个迁移脚本，用于将模型变更应用到数据库中。
-        subprocess.check_call(f'alembic --name {env.value} revision --autogenerate -m "{VERSION}"', cwd=BASE_DIR)
+        subprocess.check_call(
+            ['alembic', '--name', f'{env.value}', 'revision', '--autogenerate', '-m', f'{VERSION}'], cwd=BASE_DIR
+        )
         # 接着，方法又调用了一次"subprocess.check_call"函数，执行另一个Alembic命令：
         # alembic --name {env.value} upgrade head
-        subprocess.check_call(f'alembic --name {env.value} upgrade head', cwd=BASE_DIR)
+        subprocess.check_call(['alembic', '--name', f'{env.value}', 'upgrade', 'head'], cwd=BASE_DIR)
         print(f"环境：{env} {VERSION} 数据库表迁移完成")
 
     def __serializer_data(self):

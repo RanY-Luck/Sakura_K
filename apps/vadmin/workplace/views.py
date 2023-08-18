@@ -7,11 +7,10 @@
 # @Software: PyCharm
 # @desc    : 获取工作场所
 import datetime
-from fastapi import APIRouter, Depends
-from apps.vadmin.auth.utils.current import AllUserAuth
-from apps.vadmin.auth.utils.validation.auth import Auth
+
+from fastapi import APIRouter
+
 from utils.response import SuccessResponse
-from apps.vadmin.record.crud import LoginRecordDal
 
 app = APIRouter()
 
@@ -19,25 +18,13 @@ app = APIRouter()
 ###########################################################
 #                      工作区管理                          #
 ###########################################################
-@app.get("/total", summary="获取统计")
-async def get_total(
-        auth: Auth = Depends(AllUserAuth())
-):
-    data = {
-        "project": 40,
-        "access": await LoginRecordDal(auth.db).get_count(),
-        "todo": 10
-    }
-    return SuccessResponse(data)
-
-
 @app.get("/project", summary="获取项目")
 async def get_project():
     data = [
         {
             "name": 'Mysql',
             "icon": 'vscode-icons:file-type-mysql',
-            "message": 'MySQL 是最流行的关系型数据库管理系统',
+            "message": '最流行的关系型数据库管理系统',
             "personal": 'kinit',
             "link": "https://www.mysql.com/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
@@ -46,7 +33,7 @@ async def get_project():
             "name": 'FastAPI',
             "icon": 'simple-icons:fastapi',
             "message": '一个现代、快速(高性能)的 web 框架',
-            "personal": 'Sakura_k',
+            "personal": 'kinit',
             "link": "https://fastapi.tiangolo.com/zh/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
@@ -54,15 +41,15 @@ async def get_project():
             "name": 'Vue',
             "icon": 'logos:vue',
             "message": '渐进式 JavaScript 框架',
-            "personal": 'Sakura_k',
+            "personal": 'kinit',
             "link": "https://cn.vuejs.org/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
         {
             "name": 'Element-plus',
             "icon": 'logos:element',
-            "message": '基于 Vue3，面向设计师和开发者的组件库',
-            "personal": 'Sakura_k',
+            "message": '面向设计师和开发者的组件库',
+            "personal": 'kinit',
             "link": "https://element-plus.org/zh-CN/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
@@ -70,7 +57,7 @@ async def get_project():
             "name": 'Typescript',
             "icon": 'vscode-icons:file-type-typescript-official',
             "message": 'TypeScript是JavaScript类型的超集',
-            "personal": 'Sakura_k',
+            "personal": 'kinit',
             "link": "https://www.typescriptlang.org/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         },
@@ -78,7 +65,7 @@ async def get_project():
             "name": 'Vite',
             "icon": 'vscode-icons:file-type-vite',
             "message": 'Vite 下一代的前端工具链',
-            "personal": 'Sakura_k',
+            "personal": 'kinit',
             "link": "https://cn.vitejs.dev/",
             "time": datetime.datetime.now().strftime("%Y-%m-%d")
         }
@@ -89,6 +76,10 @@ async def get_project():
 @app.get("/dynamic", summary="获取动态")
 async def get_dynamic():
     data = [
+        {
+            "keys": ['workplace.push', 'Github'],
+            "time": datetime.datetime.now().strftime("%Y-%m-%d")
+        },
         {
             "keys": ['workplace.push', 'Github'],
             "time": datetime.datetime.now().strftime("%Y-%m-%d")

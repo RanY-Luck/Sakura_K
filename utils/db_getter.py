@@ -60,9 +60,3 @@ class DBGetter:
         except AttributeError as e:
             logger.error(f"未连接数据库，无需关闭！，{e}")
             raise ValueError("未连接数据库，无需关闭！")
-
-
-if __name__ == '__main__':
-    t = DBGetter()
-    t.conn_mysql()
-    t.close_mysql()

@@ -31,22 +31,10 @@ from core.exception import CustomException
 
 
 class DalBase:
-    # 倒序
-    ORDER_FIELD = ['desc', 'descending']
+    # 倒叙
+    ORDER_FIELD = ["desc", "descending"]
 
-    def __init__(
-            self,
-            db: AsyncSession,
-            model: Any,
-            schema: Any,
-            key_models: dict = None
-    ):
-        """
-        :param db: 数据库的会话对象
-        :param model: ORM模型对象
-        :param schema: Pydantic模型对象
-        :param key_models: 关键词模型字典
-        """
+    def __init__(self, db: AsyncSession, model: Any, schema: Any, key_models: dict = None):
         self.db = db
         self.model = model
         self.schema = schema
@@ -59,6 +47,7 @@ class DalBase:
             v_join_query: dict = None,
             v_or: list[tuple] = None,
             v_order: str = None,
+            v_order_field: str = None,
             v_return_none: bool = False,
             v_schema: Any = None,
             **kwargs
@@ -88,7 +77,11 @@ class DalBase:
         if data_id:
             sql = sql.where(self.model.id == data_id)
         sql = self.add_filter_condition(sql, v_options, v_join_query, v_or, **kwargs)
-        if v_order and (v_order in self.ORDER_FIELD):
+        if v_order_field and (v_order in self.ORDER_FIELD):
+            sql = sql.order_by(getattr(self.model, v_order_field).desc(), self.model.id.desc())
+        elif v_order_field:
+            sql = sql.order_by(getattr(self.model, v_order_field), self.model.id)
+        elif v_order and (v_order in self.ORDER_FIELD):
             sql = sql.order_by(self.model.create_datetime.desc())
         queryset = await self.db.execute(sql)
         data = queryset.scalars().unique().first()
@@ -115,19 +108,18 @@ class DalBase:
             **kwargs
     ) -> list:
         """
-        查询指定模型数据库表的多条记录
-        :param page: 表示页面编号，默认为1。
-        :param limit: 表示每个页面的数量限制，默认为10。
-        :param v_options: 列表类型，表示使用select在预加载中加载给定的属性。
-        :param v_join_query: 字典类型，表示外键字段查询，内连接。
-        :param v_or: 列表类型，表示或查询。
-        :param v_order: 字符串类型，表示排序，默认正序，可以传入desc表示倒序。
-        :param v_order_field: 字符串类型，表示排序字段。
-        :param v_return_objs: 布尔类型，表示是否返回对象。
-        :param v_start_sql: 表示要使用的起始SQL语句，如果没有指定将使用默认的select语句。
-        :param v_schema: 表示要使用的序列化对象。
+        获取数据列表
+        :param page: 页码
+        :param limit: 当前页数据量
+        :param v_options: 指示应使用select在预加载中加载给定的属性。
+        :param v_join_query: 外键字段查询
+        :param v_or: 或逻辑查询
+        :param v_order: 排序，默认正序，为 desc 是倒叙
+        :param v_order_field: 排序字段
+        :param v_return_objs: 是否返回对象
+        :param v_start_sql: 初始 sql
+        :param v_schema: 指定使用的序列化对象
         :param kwargs: 查询参数
-        :return:
         代码解释：
         首先，该方法判断传入的v_start_sql参数是否为Select类型，如果不是则使用默认的select语句并添加过滤条件；
         然后使用add_filter_condition()方法添加过滤条件和查询条件。
@@ -154,7 +146,13 @@ class DalBase:
             return queryset.scalars().unique().all()
         return [await self.out_dict(i, v_schema=v_schema) for i in queryset.scalars().unique().all()]
 
-    async def get_count(self, v_options: list = None, v_join_query: dict = None, v_or: list[tuple] = None, **kwargs):
+    async def get_count(
+            self,
+            v_options: list = None,
+            v_join_query: dict = None,
+            v_or: list[tuple] = None,
+            **kwargs
+    ) -> int:
         """
         获取数据总数
         :param v_options: 指示应使用select在预加载中加载给定的属性。
@@ -254,7 +252,6 @@ class DalBase:
             sql = self.__or_filter(sql, v_or, v_join_left, v_join)
         sql = self.__generate_join_conditions(sql, v_join, "join", v_select_from)
         sql = self.__generate_join_conditions(sql, v_join_left, "outerjoin", v_select_from)
-
         # 多对多关系查询使用
         for item in v_select_from:
             sql = sql.select_from(item)

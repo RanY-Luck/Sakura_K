@@ -15,27 +15,25 @@ JWT 表示 「JSON Web Tokens」。https://jwt.io/
 PassLib 是一个用于处理哈希密码的很棒的 Python 包。它支持许多安全哈希算法以及配合算法使用的实用程序。
 推荐的算法是 「Bcrypt」：pip3 install passlib[bcrypt]
 """
-from datetime import timedelta
-
 import jwt
+from datetime import timedelta
 from aioredis import Redis
 from fastapi import APIRouter, Depends, Request, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from application import settings
-from apps.vadmin.auth.crud import MenuDal, UserDal
-from apps.vadmin.auth.models import VadminUser
-from apps.vadmin.record.models import VadminLoginRecord
 from core.database import db_getter, redis_getter
 from core.exception import CustomException
 from utils import status
 from utils.response import SuccessResponse, ErrorResponse
-from utils.wx.oauth import WXOAuth
-from .current import FullAdminAuth
+from application import settings
 from .login_manage import LoginManage
 from .validation import LoginForm, WXLoginForm
+from apps.vadmin.record.models import VadminLoginRecord
+from apps.vadmin.auth.crud import MenuDal, UserDal
+from apps.vadmin.auth.models import VadminUser
+from .current import FullAdminAuth
 from .validation.auth import Auth
+from utils.wx.oauth import WXOAuth
 
 app = APIRouter()
 
@@ -63,9 +61,7 @@ async def api_login_for_access_token(
     return resp
 
 
-@app.post(
-    "/login", summary="手机号密码登录", description="员工登录通道，限制最多输错次数，达到最大值后将is_active=False"
-)
+@app.post("/login", summary="手机号密码登录", description="员工登录通道，限制最多输错次数，达到最大值后将is_active=False")
 async def login_for_access_token(
         request: Request,
         data: LoginForm,
@@ -88,6 +84,7 @@ async def login_for_access_token(
         # 如果登录成功，代码将创建一个JWT(access_token)和刷新令牌(refresh_token)，并将其打包在resp字典中。
         if not result.status:
             raise ValueError(result.msg)
+
         access_token = LoginManage.create_token({"sub": result.user.telephone, "is_refresh": False})
         expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
         refresh_token = LoginManage.create_token({"sub": result.user.telephone, "is_refresh": True}, expires=expires)

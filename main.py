@@ -11,14 +11,14 @@ FastApi 更新文档：https://github.com/tiangolo/fastapi/releases
 FastApi Github：https://github.com/tiangolo/fastapi
 Typer 官方文档：https://typer.tiangolo.com/
 """
-import typer
 import uvicorn
+import typer
 import asyncio
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from application import settings
 from application import urls
-from starlette.staticfiles import StaticFiles  # 依赖安装：pip3 install aiofiles
+from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiofiles
 from core.exception import register_exception
 from scripts.initialize.initialize import InitializeData, Environment
 from scripts.create_app.main import CreateApp

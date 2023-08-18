@@ -8,7 +8,9 @@
 # @desc    : 日志记录
 import os
 import time
+
 from loguru import logger
+
 from application.settings import BASE_DIR
 
 """
@@ -36,4 +38,4 @@ encoding="UTF-8":定义日志文件的编码方式，默认为UTF-8。
 level="INFO":定义日志记录的级别，默认为INFO级别，即记录全部信息。
 """
 info = logger.add(log_path_info, rotation="00:00", retention="3 days", enqueue=True, encoding="UTF-8", level="INFO")
-error = logger.add(log_path_error, rotation="00:00", retention="3 days", enqueue=True, encoding="UTF-8", level="INFO")
+error = logger.add(log_path_error, rotation="00:00", retention="3 days", enqueue=True, encoding="UTF-8", level="ERROR")

@@ -7,18 +7,15 @@
 # @Software: PyCharm
 # @desc    : 登录记录模型
 import json
-from typing import Union
-
-from fastapi import Request
-from sqlalchemy import Column, String, Boolean, TEXT
-from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.requests import Request as StarletteRequest
-from user_agents import parse
-
 from application.settings import LOGIN_LOG_RECORD
 from apps.vadmin.auth.utils.validation import LoginForm, WXLoginForm
-from db.db_base import BaseModel
 from utils.ip_manage import IPManage
+from sqlalchemy.ext.asyncio import AsyncSession
+from db.db_base import BaseModel
+from sqlalchemy import Column, String, Boolean, TEXT
+from fastapi import Request
+from starlette.requests import Request as StarletteRequest
+from user_agents import parse
 
 
 class VadminLoginRecord(BaseModel):
@@ -46,7 +43,7 @@ class VadminLoginRecord(BaseModel):
     async def create_login_record(
             cls,
             db: AsyncSession,
-            data: Union[LoginForm, WXLoginForm],
+            data: LoginForm | WXLoginForm,
             status: bool,
             req: Request | StarletteRequest,
             resp: dict

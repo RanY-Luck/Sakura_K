@@ -9,12 +9,13 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
-from core.database import db_getter
-from utils.response import SuccessResponse
-from . import schemas, crud, params, models
-from core.dependencies import IdList
+
 from apps.vadmin.auth.utils.current import AllUserAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
+from core.database import db_getter
+from core.dependencies import IdList
+from utils.response import SuccessResponse
+from . import schemas, crud, params, models
 
 app = APIRouter()
 
@@ -63,7 +64,7 @@ async def create_issue_category(
         auth: Auth = Depends(AllUserAuth())  # 进行身份验证
 ):
     # 将data中的user_id属性设置为auth.user.id，表示创建该类别的用户ID为当前认证用户的ID。
-    data.create_user_id  = auth.user.id
+    data.create_user_id = auth.user.id
     # 通过crud.IssueCategoryDal实例的create_data()方法创建类别数据，传递的参数是data。create_data()返回一个字典，表示创建的类别数据。
     # 最后，路由函数返回一个SuccessResponse对象，其中包含创建的类别数据。
     # SuccessResponse是一个自定义的响应类，它包含一个属性data，表示返回的数据。
@@ -157,10 +158,7 @@ async def get_issues(
 
 
 @app.post("/issues", summary="创建问题")
-async def create_issue(
-        data: schemas.Issue,
-        auth: Auth = Depends(AllUserAuth())  # 身份验证
-):
+async def create_issue(data: schemas.Issue, auth: Auth = Depends(AllUserAuth())):
     data.create_user_id = auth.user.id
     return SuccessResponse(await crud.IssueDal(auth.db).create_data(data=data))
 

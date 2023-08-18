@@ -15,7 +15,6 @@ SettingsSimpleOut类继承了Settings类，并增加了id（自增主键）、cr
 同时，这个类也使用了Config类的orm_mode配置，表示该类可以被用于ORM操作。
 """
 from pydantic import BaseModel, ConfigDict
-
 from core.data_types import DatetimeStr
 
 
@@ -30,6 +29,7 @@ class Settings(BaseModel):
 
 class SettingsSimpleOut(Settings):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

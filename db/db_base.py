@@ -18,8 +18,9 @@
 官方网址：https://hellowac.github.io/alembic_doc/zh/_front_matter.html
 """
 
-from core.database import Model
 from sqlalchemy import Column, DateTime, Integer, func, Boolean
+
+from core.database import Model
 
 
 class BaseModel(Model):
@@ -34,8 +35,8 @@ class BaseModel(Model):
     这些字段为所有基于 BaseModel 的子模型提供了基础的表结构，也方便了在多个表中共用相同的字段。
     """
     __abstract__ = True
-    id = Column(Integer, primary_key=True, unique=True, comment="主键ID", index=True, nullable=False)
-    create_datetime = Column(DateTime, server_default=func.now(), comment="创建时间")
-    update_datetime = Column(DateTime, server_default=func.now(), onupdate=func.now(), comment="更新时间")
-    delete_datetime = Column(DateTime, nullable=True, comment="删除时间")
+    id = Column(Integer, primary_key=True, unique=True, comment='主键ID', index=True, nullable=False)
+    create_datetime = Column(DateTime, server_default=func.now(), comment='创建时间')
+    update_datetime = Column(DateTime, server_default=func.now(), onupdate=func.now(), comment='更新时间')
+    delete_datetime = Column(DateTime, nullable=True, comment='删除时间')
     is_delete = Column(Boolean, default=False, comment="是否软删除")

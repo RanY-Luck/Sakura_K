@@ -24,7 +24,6 @@ autoincrement=True 表示这个列的值是自增的，每当有新数据插入�
 from db.db_base import Model
 from sqlalchemy import Column, Table, Integer, ForeignKey, INT
 
-
 vadmin_user_roles = Table(
     'vadmin_auth_user_roles',
     Model.metadata,
@@ -32,7 +31,6 @@ vadmin_user_roles = Table(
     Column('user_id', Integer, ForeignKey('vadmin_auth_user.id', ondelete='CASCADE'), primary_key=True),
     Column('role_id', Integer, ForeignKey('vadmin_auth_role.id', ondelete='CASCADE'), primary_key=True),
 )
-
 
 vadmin_role_menus = Table(
     'vadmin_auth_role_menus',

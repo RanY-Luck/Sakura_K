@@ -22,13 +22,14 @@ class SuccessResponse(Response):
     """
 
     def __init__(
-            self,
-            data=None,
-            msg="success",
-            code=http.HTTP_SUCCESS,
-            status=http_status.HTTP_200_OK,
-            **kwargs
+            self, data=None, msg="success", code=http.HTTP_SUCCESS, status=http_status.HTTP_200_OK
+            , **kwargs
     ):
+        self.data = {
+            "code": code,
+            "message": msg,
+            "data": data
+        }
         self.data = {
             "code": code,
             "message": msg,
@@ -47,13 +48,7 @@ class ErrorResponse(Response):
     最后，通过调用父类 FastAPI 中 Response 类的构造函数，传入响应数据和 HTTP 状态码，创建了一个自定义的 HTTP 错误响应类。
     """
 
-    def __init__(
-            self,
-            msg=None,
-            code=http.HTTP_ERROR,
-            status=http_status.HTTP_200_OK,
-            **kwargs
-    ):
+    def __init__(self, msg=None, code=http.HTTP_ERROR, status=http_status.HTTP_200_OK, **kwargs):
         self.data = {
             "code": code,
             "message": msg,

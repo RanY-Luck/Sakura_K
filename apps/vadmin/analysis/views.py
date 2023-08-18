@@ -7,9 +7,10 @@
 # @Software: PyCharm
 # @desc    :
 from fastapi import APIRouter, Depends
+
 from apps.vadmin.auth.utils.current import AllUserAuth
-from utils.response import SuccessResponse
 from apps.vadmin.auth.utils.validation.auth import Auth
+from utils.response import SuccessResponse
 
 app = APIRouter()
 
@@ -21,13 +22,16 @@ app = APIRouter()
 async def get_banners(auth: Auth = Depends(AllUserAuth())):
     data = [
         {
-            "id": 1, "image": "https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            "id": 1,
+            "image": "https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         },
         {
-            "id": 2, "image": "https://images.pexels.com/photos/4014845/pexels-photo-4014845.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            "id": 2,
+            "image": "https://images.pexels.com/photos/4014845/pexels-photo-4014845.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         },
         {
-            "id": 3, "image": "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            "id": 3,
+            "image": "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         },
     ]
     return SuccessResponse(data)

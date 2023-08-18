@@ -43,6 +43,7 @@ class UserIn(User):
     role_ids: list[int] = []
     password: str | None = ""
 
+
 class UserUpdateBaseInfo(BaseModel):
     """
     更新用户基本信息

@@ -219,11 +219,20 @@ async def put_tasks(
         rd: Redis = Depends(redis_getter),
         auth: Auth = Depends(AllUserAuth())
 ):
+    return SuccessResponse(await crud.TaskDal(db).put_task(rd, _id, data))
+
+
+@app.delete("/tasks", summary="删除单个定时任务")
+async def delete_task(
+        _id: str,
+        db: AsyncIOMotorDatabase = Depends(mongo_getter),
+        auth: Auth = Depends(AllUserAuth())
+):
     return SuccessResponse(await crud.TaskDal(db).delete_task(_id))
 
 
 @app.get("/task", summary="获取定时任务详情")
-async def get_tasks(
+async def get_task(
         _id: str,
         db: AsyncIOMotorDatabase = Depends(mongo_getter),
         auth: Auth = Depends(AllUserAuth())
@@ -244,11 +253,8 @@ async def run_once_task(
 ###########################################################
 #                    定时任务分组管理                        #
 ###########################################################
-@app.get("/task/group/options", summary="获取定时任务分组选择列表")
-async def get_task_group_options(
-        db: AsyncIOMotorDatabase = Depends(mongo_getter),
-        auth: Auth = Depends(AllUserAuth())
-):
+@app.get("/task/group/options", summary="获取定时任务分组选择项列表")
+async def get_task_group_options(db: AsyncIOMotorDatabase = Depends(mongo_getter), auth: Auth = Depends(AllUserAuth())):
     return SuccessResponse(await crud.TaskGroupDal(db).get_datas(limit=0))
 
 

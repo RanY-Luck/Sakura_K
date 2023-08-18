@@ -7,11 +7,12 @@
 # @Software: PyCharm
 # @desc    : 工具类
 import datetime
+import importlib
 import random
 import re
 import string
-import importlib
 from typing import List, Union
+
 from core.logger import logger
 
 
@@ -33,20 +34,20 @@ def test_password(password: str) -> Union[str, bool]:
     最后，判断 key 是否大于等于 2，如果是则返回 True 表示密码符合要求，反之则返回相应的错误信息。
     """
     if len(password) < 8 or len(password) > 16:
-        return "长度需为8-16个字符，请重新输入~"
+        return '长度需为8-16个字符,请重新输入。'
     else:
         for i in password:
             if 0x4e00 <= ord(i) <= 0x9fa5 or ord(i) == 0x20:  # Ox4e00等十六进制数分别为中文字符和空格的Unicode编码
-                return "不能使用空格、中文，请重新输入~"
+                return '不能使用空格、中文，请重新输入。'
         else:
             key = 0
             key += 1 if bool(re.search(r'\d', password)) else 0
             key += 1 if bool(re.search(r'[A-Za-z]', password)) else 0
-            key += 1 if bool(re.search(f"\W", password)) else 0
+            key += 1 if bool(re.search(r"\W", password)) else 0
             if key >= 2:
                 return True
             else:
-                return "至少含数字、字母、字符两种组合，请重新输入~"
+                return '至少含数字/字母/字符2种组合，请重新输入。'
 
 
 def list_dict_find(options: List[dict], key: str, value: any) -> Union[dict, None]:
@@ -62,13 +63,10 @@ def list_dict_find(options: List[dict], key: str, value: any) -> Union[dict, Non
     如果相等，说明已经找到符合条件的字典对象，直接返回该字典对象。
     如果循环中没有找到符合条件的字典对象，则说明 options 中没有包含指定的 key 和 value 的字典，此时函数返回 None。
     """
-    for item in options:
-        if item.get(key) == value:
-            return item
-    return None
+    return next((item for item in options if item.get(key) == value), None)
 
 
-def get_item_interval(start_time: str, end_time: str, interval: int, time_format: str = "%H:%M:%S") -> List:
+def get_time_interval(start_time: str, end_time: str, interval: int, time_format: str = "%H:%M:%S") -> List:
     """
     获取时间间隔
     :param start_time: 起始时间
@@ -143,13 +141,6 @@ def import_modules(modules: list, desc: str, **kwargs):
 
 
 async def import_modules_async(modules: list, desc: str, **kwargs):
-    """
-
-    :param modules:
-    :param desc:
-    :param kwargs:
-    :return:
-    """
     for module in modules:
         if not module:
             continue

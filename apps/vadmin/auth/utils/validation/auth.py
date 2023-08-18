@@ -7,7 +7,6 @@
 # @Software: PyCharm
 # @desc    : 用户凭证验证装饰器
 from datetime import timedelta, datetime
-from typing import Optional
 
 import jwt
 from fastapi import Request
@@ -36,14 +35,13 @@ class AuthValidation:
     # status_code = 401 时，表示强制要求重新登录，因账号已冻结，账号已过期，手机号码错误，刷新token无效等问题导致
     # 只有 code = 401 时，表示 token 过期，要求刷新 token
     # 只有 code = 错误值时，只是报错，不重新登陆
-
     error_code = status.HTTP_401_UNAUTHORIZED
     warning_code = status.HTTP_ERROR
 
     # status_code = 403 时，表示强制要求重新登录，因无系统权限，而进入到系统访问等问题导致
 
     @classmethod
-    def validate_token(cls, request: Request, token: Optional[str]) -> str:
+    def validate_token(cls, request: Request, token: str | None) -> str:
         """
         验证用户 token
         """
@@ -51,7 +49,7 @@ class AuthValidation:
             raise CustomException(
                 msg="请您先登录！",
                 code=status.HTTP_403_FORBIDDEN,
-                status=status.HTTP_403_FORBIDDEN
+                status_code=status.HTTP_403_FORBIDDEN
             )
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
@@ -77,11 +75,7 @@ class AuthValidation:
                 status_code=status.HTTP_403_FORBIDDEN
             )
         except jwt.exceptions.ExpiredSignatureError:
-            raise CustomException(
-                msg="认证已过期，请您重新登录",
-                code=cls.error_code,
-                status_code=cls.error_code
-            )
+            raise CustomException(msg="认证已过期，请您重新登录", code=cls.error_code, status_code=cls.error_code)
         return telephone
 
     @classmethod

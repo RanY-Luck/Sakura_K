@@ -32,11 +32,6 @@ class ImportManage:
     file_type = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
 
     def __init__(self, file: UploadFile, headers: List[dict]):
-        """
-
-        :param file:
-        :param headers:
-        """
         self.__table_data = None
         self.__table_header = None
         self.__filename = None
@@ -52,8 +47,6 @@ class ImportManage:
     def check_file_type(cls, file: UploadFile) -> None:
         """
         验证文件类型
-        :param file:
-        :return:
         """
         if file.content_type not in cls.file_type:
             raise CustomException(msg="文件类型必须为xlsx类型", code=status.HTTP_ERROR)
@@ -110,7 +103,7 @@ class ImportManage:
             field = self.headers[index]
             label = self.__table_header[index]
             if not cell and field.get("required", False):
-                return False, f"{label}不能为空!"
+                return False, f"{label}不能为空！"
             elif field.get("options", []) and cell:
                 item = list_dict_find(field.get("options", []), "label", cell)
                 if item:
@@ -123,7 +116,7 @@ class ImportManage:
                     try:
                         validator(str(cell))
                     except ValueError as e:
-                        return False, f"{label}:{e.__str__()}"
+                        return False, f"{label}：{e.__str__()}"
             if value:
                 field_type = field.get("type", FieldType.str)
                 if field_type == FieldType.list:
@@ -131,7 +124,7 @@ class ImportManage:
                 elif field_type == FieldType.str:
                     data[field.get("field")] = str(value)
             else:
-                data[field.get("field")] = str(value)
+                data[field.get("field")] = value
         data["old_data_list"] = row
         return True, data
 

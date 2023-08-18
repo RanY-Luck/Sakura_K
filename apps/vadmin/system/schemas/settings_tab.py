@@ -31,6 +31,7 @@ class SettingsTab(BaseModel):
 
 class SettingsTabSimpleOut(SettingsTab):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

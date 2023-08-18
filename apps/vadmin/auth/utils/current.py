@@ -21,7 +21,6 @@ from .validation.auth import Auth
 
 
 class OpenAuth(AuthValidation):
-
     """
     开放认证，无认证也可以访问
     认证了以后可以获取到用户信息，无认证则获取不到
@@ -128,4 +127,3 @@ class FullAdminAuth(AuthValidation):
             if not (self.permissions & permissions):
                 raise CustomException(msg="无权限操作", code=status.HTTP_403_FORBIDDEN)
         return result
-

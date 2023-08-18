@@ -7,7 +7,6 @@
 # @Software: PyCharm
 # @desc    : 主配置文件
 import os
-
 from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是用于在 OAuth2 鉴权方式下获取访问令牌的类。
 
 """
@@ -74,7 +73,7 @@ ALGORITHM = "HS256"
 """
 access_token 过期时间: 1 Day
 """
-ACCESS_TOKEN_EXPIRE_MINUTES = 1 * 24 * 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 """
 refresh_token 过期时间，用于刷新token使用：2 Day

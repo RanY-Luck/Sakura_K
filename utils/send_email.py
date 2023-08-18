@@ -65,28 +65,28 @@ class EmailSender:
         """
         await self.__get_settings()
         message = MIMEMultipart()
-        message["From"] = self.email
-        message["To"] = ",".join(to_emails)
-        message["Subject"] = subject
+        message['From'] = self.email
+        message['To'] = ', '.join(to_emails)
+        message['Subject'] = subject
         body = MIMEText(body)
         message.attach(body)
         if attachments:
             for attachment in attachments:
-                with open(attachment, "rb") as f:
+                with open(attachment, 'rb') as f:
                     file_data = f.read()
-                filename = attachment.split("/")[-1]
+                filename = attachment.split('/')[-1]
                 attachment = MIMEApplication(file_data, Name=filename)
                 attachment['Content-Disposition'] = f'attachment; filename="{filename}"'
                 message.attach(attachment)
         try:
             result = self.server.sendmail(self.email, to_emails, message.as_string())
             self.server.quit()
-            print("邮件发送结果:已发送", result)
+            print("邮件发送结果", result)
             if result:
                 return False
             else:
                 return True
         except smtplib.SMTPException as e:
             self.server.quit()
-            print("邮件发送失败！错误信息：", e)
+            print('邮件发送失败！错误信息：', e)
             return False

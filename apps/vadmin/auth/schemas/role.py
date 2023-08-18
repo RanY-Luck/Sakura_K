@@ -17,7 +17,6 @@ RoleIn类也继承自Role类，但是新增了menu_ids属性，用于接收一�
 RoleSelectOut类表示了一个用于下拉选择框的角色对象，包含了角色ID、名称和是否禁用等属性。
 """
 from pydantic import BaseModel, ConfigDict
-
 from core.data_types import DatetimeStr
 from .menu import MenuSimpleOut
 

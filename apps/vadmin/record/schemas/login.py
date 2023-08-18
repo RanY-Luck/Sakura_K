@@ -21,7 +21,6 @@ LoginRecordSimpleOut 的 Config 类中设置了 orm_mode = True，这表示该�
 这样可以确保返回的数据符合 SQLAlchemy ORM 模型的属性要求。
 """
 from pydantic import BaseModel, ConfigDict
-
 from core.data_types import DatetimeStr
 
 
@@ -47,6 +46,7 @@ class LoginRecord(BaseModel):
 
 class LoginRecordSimpleOut(LoginRecord):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

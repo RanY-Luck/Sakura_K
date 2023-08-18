@@ -38,6 +38,7 @@ class Issue(BaseModel):
 
 class IssueSimpleOut(Issue):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     update_datetime: DatetimeStr
     create_datetime: DatetimeStr
@@ -45,5 +46,6 @@ class IssueSimpleOut(Issue):
 
 class IssueListOut(IssueSimpleOut):
     model_config = ConfigDict(from_attributes=True)
+
     create_user: UserSimpleOut
     category: IssueCategorySimpleOut

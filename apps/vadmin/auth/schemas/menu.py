@@ -18,7 +18,6 @@ TreeListOut类继承自MenuSimpleOut类，并新增了children属性，表示该
 其中，children属性也是一个由TreeListOut对象构成的列表，表示该菜单项包含的子菜单。
 """
 from pydantic import BaseModel, ConfigDict
-
 from core.data_types import DatetimeStr
 
 

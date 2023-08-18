@@ -6,9 +6,10 @@
 # @File    : settings_tab.py
 # @Software: PyCharm
 # @desc    : 系统配置分类模型
-from sqlalchemy.orm import relationship
-from db.db_base import BaseModel
 from sqlalchemy import Column, String, Boolean
+from sqlalchemy.orm import relationship
+
+from db.db_base import BaseModel
 
 """
 代码解释：
@@ -22,10 +23,12 @@ tab_label表示tab标题；tab_name表示tab标识符，具有唯一性，不能
 class VadminSystemSettingsTab(BaseModel):
     __tablename__ = "vadmin_system_settings_tab"
     __table_args__ = ({'comment': '系统配置分类表'})
+
     title = Column(String(255), comment="标题")
     classify = Column(String(255), index=True, nullable=False, comment="分类键")
     tab_label = Column(String(255), comment="tab标题")
     tab_name = Column(String(255), index=True, nullable=False, unique=True, comment="tab标识符")
     hidden = Column(Boolean, default=False, comment="是否隐藏")
     disabled = Column(Boolean, default=False, comment="是否禁用")
+
     settings = relationship("VadminSystemSettings", back_populates="tab")

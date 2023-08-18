@@ -6,9 +6,10 @@
 # @File    : dynamic_quality.py
 # @Software: PyCharm
 # @desc    : 计算图像质量
-import PIL.Image  # 安装依赖包：pip3 install pillow
 from math import log
-from SSIM_PIL import compare_ssim  # 安装依赖包：pip3 intall SSIM-PIL
+
+import PIL.Image  # 安装依赖包：pip3 install pillow
+from SSIM_PIL import compare_ssim  # 安装依赖包：pip3 install SSIM-PIL
 
 """
 代码解释：
@@ -28,18 +29,13 @@ def get_ssim_at_quality(photo, quality):
     :return:
     """
     ssim_photo = "tmp.jpg"
-    photo.save(ssim_photo, format("JPEG", quality=quality, progressive=True))
+    photo.save(ssim_photo, format="JPEG", quality=quality, progressive=True)
     ssim_score = compare_ssim(photo, PIL.Image.open(ssim_photo))
     return ssim_score
 
 
 def _ssim_iteration_count(lo, hi):
-    """
-
-    :param lo:
-    :param hi:
-    :return:
-    """
+    """Return the depth of the binary search tree for this range"""
     if lo >= hi:
         return 0
     else:

@@ -37,7 +37,7 @@ sys.path.append(BASE_DIR)
 target_metadata = Model.metadata
 
 
-def run_migrations_offline() -> None:
+def run_migrations_offline():
     """Run migrations in 'offline' mode.
 
     This configures the context with just a URL

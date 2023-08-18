@@ -162,11 +162,7 @@ async def get_user_download_new_import_template(
 
 
 @app.post("/import/users", summary="批量导入用户")
-async def post_import_users(
-        file: UploadFile,  # 上传的Excel文件对象
-        # 身份验证，要求验证权限为"auth.user.import"的FullAdminAuth。
-        auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.import"]))
-):
+async def post_import_users(file: UploadFile, auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.import"]))):
     # 返回一个成功响应对象（SuccessResponse），其中data字段为await crud.UserDal(auth.db).import_users(file)的返回结果。
     # 该语句调用了UserDal类中的import_users方法，传入file作为上传的Excel文件对象，使用auth.db获取数据库连接对象，并进行用户的批量导入。
     # 最终将成功响应对象返回给客户端。
@@ -296,7 +292,7 @@ async def get_role_options(
 
 @app.get("/roles/{data_id}", summary="获取角色信息")
 async def get_role(
-        data_id: int, # 客户端传入的待获取角色的ID
+        data_id: int,  # 客户端传入的待获取角色的ID
         # 身份验证，要求验证权限为"auth.role.view"或"auth.role.update"的FullAdminAuth。
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.role.view", "auth.role.update"]))
 ):

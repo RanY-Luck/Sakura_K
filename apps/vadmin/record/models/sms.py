@@ -6,14 +6,14 @@
 # @File    : sms.py
 # @Software: PyCharm
 # @desc    : 短信发送记录模型
-from db.db_base import BaseModel
 from sqlalchemy import Column, String, Boolean, ForeignKey
+
+from db.db_base import BaseModel
 
 
 class VadminSMSSendRecord(BaseModel):
     __tablename__ = "vadmin_record_sms_send"
     __table_args__ = ({'comment': '短信发送记录表'})
-
     user_id = Column(ForeignKey("vadmin_auth_user.id", ondelete='CASCADE'), comment="操作人")
     status = Column(Boolean, default=True, comment="发送状态")
     content = Column(String(255), comment="发送内容")

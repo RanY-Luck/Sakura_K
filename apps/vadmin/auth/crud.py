@@ -22,12 +22,12 @@ from core.crud import DalBase
 from core.exception import CustomException
 from core.validator import vali_telephone
 from utils import status
-from utils.aliyun_sms import AliyunSMS
 from utils.excel.excel_manage import ExcelManage
 from utils.excel.import_manage import ImportManage, FieldType
 from utils.excel.write_xlsx import WriteXlsx
 from utils.file.aliyun_oss import AliyunOSS, BucketConf
 from utils.send_email import EmailSender
+from utils.sms.reset_passwd import ResetPasswordSMS
 from utils.tools import test_password
 from utils.wx.oauth import WXOAuth
 from . import models, schemas
@@ -224,7 +224,6 @@ class UserDal(DalBase):
         role_options = self.import_headers[4]
         assert isinstance(role_options, dict)
         role_options["options"] = [{"label": role.name, "value": role.id} for role in roles]
-
         # 性别选择项
         dict_types = await vadminSystemCRUD.DictTypeDal(self.db).get_dicts_details(["sys_vadmin_gender"])
         gender_options = self.import_headers[3]
@@ -346,9 +345,9 @@ class UserDal(DalBase):
                 user["send_sms_msg"] = "重置密码失败"
                 continue
             password = user.pop("password")
-            sms = AliyunSMS(rd, user.get("telephone"))
+            sms = ResetPasswordSMS([user.get("telephone")], rd)
             try:
-                send_result = await sms.main_async(AliyunSMS.Scene.reset_password, password=password)
+                send_result = (await sms.main_async(password=password))[0]
                 user["send_sms_status"] = send_result
                 user["send_sms_msg"] = "" if send_result else "发送失败，请联系管理员"
             except CustomException as e:
@@ -420,7 +419,7 @@ class UserDal(DalBase):
         更新用户服务端微信平台openid
         :param code:
         :param user:
-        :param rd:
+        :param redis:
         :return:
         代码解释：
         实例化 WXOAuth 类的实例，并调用其 parsing_openid 方法传入 code 以获取 openid 值。如果获取不到 openid，则返回 False。

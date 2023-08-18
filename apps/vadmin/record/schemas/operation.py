@@ -21,7 +21,6 @@ OperationRecord 和 OperationRecordSimpleOut 都是 Pydantic 的 BaseModel 类�
 Config 类中的 orm_mode = True 表示该模型可以被用作 SQLAlchemy ORM 模型的返回类型，确保返回的数据符合 SQLAlchemy ORM 模型的属性要求。
 """
 from pydantic import BaseModel, ConfigDict
-
 from core.data_types import DatetimeStr
 
 
@@ -45,4 +44,5 @@ class OperationRecord(BaseModel):
 
 class OperationRecordSimpleOut(OperationRecord):
     model_config = ConfigDict(from_attributes=True)
+
     create_datetime: DatetimeStr

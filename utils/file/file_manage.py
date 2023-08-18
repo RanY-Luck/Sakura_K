@@ -6,7 +6,6 @@
 # @File    : file_manage.py
 # @Software: PyCharm
 # @desc    : 保存图片到本地
-import asyncio
 import datetime
 import shutil
 import sys
@@ -14,7 +13,6 @@ from pathlib import Path
 
 import aioshutil
 from aiopathlib import AsyncPath
-from aiopathlib import AsyncPath as Path
 from fastapi import UploadFile
 
 from application.settings import TEMP_DIR, STATIC_ROOT, BASE_DIR, STATIC_URL, STATIC_DIR
@@ -95,6 +93,8 @@ class FileManage(FileBase):
         首先判断源文件路径是否以斜杠 / 开头，如果是则去掉前导斜杠。接着判断操作系统是否为 Windows，如果是则将路径中的正斜杠 / 替换为反斜杠 \。
         接着使用 os.path.join(BASE_DIR, src) 方法将相对路径转换为绝对路径，并检查目标路径上级目录是否存在，如果不存在则创建该目录。最后使用 shutil.copyfile 方法将源文件复制到目标文件。
         """
+        if src[0] == "/":
+            src = src.lstrip("/")
         if sys.platform == "win32":
             src = src.replace("/", "\\")
             dst = dst.replace("/", "\\")
@@ -127,9 +127,3 @@ class FileManage(FileBase):
         if not await dst.parent.exists():
             await dst.parent.mkdir(parents=True, exist_ok=True)
         await aioshutil.copyfile(src, dst)
-
-
-if __name__ == '__main__':
-    _src = r""
-    _dst = r""
-    asyncio.run(FileManage.async_copy(_src, _dst))

@@ -24,10 +24,12 @@ foreign_keys参数表示VadminSystemSettings表中的外键，back_populates参�
 class VadminSystemSettings(BaseModel):
     __tablename__ = "vadmin_system_settings"
     __table_args__ = ({'comment': '系统配置表'})
+
     config_label = Column(String(255), comment="配置表标签")
     config_key = Column(String(255), index=True, nullable=False, unique=True, comment="配置表键")
     config_value = Column(TEXT, comment="配置表内容")
     remark = Column(String(255), comment="备注信息")
     disabled = Column(Boolean, default=False, comment="是否禁用")
+
     tab_id = Column(Integer, ForeignKey("vadmin_system_settings_tab.id", ondelete='CASCADE'), comment="关联tab标签")
     tab = relationship("VadminSystemSettingsTab", foreign_keys=tab_id, back_populates="settings")

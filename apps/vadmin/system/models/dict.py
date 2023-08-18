@@ -6,9 +6,10 @@
 # @File    : dict.py
 # @Software: PyCharm
 # @desc    : 系统字典模型
-from sqlalchemy.orm import relationship
-from db.db_base import BaseModel
 from sqlalchemy import Column, String, Boolean, ForeignKey, Integer
+from sqlalchemy.orm import relationship
+
+from db.db_base import BaseModel
 
 """
 代码解释：
@@ -29,6 +30,7 @@ back_populates参数表示在VadminDictType表中与之关联的字段。
 class VadminDictType(BaseModel):
     __tablename__ = "vadmin_system_dict_type"
     __table_args__ = ({'comment': '字典类型表'})
+
     dict_name = Column(String(50), index=True, nullable=False, comment="字典名称")
     dict_type = Column(String(50), index=True, nullable=False, comment="字典类型")
     disabled = Column(Boolean, default=False, comment="字典状态，是否禁用")
@@ -39,6 +41,7 @@ class VadminDictType(BaseModel):
 class VadminDictDetails(BaseModel):
     __tablename__ = "vadmin_system_dict_details"
     __table_args__ = ({'comment': '字典详情表'})
+
     label = Column(String(50), index=True, nullable=False, comment="字典标签")
     value = Column(String(50), index=True, nullable=False, comment="字典键值")
     disabled = Column(Boolean, default=False, comment="字典状态，是否禁用")

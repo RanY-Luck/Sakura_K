@@ -8,7 +8,9 @@
 # @desc    : JPEG和PNG图片进行压缩
 import os
 import time
-from PIL import Image, ExifTags  # 安装依赖包：pip3 insall pillow
+
+from PIL import Image, ExifTags  # 安装依赖包：pip3 install pillow
+
 from utils.file.compress import dynamic_quality
 
 """
@@ -26,32 +28,26 @@ PIL读取的图像发生自动旋转：https://blog.csdn.net/mizhenpeng/article/
 
 
 def compress_jpg_png(filename, originpath):
-    """
-
-    :param filename:
-    :param originpath:
-    :return:
-    """
-    name = filename.rstrip(".png").rstrip(".jpg")
+    name = filename.rstrip('.png').rstrip('.jpg')
     im = Image.open(os.path.join(originpath, filename))
     # 解决图像方向问题
     try:
-        for originpath in ExifTags.TAGS.keys():
-            if ExifTags.TAGS[originpath] == "Orientation": break
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation': break
             exif = dict(im._getexif().items())
-            if exif[originpath] == 3:
+            if exif[orientation] == 3:
                 im = im.rotate(180, expand=True)
-            elif exif[originpath] == 6:
+            elif exif[orientation] == 6:
                 im = im.rotate(270, expand=True)
-            elif exif[originpath] == 8:
+            elif exif[orientation] == 8:
                 im = im.rotate(90, expand=True)
     except:
         pass
-    im = im.convert("RGB")
+    im = im.convert('RGB')
     im.format = "JPEG"
     new_photo = im.copy()
     new_photo.thumbnail(im.size, resample=Image.ANTIALIAS)
-    save_args = {"format": im.format}
+    save_args = {'format': im.format}
     save_args['quality'], value = dynamic_quality.jpeg_dynamic_quality(im)
     save_args['optimize'] = True
     save_args['progressive=True'] = True

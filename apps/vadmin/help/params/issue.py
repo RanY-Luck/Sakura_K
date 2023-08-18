@@ -7,6 +7,7 @@
 # @Software: PyCharm
 # @desc    : 常见问题
 from fastapi import Depends
+
 from core.dependencies import Paging, QueryParams
 
 
@@ -22,6 +23,7 @@ class IssueParams(QueryParams):
     在初始化方法中，这些属性分别被赋予了传入的参数值或None，其中title属性使用元组表示一个查询条件，属性值为"like"和传入的title参数。
     这样，在后续查询中，可以使用这些参数作为筛选条件和排序信息，进行数据查询和返回。
     """
+
     def __init__(
             self,
             params: Paging = Depends(),

@@ -14,6 +14,7 @@ from aioredis import Redis
 
 
 class WXOAuth:
+
     def __init__(self, rd: Redis, index: int = 0):
         """
         初始化微信认证
@@ -42,7 +43,7 @@ class WXOAuth:
         同时，在该方法中还定义了一个可选参数retry，默认值为3，表示获取配置信息时的重试次数。
         """
         if not self.tab_name:
-            logger.error("请选择认证的微信平台")
+            logger.error(f"请选择认证的微信平台")
         wx_config = await Cache(self.rd).get_tab_name(self.tab_name, retry)
         self.appid = wx_config.get("wx_server_app_id")
         self.secret = wx_config.get("wx_server_app_secret")
@@ -77,9 +78,9 @@ class WXOAuth:
         response = requests.get(url=api, params=params)
         result = response.json()
         if "openid" not in result:
-            logger.error(f"微信校验失败：{result},code:{code}")
+            logger.error(f"微信校验失败：{result}, code：{code}")
         else:
-            logger.info(f"微信校验成功：{result},code:{code}")
+            logger.info(f"微信校验成功：{result}, code：{code}")
         return result
 
     async def get_phone_number(self, code: str):
@@ -108,6 +109,7 @@ class WXOAuth:
         access_token = await at.get()
         if not access_token.get("status", False):
             result = {'errcode': 40001, 'errmsg': '获取微信令牌失败'}
+            # print(result)
             logger.error(f"获取微信用户手机号失败：{result}")
             return result
         params = {
@@ -119,7 +121,7 @@ class WXOAuth:
         response = requests.post(url=api, params=params, json=data)
         result = response.json()
         if result.get("errcode", 0) == 0:
-            logger.info(f"获取微信用户手机号成功：{result},code：{code}")
+            logger.info(f"获取微信用户手机号成功：{result}, code：{code}")
         else:
             logger.error(f"获取微信用户手机号失败：{result}, code：{code}")
             if result.get("errcode", 0) == 40001:

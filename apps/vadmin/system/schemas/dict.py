@@ -29,6 +29,7 @@ class DictType(BaseModel):
 
 class DictTypeSimpleOut(DictType):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
@@ -36,6 +37,7 @@ class DictTypeSimpleOut(DictType):
 
 class DictTypeSelectOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     dict_name: str
     disabled: bool
@@ -53,6 +55,7 @@ class DictDetails(BaseModel):
 
 class DictDetailsSimpleOut(DictDetails):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

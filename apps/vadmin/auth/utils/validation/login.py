@@ -22,7 +22,6 @@ class LoginForm(BaseModel):
     password: str
     method: str = '0'  # 认证方式，0：密码登录，1：短信登录，2：微信一键登录
     platform: str = '0'  # 登录平台，0：PC端管理系统，1：移动端管理系统
-
     # 重用验证器：https://docs.pydantic.dev/dev-v2/usage/validators/#reuse-validators
     normalize_telephone = field_validator('telephone')(vali_telephone)
 

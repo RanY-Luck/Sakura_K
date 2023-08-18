@@ -7,13 +7,15 @@
 # @Software: PyCharm
 # @desc    : Excel 文件操作
 import datetime
-import os
-import re
 import hashlib
+import os
 import random
-from openpyxl.utils import get_column_letter
+import re
+
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment
+from openpyxl.utils import get_column_letter
+
 from application.settings import TEMP_DIR, TEMP_URL
 
 """

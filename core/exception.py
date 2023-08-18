@@ -6,13 +6,14 @@
 # @File    : exception.py
 # @Software: PyCharm
 # @desc    : 全局异常处理
-from fastapi.responses import JSONResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.exceptions import RequestValidationError
-from starlette import status
+from fastapi import FastAPI
 from fastapi import Request
 from fastapi.encoders import jsonable_encoder
-from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette import status
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 from core.logger import logger
 
 
@@ -78,7 +79,7 @@ def register_exception(app: FastAPI):
             status_code=200,
             content={
                 "code": status.HTTP_400_BAD_REQUEST,
-                "message": exc.detail,
+                "message": exc.detail
             }
         )
 
@@ -119,9 +120,6 @@ def register_exception(app: FastAPI):
     async def value_exception_handler(request: Request, exc: ValueError):
         """
         捕获值异常
-        :param request:
-        :param exc:
-        :return:
         """
         print("请求地址", request.url.__str__())
         print("捕捉到值异常：value_exception_handler")
@@ -141,9 +139,6 @@ def register_exception(app: FastAPI):
     async def all_exception_handler(request: Request, exc: Exception):
         """
         捕获全部异常
-        :param request:
-        :param exc:
-        :return:
         """
         print("请求地址", request.url.__str__())
         print("捕捉到全局异常：all_exception_handler")

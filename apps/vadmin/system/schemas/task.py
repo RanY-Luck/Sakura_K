@@ -25,7 +25,8 @@ class Task(BaseModel):
 
 class TaskSimpleOut(Task):
     model_config = ConfigDict(from_attributes=True)
-    id: ObjectIdStr = Field(..., alias="_id")
+
+    id: ObjectIdStr = Field(..., alias='_id')
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
     last_run_datetime: DatetimeStr | None = None  # 临时字段，不在表中创建

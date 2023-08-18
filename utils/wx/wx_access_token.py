@@ -8,6 +8,7 @@
 # @desc    : 获取小程序全局唯一后台接口调用凭据
 import requests
 from aioredis import Redis
+
 from core.logger import logger
 
 
@@ -18,7 +19,7 @@ class WxAccessToken:
     官方文档：https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/access-token/auth.getAccessToken.html
     """
 
-    def __init__(self, appid: str, secret: str, rd: Redis, grant_type: str = "client_credential"):
+    def __init__(self, appid: str, secret: str, redis: Redis, grant_type: str = "client_credential", *args, **kwargs):
         """
         代码解释：
         用于获取微信access_token的类AccessToken的初始化方法__init__，该类需要传入四个参数，分别为appid、secret、rd和grant_type，
@@ -34,7 +35,7 @@ class WxAccessToken:
         self.__url = "https://api.weixin.qq.com/cgi-bin/token"
         self.__method = "get"
         self.appidKey = f"{appid}_access_token"
-        self.redis = rd
+        self.redis = redis
         self.params = {
             "appid": appid,
             "secret": secret,
@@ -73,7 +74,7 @@ class WxAccessToken:
         result = response.json()
         if result.get("errcode", "0") != "0":
             print("获取access_token失败", result)
-            logger.error(f"获取access_token失败:{result}")
+            logger.error(f"获取access_token失败：{result}")
             return {"status": False, "token": None}
         print("成功获取到", result)
         await self.redis.set(self.appidKey, result.get("access_token"), ex=2000)

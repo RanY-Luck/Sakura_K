@@ -8,7 +8,7 @@
 # @desc    : 阿里云存储对象
 import os.path
 
-import oss2  # 安装依赖:pip3 install oss2
+import oss2  # 安装依赖库：pip install oss2
 from fastapi import UploadFile
 from oss2.models import PutObjectResult
 from pydantic import BaseModel
@@ -53,6 +53,7 @@ class AliyunOSS(FileBase):
     def __init__(self, bucket: BucketConf):
         # 阿里云账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM用户进行API访问或日常运维，请登录RAM控制台创建RAM用户。
         auth = oss2.Auth(bucket.accessKeyId, bucket.accessKeySecret)
+        # yourEndpoint填写Bucket所在地域对应的Endpoint。以华东1（杭州）为例，Endpoint填写为https://oss-cn-hangzhou.aliyuncs.com。
         # 填写Bucket名称。
         self.bucket = oss2.Bucket(auth, bucket.endpoint, bucket.bucket)
         self.baseUrl = bucket.baseUrl
@@ -105,12 +106,7 @@ class AliyunOSS(FileBase):
         """
         path = self.generate_path(path, file.filename)
         file_data = await file.read()
-        result = self.bucket.put_object(path, file_data)
-        assert isinstance(result, PutObjectResult)
-        if result.status != 200:
-            logger.error(f"文件上传到OSS失败，状态码：{result.status}")
-            return ""
-        return self.baseUrl + path
+        return await self.__upload_file_to_oss(path, file_data)
 
     async def __upload_file_to_oss(self, path: str, file_data: bytes) -> str:
         """

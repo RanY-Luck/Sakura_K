@@ -13,18 +13,16 @@
 import datetime
 import json
 import time
-
-from fastapi import FastAPI
 from fastapi import Request, Response
+from core.logger import logger
+from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from user_agents import parse
-
 from application.settings import OPERATION_RECORD_METHOD, MONGO_DB_ENABLE, IGNORE_OPERATION_FUNCTION, \
     DEMO_WHITE_LIST_PATH, DEMO
+from utils.response import ErrorResponse
 from apps.vadmin.record.crud import OperationRecordDal
 from core.database import mongo_getter
-from core.logger import logger
-from utils.response import ErrorResponse
 
 
 def write_request_log(request: Request, response: Response):
@@ -129,6 +127,7 @@ def register_operation_record_middleware(app: FastAPI):
         }
         await OperationRecordDal(mongo_getter(request)).create_data(document)
         return response
+
 
 def register_demo_env_middleware(app: FastAPI):
     """
