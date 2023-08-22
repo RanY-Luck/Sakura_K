@@ -32,3 +32,6 @@ __pycache__
 *.pyc
 application/config/development.py
 application/config/production.py
+alembic.ini
+alembic/versions_dev
+alembic/versions_pro
