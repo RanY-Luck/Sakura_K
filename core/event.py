@@ -42,7 +42,7 @@ async def connect_redis(app: FastAPI, status: bool):
     aioredis.from_url(url, *, encoding=None, parser=None, decode_responses=False, db=None, password=None, ssl=None,
     connection_cls=None, loop=None, **kwargs) 方法是 aioredis 库中用于从 Redis 连接 URL 创建 Redis 连接对象的方法。
     以下是该方法的参数说明：
-    url：Redis 连接 URL。例如 redis://localhost:6379/0。
+    url：Redis 连接 URL。例如 Redis://localhost:6379/0。
     encoding：可选参数，Redis 编码格式。默认为 utf-8。
     parser：可选参数，Redis 数据解析器。默认为 None，表示使用默认解析器。
     decode_responses：可选参数，是否将 Redis 响应解码为 Python 字符串。默认为 False。
@@ -63,10 +63,10 @@ async def connect_redis(app: FastAPI, status: bool):
     :return:
     代码解释：
     首先根据参数 status 的值来判断是连接 Redis 还是关闭 Redis 缓存连接。
-    如果 status 为 True，则会调用 app.state.redis 连接 Redis 缓存，传入 Redis 数据库的 URL 作为参数。
-    同时，使用 aioredis.from_url 方法来创建 Redis 连接对象，并将其挂载到 FastAPI 应用程序对象的 app.state.redis 属性上。
-    在连接 Redis 缓存之后，代码调用 Cache(app.state.redis).cache_tab_names() 方法，使用 Cache 类来初始化 Redis 缓存，并缓存表名。
-    如果 status 为 False，则会调用 app.state.redis.close() 来关闭 Redis 连接。
+    如果 status 为 True，则会调用 app.state.Redis 连接 Redis 缓存，传入 Redis 数据库的 URL 作为参数。
+    同时，使用 aioredis.from_url 方法来创建 Redis 连接对象，并将其挂载到 FastAPI 应用程序对象的 app.state.Redis 属性上。
+    在连接 Redis 缓存之后，代码调用 Cache(app.state.Redis).cache_tab_names() 方法，使用 Cache 类来初始化 Redis 缓存，并缓存表名。
+    如果 status 为 False，则会调用 app.state.Redis.close() 来关闭 Redis 连接。
     """
     if status:
         print("正在连接到Redis")
@@ -79,7 +79,7 @@ async def connect_redis(app: FastAPI, status: bool):
 
 async def connect_mongo(app: FastAPI, status: bool):
     """
-    把 mongo 挂载到 app 对象上面
+    把 Mongo 挂载到 app 对象上面
     博客：https://www.cnblogs.com/aduner/p/13532504.html
     mongodb 官网：https://www.mongodb.com/docs/drivers/motor/
     motor 文档：https://motor.readthedocs.io/en/stable/

@@ -68,7 +68,7 @@ SQLALCHEMY_DATABASE_TYPE = "mysql"
 Redis 数据库配置
 """
 REDIS_DB_ENABLE = True
-REDIS_DB_URL = "redis://:密码@地址:端口/数据库"
+REDIS_DB_URL = "Redis://:密码@地址:端口/数据库"
 
 """
 MongoDB 数据库配置

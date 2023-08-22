@@ -178,7 +178,7 @@ async def post_users_init_password(
         rd: Redis = Depends(redis_getter)
 ):
     # 返回一个成功响应对象（SuccessResponse），
-    # 其中data字段为await crud.UserDal(auth.db).init_password_send_sms(ids.ids, request.app.state.redis)的返回结果。
+    # 其中data字段为await crud.UserDal(auth.db).init_password_send_sms(ids.ids, request.app.state.Redis)的返回结果。
     # 该语句调用了UserDal类中的init_password_send_sms方法，传入ids.ids作为待初始化密码的用户ID列表，
     # 传入request.app.state.redis作为Redis数据库连接对象，使用auth.db获取数据库连接对象，并进行密码初始化和发送通知短信。最终将成功响应对象返回给客户端。
     return SuccessResponse(await crud.UserDal(auth.db).init_password_send_sms(ids.ids, rd))
@@ -193,7 +193,7 @@ async def post_users_init_password_send_email(
         rd: Redis = Depends(redis_getter)
 ):
     # 返回一个成功响应对象（SuccessResponse），
-    # 其中data字段为await crud.UserDal(auth.db).init_password_send_email(ids.ids, request.app.state.redis)的返回结果。
+    # 其中data字段为await crud.UserDal(auth.db).init_password_send_email(ids.ids, request.app.state.Redis)的返回结果。
     # 该语句调用了UserDal类中的init_password_send_email方法，传入ids.ids作为待初始化密码的用户ID列表，
     # 传入request.app.state.redis作为Redis数据库连接对象，使用auth.db获取数据库连接对象，并进行密码初始化和发送通知邮件。
     # 最终将成功响应对象返回给客户端。
@@ -207,7 +207,7 @@ async def put_user_wx_server_openid(
         rd: Redis = Depends(redis_getter)
 ):
     # 返回一个成功响应对象（SuccessResponse），
-    # 其中data字段为await crud.UserDal(auth.db).update_wx_server_openid(code, auth.user, request.app.state.redis)的返回结果。
+    # 其中data字段为await crud.UserDal(auth.db).update_wx_server_openid(code, auth.user, request.app.state.Redis)的返回结果。
     # 该语句调用了UserDal类中的update_wx_server_openid方法，传入code作为微信临时凭证code，传入auth.user表示当前用户，
     # 传入request.app.state.redis作为Redis数据库连接对象，更新当前用户的服务端微信平台OpenId，并将成功标志True或False返回给客户端。
     # 最终将成功响应对象返回给客户端。

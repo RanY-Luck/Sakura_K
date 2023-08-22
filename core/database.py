@@ -96,7 +96,7 @@ async def db_getter():
 
 def redis_getter(request: Request) -> Redis:
     """
-    获取 redis 数据库对象
+    获取 Redis 数据库对象
 
     全局挂载，使用一个数据库对象
     """
@@ -107,7 +107,7 @@ def redis_getter(request: Request) -> Redis:
 
 def mongo_getter(request: Request) -> AsyncIOMotorDatabase:
     """
-    获取 mongo 数据库对象
+    获取 Mongo 数据库对象
 
     全局挂载，使用一个数据库对象
     """

@@ -29,7 +29,7 @@ class CodeSMS(AliyunSMS):
         """
         主程序入口，异步方式
 
-        redis 对象必填
+        Redis 对象必填
         """
 
         send_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

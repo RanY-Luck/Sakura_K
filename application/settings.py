@@ -7,6 +7,7 @@
 # @Software: PyCharm
 # @desc    : 主配置文件
 import os
+
 from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是用于在 OAuth2 鉴权方式下获取访问令牌的类。
 
 """
@@ -162,7 +163,23 @@ MIDDLEWARES = [
 ]
 
 """
+MongoDB 集合
+与接口相互关联，相互查询，请勿随意更改
+"""
+# 用于存放任务调用日志
+SCHEDULER_TASK_RECORD = "scheduler_task_record"
+# 用于存放运行中的任务
+SCHEDULER_TASK_JOBS = "scheduler_task_jobs"
+# 用于存放任务信息
+SCHEDULER_TASK = "vadmin_system_task"
+
+"""
 定时任务配置
 """
 # 发布/订阅通道，与定时任务程序相互关联
 SUBSCRIBE = 'kinit_queue'
+
+"""
+定时任务脚本目录
+"""
+TASKS_ROOT = "utils/task/tasks"
