@@ -63,12 +63,3 @@ async def get_sms_send_list(
     return SuccessResponse(datas, count=count)
 
 
-###########################################################
-#                      日志分析                            #
-###########################################################
-@app.get("/analysis/user/login/distribute", summary="获取用户登录分布情况列表")
-async def get_user_login_distribute(
-        auth: Auth = Depends(AllUserAuth())  # 一个Auth类型的参数，这是一个自定义的类的实例，用于进行用户身份验证。
-):
-    # crud.LoginRecordDal(auth.db).get_user_distribute方法，该方法会查询数据库中所有用户的登录分布情况，并将结果封装成一个JSON格式的响应返回给客户端。
-    return SuccessResponse(await crud.LoginRecordDal(auth.db).get_user_distribute())

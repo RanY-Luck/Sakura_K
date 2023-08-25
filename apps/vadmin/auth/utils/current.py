@@ -54,7 +54,6 @@ class OpenAuth(AuthValidation):
 
 
 class AllUserAuth(AuthValidation):
-
     """
     支持所有用户认证
     获取用户基本信息
