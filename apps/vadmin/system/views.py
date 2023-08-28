@@ -6,16 +6,13 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    : 主要接口文件
-"""
-UploadFile 库依赖：pip3 install python-multipart
-"""
-from aioredis import Redis
-from fastapi import APIRouter, Depends, Body, UploadFile, Form
+from fastapi import APIRouter, Depends, Body, UploadFile, Form, Request
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.settings import ALIYUN_OSS
-from apps.vadmin.auth import crud as vadminAuthCRUD
+from apps.vadmin.auth import crud as vadmin_auth_crud
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth, OpenAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.database import db_getter, redis_getter, mongo_getter
@@ -36,14 +33,14 @@ app = APIRouter()
 ###########################################################
 @app.get("/dict/types", summary="获取字典类型列表")
 async def get_dict_types(p: DictTypeParams = Depends(), auth: Auth = Depends(AllUserAuth())):
-    datas = await crud.DictTypeDal(auth.db).get_datas(**p.dict())
-    count = await crud.DictTypeDal(auth.db).get_count(**p.to_count())
+    datas, count = await crud.DictTypeDal(auth.db).get_datas(**p.dict(), v_return_objs=True)
     return SuccessResponse(datas, count=count)
 
 
 @app.post("/dict/types", summary="创建字典类型")
-async def create_dict_types(data: schemas.DictType, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.DictTypeDal(auth.db).create_data(data=data))
+async def create_dict_types(data_id: int, auth: Auth = Depends(AllUserAuth())):
+    schema = schemas.DictTypeSimpleOut
+    return SuccessResponse(await crud.DictTypeDal(auth.db).get_data(data_id, v_schema=schema))
 
 
 @app.delete("/dict/types", summary="批量删除字典类型")
@@ -89,8 +86,7 @@ async def create_dict_details(data: schemas.DictDetails, auth: Auth = Depends(Al
 async def get_dict_details(params: DictDetailParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     if not params.dict_type_id:
         return ErrorResponse(msg="未获取到字典类型！")
-    datas = await crud.DictDetailsDal(auth.db).get_datas(**params.dict())
-    count = await crud.DictDetailsDal(auth.db).get_count(**params.to_count())
+    datas, count = await crud.DictDetailsDal(auth.db).get_datas(**params.dict(), v_return_objs=True)
     return SuccessResponse(datas, count=count)
 
 
@@ -108,7 +104,7 @@ async def put_dict_details(data_id: int, data: schemas.DictDetails, auth: Auth =
 @app.get("/dict/details/{data_id}", summary="获取字典元素详情")
 async def get_dict_detail(data_id: int, auth: Auth = Depends(AllUserAuth())):
     schema = schemas.DictDetailsSimpleOut
-    return SuccessResponse(await crud.DictDetailsDal(auth.db).get_data(data_id, None, v_schema=schema))
+    return SuccessResponse(await crud.DictDetailsDal(auth.db).get_data(data_id, v_schema=schema))
 
 
 ###########################################################
@@ -144,7 +140,7 @@ async def upload_image_to_local(file: UploadFile, path: str = Form(...)):
 ###########################################################
 @app.post("/sms/send", summary="发送短信验证码（阿里云服务）")
 async def sms_send(telephone: str, rd: Redis = Depends(redis_getter), auth: Auth = Depends(OpenAuth())):
-    user = await vadminAuthCRUD.UserDal(auth.db).get_data(telephone=telephone, v_return_none=True)
+    user = await vadmin_auth_crud.UserDal(auth.db).get_data(telephone=telephone, v_return_none=True)
     if not user:
         return ErrorResponse("手机号不存在！")
     sms = CodeSMS(telephone, rd)
@@ -166,11 +162,11 @@ async def get_settings_tabs_values(tab_id: int, auth: Auth = Depends(FullAdminAu
 
 @app.put("/settings/tabs/values", summary="更新系统配置信息")
 async def put_settings_tabs_values(
+        request: Request,
         datas: dict = Body(...),
-        auth: Auth = Depends(FullAdminAuth()),
-        rd: Redis = Depends(redis_getter)
+        auth: Auth = Depends(FullAdminAuth)
 ):
-    return SuccessResponse(await crud.SettingsDal(auth.db).update_datas(datas, rd))
+    return SuccessResponse(await crud.SettingsDal(auth.db).update_datas(datas, request))
 
 
 @app.get("/settings/base/config", summary="获取系统基础配置", description="每次进入系统中时使用")

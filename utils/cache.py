@@ -9,7 +9,7 @@
 import json
 from typing import List
 
-from aioredis.client import Redis
+from redis.asyncio.client import Redis
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 

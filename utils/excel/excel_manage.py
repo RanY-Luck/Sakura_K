@@ -13,14 +13,11 @@ import random
 import re
 
 from openpyxl import load_workbook, Workbook
-from openpyxl.styles import Alignment
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 from application.settings import TEMP_DIR, TEMP_URL
-
-"""
-openpyxl常用用法及封装：https://blog.csdn.net/beichanbb/article/details/127887605
-"""
+from .excel_schema import AlignmentModel, FontModel, PatternFillModel
 
 
 class ExcelManage:
@@ -122,6 +119,9 @@ class ExcelManage:
         """
         if header:
             self.sheet.append(header)
+            pattern_fill_style = PatternFillModel(start_color='D9D9D9', end_color='D9D9D9', fill_type='solid')
+            font_style = FontModel(bold=True)
+            self.__set_row_style(1, len(header), pattern_fill_style=pattern_fill_style, font_style=font_style)
         for index, data in enumerate(rows):
             format_columns = {
                 "date_columns": []
@@ -131,9 +131,10 @@ class ExcelManage:
                     data[i] = data[i].strftime("%Y/%m/%d %H:%M:%S")
                     format_columns["date_columns"].append(i + 1)
             self.sheet.append(data)
-            self.__set_row_style(index + 2, len(data) - 1)
+            self.__set_row_style(index + 2, len(data))
             self.__set_row_format(index + 2, format_columns)
         self.__auto_width()
+        self.__set_row_border()
 
     def save_excel(self, filename: str = None):
         """
@@ -154,28 +155,54 @@ class ExcelManage:
         # 返回访问路由
         return f"{TEMP_URL}/{date}/{name}"
 
-    def __set_row_style(self, row: int, max_column: int):
+    def __set_row_style(
+            self,
+            row: int,
+            max_column: int,
+            alignment_style: AlignmentModel = AlignmentModel(),
+            font_style: FontModel = FontModel(),
+            pattern_fill_style: PatternFillModel = PatternFillModel()
+    ):
         """
         设置行样式
-
         :param row: 行
         :param max_column: 最大列
+        :param alignment_style: 单元格内容的对齐设置
+        :param font_style: 单元格内容的字体样式设置
+        :param pattern_fill_style: 单元格的填充模式设置
         """
         for index in range(0, max_column):
-            # 设置单元格对齐方式
-            # Alignment(horizontal=水平对齐模式,vertical=垂直对齐模式,text_rotation=旋转角度,wrap_text=是否自动换行)
-            alignment = Alignment(horizontal='center', vertical='center', text_rotation=0, wrap_text=False)
+            alignment = Alignment(**alignment_style.model_dump())
+            font = Font(**font_style.model_dump())
+            pattern_fill = PatternFill(**pattern_fill_style.model_dump())
             self.sheet.cell(row=row, column=index + 1).alignment = alignment
+            self.sheet.cell(row=row, column=index + 1).font = font
+            self.sheet.cell(row=row, column=index + 1).fill = pattern_fill
 
     def __set_row_format(self, row: int, columns: dict):
         """
-        设置行样式
-
+        格式化行数据类型
         :param row: 行
         :param columns: 列数据
         """
         for index in columns.get("date_columns", []):
             self.sheet.cell(row=row, column=index).number_format = "yyyy/mm/dd h:mm:ss"
+
+    def __set_row_border(self):
+        """
+        设置行边框
+        """
+        # 创建 Border 对象并设置边框样式
+        border = Border(
+            left=Side(border_style="thin", color="000000"),
+            right=Side(border_style="thin", color="000000"),
+            top=Side(border_style="thin", color="000000"),
+            bottom=Side(border_style="thin", color="000000")
+        )
+        # 设置整个表格的边框
+        for row in self.sheet.iter_rows():
+            for cell in row:
+                cell.border = border
 
     def __auto_width(self):
         """

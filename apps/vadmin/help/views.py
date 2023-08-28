@@ -35,12 +35,14 @@ async def get_issue_categorys(
     # schema定义了返回数据的格式，它是schemas.IssueCategoryListOut类型。
     schema = schemas.IssueCategoryListOut
     # 通过crud.IssueCategoryDal实例的get_datas()方法获取类别列表数据，传递的参数是通过p.dict()获取的查询参数、options和schema。
-    # get_datas()返回一个列表，其中每个元素是一个字典，表示一条类别数据。
-    datas = await crud.IssueCategoryDal(auth.db).get_datas(**p.dict(), v_options=options, v_schema=schema)
-    # count则是通过crud.IssueCategoryDal实例的get_count()方法获取的记录总数。
-    count = await crud.IssueCategoryDal(auth.db).get_count(**p.to_count())
     # 路由函数返回一个SuccessResponse对象，其中包含查询到的类别列表数据和总记录数。
     # SuccessResponse是一个自定义的响应类，它包含两个属性：data和count，分别表示查询到的数据和记录总数。
+    datas, count = await crud.IssueCategoryDal(auth.db).get_datas(
+        **p.dict(),
+        v_options=options,
+        v_schema=schema,
+        v_return_count=True
+    )
     return SuccessResponse(datas, count=count)
 
 
@@ -125,6 +127,7 @@ async def get_issue_category_platform(
     # SuccessResponse是一个自定义的响应类，它包含一个属性data，表示返回的数据。
     schema = schemas.IssueCategoryPlatformOut
     result = await crud.IssueCategoryDal(db).get_datas(
+        limit=0,
         platform=platform,
         is_active=True,
         v_schema=schema,
@@ -145,15 +148,12 @@ async def get_issues(
     options = [joinedload(model.create_user), joinedload(model.category)]
     # 通过schemas.IssueListOut定义一个输出的数据模式
     schema = schemas.IssueListOut
-    # 然后调用crud.IssueDal实例的get_datas()方法获取问题数据，传递的参数是**p.dict()（表示将p对象转换成字典，
-    # 并将其作为关键字参数传递给get_datas()方法）、v_options=options（表示使用joinedload来优化查询性能）和v_schema=schema（表示使用定义的数据模式）。
-    # get_datas()返回一个列表，表示获取到的问题数据。
-    datas = await crud.IssueDal(auth.db).get_datas(**p.dict(), v_options=options, v_schema=schema)
-    # 调用crud.IssueDal实例的get_count()方法获取满足条件的问题总数，传递的参数是**p.to_count()（表示将p对象转换成字典，
-    # 并将其作为关键字参数传递给get_count()方法）。get_count()返回一个整数，表示满足条件的问题总数。
-    count = await crud.IssueDal(auth.db).get_count(**p.to_count())
-    # 最后，路由函数返回一个SuccessResponse对象，其中包含获取到的问题数据和问题总数。
-    # SuccessResponse是一个自定义的响应类，它包含一个属性data，表示返回的数据，和一个属性count，表示问题总数。
+    datas, count = await crud.IssueDal(auth.db).get_datas(
+        **p.dict(),
+        v_options=options,
+        v_schema=schema,
+        v_return_count=True
+    )
     return SuccessResponse(datas, count=count)
 
 

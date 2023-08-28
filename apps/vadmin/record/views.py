@@ -27,12 +27,7 @@ async def get_record_login(
         p: LoginParams = Depends(),  # 请求中解析出来，并传递给数据访问层（DAL）的 get_datas 方法。
         auth: Auth = Depends(AllUserAuth())  # 用户认证，并获取对应的异步数据库会话（auth.db）。
 ):
-    # 创建一个 LoginRecordDal 实例，传入异步数据库会话（auth.db），然后调用该实例的 get_datas 方法，传入 p.dict() 方法的返回值，
-    # 获取符合条件的登录日志数据列表（datas）。
-    datas = await crud.LoginRecordDal(auth.db).get_datas(**p.dict())
-    # 创建一个 LoginRecordDal 实例，并调用该实例的 get_count 方法，传入 p.to_count() 方法的返回值，获取符合条件的登录日志记录总数（count）。
-    count = await crud.LoginRecordDal(auth.db).get_count(**p.to_count())
-    # 最后，处理器返回一个 SuccessResponse 类型的响应，其中 datas 是获取到的登录日志数据列表，count 是获取到的登录日志记录总数。
+    datas, count = await crud.LoginRecordDal(auth.db).get_datas(**p.dict(), v_return_objs=True)
     return SuccessResponse(datas, count=count)
 
 
@@ -55,11 +50,5 @@ async def get_sms_send_list(
         p: SMSParams = Depends(),  # 一个SMSParams类型的参数，这是一个Pydantic模型类的实例，用于解析请求中的参数。
         auth: Auth = Depends(AllUserAuth())  # 一个Auth类型的参数，这是一个自定义的类的实例，用于进行用户身份验证。
 ):
-    # crud.SMSSendRecordDal(auth.db).get_datas方法，该方法会根据传入的参数查询数据库中符合条件的短信发送记录，并使用默认的序列化方式对查询结果进行序列化。
-    datas = await crud.SMSSendRecordDal(auth.db).get_datas(**p.dict())
-    # crud.SMSSendRecordDal(auth.db).get_count方法，该方法会根据传入的参数查询数据库中符合条件的短信发送记录数量。
-    count = await crud.SMSSendRecordDal(auth.db).get_count(**p.to_count())
-    # 使用SuccessResponse类将查询到的短信发送记录列表和记录数量封装成一个JSON格式的响应返回给客户端。
+    datas, count = await crud.SMSSendRecordDal(auth.db).get_datas(**p.dict(), v_return_objs=True)
     return SuccessResponse(datas, count=count)
-
-

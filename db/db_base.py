@@ -17,13 +17,15 @@
 使用 Alembic 可以有效地管理数据库 schema 的变化，避免手动修改数据库 schema 带来的错误和不一致，同时也方便了多个开发人员之间的协作。
 官方网址：https://hellowac.github.io/alembic_doc/zh/_front_matter.html
 """
+from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Integer, func, Boolean
+from sqlalchemy import DateTime, Integer, func, Boolean
+from sqlalchemy.orm import Mapped, mapped_column
 
-from core.database import Model
+from core.database import Base
 
 
-class BaseModel(Model):
+class BaseModel(Base):
     """
     公共ORM模型，基表
     代码解释：
@@ -35,8 +37,13 @@ class BaseModel(Model):
     这些字段为所有基于 BaseModel 的子模型提供了基础的表结构，也方便了在多个表中共用相同的字段。
     """
     __abstract__ = True
-    id = Column(Integer, primary_key=True, unique=True, comment='主键ID', index=True, nullable=False)
-    create_datetime = Column(DateTime, server_default=func.now(), comment='创建时间')
-    update_datetime = Column(DateTime, server_default=func.now(), onupdate=func.now(), comment='更新时间')
-    delete_datetime = Column(DateTime, nullable=True, comment='删除时间')
-    is_delete = Column(Boolean, default=False, comment="是否软删除")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='主键ID')
+    create_datetime: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), comment='创建时间')
+    update_datetime: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+        onupdate=func.now(),
+        comment='更新时间'
+    )
+    delete_datetime: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment='删除时间')
+    is_delete: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否软删除")

@@ -6,7 +6,7 @@
 # @File    : count.py
 # @Software: PyCharm
 # @desc    : 计数
-from aioredis.client import Redis
+from redis.asyncio.client import Redis
 
 """
 代码解释：

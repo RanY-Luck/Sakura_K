@@ -10,7 +10,7 @@ from fastapi import Request
 from pydantic import BaseModel, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from application.settings import DEFAULT_AUTH_ERROR_MAX_NUMBER, DEMO
+from application.settings import DEFAULT_AUTH_ERROR_MAX_NUMBER, DEMO, REDIS_DB_ENABLE
 from apps.vadmin.auth import crud, schemas
 from core.database import redis_getter
 from core.validator import vali_telephone
@@ -70,15 +70,16 @@ class LoginValidation:
         if not user:
             self.result.msg = "该手机号不存在！"
             return self.result
-
         result = await self.func(self, data=data, user=user, request=request)
-
-        count_key = f"{data.telephone}_password_auth" if data.method == '0' else f"{data.telephone}_sms_auth"
-        count = Count(redis_getter(request), count_key)
+        if REDIS_DB_ENABLE:
+            count_key = f"{data.telephone}_password_auth" if data.method == '0' else f"{data.telephone}_sms_auth"
+            count = Count(redis_getter(request), count_key)
+        else:
+            count = None
 
         if not result.status:
             self.result.msg = result.msg
-            if not DEMO:
+            if not DEMO and count:
                 number = await count.add(ex=86400)
                 if number >= DEFAULT_AUTH_ERROR_MAX_NUMBER:
                     await count.reset()
@@ -90,10 +91,10 @@ class LoginValidation:
         elif data.platform in ["0", "1"] and not user.is_staff:
             self.result.msg = "此手机号无权限！"
         else:
-            if not DEMO:
+            if not DEMO and count:
                 await count.delete()
             self.result.msg = "OK"
             self.result.status = True
             self.result.user = schemas.UserSimpleOut.model_validate(user)
-            await user.update_login_info(db, request.client.host)
+            await crud.UserDal(db).update_login_info(user, request.client.host)
         return self.result

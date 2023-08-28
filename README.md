@@ -186,10 +186,17 @@ mac系统安装虚拟环境和激活虚拟环境
 > sudo pip install virtualenv
 
 二、创建虚拟环境
-> virtualenv venv  # venv为虚拟环境的名称，可以根据需要自定义
+> virtualenv venv # venv为虚拟环境的名称，可以根据需要自定义
 
 注意，如果你想使用Python3创建虚拟环境，需要添加--python选项：
 > virtualenv --python=python3 env
 
 三、激活虚拟环境
 > source env/bin/activate
+
+## 如何快速开发一个接口
+
+第一步：所有接口逻辑写在/apps/vadmin/目录下,创建一个包,然后再里面分别创建models，params，schemas包目录和crud.py,views.py文件
+models包目录下是数据模型，可以自定义存什么样的数据
+第二步：在models下创建个自定义的py文件
+

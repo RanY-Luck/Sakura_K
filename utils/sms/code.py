@@ -9,7 +9,7 @@
 import datetime
 import warnings
 
-from aioredis import Redis
+from redis.asyncio import Redis
 
 from core.exception import CustomException
 from core.logger import logger

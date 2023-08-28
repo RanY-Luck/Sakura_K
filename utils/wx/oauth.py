@@ -7,10 +7,11 @@
 # @Software: PyCharm
 # @desc    :
 import requests
+from redis.asyncio import Redis
+
 from core.logger import logger
 from utils.cache import Cache
 from utils.wx.wx_access_token import WxAccessToken
-from aioredis import Redis
 
 
 class WXOAuth:

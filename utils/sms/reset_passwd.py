@@ -8,7 +8,7 @@
 # @desc    : 重置密码
 from typing import List
 
-from aioredis import Redis
+from redis.asyncio import Redis
 
 from .aliyun import AliyunSMS
 
@@ -24,24 +24,21 @@ class ResetPasswordSMS(AliyunSMS):
     async def main_async(self, password: str) -> List[bool]:
         """
         主程序入口，异步方式
-
         Redis 对象必填
-        @params password: 新密码
+        :params password: 新密码
         """
         return await super().main_async(password=password)
 
     def main(self, password: str) -> List[bool]:
         """
         主程序入口，同步方式
-
-        @params password: 新密码
+        :params password: 新密码
         """
         return super().main(password=password)
 
     def _get_template_param(self, **kwargs) -> str:
         """
         获取模板参数
-
         可以被子类继承的受保护的私有方法
         """
         password = kwargs.get("password")

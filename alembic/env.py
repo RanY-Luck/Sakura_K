@@ -6,7 +6,7 @@ from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from core.database import Model
+from core.database import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -34,20 +34,13 @@ sys.path.append(BASE_DIR)
 # 导入项目中的基本映射类，与 需要迁移的 ORM 模型
 
 # 修改配置中的参数
-target_metadata = Model.metadata
+target_metadata = Base.metadata
 
 
 def run_migrations_offline():
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
+    """
+    以“脱机”模式运行迁移。
+    :return:
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -64,12 +57,11 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
     """
+    以“在线”模式运行迁移。
+    :return:
+    """
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
@@ -86,6 +78,8 @@ def run_migrations_online():
 
 
 if context.is_offline_mode():
+    print("离线")
     run_migrations_offline()
 else:
+    print("在线")
     run_migrations_online()

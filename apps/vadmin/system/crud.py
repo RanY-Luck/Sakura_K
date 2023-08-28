@@ -6,25 +6,22 @@
 # @File    : crud.py
 # @Software: PyCharm
 # @desc    : 数据库 增删改查操作
-"""
-sqlalchemy 查询操作：https://segmentfault.com/a/1190000016767008
-sqlalchemy 关联查询：https://www.jianshu.com/p/dfad7c08c57a
-sqlalchemy 关联查询详细：https://blog.csdn.net/u012324798/article/details/103940527
-"""
 import json
 import os
 from enum import Enum
 from typing import Any
 
-from aioredis import Redis
+from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from redis.asyncio import Redis
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from application.settings import STATIC_ROOT, SUBSCRIBE
+from application.settings import STATIC_ROOT, SUBSCRIBE, REDIS_DB_ENABLE
 from core.crud import DalBase
+from core.database import redis_getter
 from core.exception import CustomException
 from core.mongo_manage import MongoManage
 from utils import status
@@ -70,7 +67,7 @@ class DictTypeDal(DalBase):
                 data[obj.dict_type] = [schemas.DictDetailsSimpleOut.model_validate(i).model_dump() for i in obj.details]
         return data
 
-    async def get_select_datas(self):
+    async def get_select_datas(self) -> list:
         """
         获取所有字典类型的选择数据
         :return:
@@ -129,7 +126,7 @@ class SettingsDal(DalBase):
                 result[data.config_key] = data.config_value
         return result
 
-    async def update_datas(self, datas: dict, rd: Redis):
+    async def update_datas(self, datas: dict, request: Request) -> None:
         """
         更新系统配置信息
 
@@ -151,12 +148,13 @@ class SettingsDal(DalBase):
                 sql = update(self.model).where(self.model.config_key == "web_ico").values(config_value=web_ico)
                 await self.db.execute(sql)
             else:
-                sql = update(self.model).where(self.model.config_key == key).values(config_value=value)
+                sql = update(self.model).where(self.model.config_key == str(key)).values(config_value=value)
                 await self.db.execute(sql)
-        if "wx_server_app_id" in datas:
+        if "wx_server_app_id" in datas and REDIS_DB_ENABLE:
+            rd = redis_getter(request)
             await rd.client().set("wx_server", json.dumps(datas))
 
-    async def get_base_config(self):
+    async def get_base_config(self) -> dict:
         """
         获取系统基本信息
         """
@@ -189,7 +187,7 @@ class SettingsTabDal(DalBase):
     def __init__(self, db: AsyncSession):
         super(SettingsTabDal, self).__init__(db, models.VadminSystemSettingsTab, schemas.SettingsTabSimpleOut)
 
-    async def get_classify_tab_values(self, classify: list[str], hidden: bool | None = False):
+    async def get_classify_tab_values(self, classify: list[str], hidden: bool | None = False) -> dict:
         """
         获取系统配置分类下的标签信息
         :param classify:
@@ -208,7 +206,7 @@ class SettingsTabDal(DalBase):
         )
         return self.__generate_values(datas)
 
-    async def get_tab_name_values(self, tab_names: list[str], hidden: bool | None = False):
+    async def get_tab_name_values(self, tab_names: list[str], hidden: bool | None = False) -> dict:
         """
         获取系统配置标签下的标签信息
         :param tab_names:
@@ -228,7 +226,7 @@ class SettingsTabDal(DalBase):
         return self.__generate_values(datas)
 
     @classmethod
-    def __generate_values(cls, datas: list[models.VadminSystemSettingsTab]):
+    def __generate_values(cls, datas: list[models.VadminSystemSettingsTab]) -> dict:
         """
         生成字典值
         """
@@ -348,12 +346,12 @@ class TaskDal(MongoManage):
             v_order: str = None,
             v_order_field: str = None,
             **kwargs
-    ):
+    ) -> tuple:
         """
         获取任务信息列表
-       添加了两个临时字段
-         is_active: 只有在 scheduler_task_jobs 任务运行表中存在相同 _id 才表示任务添加成功，任务状态才为 True
-         last_run_datetime: 在 scheduler_task_record 中获取该任务最近一次执行完成的时间
+        添加了两个临时字段
+        is_active: 只有在 scheduler_task_jobs 任务运行表中存在相同 _id 才表示任务添加成功，任务状态才为 True
+        last_run_datetime: 在 scheduler_task_record 中获取该任务最近一次执行完成的时间
         :param page:
         :param limit:
         :param v_schema:

@@ -6,11 +6,11 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    :
-from aioredis import Redis
 from fastapi import APIRouter, Depends, Body, UploadFile, Request
+from redis.asyncio import Redis
 from sqlalchemy.orm import joinedload
 
-from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
+from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth, OpenAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.database import redis_getter
 from core.dependencies import IdList
@@ -19,6 +19,15 @@ from . import schemas, crud, models
 from .params import UserParams, RoleParams
 
 app = APIRouter()
+
+
+###########################################################
+#                     接口测试                             #
+###########################################################
+@app.get("/test", summary="接口测试")
+async def test(auth: Auth = Depends(OpenAuth())):
+    await crud.TestDal(auth.db).test()
+    return SuccessResponse
 
 
 ###########################################################
@@ -32,8 +41,12 @@ async def get_users(
     model = models.VadminUser
     options = [joinedload(model.roles)]
     schema = schemas.UserOut
-    datas = await crud.UserDal(auth.db).get_datas(**params.dict(), v_options=options, v_schema=schema)
-    count = await crud.UserDal(auth.db).get_count(**params.to_count())
+    datas, count = await crud.UserDal(auth.db).get_datas(
+        **params.dict(),
+        v_options=options,
+        v_schema=schema,
+        v_return_objs=True
+    )
     return SuccessResponse(datas, count=count)
 
 
@@ -90,7 +103,7 @@ async def get_user(
     schema = schemas.UserOut
     # 调用UserDal类的get_data()方法，传入data_id作为参数，并使用auth.db获取数据库连接对象，options指定了查询选项，v_schema指定了返回结果的数据模型。
     # 最后将查询结果构造成成功响应对象（SuccessResponse）并返回给客户端。
-    return SuccessResponse(await crud.UserDal(auth.db).get_data(data_id, options, v_schema=schema))
+    return SuccessResponse(await crud.UserDal(auth.db).get_data(data_id, v_options=options, v_schema=schema))
 
 
 @app.post("/user/current/reset/password", summary="重置当前用户密码")
@@ -229,8 +242,7 @@ async def get_roles(
     # RoleDal类中的get_datas方法和get_count方法分别用于获取符合条件的角色数据列表和角色总数，这两个方法均接受以键值对形式传入的查询条件，
     # 因此我们对params对象使用**操作符将其解包成键值对，用于向这两个方法传递查询条件。
     # 最终将成功响应对象返回给客户端。
-    datas = await crud.RoleDal(auth.db).get_datas(**params.dict())
-    count = await crud.RoleDal(auth.db).get_count(**params.to_count())
+    datas, count = await crud.RoleDal(auth.db).get_datas(**params.dict(), v_return_count=True)
     return SuccessResponse(datas, count=count)
 
 
@@ -306,7 +318,7 @@ async def get_role(
     schema = schemas.RoleOut
     # 返回一个成功响应对象,其中data字段为await crud.RoleDal(auth.db).get_data(data_id, options, v_schema=schema)的返回结果
     # 指定ID的完整角色信息
-    return SuccessResponse(await crud.RoleDal(auth.db).get_data(data_id, options, v_schema=schema))
+    return SuccessResponse(await crud.RoleDal(auth.db).get_data(data_id, v_options=options, v_schema=schema))
 
 
 ###########################################################

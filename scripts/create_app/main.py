@@ -8,6 +8,7 @@
 # @desc    : 创建目录
 import datetime
 import os.path
+
 from application.settings import BASE_DIR
 
 
@@ -21,7 +22,7 @@ class CreateApp:
 
     def __init__(self, path: str):
         """
-        :param path: app路径，根目录为apps，填写apps后面路径即可，例：root/auth
+        :param path: app 路径，根目录为apps，填写apps后面路径即可，例子：vadmin/auth
         """
         self.app_path = os.path.join(self.APPS_ROOT, path)
         self.path = path
@@ -59,7 +60,7 @@ class CreateApp:
         """
         用于创建一个 Python 包（package），并为其添加一个初始化文件。
         :param self:
-        :param path:
+        :param path: 绝对路径
         :return:
         代码解释：
         定义了一个名为 create_pag 的方法，用于创建一个 Python 包（package）

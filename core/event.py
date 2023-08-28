@@ -8,9 +8,9 @@
 # @desc    : 全局事件
 from contextlib import asynccontextmanager
 
-import aioredis
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
+from redis import asyncio as aioredis
 
 from application.settings import REDIS_DB_URL, MONGO_DB_URL, MONGO_DB_NAME, EVENTS
 from utils.cache import Cache

@@ -15,25 +15,27 @@ JWT 表示 「JSON Web Tokens」。https://jwt.io/
 PassLib 是一个用于处理哈希密码的很棒的 Python 包。它支持许多安全哈希算法以及配合算法使用的实用程序。
 推荐的算法是 「Bcrypt」：pip3 install passlib[bcrypt]
 """
-import jwt
 from datetime import timedelta
-from aioredis import Redis
+
+import jwt
 from fastapi import APIRouter, Depends, Request, Body
 from fastapi.security import OAuth2PasswordRequestForm
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from application import settings
+from apps.vadmin.auth.crud import MenuDal, UserDal
+from apps.vadmin.auth.models import VadminUser
+from apps.vadmin.record.models import VadminLoginRecord
 from core.database import db_getter, redis_getter
 from core.exception import CustomException
 from utils import status
 from utils.response import SuccessResponse, ErrorResponse
-from application import settings
+from utils.wx.oauth import WXOAuth
+from .current import FullAdminAuth
 from .login_manage import LoginManage
 from .validation import LoginForm, WXLoginForm
-from apps.vadmin.record.models import VadminLoginRecord
-from apps.vadmin.auth.crud import MenuDal, UserDal
-from apps.vadmin.auth.models import VadminUser
-from .current import FullAdminAuth
 from .validation.auth import Auth
-from utils.wx.oauth import WXOAuth
 
 app = APIRouter()
 
@@ -139,7 +141,7 @@ async def wx_login_for_access_token(
         await VadminLoginRecord.create_login_record(db, data, False, request, {"message": str(e)})
         return ErrorResponse(msg=str(e))
     # 更新登录时间
-    await user.update_login_info(db, request.client.host)
+    await UserDal(db).update_login_info(user, request.client.host)
     # 创建一个包含访问令牌和刷新令牌的响应信息。
     # 使用LoginManage对象创建一个访问令牌（access_token）和一个刷新令牌（refresh_token），并将它们存储在一个响应字典（resp）中。
     access_token = LoginManage.create_token({"sub": user.telephone, "is_refresh": False})
