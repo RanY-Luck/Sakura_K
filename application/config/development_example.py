@@ -45,7 +45,7 @@ ALIYUN_OSS = {
     "accessKeySecret": "通过阿里云控制台创建的AccessSecret",
     "endpoint": "https://oss-cn-shenzhen.aliyuncs.com",
     "bucket": "通过控制台或PutBucket创建的bucket",
-    "baseUrl": "通过控制台或PutBucket创建的bucket.oss-cn-shenzhen.aliyuncs.com"
+    "baseUrl": "https://xxxx.oss-cn-shenzhen.aliyuncs.com/"
 }
 
 """

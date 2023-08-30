@@ -9,7 +9,7 @@
 import json
 
 from fastapi import Request
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, Boolean, Text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 from starlette.requests import Request as StarletteRequest
@@ -40,8 +40,8 @@ class VadminLoginRecord(BaseModel):
     area_code: Mapped[str | None] = mapped_column(String(255), comment="地区区号")
     browser: Mapped[str | None] = mapped_column(String(50), comment="浏览器")
     system: Mapped[str | None] = mapped_column(String(50), comment="操作系统")
-    response: Mapped[str | None] = mapped_column(String(5000), comment="响应信息")
-    request: Mapped[str | None] = mapped_column(String(5000), comment="请求信息")
+    response: Mapped[str | None] = mapped_column(Text, comment="响应信息")
+    request: Mapped[str | None] = mapped_column(Text, comment="请求信息")
 
     @classmethod
     async def create_login_record(

@@ -22,6 +22,7 @@ class LoginForm(BaseModel):
     password: str
     method: str = '0'  # 认证方式，0：密码登录，1：短信登录，2：微信一键登录
     platform: str = '0'  # 登录平台，0：PC端管理系统，1：移动端管理系统
+
     # 重用验证器：https://docs.pydantic.dev/dev-v2/usage/validators/#reuse-validators
     normalize_telephone = field_validator('telephone')(vali_telephone)
 
@@ -44,22 +45,11 @@ class LoginResult(BaseModel):
 
 class LoginValidation:
     """
-    实现了对用户登录表单数据的验证，以及对用户进行验证认证的功能。
-    如果认证失败次数达到设定上限，则会冻结用户。
-    如果验证成功，则会将用户的详细信息存入LoginResult对象中返回给调用者。
+    验证用户登录时提交的数据是否有效
     """
 
     def __init__(self, func):
         self.func = func
-
-    """
-    代码解释：
-    __call__方法实现了类似于函数调用的功能，接收四个参数：
-    data表示提交的登录表单数据；db表示异步会话；request表示请求对象，返回一个LoginResult对象。
-    首先，该方法会对提交的数据进行验证，如果发现数据不合法（例如platform或者method的值非法），则直接返回错误信息。
-    接着，通过调用crud.UserDal中的get_data方法，从数据库中获取与提交的手机号相应的用户记录。
-    如果用户不存在，则返回“该手机号不存在！”的错误信息。
-    """
 
     async def __call__(self, data: LoginForm, db: AsyncSession, request: Request) -> LoginResult:
         self.result = LoginResult()
@@ -76,7 +66,6 @@ class LoginValidation:
             count = Count(redis_getter(request), count_key)
         else:
             count = None
-
         if not result.status:
             self.result.msg = result.msg
             if not DEMO and count:

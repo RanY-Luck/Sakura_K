@@ -33,14 +33,13 @@ app = APIRouter()
 ###########################################################
 @app.get("/dict/types", summary="获取字典类型列表")
 async def get_dict_types(p: DictTypeParams = Depends(), auth: Auth = Depends(AllUserAuth())):
-    datas, count = await crud.DictTypeDal(auth.db).get_datas(**p.dict(), v_return_objs=True)
+    datas, count = await crud.DictTypeDal(auth.db).get_datas(**p.dict(), v_return_count=True)
     return SuccessResponse(datas, count=count)
 
 
 @app.post("/dict/types", summary="创建字典类型")
-async def create_dict_types(data_id: int, auth: Auth = Depends(AllUserAuth())):
-    schema = schemas.DictTypeSimpleOut
-    return SuccessResponse(await crud.DictTypeDal(auth.db).get_data(data_id, v_schema=schema))
+async def create_dict_types(data: schemas.DictType, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.DictTypeDal(auth.db).create_data(data=data))
 
 
 @app.delete("/dict/types", summary="批量删除字典类型")
@@ -71,7 +70,7 @@ async def put_dict_types(data_id: int, data: schemas.DictType, auth: Auth = Depe
 @app.get("/dict/types/{data_id}", summary="获取字典类型详细")
 async def get_dict_type(data_id: int, auth: Auth = Depends(AllUserAuth())):
     schema = schemas.DictTypeSimpleOut
-    return SuccessResponse(await crud.DictTypeDal(auth.db).get_data(data_id, None, v_schema=schema))
+    return SuccessResponse(await crud.DictTypeDal(auth.db).get_data(data_id, v_schema=schema))
 
 
 ###########################################################
@@ -164,7 +163,7 @@ async def get_settings_tabs_values(tab_id: int, auth: Auth = Depends(FullAdminAu
 async def put_settings_tabs_values(
         request: Request,
         datas: dict = Body(...),
-        auth: Auth = Depends(FullAdminAuth)
+        auth: Auth = Depends(FullAdminAuth())
 ):
     return SuccessResponse(await crud.SettingsDal(auth.db).update_datas(datas, request))
 
