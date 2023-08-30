@@ -142,7 +142,7 @@ EVENTS = [
 # 默认密码，"0" 默认为手机号后六位
 DEFAULT_PASSWORD = "0"
 # 默认头像
-DEFAULT_AVATAR = "https://fastapi.tiangolo.com/img/icon-white.svg"
+DEFAULT_AVATAR = "https://ran-oss-yong.oss-cn-shenzhen.aliyuncs.com/avatar.gif"
 # 默认登陆时最大输入密码或验证码错误次数
 DEFAULT_AUTH_ERROR_MAX_NUMBER = 5
 # 是否开启保存登录日志

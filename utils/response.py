@@ -7,8 +7,9 @@
 # @Software: PyCharm
 # @desc    : 响应
 # 赖安装：pip install orjson
-from fastapi.responses import ORJSONResponse as Response
 from fastapi import status as http_status
+from fastapi.responses import ORJSONResponse as Response
+
 from utils import status as http
 
 
@@ -25,11 +26,6 @@ class SuccessResponse(Response):
             self, data=None, msg="success", code=http.HTTP_SUCCESS, status=http_status.HTTP_200_OK
             , **kwargs
     ):
-        self.data = {
-            "code": code,
-            "message": msg,
-            "data": data
-        }
         self.data = {
             "code": code,
             "message": msg,

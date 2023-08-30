@@ -462,10 +462,12 @@ class UserDal(DalBase):
         调用父类中的 delete_datas 方法将指定 ids 的用户对象进行软删除，返回操作结果。
         调用该函数即可对指定的多个用户进行软删除，并解除角色关联关系。
         """
-        user_count = await UserDal(self.db).get_count(v_join=[["roles"]], v_where=[models.VadminRole.id.in_(ids)])
-        if user_count > 0:
-            raise CustomException("无法删除存在用户关联的角色", code=400)
-        return await super(RoleDal, self).delete_datas(ids, v_soft, **kwargs)
+        options = [joinedload(self.model.roles)]
+        objs = await self.get_datas(limit=0, id=("in", ids), v_options=options, v_return_objs=True)
+        for obj in objs:
+            if obj.roles:
+                obj.roles.clear()
+        return await super(UserDal, self).delete_datas(ids, v_soft, **kwargs)
 
 
 # 角色DAL

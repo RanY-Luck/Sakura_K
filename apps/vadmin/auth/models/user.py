@@ -44,12 +44,12 @@ class VadminUser(BaseModel):
 
     roles: Mapped[set[VadminRole]] = relationship(secondary=vadmin_auth_user_roles)
 
-    # generate hash password
+    # 生成哈希密码
     @staticmethod
     def get_password_hash(password: str) -> str:
         return pwd_context.hash(password)
 
-    # verify login password
+    # 验证登录密码
     @staticmethod
     def verify_password(password: str, hashed_password: str) -> bool:
         return pwd_context.verify(password, hashed_password)

@@ -45,7 +45,7 @@ async def get_users(
         **params.dict(),
         v_options=options,
         v_schema=schema,
-        v_return_objs=True
+        v_return_count=True
     )
     return SuccessResponse(datas, count=count)
 
@@ -63,19 +63,11 @@ async def create_user(
 
 
 @app.delete("/users", summary="批量删除用户", description="软删除，删除后清空所关联的角色")
-async def delete_users(
-        ids: IdList = Depends(),
-        # 是用于身份验证的，要求验证权限为"auth.user.delete"的FullAdminAuth。
-        auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.delete"]))
-):
-    # 判断了当前登录用户和超级管理员用户是否在待删除的用户ID列表中，如果是，则直接返回错误响应对象（ErrorResponse）。
+async def delete_users(ids: IdList = Depends(), auth: Auth = Depends(FullAdminAuth(permissions=["auth.user.delete"]))):
     if auth.user.id in ids.ids:
         return ErrorResponse("不能删除当前登录用户")
     elif 1 in ids.ids:
         return ErrorResponse("不能删除超级管理员用户")
-    # 通过传入待删除的用户ID列表、软删除标记和活动状态标记来删除用户，在执行删除操作后，返回一个成功响应对象（SuccessResponse）。
-    # 需要注意的是，该接口采用了软删除方式，即不会直接从数据库中删除数据，而是将用户的is_active字段标记为False，表示用户被禁用。
-    # 另外，该接口还清空了用户所关联的角色信息。
     await crud.UserDal(auth.db).delete_datas(ids=ids.ids, v_soft=True, is_active=False)
     return SuccessResponse("删除成功")
 
