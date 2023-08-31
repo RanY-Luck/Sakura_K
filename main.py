@@ -6,23 +6,27 @@
 # @File    : main.py
 # @Software: PyCharm
 # @desc    : 主程序入口
+
 """
 FastApi 更新文档：https://github.com/tiangolo/fastapi/releases
 FastApi Github：https://github.com/tiangolo/fastapi
 Typer 官方文档：https://typer.tiangolo.com/
 """
-import uvicorn
-import typer
+
 import asyncio
+
+import typer
+import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiofiles
+
 from application import settings
 from application import urls
-from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiofiles
-from core.exception import register_exception
-from scripts.initialize.initialize import InitializeData, Environment
-from scripts.create_app.main import CreateApp
 from core.event import lifespan
+from core.exception import register_exception
+from scripts.create_app.main import CreateApp
+from scripts.initialize.initialize import InitializeData, Environment
 from utils.tools import import_modules
 
 shell_app = typer.Typer()
@@ -76,13 +80,6 @@ def run(
     """
     启动项目
     :return:
-    代码解释：
-    该函数使用了 uvicorn.run() 函数来启动一个 ASGI 应用程序，其中：
-    - app 参数指定要运行的应用程序。这里使用了字符串 "main:create_app"，表示要从 main 模块中导入 create_app 函数作为应用程序。
-    - host 参数指定服务器绑定的主机名或 IP 地址，这里设置为 "0.0.0.0"，表示可以接受来自任何 IP 地址的请求。
-    - port 参数指定服务器绑定的端口号，这里设置为 9000。
-    - lifespan 参数指定应用程序的生命周期管理器，这里设置为 "on" 表示使用 FastAPI 的 Lifespan 生命周期管理器。
-    - factory 参数指定是否使用工厂模式启动应用程序。这里设置为 True，表示使用工厂模式启动应用程序。
     """
     uvicorn.run(app='main:create_app', host=host, port=port, lifespan="on", factory=True)
 
@@ -95,7 +92,6 @@ def init(env: Environment = Environment.pro):
     :return:
     """
     print("开始初始化数据")
-    # InitializeData 是一个自定义的类，用于初始化应用程序的数据库。asyncio.run() 是一个异步函数，用于运行异步任务，这里用于异步运行 data.run(env) 方法。
     data = InitializeData()
     asyncio.run(data.run(env))
 
@@ -108,7 +104,6 @@ def migrate(env: Environment = Environment.pro):
     :return:
     """
     print("开始更新数据库表")
-    # InitializeData 是一个自定义的类，其中定义了一个静态方法 migrate_model，用于将模型迁移到数据库，并更新数据库表结构。
     InitializeData.migrate_model(env)
 
 
@@ -120,8 +115,6 @@ def init_app(path: str):
     :return:
     """
     print(f"开始创建并初始化{path}APP")
-    # CreateApp 是一个自定义的类，用于自动创建和初始化 APP 的目录结构和文件。
-    # 该类的 run 方法会执行一系列操作，例如创建目录，生成配置文件，安装依赖等，最终生成一个完整的 APP 目录结构和文件。
     app = CreateApp(path)
     app.run()
 

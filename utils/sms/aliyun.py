@@ -17,6 +17,7 @@ Python 3
 安装 SDK 核心库 OpenAPI ，使用pip安装包依赖:
 pip install alibabacloud_tea_openapi
 pip install alibabacloud_dysmsapi20170525
+
 """
 import datetime
 import random
@@ -53,7 +54,7 @@ class AliyunSMS(DBGetter):
         """
         主程序入口，异步方式
 
-        Redis 对象必填
+        redis 对象必填
         """
         result = []
         await self._get_settings_async()
@@ -86,7 +87,7 @@ class AliyunSMS(DBGetter):
         获取配置信息
         """
         if not self.rd:
-            raise ValueError("缺少 Redis 对象参数！")
+            raise ValueError("缺少 redis 对象参数！")
         elif not self.sign_conf or not self.template_code_conf:
             raise ValueError("缺少短信签名信息和短信模板ID！")
         aliyun_sms = await Cache(self.rd).get_tab_name("aliyun_sms", retry)

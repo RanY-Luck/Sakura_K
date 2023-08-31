@@ -6,9 +6,11 @@
 # @File    : data_types.py
 # @Software: PyCharm
 # @desc    : 自定义数据类型
+
 """
 自定义数据类型 - 官方文档：https://docs.pydantic.dev/dev-v2/usage/types/custom/#adding-validation-and-serialization
 """
+
 import datetime
 from typing import Annotated, Any
 

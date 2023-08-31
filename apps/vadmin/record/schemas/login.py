@@ -6,6 +6,7 @@
 # @File    : login.py
 # @Software: PyCharm
 # @desc    : pydantic 模型，用于数据库序列化操作
+
 """
 pydantic 验证数据：https://blog.csdn.net/qq_44291044/article/details/104693526
 代码解释：
@@ -20,7 +21,9 @@ LoginRecordSimpleOut 继承了 LoginRecord，并扩展了三个属性：id、cre
 LoginRecordSimpleOut 的 Config 类中设置了 orm_mode = True，这表示该模型可以被用作 SQLAlchemy ORM 模型的返回类型。
 这样可以确保返回的数据符合 SQLAlchemy ORM 模型的属性要求。
 """
+
 from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 

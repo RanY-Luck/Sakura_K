@@ -6,9 +6,12 @@
 # @File    : dependencies.py
 # @Software: PyCharm
 # @desc    : 常用依赖项
+
+
 """
 类依赖项-官方文档：https://fastapi.tiangolo.com/zh/tutorial/dependencies/classes-as-dependencies/
 """
+
 import copy
 
 from fastapi import Body

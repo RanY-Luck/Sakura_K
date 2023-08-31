@@ -11,6 +11,7 @@
 # sqlalchemy 查询操作（官方文档）: https://docs.sqlalchemy.org/en/20/orm/queryguide/select.html
 # sqlalchemy 增删改操作：https://docs.sqlalchemy.org/en/20/orm/queryguide/dml.html
 # sqlalchemy 1.x 语法迁移到 2.x :https://docs.sqlalchemy.org/en/20/changelog/migration_20.html#migration-20-query-usage
+
 import datetime
 from typing import Any
 
@@ -123,7 +124,6 @@ class DalBase:
     ) -> list[Any] | ScalarResult | tuple:
         """
         获取数据列表
-
         :param page: 页码
         :param limit: 当前页数据量
         :param v_start_sql: 初始 sql

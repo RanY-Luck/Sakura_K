@@ -6,6 +6,7 @@
 # @File    : login.py
 # @Software: PyCharm
 # @desc    : 登录记录模型
+
 import json
 
 from fastapi import Request
@@ -54,18 +55,8 @@ class VadminLoginRecord(BaseModel):
     ):
         """
         创建登录记录
-        :param db:
-        :param data:
-        :param status:
-        :param req:
-        :param resp:
         :return:
-        代码解释：
-        用于在数据库中创建一个新的登录记录。
-        该方法接受多个参数，例如db、data、status、req和resp等，这些参数分别代表着数据库会话、用户登录信息、登录状态、请求对象和响应信息等。
-        在方法内部，它会根据传入的参数构建一个新的VadminLoginRecord对象，并将其添加到数据库中。
         """
-        # 首先，它会检查LOGIN_LOG_RECORD这个全局变量是否为True，如果不是则直接返回None，不做任何操作。
         if not LOGIN_LOG_RECORD:
             return None
         header = {}

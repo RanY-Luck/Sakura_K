@@ -6,6 +6,7 @@
 # @File    : __init__.py
 # @Software: PyCharm
 # @desc    : 初始化文件
+
 from .dict import DictType, DictDetails, DictTypeSimpleOut, DictDetailsSimpleOut, DictTypeSelectOut
 from .settings import Settings, SettingsSimpleOut
 from .settings_tab import SettingsTab, SettingsTabSimpleOut

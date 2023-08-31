@@ -6,6 +6,7 @@
 # @File    : user.py
 # @Software: PyCharm
 # @desc    : pydantic 用户模型，用于数据库序列化操作
+
 """
 pydantic 验证数据：https://blog.csdn.net/qq_44291044/article/details/104693526
 代码解释：
@@ -17,6 +18,7 @@ UserSimpleOut类和UserOut类表示查询用户信息时返回的简单信息和
 ResetPwd类表示重置密码的模型类，包含了密码和进行二次验证的密码two字段。
 check_passwords_match方法是一个验证方法，用于检查两次输入的密码是否相同。
 """
+
 from pydantic import BaseModel, ConfigDict, field_validator
 from pydantic_core.core_schema import FieldValidationInfo
 

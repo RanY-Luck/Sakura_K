@@ -6,6 +6,7 @@
 # @File    : reset_passwd.py
 # @Software: PyCharm
 # @desc    : 重置密码
+
 from typing import List
 
 from redis.asyncio import Redis
@@ -24,15 +25,15 @@ class ResetPasswordSMS(AliyunSMS):
     async def main_async(self, password: str) -> List[bool]:
         """
         主程序入口，异步方式
-        Redis 对象必填
-        :params password: 新密码
+        redis 对象必填
+        :param password: 新密码
         """
         return await super().main_async(password=password)
 
     def main(self, password: str) -> List[bool]:
         """
         主程序入口，同步方式
-        :params password: 新密码
+        :param password: 新密码
         """
         return super().main(password=password)
 

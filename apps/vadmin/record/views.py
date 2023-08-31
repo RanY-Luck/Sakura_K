@@ -6,6 +6,7 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    : 主要接口文件
+
 from fastapi import APIRouter, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -23,10 +24,7 @@ app = APIRouter()
 #                      日志管理                            #
 ###########################################################
 @app.get("/logins", summary="获取登录日志列表")
-async def get_record_login(
-        p: LoginParams = Depends(),
-        auth: Auth = Depends(AllUserAuth())
-):
+async def get_record_login(p: LoginParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     datas, count = await crud.LoginRecordDal(auth.db).get_datas(**p.dict(), v_return_count=True)
     return SuccessResponse(datas, count=count)
 

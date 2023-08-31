@@ -6,15 +6,17 @@
 # @File    : validator.py
 # @Software: PyCharm
 # @desc    : Pydantic 模型重用验证器针对 手机号、邮箱
+
 """
 官方文档：https://pydantic-docs.helpmanual.io/usage/validators/#reuse-validators
 """
+
 import re
 
 
 def vali_telephone(value: str) -> str:
     """
-    手机号码验证器
+    手机号验证器
     :param value: 手机号
     :return: 手机号
     """
@@ -29,7 +31,7 @@ def vali_telephone(value: str) -> str:
 def vali_email(value: str) -> str:
     """
     邮箱地址验证器
-    :param value:邮箱
+    :param value: 邮箱
     :return: 邮箱
     """
     if not value:

@@ -6,6 +6,7 @@
 # @File    : enum.py
 # @Software: PyCharm
 # @desc    : 枚举类方法
+
 from enum import Enum
 
 

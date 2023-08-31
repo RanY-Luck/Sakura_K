@@ -6,6 +6,7 @@
 # @File    : aliyun_oss.py
 # @Software: PyCharm
 # @desc    : 阿里云存储对象
+
 import os.path
 
 import oss2  # 安装依赖库：pip install oss2
@@ -20,17 +21,6 @@ from utils.file.compress.cpressJPG import compress_jpg_png
 from utils.file.file_base import FileBase
 from utils.file.file_manage import FileManage
 
-"""
-代码解释：
-实现了一个基于阿里云OSS的文件上传类AliyunOSS，包含两个方法：upload_image和upload_file。
-该类需要传入一个BucketConf对象作为初始化参数，其中accessKeyId、accessKeySecret、endpoint、bucket和baseUrl等属性分别对应阿里云存储桶的相关配置信息。
-在upload_image方法中，首先调用generate_path方法生成文件路径，然后判断是否需要压缩图片，
-如果需要，则调用FileManage类的save_tmp_file方法将上传的文件保存到临时目录中，再调用compress_jpg_png方法对图片进行压缩。
-最后读取压缩后的文件，并通过oss2.Bucket.put_object方法上传到OSS中。如果上传成功，则返回图片URL地址。
-在upload_file方法中，同样先调用generate_path方法生成文件路径，然后读取文件内容，并通过oss2.Bucket.put_object方法上传到OSS中。
-如果上传成功，则返回文件URL地址。
-"""
-
 
 class BucketConf(BaseModel):
     accessKeyId: str
@@ -42,7 +32,7 @@ class BucketConf(BaseModel):
 
 class AliyunOSS(FileBase):
     """
-    阿里云存储对象
+    阿里云对象存储
     常见报错：https://help.aliyun.com/document_detail/185228.htm?spm=a2c4g.11186623.0.0.6de530e5pxNK76#concept-1957777
     官方文档：https://help.aliyun.com/document_detail/32026.html
     使用Python SDK时，大部分操作都是通过oss2.Service和oss2.Bucket两个类进行。
@@ -61,6 +51,7 @@ class AliyunOSS(FileBase):
     async def upload_image(self, path: str, file: UploadFile, compress: bool = False, max_size: int = 10) -> str:
         """
         上传图片
+
         :param path: path由包含文件后缀，不包含Bucket名称组成的Object完整路径，例如abc/efg/123.jpg。
         :param file: 文件对象
         :param compress: 是否压缩该文件
@@ -100,9 +91,10 @@ class AliyunOSS(FileBase):
     async def upload_file(self, path: str, file: UploadFile) -> str:
         """
         上传文件
-        :param path:
-        :param file:
-        :return:
+
+        :param path: path由包含文件后缀，不包含Bucket名称组成的Object完整路径，例如abc/efg/123.jpg。
+        :param file: 文件对象
+        :return: 上传后的文件oss链接
         """
         path = self.generate_path(path, file.filename)
         file_data = await file.read()

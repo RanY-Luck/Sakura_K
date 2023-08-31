@@ -6,9 +6,11 @@
 # @File    : user.py
 # @Software: PyCharm
 # @desc    : 用户查询--类依赖项
+
 """
 类依赖项-官方文档：https://fastapi.tiangolo.com/zh/tutorial/dependencies/classes-as-dependencies/
 """
+
 from fastapi import Depends
 
 from core.dependencies import Paging, QueryParams

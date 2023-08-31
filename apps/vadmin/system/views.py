@@ -6,6 +6,7 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    : 主要接口文件
+
 from fastapi import APIRouter, Depends, Body, UploadFile, Form, Request
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
@@ -85,7 +86,7 @@ async def create_dict_details(data: schemas.DictDetails, auth: Auth = Depends(Al
 async def get_dict_details(params: DictDetailParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     if not params.dict_type_id:
         return ErrorResponse(msg="未获取到字典类型！")
-    datas, count = await crud.DictDetailsDal(auth.db).get_datas(**params.dict(), v_return_objs=True)
+    datas, count = await crud.DictDetailsDal(auth.db).get_datas(**params.dict(), v_return_count=True)
     return SuccessResponse(datas, count=count)
 
 

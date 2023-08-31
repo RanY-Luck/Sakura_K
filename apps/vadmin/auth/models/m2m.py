@@ -20,6 +20,7 @@ unique=True 表示唯一，意味该值在整个表格不能重复
 index=True 表示该列需要被索引，便于查询和检索操作。
 autoincrement=True 表示这个列的值是自增的，每当有新数据插入到表格时，这个列的值会自动加 1。
 """
+
 from sqlalchemy import ForeignKey, Column, Table, Integer
 
 from db.db_base import Base

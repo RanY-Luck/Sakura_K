@@ -6,6 +6,7 @@
 # @File    : dict.py
 # @Software: PyCharm
 # @desc    : 系统字典模型
+
 from sqlalchemy import String, Boolean, ForeignKey, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 

@@ -6,6 +6,7 @@
 # @File    : settings.py
 # @Software: PyCharm
 # @desc    : 系统设置模型，用于数据库序列化操作
+
 """
 pydantic 验证数据：https://blog.csdn.net/qq_44291044/article/details/104693526
 代码解释：
@@ -14,7 +15,9 @@ Settings类表示一个系统设置，包括了config_label（配置标签，可
 SettingsSimpleOut类继承了Settings类，并增加了id（自增主键）、create_datetime（创建时间）、update_datetime（更新时间）等属性。
 同时，这个类也使用了Config类的orm_mode配置，表示该类可以被用于ORM操作。
 """
+
 from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 

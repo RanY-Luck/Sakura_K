@@ -6,6 +6,7 @@
 @Date    : 2023/8/25 17:40
 @Desc    : 图片素材表
 """
+
 from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -22,7 +23,7 @@ class VadminImages(BaseModel):
 
     create_user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("vadmin_auth_user.id", ondelete="RESTRICT"),
+        ForeignKey("vadmin_auth_user.id", ondelete='RESTRICT'),
         comment="创建人"
     )
     create_user: Mapped[VadminUser] = relationship(foreign_keys=create_user_id)

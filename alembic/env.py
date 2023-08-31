@@ -40,7 +40,6 @@ target_metadata = Base.metadata
 def run_migrations_offline():
     """
     以“脱机”模式运行迁移。
-    :return:
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -59,9 +58,7 @@ def run_migrations_offline():
 def run_migrations_online():
     """
     以“在线”模式运行迁移。
-    :return:
     """
-
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
@@ -78,8 +75,8 @@ def run_migrations_online():
 
 
 if context.is_offline_mode():
-    print("离线")
+    print("offline")
     run_migrations_offline()
 else:
-    print("在线")
+    print("online")
     run_migrations_online()

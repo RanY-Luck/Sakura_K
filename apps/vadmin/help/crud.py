@@ -6,6 +6,7 @@
 # @File    : crud.py
 # @Software: PyCharm
 # @desc    : 帮助中心--增删改查
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.crud import DalBase
@@ -21,7 +22,7 @@ class IssueDal(DalBase):
         """
         更新常见问题查看次数+1
         """
-        obj: models.VadminIssueCategory = await self.get_data(data_id)
+        obj: models.VadminIssue = await self.get_data(data_id)
         obj.view_number = obj.view_number + 1 if obj.view_number else 1
         await self.flush(obj)
 

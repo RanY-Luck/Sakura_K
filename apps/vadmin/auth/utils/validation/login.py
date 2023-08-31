@@ -6,6 +6,7 @@
 # @File    : login.py
 # @Software: PyCharm
 # @desc    : 登录验证装饰器
+
 from fastapi import Request
 from pydantic import BaseModel, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -60,12 +61,15 @@ class LoginValidation:
         if not user:
             self.result.msg = "该手机号不存在！"
             return self.result
+
         result = await self.func(self, data=data, user=user, request=request)
+
         if REDIS_DB_ENABLE:
             count_key = f"{data.telephone}_password_auth" if data.method == '0' else f"{data.telephone}_sms_auth"
             count = Count(redis_getter(request), count_key)
         else:
             count = None
+
         if not result.status:
             self.result.msg = result.msg
             if not DEMO and count:

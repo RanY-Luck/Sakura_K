@@ -6,6 +6,7 @@
 # @File    : menu.py
 # @Software: PyCharm
 # @desc    : 菜单模型
+
 from sqlalchemy import String, Boolean, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 

@@ -6,6 +6,7 @@
 # @File    : ip_manage.py
 # @Software: PyCharm
 # @desc    : 获取IP地址归属地
+
 """
 文档：https://user.ip138.com/ip/doc
 IP查询第三方服务，有1000次的免费次数
@@ -14,6 +15,7 @@ https://api.ip138.com/ip/?ip=58.16.180.3&datatype=jsonp&token=cc87f3c77747bccbaa
 
 aiohttp 异步请求文档：https://docs.aiohttp.org/en/stable/client_quickstart.html
 """
+
 import aiohttp
 from aiohttp import TCPConnector
 from pydantic import BaseModel

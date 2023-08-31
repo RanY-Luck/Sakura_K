@@ -5,11 +5,10 @@
 # @Site    :
 # @File    : views.py
 # @Software: PyCharm
-# @desc    :
-from fastapi import APIRouter, Depends
+# @desc    : 轮播图
 
-from apps.vadmin.auth.utils.current import AllUserAuth
-from apps.vadmin.auth.utils.validation.auth import Auth
+from fastapi import APIRouter
+
 from utils.response import SuccessResponse
 
 app = APIRouter()
@@ -19,7 +18,7 @@ app = APIRouter()
 #                     图表数据                             #
 ###########################################################
 @app.get("/banners", summary="轮播图")
-async def get_banners(auth: Auth = Depends(AllUserAuth())):
+async def get_banners():
     data = [
         {
             "id": 1,
@@ -38,7 +37,7 @@ async def get_banners(auth: Auth = Depends(AllUserAuth())):
 
 
 @app.get("/user/access/source", summary="用户来源")
-async def get_user_access_source(auth: Auth = Depends(AllUserAuth())):
+async def get_user_access_source():
     data = [
         {"value": 1000, "name": 'analysis.directAccess'},
         {"value": 310, "name": 'analysis.mailMarketing'},
@@ -50,7 +49,7 @@ async def get_user_access_source(auth: Auth = Depends(AllUserAuth())):
 
 
 @app.get("/weekly/user/activity", summary="每周用户活跃量")
-async def get_weekly_user_activity(auth: Auth = Depends(AllUserAuth())):
+async def get_weekly_user_activity():
     data = [
         {"value": 13253, "name": 'analysis.monday'},
         {"value": 34235, "name": 'analysis.tuesday'},
@@ -64,7 +63,7 @@ async def get_weekly_user_activity(auth: Auth = Depends(AllUserAuth())):
 
 
 @app.get("/monthly/sales", summary="每月销售额")
-async def get_monthly_sales(auth: Auth = Depends(AllUserAuth())):
+async def get_monthly_sales():
     data = [
         {"estimate": 100, "actual": 120, "name": 'analysis.january'},
         {"estimate": 120, "actual": 82, "name": 'analysis.february'},

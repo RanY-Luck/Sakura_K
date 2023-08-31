@@ -6,6 +6,7 @@
 # @File    : exception.py
 # @Software: PyCharm
 # @desc    : 全局异常处理
+
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi.encoders import jsonable_encoder
@@ -26,12 +27,6 @@ class CustomException(Exception):
             status_code: int = status.HTTP_200_OK,
             desc: str = None
     ):
-        """
-        :param msg: 响应消息的字符串
-        :param code: 表示错误代码的整数值，默认为status.HTTP_400_BAD_REQUEST，即表示请求的格式不正确或请求无效。
-        :param status_code: 表示HTTP响应状态码的整数值，默认为status.HTTP_200_OK，即表示请求成功。
-        :param desc: 描述
-        """
         self.msg = msg
         self.code = code
         self.status_code = status_code
@@ -40,17 +35,13 @@ class CustomException(Exception):
 
 def register_exception(app: FastAPI):
     """
-    异常捕获
-    :return:
+    异常捕捉
     """
 
     @app.exception_handler(CustomException)
     async def custom_exception_handler(request: Request, exc: CustomException):
         """
         自定义异常
-        :param request:
-        :param exc:
-        :return:
         """
         print("请求地址", request.url.__str__())
         print("捕捉到重写CustomException异常异常：custom_exception_handler")
@@ -66,10 +57,7 @@ def register_exception(app: FastAPI):
     @app.exception_handler(StarletteHTTPException)
     async def unicorn_exception_handler(request: Request, exc: StarletteHTTPException):
         """
-        重写HttpException异常处理器
-        :param request:
-        :param exc:
-        :return:
+        重写HTTPException异常处理器
         """
         print("请求地址", request.url.__str__())
         print("捕捉到重写HTTPException异常异常：unicorn_exception_handler")
@@ -79,7 +67,7 @@ def register_exception(app: FastAPI):
             status_code=200,
             content={
                 "code": status.HTTP_400_BAD_REQUEST,
-                "message": exc.detail
+                "message": exc.detail,
             }
         )
 
@@ -87,9 +75,6 @@ def register_exception(app: FastAPI):
     async def validation_exception_handler(request: Request, exc: RequestValidationError):
         """
         重写请求验证异常处理器
-        :param request:
-        :param exc:
-        :return:
         """
         print("请求地址", request.url.__str__())
         print("捕捉到重写请求验证异常异常：validation_exception_handler")

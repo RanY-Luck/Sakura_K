@@ -6,6 +6,7 @@
 # @File    : settings_tab.py
 # @Software: PyCharm
 # @desc    : 系统设置选项卡模型，用于数据库序列化操作
+
 """
 pydantic 验证数据：https://blog.csdn.net/qq_44291044/article/details/104693526
 代码解释：
@@ -16,6 +17,7 @@ SettingsTabSimpleOut类继承了SettingsTab类，并增加了id（自增主键�
 这些数据模型类都采用了pydantic库实现，利用了其内置的输入数据验证、类型转换等功能，可以在运行前对数据进行预处理和校验。
 而使用继承方式构建数据模型类，可以方便地进行属性的复用和继承。
 """
+
 from pydantic import BaseModel, ConfigDict
 
 from core.data_types import DatetimeStr

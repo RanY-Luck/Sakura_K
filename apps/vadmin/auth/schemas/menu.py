@@ -6,6 +6,7 @@
 # @File    : menu.py
 # @Software: PyCharm
 # @desc    : pydantic 菜单模型，用于数据库序列化操作
+
 """
 pydantic 验证数据：https://blog.csdn.net/qq_44291044/article/details/104693526
 代码解释：
@@ -17,7 +18,9 @@ RouterOut类表示了一个路由项，包含了名称、组件名、路径、�
 TreeListOut类继承自MenuSimpleOut类，并新增了children属性，表示该菜单项包含的子菜单，即树形结构。
 其中，children属性也是一个由TreeListOut对象构成的列表，表示该菜单项包含的子菜单。
 """
+
 from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 

@@ -6,6 +6,7 @@
 # @File    : cpressJPG.py
 # @Software: PyCharm
 # @desc    : JPEG和PNG图片进行压缩
+
 import os
 import time
 

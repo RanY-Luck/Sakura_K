@@ -6,6 +6,7 @@
 # @File    : excel_manage.py
 # @Software: PyCharm
 # @desc    : Excel 文件操作
+
 import datetime
 import hashlib
 import os
@@ -22,10 +23,10 @@ from .excel_schema import AlignmentModel, FontModel, PatternFillModel
 
 class ExcelManage:
     """
-    Excel文件序列化
+    excel 文件序列化
     """
 
-    # 列名:A-Z
+    # 列名，A-Z
     EXCEL_COLUMNS = [chr(a) for a in range(ord('A'), ord('Z') + 1)]
 
     def __init__(self):
@@ -165,6 +166,7 @@ class ExcelManage:
     ):
         """
         设置行样式
+
         :param row: 行
         :param max_column: 最大列
         :param alignment_style: 单元格内容的对齐设置
@@ -182,6 +184,7 @@ class ExcelManage:
     def __set_row_format(self, row: int, columns: dict):
         """
         格式化行数据类型
+
         :param row: 行
         :param columns: 列数据
         """
@@ -216,6 +219,7 @@ class ExcelManage:
                 if cell.value:
                     # 遍历整个表格，把该列所有的单元格文本进行长度对比，找出最长的单元格
                     # 在对比单元格文本时需要将中文字符识别为1.7个长度，英文字符识别为1个，这里只需要将文本长度直接加上中文字符数量即可
+                    # re.findall('([\u4e00-\u9fa5])', cell.value)能够识别大部分中文字符
                     cell_len = 0.7 * len(re.findall('([\u4e00-\u9fa5])', str(cell.value))) + len(str(cell.value))
                     dims[cell.column] = max((dims.get(cell.column, 0), cell_len))
         for col, value in dims.items():

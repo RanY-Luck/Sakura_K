@@ -6,6 +6,7 @@
 # @File    : sms.py
 # @Software: PyCharm
 # @desc    : 短信发送记录模型
+
 from sqlalchemy import Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 

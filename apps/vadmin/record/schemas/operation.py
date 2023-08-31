@@ -6,6 +6,7 @@
 # @File    : operation.py
 # @Software: PyCharm
 # @desc    : pydantic 模型，用于数据库序列化操作
+
 """
 pydantic 验证数据：https://blog.csdn.net/qq_44291044/article/details/104693526
 代码解释：
@@ -20,7 +21,9 @@ OperationRecord 和 OperationRecordSimpleOut 都是 Pydantic 的 BaseModel 类�
 这意味着它们都具有 Pydantic 的基本功能，例如验证属性的类型、默认值等。
 Config 类中的 orm_mode = True 表示该模型可以被用作 SQLAlchemy ORM 模型的返回类型，确保返回的数据符合 SQLAlchemy ORM 模型的属性要求。
 """
+
 from pydantic import BaseModel, ConfigDict
+
 from core.data_types import DatetimeStr
 
 

@@ -6,6 +6,7 @@
 # @File    : role.py
 # @Software: PyCharm
 # @desc    : 角色模型
+
 from sqlalchemy import String, Boolean, Integer
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -24,4 +25,5 @@ class VadminRole(BaseModel):
     order: Mapped[int | None] = mapped_column(Integer, comment="排序")
     desc: Mapped[str | None] = mapped_column(String(255), comment="描述")
     is_admin: Mapped[bool] = mapped_column(Boolean, comment="是否为超级角色", default=False)
+
     menus: Mapped[set[VadminMenu]] = relationship(secondary=vadmin_auth_role_menus)

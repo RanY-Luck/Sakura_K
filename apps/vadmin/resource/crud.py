@@ -13,5 +13,6 @@ from . import models, schemas
 
 
 class ImagesDal(DalBase):
+
     def __init__(self, db: AsyncSession):
         super(ImagesDal, self).__init__(db, models.VadminImages, schemas.ImagesSimpleOut)

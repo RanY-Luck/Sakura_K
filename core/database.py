@@ -6,11 +6,13 @@
 # @File    : database.py
 # @Software: PyCharm
 # @desc    : SQLAlchemy 部分
+
 """
 导入SQLAlchemy 部分
 安装： pip install sqlalchemy[asyncio]
 官方文档：https://docs.sqlalchemy.org/en/20/intro.html#installation
 """
+
 from typing import AsyncGenerator
 
 from fastapi import Request
@@ -26,6 +28,15 @@ from core.exception import CustomException
 def create_async_engine_session(database_url: str) -> async_sessionmaker[AsyncSession]:
     """
     创建数据库会话
+
+    相关配置文档：https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls
+
+    database_url  dialect+driver://username:password@host:port/database
+    max_overflow 超过连接池大小外最多创建的连接
+    pool_size=5,     # 连接池大小
+    pool_timeout=20, # 池中没有连接最多等待的时间，否则报错
+    pool_recycle=-1  # 多久之后对线程池中的线程进行一次连接的回收（重置）
+
     :param database_url: 数据库地址
     :return:
     """
@@ -58,9 +69,7 @@ class Base(AsyncAttrs, DeclarativeBase):
         """
         将表名改为小写
         如果有自定义表名就取自定义，没有就取小写类名
-        :return:
         """
-        # 如果有自定义表名就取自定义，没有就取小写类名
         table_name = cls.__tablename__
         if not table_name:
             model_name = cls.__name__
@@ -76,9 +85,10 @@ class Base(AsyncAttrs, DeclarativeBase):
 async def db_getter() -> AsyncGenerator[AsyncSession, None]:
     """
     获取主数据库
-    数据库依赖项，它将在单个请求中使用，然后在请求完成后将其关闭。
-    函数的返回类型被注解为 AsyncGenerator[int, None]，其中 AsyncSession 是生成的值的类型，而 None 表示异步生成器没有终止条件。
 
+    数据库依赖项，它将在单个请求中使用，然后在请求完成后将其关闭。
+
+    函数的返回类型被注解为 AsyncGenerator[int, None]，其中 AsyncSession 是生成的值的类型，而 None 表示异步生成器没有终止条件。
     """
     async with create_async_engine_session(SQLALCHEMY_DATABASE_URL)() as session:
         # 创建一个新的事务，半自动 commit
@@ -88,7 +98,7 @@ async def db_getter() -> AsyncGenerator[AsyncSession, None]:
 
 def redis_getter(request: Request) -> Redis:
     """
-    获取 Redis 数据库对象
+    获取 redis 数据库对象
 
     全局挂载，使用一个数据库对象
     """
@@ -99,7 +109,7 @@ def redis_getter(request: Request) -> Redis:
 
 def mongo_getter(request: Request) -> AsyncIOMotorDatabase:
     """
-    获取 Mongo 数据库对象
+    获取 mongo 数据库对象
 
     全局挂载，使用一个数据库对象
     """

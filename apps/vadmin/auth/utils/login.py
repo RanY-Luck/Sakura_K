@@ -15,6 +15,7 @@ JWT 表示 「JSON Web Tokens」。https://jwt.io/
 PassLib 是一个用于处理哈希密码的很棒的 Python 包。它支持许多安全哈希算法以及配合算法使用的实用程序。
 推荐的算法是 「Bcrypt」：pip3 install passlib[bcrypt]
 """
+
 from datetime import timedelta
 
 import jwt
