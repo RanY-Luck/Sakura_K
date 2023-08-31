@@ -110,9 +110,9 @@ IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
 # 开发环境
 version_locations = % (here)
 s / alembic / versions_dev
-sqlalchemy.url = sqlalchemy.url = mysql + pymysql: // root: 123456 @ 127.0
+sqlalchemy.url = mysql + pymysql: // root: 123456 @ 127.0
 .0
-.1 / kinit
+.1: 3306 / sakura_k
 
 [pro]
 # 生产环境
@@ -124,7 +124,6 @@ sqlalchemy.url = sqlalchemy.url = mysql + pymysql: // root: 123456 @ 127.0
 ```
 
 3. 创建数据库
-
 ```
 mysql> create database kinit;  # 创建数据库
 mysql> use sakura_k;           # 使用已创建的数据库 
@@ -137,6 +136,8 @@ mysql> set names utf8;         # 设置编码
 # 项目根目录下执行，需提前创建好数据库
 # 会自动将模型迁移到数据库，并生成初始化数据
 # 执行前请确认执行的环境与settings.py文件中配置的DEBUG一致
+# 比如要初始化开发环境，那么env参数应该为 dev，并且 application/settings.DEBUG 应该 = True
+# 比如要初始化生产环境，那么env参数应该为 pro，并且 application/settings.DEBUG 应该 = False
 
 # （生产环境）
 python3 main.py init
@@ -146,7 +147,8 @@ python3 main.py init --env dev
 ```
 
 5. 修改项目基本配置信息
-   修改数据库表 - vadmin_system_settings 中的关键信息
+
+- 修改数据库表 - vadmin_system_settings 中的关键信息
 
 ```python
 # 阿里云短信配置
@@ -174,12 +176,187 @@ email_port
 6. 启动
 
 ```
-# 进入项目根目录下执行,初始化数据: 这里执行dev环境
-python3 main.py init --env dev
 #运行程序
 python3 main.py run
 ```
 
+## 其他操作
+
+- 接口Swagger文档
+
+```
+#在线文档地址(在配置文件里面设置路径或者关闭)
+http://127.0.0.1:9000/docs
+```
+
+- Git提交代码
+
+Git更新ignore文件直接修改gitignore是不会生效的，需要先去掉已经托管的文件，修改完成之后再重新添加并提交。
+
+```
+第一步：
+git rm -r --cached .
+去掉已经托管的文件
+第二步：
+修改自己的igonre文件内容
+第三步：
+git add .
+git commit -m "clear cached"
+```
+
+- 执行数据库迁移命令（终端执行）
+
+```
+# 执行命令（生产环境）：
+python main.py migrate
+
+# 执行命令（开发环境）：
+python main.py migrate --env dev
+
+# 开发环境的原命令
+alembic --name dev revision --autogenerate -m 2.0
+alembic --name dev upgrade head
+```
+
+## 查数据
+
+自定义的一些查询过滤
+
+```
+# 日期查询
+# 值的类型：str
+# 值得格式：%Y-%m-%d：2023-05-14
+字段名称=("date", 值)
+
+# 模糊查询
+# 值的类型: str
+字段名称=("like", 值)
+
+# in 查询
+# 值的类型：list
+字段名称=("in", 值)
+
+# 时间区间查询
+# 值的类型：tuple 或者 list
+字段名称=("between", 值)
+
+# 月份查询
+# 值的类型：str
+# 值的格式：%Y-%m：2023-05
+字段名称=("month", 值)
+
+# 不等于查询
+字段名称=("!=", 值)
+
+# 大于查询
+字段名称=(">", 值)
+
+# 等于 None
+字段名称=("None")
+
+# 不等于 None
+字段名称=("not None")
+```
+
+代码部分：
+
+```python
+def __dict_filter(self, **kwargs) -> list[BinaryExpression]:
+    """
+    字典过滤
+    :param model:
+    :param kwargs:
+    """
+    conditions = []
+    for field, value in kwargs.items():
+        if value is not None and value != "":
+            attr = getattr(self.model, field)
+            if isinstance(value, tuple):
+                if len(value) == 1:
+                    if value[0] == "None":
+                        conditions.append(attr.is_(None))
+                    elif value[0] == "not None":
+                        conditions.append(attr.isnot(None))
+                    else:
+                        raise CustomException("SQL查询语法错误")
+                elif len(value) == 2 and value[1] not in [None, [], ""]:
+                    if value[0] == "date":
+                        # 根据日期查询， 关键函数是：func.time_format和func.date_format
+                        conditions.append(func.date_format(attr, "%Y-%m-%d") == value[1])
+                    elif value[0] == "like":
+                        conditions.append(attr.like(f"%{value[1]}%"))
+                    elif value[0] == "in":
+                        conditions.append(attr.in_(value[1]))
+                    elif value[0] == "between" and len(value[1]) == 2:
+                        conditions.append(attr.between(value[1][0], value[1][1]))
+                    elif value[0] == "month":
+                        conditions.append(func.date_format(attr, "%Y-%m") == value[1])
+                    elif value[0] == "!=":
+                        conditions.append(attr != value[1])
+                    elif value[0] == ">":
+                        conditions.append(attr > value[1])
+                    elif value[0] == "<=":
+                        conditions.append(attr <= value[1])
+                    else:
+                        raise CustomException("SQL查询语法错误")
+            else:
+                conditions.append(attr == value)
+    return conditions
+```
+
+示例：
+
+查询所有用户id为1或2或 4或6，并且email不为空，并且名称包括李：
+
+```python
+users = UserDal(db).get_datas(limit=0, id=("in", [1, 2, 4, 6]), email=("not None",), name=("like", "李"))
+
+# limit=0：表示返回所有结果数据
+# 这里的 get_datas 默认返回的是 pydantic 模型数据
+# 如果需要返回用户对象列表，使用如下语句：
+users = UserDal(db).get_datas(
+    limit=0,
+    id=("in", [1, 2, 4, 6]),
+    email=("not None",),
+    name=("like", "李"),
+    v_return_objs=True
+)
+```
+
+查询所有用户id为1或2或 4或6，并且email不为空，并且名称包括李：
+
+查询第一页，每页两条数据，并返回总数，同样可以通过 get_datas 实现原始查询方式：
+
+```python
+v_where = [VadminUser.id.in_([1, 2, 4, 6]), VadminUser.email.isnot(None), VadminUser.name.like(f"%李%")]
+users, count = UserDal(db).get_datas(limit=2, v_where=v_where, v_return_count=True)
+
+# 这里的 get_datas 默认返回的是 pydantic 模型数据
+# 如果需要返回用户对象列表，使用如下语句：
+users, count = UserDal(db).get_datas(
+    limit=2,
+    v_where=v_where,
+    v_return_count=True,
+    v_return_objs=True,
+)
+```
+
+外键查询示例
+
+以常见问题表为主表，查询出创建用户名称为kinit的用户，创建了哪些常见问题，并加载出用户信息：
+
+```python
+v_options = [joinedload(VadminIssue.create_user)]
+v_join = [["create_user"]]
+v_where = [VadminUser.name == "kinit"]
+datas = await crud.IssueCategoryDal(auth.db).get_datas(
+    limit=0,
+    v_options=options,
+    v_join=v_join,
+    v_where=v_where,
+    v_return_objs=True
+)
+```
 
 mac系统安装虚拟环境和激活虚拟环境
 一、安装virtualenv
