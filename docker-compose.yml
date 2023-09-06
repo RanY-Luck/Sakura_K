@@ -1,0 +1,101 @@
+version: '3'
+
+services:
+
+  sakura_K:
+    # 指定容器运行的镜像,指向Dockerfile文件
+    build:
+      context: .
+    # 自定义容器名称
+    container_name: sakura_K
+    # 将主机的数据卷或着文件挂载到容器里
+    restart: always
+    #定义了依赖关系
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      TZ: Asia/Shanghai
+    # 容器的端口xx映射到宿主机的端口xx
+    ports:
+      - "9000:9000"
+    # 加入指定网络
+    networks:
+      - my_network
+    volumes:
+      - ./Sakura_K/logs:/Sakura_K/logs
+    # 服务的日志记录配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m" # 单个文件大小为200k
+        max-file: "2" # 最多10个文件
+
+  # MySQL服务
+  mysql:
+    image: mysql:8.0.24
+    # 映射主机和容器的端口
+    ports:
+      - "3306:3306"
+    # 自定义容器名称
+    container_name: "sakura_K-mysql"
+    restart: always
+    # 适配mac/linux 解决no matching manifest for linux/arm64/v8 in the manifest list entries 报错
+    platform: linux/x86_64
+    environment:
+      # 此处就是相当于 mysql create user，创建了数据库的登录用户
+      MYSQL_USER: sakura_mini
+      # 等同于 -e MYSQL_ROOT_PASSWORD指定root的登录密码
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: '123456'
+      # 这里这个指令compose启动成功后会自动创建名为sakura_k的数据库
+      MYSQL_DATABASE: sakura_k
+      TZ: Asia/Shanghai
+    volumes:
+      # 存放了数据库表文件
+      - /var/lib/mysql
+      # 存放自定义的配置文件
+      - /etc/mysql.cnf
+    # 加入指定网络
+    networks:
+      - my_network
+    command:
+      --max_connections=1000
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+  # Redis服务
+  redis:
+    # 指定镜像
+    image: redis:7.0.4
+    # 指定端口
+    ports:
+      - "63791:6379"
+    # 自定义容器名称
+    container_name: "sakura_K_redis"
+    restart: always
+    # 适配mac/linux 解决no matching manifest for linux/arm64/v8 in the manifest list entries 报错
+    platform: linux/x86_64
+    environment:
+      - TZ=Asia/Shanghai
+    # 数据容器卷
+    volumes:
+      # 存放了redis文件
+      - /var/lib/redis
+      # 存放自定义的配置文件
+      - /etc/redis.conf
+    # 加入指定网络
+    networks:
+      - my_network
+    # 运行命令
+    command: redis-server /etc/redis.conf
+
+
+# 创建网络
+networks:
+  # 默认将会创建为 docker-compose.yml所在 文件夹名_my_network 网络名称
+  my_network:
+
+volumes:
+  elasticsearch_data:
+    driver: local
