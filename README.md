@@ -125,7 +125,7 @@ sqlalchemy.url = sqlalchemy.url = mysql + pymysql: // root: 123456 @ 127.0
 
 3. 创建数据库
 ```
-mysql> create database kinit;  # 创建数据库
+mysql> create database sakura_k;  # 创建数据库
 mysql> use sakura_k;           # 使用已创建的数据库 
 mysql> set names utf8;         # 设置编码
 ```
@@ -187,6 +187,16 @@ python3 main.py run
 ```
 #在线文档地址(在配置文件里面设置路径或者关闭)
 http://127.0.0.1:9000/docs
+```
+
+- 提交代码模板
+
+```
+✨ feat:  新增
+🐞 Fix: 修复
+📃 docs: 文档
+🦄 refactor: 重构
+🎈 perf: 优化
 ```
 
 - Git提交代码
