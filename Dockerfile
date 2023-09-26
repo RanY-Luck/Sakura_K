@@ -1,7 +1,7 @@
 # 引入python版本
 # [Mac用slim会报错]
 #FROM python:3.10
-FROM python:3.10-slim
+FROM python:3.10
 # 设置编码格式
 ENV LANG=C.UTF-8
 #作者信息
@@ -27,3 +27,4 @@ WORKDIR /Sakura_K
 RUN echo 'End building.............'
 # 命令行运行，启动uvicorn服务
 RUN python main.py run
+#CMD [ "python", "main.py", "run"]
