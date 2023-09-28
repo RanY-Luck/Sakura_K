@@ -6,9 +6,12 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    : 轮播图
+import random
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from apps.vadmin.auth.utils.current import AllUserAuth
+from apps.vadmin.auth.utils.validation.auth import Auth
 from utils.response import SuccessResponse
 
 app = APIRouter()
@@ -17,6 +20,11 @@ app = APIRouter()
 ###########################################################
 #                     图表数据                             #
 ###########################################################
+@app.get("/random/number", summary="获取随机整数")
+async def get_random_number(auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(random.randint(500, 20000))
+
+
 @app.get("/banners", summary="轮播图")
 async def get_banners():
     data = [
