@@ -17,7 +17,7 @@ DictDatails类：表示一个字典详情，包括label（标签）、value（�
 DictDetailsSimpleOut类：继承自DictDatails类，同时增加了id（自增主键）、create_datetime（创建时间）和update_datetime（更新时间）等属性。同样，这个类也使用了Config类的orm_mode配置。
 """
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from core.data_types import DatetimeStr
 
@@ -40,8 +40,8 @@ class DictTypeSimpleOut(DictType):
 class DictTypeSelectOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    dict_name: str
+    label: str = Field(alias='dict_name')
+    value: int = Field(alias='id')
     disabled: bool
 
 
