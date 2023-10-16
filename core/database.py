@@ -126,6 +126,7 @@ def mongo_getter(request: Request) -> AsyncIOMotorDatabase:
     """
     if not MONGO_DB_ENABLE:
         raise CustomException(
-            msg="请先开启 MongoDB 数据库连接！", desc="请启用 application/settings.py: MONGO_DB_ENABLE"
+            msg="请先开启 MongoDB 数据库连接！",
+            desc="请启用 application/settings.py: MONGO_DB_ENABLE"
         )
     return request.app.state.mongo

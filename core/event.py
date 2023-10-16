@@ -14,6 +14,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from redis import asyncio as aioredis
 
 from application.settings import REDIS_DB_URL, MONGO_DB_URL, MONGO_DB_NAME, EVENTS
+from core.logger import logger
 from utils.cache import Cache
 from utils.tools import import_modules_async
 
@@ -63,9 +64,13 @@ async def connect_redis(app: FastAPI, status: bool):
     :return:
     """
     if status:
-        print("连接到Redis")
         app.state.redis = aioredis.from_url(REDIS_DB_URL, decode_responses=True, health_check_interval=1)
-        await Cache(app.state.redis).cache_tab_names()
+        print("连接到Redis")
+        try:
+            await Cache(app.state.redis).cache_tab_names()
+        except ProcessLookupError as e:
+            logger.error(f"sqlalchemy.exc.ProgrammingError: {e}")
+            print(f"sqlalchemy.exc.ProgrammingError: {e}")
     else:
         print("Redis连接关闭")
         await app.state.redis.close()

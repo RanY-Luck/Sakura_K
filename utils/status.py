@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : status.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 状态码
 
 HTTP_SUCCESS = 200
 HTTP_ERROR = 400

@@ -6,6 +6,7 @@
 # @File    : urls.py
 # @Software: PyCharm
 # @desc    : 路由文件
+
 from apps.vadmin.analysis.views import app as vadmin_analysis_app
 from apps.vadmin.auth.utils.login import app as auth_app
 from apps.vadmin.auth.views import app as vadmin_auth_app
@@ -14,6 +15,8 @@ from apps.vadmin.record.views import app as vadmin_record_app
 from apps.vadmin.resource.views import app as vadmin_resource_app
 from apps.vadmin.system.views import app as vadmin_system_app
 from apps.vadmin.workplace.views import app as vadmin_workplace_app
+
+# from apps.vadmin.redbook.views import app as vadmin_redbook_app
 
 # 引入应用中的路由
 urlpatterns = [
@@ -25,4 +28,5 @@ urlpatterns = [
     {"ApiRouter": vadmin_analysis_app, "prefix": "/vadmin/analysis", "tags": ["数据分析管理"]},
     {"ApiRouter": vadmin_help_app, "prefix": "/vadmin/help", "tags": ["帮助中心管理"]},
     {"ApiRouter": vadmin_resource_app, "prefix": "/vadmin/resource", "tags": ["资源管理"]},
+    # {"ApiRouter": vadmin_redbook_app, "prefix": "/vadmin/redbook", "tags": ["小红书资源管理"]},
 ]

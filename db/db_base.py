@@ -29,7 +29,7 @@ from core.database import Base
 
 class BaseModel(Base):
     """
-    公共 ORM 模型，基表
+    公共 ORM 模型，基表,每张表都会有以下字段
     """
     __abstract__ = True
 

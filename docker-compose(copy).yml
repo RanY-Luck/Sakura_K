@@ -104,7 +104,7 @@
 version: "3"
 services:
   kinit-api:
-    container_name: kinit-api
+    container_name: kinit-api_pool
     restart: always
     ports:
       - "9000:9000"
@@ -112,11 +112,11 @@ services:
       - "9000"
     build:
       context: ./
-      dockerfile: ./docker_env/kinit-api/Dockerfile
+      dockerfile: ./docker_env/kinit-api_pool/Dockerfile
     environment:
       TZ: "Asia/Shanghai"
     volumes:
-      - ./kinit-api:/app
+      - ./kinit-api_pool:/app
     networks:
       kinit_network:
         ipv4_address: "177.8.0.2"
