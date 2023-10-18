@@ -139,8 +139,3 @@ class CreateApp:
         content = template.read()
         template.close()
         return content
-
-
-if __name__ == '__main__':
-    app = CreateApp("test/vv")
-    app.run()
