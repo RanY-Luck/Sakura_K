@@ -385,7 +385,7 @@ class RoleDal(DalBase):
         """获取选择数据，全部数据"""
         sql = select(self.model)
         queryset = await self.db.scalars(sql)
-        return [schemas.RoleSelectOut.model_validate(i).model_dump() for i in queryset.all()]
+        return [schemas.RoleOptionsOut.model_validate(i).model_dump() for i in queryset.all()]
 
     async def delete_datas(self, ids: list[int], v_soft: bool = False, **kwargs) -> None:
         """

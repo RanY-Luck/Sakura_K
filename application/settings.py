@@ -33,6 +33,7 @@ DEMO_WHITE_LIST_PATH = [
     "/auth/token/refresh",
     "/auth/wx/login",
     "/vadmin/system/dict/types/details",
+    "/vadmin/system/settings/tabs",
     "/vadmin/auth/user/export/query/list/to/excel"
 ]
 
