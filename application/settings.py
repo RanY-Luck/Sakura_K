@@ -16,6 +16,13 @@ from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是
 VERSION = "2.3.3"
 
 """
+Banner
+"""
+BANNER = """
+
+"""
+
+"""
 ⚠️安全警告:请不要在正式环境中打开调试运行!!!
 """
 DEBUG = True

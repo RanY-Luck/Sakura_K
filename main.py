@@ -14,7 +14,7 @@ Typer 官方文档：https://typer.tiangolo.com/
 """
 
 import asyncio
-
+import click
 import typer
 import uvicorn
 from fastapi import FastAPI
@@ -42,7 +42,9 @@ def create_app():
     """
     app = FastAPI(
         title="Sakura_K",  # 标题
-        description="本项目基于Fastapi与Vue3+Typescript+Vite4+element-plus的基础项目 前端基于vue-element-plus-admin框架开发",
+        description="""
+        🎉 Sakura_K 管理员接口汇总 🎉
+        本项目基于Fastapi与Vue3+Typescript+Vite4+element-plus的基础项目 前端基于vue-element-plus-admin框架开发""",
         version=settings.VERSION,  # 版本号
         lifespan=lifespan  # 指定了应用程序的生命周期管理器
     )
@@ -81,6 +83,7 @@ def run(
     启动项目
     :return:
     """
+    click.echo(settings.BANNER)
     uvicorn.run(app='main:create_app', host=host, port=port, lifespan="on", factory=True)
 
 

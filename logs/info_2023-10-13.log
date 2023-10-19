@@ -1,2 +1,0 @@
-2023-10-13 15:57:16.076 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/docs http/1.1' 200utf-8 b'932' 0.0
-2023-10-13 15:57:17.728 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/openapi.json http/1.1' 200utf-8 b'69099' 0.0608217716217041
