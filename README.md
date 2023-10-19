@@ -104,26 +104,24 @@ IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
 
 并在`alembic.ini`文件中配置数据库信息，用于数据库映射
 
-```python
 # mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
+
 [dev]
+
 # 开发环境
-version_locations = % (here)
-s / alembic / versions_dev
-sqlalchemy.url = mysql + pymysql: // root: 123456 @ 127.0
-.0
-.1: 3306 / sakura_k
+
+version_locations = %(here)s/alembic/versions_dev
+sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
 
 [pro]
+
 # 生产环境
-version_locations = % (here)
-s / alembic / versions_pro
-sqlalchemy.url = sqlalchemy.url = mysql + pymysql: // root: 123456 @ 127.0
-.0
-.1 / kinit
-```
+
+version_locations = %(here)s/alembic/versions_pro
+sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
 
 3. 创建数据库
+
 ```
 mysql> create database sakura_k;  # 创建数据库
 mysql> use sakura_k;           # 使用已创建的数据库 
@@ -151,6 +149,7 @@ python3 main.py init --env dev
 - 修改数据库表 - vadmin_system_settings 中的关键信息
 
 ```python
+【可选配置】
 # 阿里云短信配置
 sms_access_key
 sms_access_key_secret
@@ -158,9 +157,6 @@ sms_sign_name_1
 sms_template_code_1
 sms_sign_name_2
 sms_template_code_2
-
-# 高德地图配置
-map_key
 
 # 微信小程序配置
 wx_server_app_id
@@ -223,7 +219,7 @@ python main.py migrate
 # 执行命令（开发环境）：
 python main.py migrate --env dev
 
-# 开发环境的原命令
+# 开发环境的原命令【非执行】
 alembic --name dev revision --autogenerate -m 2.0
 alembic --name dev upgrade head
 ```
