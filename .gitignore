@@ -23,3 +23,5 @@ dvadmin-doc/docs/.vuepress/dist
 application/config/development.py
 application/config/production.py
 alembic.ini
+.idea
+__pycache__
