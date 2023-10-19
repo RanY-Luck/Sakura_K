@@ -1,0 +1,58 @@
+2023-10-16 15:58:00.278 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/docs http/1.1' 200utf-8 b'932' 0.0009999275207519531
+2023-10-16 15:58:01.569 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/openapi.json http/1.1' 200utf-8 b'69094' 0.07551789283752441
+2023-10-16 15:58:17.923 | ERROR    | core.exception:custom_exception_handler:48 - None
+2023-10-16 15:58:17.924 | ERROR    | core.exception:custom_exception_handler:49 - 手机号或密码错误
+2023-10-16 15:58:17.925 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/auth/api/login http/1.1' 401utf-8 b'49' 0.2946765422821045
+2023-10-16 15:58:25.411 | ERROR    | core.exception:custom_exception_handler:48 - None
+2023-10-16 15:58:25.412 | ERROR    | core.exception:custom_exception_handler:49 - 手机号或密码错误
+2023-10-16 15:58:25.413 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/auth/api/login http/1.1' 401utf-8 b'49' 0.2692375183105469
+2023-10-16 15:58:31.308 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/auth/api/login http/1.1' 200utf-8 b'173' 0.2660033702850342
+2023-10-16 15:58:47.602 | ERROR    | core.exception:all_exception_handler:130 - 'FullAdminAuth' object has no attribute 'db'
+2023-10-16 16:46:42.225 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/docs http/1.1' 200utf-8 b'932' 0.0
+2023-10-16 16:46:42.998 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/openapi.json http/1.1' 200utf-8 b'69094' 0.06499743461608887
+2023-10-16 16:46:53.723 | ERROR    | core.exception:all_exception_handler:130 - (asyncmy.errors.OperationalError) (1054, "Unknown column 'vadmin_auth_user.email' in 'field list'")
+[SQL: SELECT vadmin_auth_user.avatar, vadmin_auth_user.telephone, vadmin_auth_user.email, vadmin_auth_user.name, vadmin_auth_user.nickname, vadmin_auth_user.password, vadmin_auth_user.gender, vadmin_auth_user.is_active, vadmin_auth_user.is_reset_password, vadmin_auth_user.last_ip, vadmin_auth_user.last_login, vadmin_auth_user.is_staff, vadmin_auth_user.wx_server_openid, vadmin_auth_user.is_wx_server_openid, vadmin_auth_user.id, vadmin_auth_user.create_datetime, vadmin_auth_user.update_datetime, vadmin_auth_user.delete_datetime, vadmin_auth_user.is_delete 
+FROM vadmin_auth_user 
+WHERE vadmin_auth_user.is_delete = false AND vadmin_auth_user.telephone = %s]
+[parameters: ('13206269804',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-10-16 16:47:00.307 | ERROR    | core.exception:all_exception_handler:130 - (asyncmy.errors.OperationalError) (1054, "Unknown column 'vadmin_auth_user.email' in 'field list'")
+[SQL: SELECT vadmin_auth_user.avatar, vadmin_auth_user.telephone, vadmin_auth_user.email, vadmin_auth_user.name, vadmin_auth_user.nickname, vadmin_auth_user.password, vadmin_auth_user.gender, vadmin_auth_user.is_active, vadmin_auth_user.is_reset_password, vadmin_auth_user.last_ip, vadmin_auth_user.last_login, vadmin_auth_user.is_staff, vadmin_auth_user.wx_server_openid, vadmin_auth_user.is_wx_server_openid, vadmin_auth_user.id, vadmin_auth_user.create_datetime, vadmin_auth_user.update_datetime, vadmin_auth_user.delete_datetime, vadmin_auth_user.is_delete 
+FROM vadmin_auth_user 
+WHERE vadmin_auth_user.is_delete = false AND vadmin_auth_user.telephone = %s]
+[parameters: ('13206269804',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-10-16 16:47:16.744 | ERROR    | core.exception:all_exception_handler:130 - (asyncmy.errors.OperationalError) (1054, "Unknown column 'vadmin_auth_user.email' in 'field list'")
+[SQL: SELECT vadmin_auth_user.avatar, vadmin_auth_user.telephone, vadmin_auth_user.email, vadmin_auth_user.name, vadmin_auth_user.nickname, vadmin_auth_user.password, vadmin_auth_user.gender, vadmin_auth_user.is_active, vadmin_auth_user.is_reset_password, vadmin_auth_user.last_ip, vadmin_auth_user.last_login, vadmin_auth_user.is_staff, vadmin_auth_user.wx_server_openid, vadmin_auth_user.is_wx_server_openid, vadmin_auth_user.id, vadmin_auth_user.create_datetime, vadmin_auth_user.update_datetime, vadmin_auth_user.delete_datetime, vadmin_auth_user.is_delete 
+FROM vadmin_auth_user 
+WHERE vadmin_auth_user.is_delete = false AND vadmin_auth_user.telephone = %s]
+[parameters: ('13206269804',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-10-16 16:47:21.521 | ERROR    | core.exception:all_exception_handler:130 - (asyncmy.errors.OperationalError) (1054, "Unknown column 'vadmin_auth_user.email' in 'field list'")
+[SQL: SELECT vadmin_auth_user.avatar, vadmin_auth_user.telephone, vadmin_auth_user.email, vadmin_auth_user.name, vadmin_auth_user.nickname, vadmin_auth_user.password, vadmin_auth_user.gender, vadmin_auth_user.is_active, vadmin_auth_user.is_reset_password, vadmin_auth_user.last_ip, vadmin_auth_user.last_login, vadmin_auth_user.is_staff, vadmin_auth_user.wx_server_openid, vadmin_auth_user.is_wx_server_openid, vadmin_auth_user.id, vadmin_auth_user.create_datetime, vadmin_auth_user.update_datetime, vadmin_auth_user.delete_datetime, vadmin_auth_user.is_delete 
+FROM vadmin_auth_user 
+WHERE vadmin_auth_user.is_delete = false AND vadmin_auth_user.telephone = %s]
+[parameters: ('13206269804',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-10-16 16:47:26.699 | ERROR    | core.exception:all_exception_handler:130 - (asyncmy.errors.OperationalError) (1054, "Unknown column 'vadmin_auth_user.email' in 'field list'")
+[SQL: SELECT vadmin_auth_user.avatar, vadmin_auth_user.telephone, vadmin_auth_user.email, vadmin_auth_user.name, vadmin_auth_user.nickname, vadmin_auth_user.password, vadmin_auth_user.gender, vadmin_auth_user.is_active, vadmin_auth_user.is_reset_password, vadmin_auth_user.last_ip, vadmin_auth_user.last_login, vadmin_auth_user.is_staff, vadmin_auth_user.wx_server_openid, vadmin_auth_user.is_wx_server_openid, vadmin_auth_user.id, vadmin_auth_user.create_datetime, vadmin_auth_user.update_datetime, vadmin_auth_user.delete_datetime, vadmin_auth_user.is_delete 
+FROM vadmin_auth_user 
+WHERE vadmin_auth_user.is_delete = false AND vadmin_auth_user.telephone = %s]
+[parameters: ('13206269804',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-10-16 16:47:31.352 | ERROR    | core.exception:all_exception_handler:130 - (asyncmy.errors.OperationalError) (1054, "Unknown column 'vadmin_auth_user.email' in 'field list'")
+[SQL: SELECT vadmin_auth_user.avatar, vadmin_auth_user.telephone, vadmin_auth_user.email, vadmin_auth_user.name, vadmin_auth_user.nickname, vadmin_auth_user.password, vadmin_auth_user.gender, vadmin_auth_user.is_active, vadmin_auth_user.is_reset_password, vadmin_auth_user.last_ip, vadmin_auth_user.last_login, vadmin_auth_user.is_staff, vadmin_auth_user.wx_server_openid, vadmin_auth_user.is_wx_server_openid, vadmin_auth_user.id, vadmin_auth_user.create_datetime, vadmin_auth_user.update_datetime, vadmin_auth_user.delete_datetime, vadmin_auth_user.is_delete 
+FROM vadmin_auth_user 
+WHERE vadmin_auth_user.is_delete = false AND vadmin_auth_user.telephone = %s]
+[parameters: ('13206269804',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-10-16 16:49:42.850 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/docs http/1.1' 200utf-8 b'932' 0.0010018348693847656
+2023-10-16 16:49:43.387 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/openapi.json http/1.1' 200utf-8 b'69094' 0.0029959678649902344
+2023-10-16 16:49:54.101 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/docs http/1.1' 200utf-8 b'932' 0.0
+2023-10-16 16:49:54.256 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/openapi.json http/1.1' 200utf-8 b'69094' 0.001999378204345703
+2023-10-16 16:50:04.309 | ERROR    | core.exception:all_exception_handler:130 - (asyncmy.errors.OperationalError) (1054, "Unknown column 'vadmin_auth_user.email' in 'field list'")
+[SQL: SELECT vadmin_auth_user.avatar, vadmin_auth_user.telephone, vadmin_auth_user.email, vadmin_auth_user.name, vadmin_auth_user.nickname, vadmin_auth_user.password, vadmin_auth_user.gender, vadmin_auth_user.is_active, vadmin_auth_user.is_reset_password, vadmin_auth_user.last_ip, vadmin_auth_user.last_login, vadmin_auth_user.is_staff, vadmin_auth_user.wx_server_openid, vadmin_auth_user.is_wx_server_openid, vadmin_auth_user.id, vadmin_auth_user.create_datetime, vadmin_auth_user.update_datetime, vadmin_auth_user.delete_datetime, vadmin_auth_user.is_delete 
+FROM vadmin_auth_user 
+WHERE vadmin_auth_user.is_delete = false AND vadmin_auth_user.telephone = %s]
+[parameters: ('13206269804',)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

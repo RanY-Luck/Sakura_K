@@ -1,0 +1,50 @@
+2023-09-26 16:36:12.555 | INFO     | __main__:run:104 - 已成功启动程序，等待接收消息...
+2023-09-26 17:42:30.241 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/base/config http/1.1' 200utf-8 b'255' 0.009993791580200195
+2023-09-26 17:42:36.737 | ERROR    | core.exception:unicorn_exception_handler:64 - Not Found
+2023-09-26 17:42:36.738 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/media/system/logo.png http/1.1' 200utf-8 b'34' 0.00699925422668457
+2023-09-26 17:42:48.651 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/auth/login http/1.1' 200utf-8 b'59' 0.34478306770324707
+2023-09-26 17:42:52.309 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/auth/login http/1.1' 200utf-8 b'59' 0.3232266902923584
+2023-09-26 17:42:52.654 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/media/system/favicon.ico http/1.1' 200utf-8 b'image/x-icon' 0.0020029544830322266
+2023-09-26 17:43:11.422 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/auth/login http/1.1' 200utf-8 b'466' 0.2872755527496338
+2023-09-26 17:43:11.779 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/user/admin/current/info http/1.1' 200utf-8 b'661' 0.031998395919799805
+2023-09-26 17:43:12.013 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/auth/getMenuList http/1.1' 200utf-8 b'6840' 0.018002033233642578
+2023-09-26 17:43:27.183 | ERROR    | core.exception:unicorn_exception_handler:64 - Not Found
+2023-09-26 17:43:27.184 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/media/system/logo.png http/1.1' 200utf-8 b'34' 0.0030155181884765625
+2023-09-26 17:43:38.471 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/shortcuts http/1.1' 200utf-8 b'472' 0.0027313232421875
+2023-09-26 17:43:38.472 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/project http/1.1' 200utf-8 b'1114' 0.0024847984313964844
+2023-09-26 17:43:38.472 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/dynamic http/1.1' 200utf-8 b'155' 0.0030279159545898438
+2023-09-26 17:43:38.473 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/team http/1.1' 200utf-8 b'353' 0.0030274391174316406
+2023-09-26 17:57:25.657 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/base/config http/1.1' 200utf-8 b'255' 0.005001068115234375
+2023-09-26 17:57:25.660 | ERROR    | core.exception:custom_exception_handler:48 - None
+2023-09-26 17:57:25.660 | ERROR    | core.exception:custom_exception_handler:49 - 认证已过期，请您重新登录
+2023-09-26 17:57:25.663 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/user/admin/current/info http/1.1' 401utf-8 b'61' 0.0050029754638671875
+2023-09-26 17:57:29.672 | ERROR    | core.exception:unicorn_exception_handler:64 - Not Found
+2023-09-26 17:57:29.674 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/media/system/logo.png http/1.1' 200utf-8 b'34' 0.0049974918365478516
+2023-09-26 17:57:31.341 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/auth/login http/1.1' 200utf-8 b'466' 0.2740974426269531
+2023-09-26 17:57:31.360 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/user/admin/current/info http/1.1' 200utf-8 b'661' 0.005997180938720703
+2023-09-26 17:57:31.380 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/auth/getMenuList http/1.1' 200utf-8 b'6840' 0.010000467300415039
+2023-09-26 17:57:36.206 | ERROR    | core.exception:unicorn_exception_handler:64 - Not Found
+2023-09-26 17:57:36.206 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/media/system/logo.png http/1.1' 200utf-8 b'34' 0.0020067691802978516
+2023-09-26 17:57:36.215 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/shortcuts http/1.1' 200utf-8 b'472' 0.0009989738464355469
+2023-09-26 17:57:36.222 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/project http/1.1' 200utf-8 b'1114' 0.0029981136322021484
+2023-09-26 17:57:36.223 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/dynamic http/1.1' 200utf-8 b'155' 0.0029981136322021484
+2023-09-26 17:57:36.227 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/workplace/team http/1.1' 200utf-8 b'353' 0.0019981861114501953
+2023-09-26 17:57:41.874 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/tabs?classify=web http/1.1' 200utf-8 b'1416' 0.014998435974121094
+2023-09-26 17:57:41.971 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/tabs/values?tab_id=1 http/1.1' 200utf-8 b'191' 0.03400087356567383
+2023-09-26 17:57:41.990 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/tabs/values?tab_id=4 http/1.1' 200utf-8 b'21894' 0.04900169372558594
+2023-09-26 17:57:41.991 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/tabs/values?tab_id=5 http/1.1' 200utf-8 b'26060' 0.04999971389770508
+2023-09-26 17:57:41.991 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/tabs/values?tab_id=9 http/1.1' 200utf-8 b'157' 0.043997764587402344
+2023-09-26 17:57:41.992 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/system/settings/tabs/values?tab_id=10 http/1.1' 200utf-8 b'223' 0.04200100898742676
+2023-09-26 17:57:42.391 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/media/system/favicon.ico http/1.1' 200utf-8 b'image/x-icon' 0.001998424530029297
+2023-09-26 17:57:42.394 | ERROR    | core.exception:unicorn_exception_handler:64 - Not Found
+2023-09-26 17:57:42.395 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/media/system/logo.png http/1.1' 200utf-8 b'34' 0.006000041961669922
+2023-09-26 17:57:47.461 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/menus?limit=10&page=1 http/1.1' 200utf-8 b'12298' 0.028003215789794922
+2023-09-26 17:57:47.468 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/vadmin/system/dict/types/details http/1.1' 200utf-8 b'650' 0.03599834442138672
+2023-09-26 17:57:50.236 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/roles?limit=10&page=1 http/1.1' 200utf-8 b'233' 0.013002634048461914
+2023-09-26 17:57:52.658 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/menus/role/tree/options http/1.1' 200utf-8 b'2205' 0.014985084533691406
+2023-09-26 17:58:25.458 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/menus/tree/options http/1.1' 200utf-8 b'2205' 0.012984037399291992
+2023-09-26 17:58:30.831 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'POST http://127.0.0.1:9000/vadmin/system/dict/types/details http/1.1' 200utf-8 b'447' 0.013000249862670898
+2023-09-26 17:58:30.849 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/users?is_active=true&limit=10&page=1 http/1.1' 200utf-8 b'1173' 0.031002521514892578
+2023-09-26 17:58:32.830 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/users/1 http/1.1' 200utf-8 b'563' 0.011985540390014648
+2023-09-26 17:58:32.875 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/roles/options http/1.1' 200utf-8 b'86' 0.00800466537475586
+2023-09-26 17:58:39.353 | INFO     | core.middleware:write_request_log:38 - basehttp.log_message: 'GET http://127.0.0.1:9000/vadmin/auth/menus/role/tree/options http/1.1' 200utf-8 b'2205' 0.011996269226074219
