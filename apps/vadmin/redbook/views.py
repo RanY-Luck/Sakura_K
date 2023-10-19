@@ -25,7 +25,8 @@ app = APIRouter()
 ###########################################################
 
 @app.get('/redbookimages', summary="获取小红书图片列表")
-async def get_redbook_images_list(p: params.RedBookParams = Depends(), auth: Auth = Depends(FullAdminAuth)):
+async def get_redbook_images_list(p: params.RedBookParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
+    # todo:查询有问题
     model = models.VadminRedBook
     v_options = [joinedload(model.create_user)]
     v_schema = schemas.RedBookImagesOut
@@ -40,6 +41,7 @@ async def get_redbook_images_list(p: params.RedBookParams = Depends(), auth: Aut
 
 @app.post("/redbookimages", summary="创建小红书图片")
 async def create_redbook_images(file: UploadFile, auth: Auth = Depends(FullAdminAuth())):
+    #todo:写库有些值要必填
     filepath = f"/resource/redbookimages/"
     result = await AliyunOSS(BucketConf(**ALIYUN_OSS)).upload_image(filepath, file)
     data = schemas.RedBookImages(

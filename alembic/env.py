@@ -32,11 +32,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 # 导入项目中的基本映射类，与 需要迁移的 ORM 模型，不添加会初始化失败
-from apps.vadmin.auth.models import *
-from apps.vadmin.system.models import *
-from apps.vadmin.record.models import *
-from apps.vadmin.help.models import *
-from apps.vadmin.resource.models import *
 
 # 修改配置中的参数
 target_metadata = Base.metadata
