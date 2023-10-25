@@ -32,7 +32,7 @@ class BaseModel(Base):
     公共 ORM 模型，基表,每张表都会有以下字段
     """
     __abstract__ = True
-
+    __mapper_args__ = {"eager_defaults": True}  # 防止 insert 插入后不刷新
     id: Mapped[int] = mapped_column(Integer, primary_key=True, comment='主键ID')
     create_datetime: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), comment='创建时间')
     update_datetime: Mapped[datetime] = mapped_column(
@@ -42,4 +42,4 @@ class BaseModel(Base):
         comment='更新时间'
     )
     delete_datetime: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment='删除时间')
-    is_delete: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否软删除")
+    is_delete: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否软删除 0 非删除 1 删除")
