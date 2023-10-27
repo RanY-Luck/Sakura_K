@@ -17,7 +17,7 @@ class ProjectInfo(BaseModel):
     __tablename__ = "project_info"
     __table_args__ = ({'comment': '项目列表'})
 
-    name: Mapped[str] = mapped_column(String(64), nullable=False, comment='类别名称', index=True)
+    project_name: Mapped[str] = mapped_column(String(64), nullable=False, comment='类别名称', index=True)
     responsible_name: Mapped[str] = mapped_column(String(64), comment='负责人')
     test_user: Mapped[str] = mapped_column(String(100), comment='测试人员')
     dev_user: Mapped[str] = mapped_column(String(100), comment='开发人员')
@@ -26,6 +26,7 @@ class ProjectInfo(BaseModel):
     remarks: Mapped[str] = mapped_column(String(100), comment='其他信息')
     config_id: Mapped[int] = mapped_column(Integer, comment='关联配置id')
     product_id: Mapped[int] = mapped_column(Integer, comment='产品线id')
+
     create_user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("vadmin_auth_user.id", ondelete='RESTRICT'),

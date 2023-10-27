@@ -13,7 +13,7 @@ from core.data_types import DatetimeStr
 
 
 class Project(BaseModel):
-    name: str
+    project_name: str
     test_user: str = None
     responsible_name: str = None
     dev_user: str = None
@@ -22,6 +22,7 @@ class Project(BaseModel):
     remarks: str = None
     config_id: int = None
     product_id: int = None
+
     create_user_id: int
 
 
