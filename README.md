@@ -382,4 +382,4 @@ mac系统安装虚拟环境和激活虚拟环境
 第一步：所有接口逻辑写在/apps/vadmin/目录下,创建一个包,然后再里面分别创建models，params，schemas包目录和crud.py,views.py文件
 models包目录下是数据模型，可以自定义存什么样的数据
 第二步：在models下创建个自定义的py文件
-
+1
