@@ -29,7 +29,6 @@ class DBGetter:
             connection_string = SQLALCHEMY_DATABASE_URL.split("//")[1]
             pattern = r'^(?P<username>[^:]+):(?P<password>[^@]+)@(?P<host>[^:/]+):(?P<port>\d+)/(?P<database>[^/]+)$'
             match = re.match(pattern, connection_string)
-
             username = match.group('username')
             password = match.group('password')
             host = match.group('host')

@@ -13,7 +13,19 @@ from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是
 """
 系统版本
 """
-VERSION = "2.3.0"
+VERSION = "2.3.7"
+
+"""
+Banner
+"""
+BANNER = """
+███████  █████  ██   ██ ██    ██ ██████   █████          ██   ██ 
+██      ██   ██ ██  ██  ██    ██ ██   ██ ██   ██         ██  ██  
+███████ ███████ █████   ██    ██ ██████  ███████         █████   
+     ██ ██   ██ ██  ██  ██    ██ ██   ██ ██   ██         ██  ██  
+███████ ██   ██ ██   ██  ██████  ██   ██ ██   ██ ███████ ██   ██ 
+                                                                 
+"""
 
 """
 ⚠️安全警告:请不要在正式环境中打开调试运行!!!
@@ -33,6 +45,7 @@ DEMO_WHITE_LIST_PATH = [
     "/auth/token/refresh",
     "/auth/wx/login",
     "/vadmin/system/dict/types/details",
+    "/vadmin/system/settings/tabs",
     "/vadmin/auth/user/export/query/list/to/excel"
 ]
 

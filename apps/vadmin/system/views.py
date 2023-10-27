@@ -84,8 +84,6 @@ async def create_dict_details(data: schemas.DictDetails, auth: Auth = Depends(Al
 
 @app.get("/dict/details", summary="获取单个字典类型下的字典元素列表，分页")
 async def get_dict_details(params: DictDetailParams = Depends(), auth: Auth = Depends(AllUserAuth())):
-    if not params.dict_type_id:
-        return ErrorResponse(msg="未获取到字典类型！")
     datas, count = await crud.DictDetailsDal(auth.db).get_datas(**params.dict(), v_return_count=True)
     return SuccessResponse(datas, count=count)
 
@@ -150,9 +148,9 @@ async def sms_send(telephone: str, rd: Redis = Depends(redis_getter), auth: Auth
 ###########################################################
 #                     系统配置管理                          #
 ###########################################################
-@app.get("/settings/tabs", summary="获取系统配置标签列表")
-async def get_settings_tabs(classify: str, auth: Auth = Depends(FullAdminAuth())):
-    return SuccessResponse(await crud.SettingsTabDal(auth.db).get_datas(limit=0, classify=classify))
+@app.post("/settings/tabs", summary="获取系统配置标签列表")
+async def get_settings_tabs(classifys: list[str] = Body(...), auth: Auth = Depends(FullAdminAuth())):
+    return SuccessResponse(await crud.SettingsTabDal(auth.db).get_datas(limit=0, classify=("in", classifys)))
 
 
 @app.get("/settings/tabs/values", summary="获取系统配置标签下的信息")

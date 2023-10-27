@@ -8,5 +8,5 @@
 # @desc    : 初始化文件
 
 from .menu import Menu, MenuSimpleOut, RouterOut, Meta, TreeListOut
-from .role import Role, RoleOut, RoleIn, RoleSelectOut, RoleSimpleOut
+from .role import Role, RoleOut, RoleIn, RoleOptionsOut, RoleSimpleOut
 from .user import UserOut, UserUpdate, User, UserIn, UserSimpleOut, ResetPwd, UserUpdateBaseInfo
