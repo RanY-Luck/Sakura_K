@@ -25,4 +25,3 @@ class ModuleInfo(BaseModel):
     module_packages: Mapped[str] = mapped_column(String(64), comment="模块对应的包名称")
     leader_user: Mapped[str] = mapped_column(String(100), comment="负责人")
     priority: Mapped[int] = mapped_column(Integer, comment="默认执行用例优先级", default=4)
-1
