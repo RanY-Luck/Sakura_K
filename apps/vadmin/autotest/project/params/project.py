@@ -17,10 +17,10 @@ class ProjectParams(QueryParams):
 
     def __init__(
             self,
-            name: str = None,
+            project_name: str = None,
             params: Paging = Depends()
     ):
         super().__init__(params)
-        self.filename = ('like', name)
+        self.project_name = ('like', project_name)
         self.v_order = "desc"
         self.v_order_field = "create_datetime"

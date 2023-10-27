@@ -36,3 +36,10 @@ class ProjectSimpleOut(Project):
 class ProjectOut(ProjectSimpleOut):
     model_config = ConfigDict(from_attributes=True)
     create_user: UserSimpleOut
+
+
+class ProjectDel(Project):
+    model_config = ConfigDict(from_attributes=True)
+    is_delete: bool
+    create_datetime: DatetimeStr
+    update_datetime: DatetimeStr

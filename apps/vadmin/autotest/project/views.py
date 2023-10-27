@@ -19,21 +19,19 @@ from . import schemas, crud, params, models
 app = APIRouter()
 
 
-# todo:更改有bug
-
 ###########################################################
 #                     项目管理                             #
 ###########################################################
 
-@app.get("/projectlist", summary="获取项目列表")
+@app.get("/getprojectlist", summary="获取项目列表")
 async def get_project_list(p: params.ProjectParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
     model = models.ProjectInfo
-    v_options = [joinedload(model.create_user)]
-    v_schema = schemas.ProjectOut
+    options = [joinedload(model.create_user)]
+    schema = schemas.ProjectSimpleOut
     datas, count = await crud.ProjectDal(auth.db).get_datas(
         **p.dict(),
-        v_options=v_options,
-        v_schema=v_schema,
+        v_options=options,
+        v_schema=schema,
         v_return_count=True
     )
     return SuccessResponse(datas, count=count)
@@ -46,11 +44,21 @@ async def create_project(data: schemas.Project, auth: Auth = Depends(AllUserAuth
 
 
 @app.put("/project/{data_id}", summary="更新项目")
-async def update_project(data_id: int, data: schemas.Project, auth: Auth = Depends(AllUserAuth())):
+async def update_project(
+        data_id: int,
+        data: schemas.Project,
+        auth: Auth = Depends(AllUserAuth())
+):
     return SuccessResponse(await crud.ProjectDal(auth.db).put_data(data_id, data))
 
 
-@app.delete("/delproject", summary="删除项目")
+@app.delete("/delproject", summary="硬删除项目")
 async def delete_project(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.ProjectDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
+    return SuccessResponse("删除成功")
+
+
+@app.delete("/softdelproject", summary="软删除项目")
+async def delete_project(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.ProjectDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")

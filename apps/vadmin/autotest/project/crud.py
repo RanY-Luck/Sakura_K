@@ -5,7 +5,7 @@
 # @Site    :
 # @File    : crud.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 项目列表增删改查
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
