@@ -26,4 +26,5 @@ alembic.ini
 .idea
 __pycache__
 logs
-alembic/
+alembic/versions_pro
+alembic/versions_dev
