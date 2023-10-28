@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    :
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, validator
 from apps.vadmin.auth.schemas import UserSimpleOut
 from core.data_types import DatetimeStr
 
@@ -16,14 +16,20 @@ class Module(BaseModel):
     module_name: str
     project_id: int
     config_id: int
-    test_user: str = None
-    simple_desc: str = None
-    remarks: str = None
-    module_packages: str = None
-    leader_user: str = None
-    priority: int = None
-
+    test_user: str
+    simple_desc: str
+    remarks: str
+    module_packages: str
+    leader_user: str
+    priority: int = 4
     create_user_id: int
+    create_user: str  # 如果出现bug 将这个换成int
+
+    @validator('priority', pre=True, always=True)
+    def validate_priority(cls, value):
+        if value < 1 or value > 4:
+            raise ValueError("priority必须在1到4之间")
+        return value
 
 
 class ModuleSimpleOut(Module):
