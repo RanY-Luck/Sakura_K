@@ -18,14 +18,28 @@ class Module(BaseModel):
     config_id: int
     test_user: str = None
     simple_desc: str = None
-    remark: str = None
+    remarks: str = None
     module_packages: str = None
     leader_user: str = None
     priority: int = None
+
+    create_user_id: int
 
 
 class ModuleSimpleOut(Module):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    create_datetime: DatetimeStr
+    update_datetime: DatetimeStr
+
+
+class ModuleOut(ModuleSimpleOut):
+    model_config = ConfigDict(from_attributes=True)
+    create_user: UserSimpleOut
+
+
+class ModuleDel(Module):
+    model_config = ConfigDict(from_attributes=True)
+    is_delete: bool
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

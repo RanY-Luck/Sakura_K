@@ -37,7 +37,6 @@ sys.path.append(BASE_DIR)
 # from apps.vadmin.record.models import *
 # from apps.vadmin.help.models import *
 # from apps.vadmin.resource.models import *
-# from apps.vadmin.autotest.project import *
 # from apps.vadmin.redbook.models import *
 # from apps.vadmin.autotest.project.models import *
 # from apps.vadmin.autotest.module.models import *
@@ -46,7 +45,6 @@ from apps.vadmin.system.models import *
 from apps.vadmin.record.models import *
 from apps.vadmin.help.models import *
 from apps.vadmin.resource.models import *
-from apps.vadmin.autotest.project import *
 from apps.vadmin.redbook.models import *
 from apps.vadmin.autotest.project.models import *
 from apps.vadmin.autotest.module.models import *
