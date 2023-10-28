@@ -40,6 +40,7 @@ sys.path.append(BASE_DIR)
 # from apps.vadmin.redbook.models import *
 # from apps.vadmin.autotest.project.models import *
 # from apps.vadmin.autotest.module.models import *
+# from apps.vadmin.autotest.apinfo.models import *
 from apps.vadmin.auth.models import *
 from apps.vadmin.system.models import *
 from apps.vadmin.record.models import *
@@ -48,6 +49,8 @@ from apps.vadmin.resource.models import *
 from apps.vadmin.redbook.models import *
 from apps.vadmin.autotest.project.models import *
 from apps.vadmin.autotest.module.models import *
+from apps.vadmin.autotest.apinfo.models import *
+
 # 修改配置中的参数
 target_metadata = Base.metadata
 

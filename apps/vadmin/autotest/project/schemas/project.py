@@ -23,11 +23,10 @@ class Project(BaseModel):
     config_id: int
     product_id: int
     create_user_id: int
-    create_user: str  # 如果报错 改成int
 
     @validator(
-        'project_name', 'responsible_name', 'test_user', 'dev_user', 'publish_app', 'simple_desc', 'remarks',
-        'create_user', pre=True, always=True
+        'project_name', 'responsible_name', 'test_user', 'dev_user', 'publish_app', 'simple_desc', 'remarks', pre=True,
+        always=True
     )
     def validate_string_fields(cls, value):
         if len(value) > 100:

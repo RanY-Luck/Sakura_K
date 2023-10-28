@@ -18,6 +18,7 @@ from apps.vadmin.system.views import app as vadmin_system_app
 from apps.vadmin.workplace.views import app as vadmin_workplace_app
 from apps.vadmin.autotest.project.views import app as project_app
 from apps.vadmin.autotest.module.views import app as module_app
+from apps.vadmin.autotest.apinfo.views import app as apinfo_app
 
 # 引入应用中的路由
 urlpatterns = [
@@ -32,4 +33,5 @@ urlpatterns = [
     {"ApiRouter": redbook_app, "prefix": "/vadmin/redbook", "tags": ["小红书资源管理"]},
     {"ApiRouter": project_app, "prefix": "/vadmin/autotest/project", "tags": ["项目管理"]},
     {"ApiRouter": module_app, "prefix": "/vadmin/autotest/module", "tags": ["模块管理"]},
+    {"ApiRouter": apinfo_app, "prefix": "/vadmin/autotest/apinfo", "tags": ["接口管理"]},
 ]

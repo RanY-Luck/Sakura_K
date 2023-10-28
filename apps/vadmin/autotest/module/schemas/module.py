@@ -23,7 +23,6 @@ class Module(BaseModel):
     leader_user: str
     priority: int = 4
     create_user_id: int
-    create_user: str  # 如果出现bug 将这个换成int
 
     @validator('priority', pre=True, always=True)
     def validate_priority(cls, value):
