@@ -26,3 +26,4 @@ alembic.ini
 .idea
 __pycache__
 logs
+alembic/
