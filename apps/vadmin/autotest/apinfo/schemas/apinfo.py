@@ -70,7 +70,7 @@ class ApiInfo(BaseModel):
     def validate_method(cls, value):
         valid_methods = ["GET", "POST", "PUT", "DELETE"]
         if value not in valid_methods:
-            raise ValueError("无效的HTTP方法")
+            raise ValueError("method是无效的HTTP方法")
         return value
 
 

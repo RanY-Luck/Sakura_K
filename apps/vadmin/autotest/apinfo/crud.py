@@ -15,4 +15,4 @@ from . import models, schemas
 class ApInfoDal(DalBase):
 
     def __init__(self, db: AsyncSession):
-        super(ApInfoDal, self).__init__(db, models.ApiInfo, schemas.ApInfoOut)
+        super(ApInfoDal, self).__init__(db, models.ApiInfo, schemas.ApInfoSimpleOut)

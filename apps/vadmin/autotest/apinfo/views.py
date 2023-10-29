@@ -40,3 +40,24 @@ async def get_apinfo_list(p: params.ApInfoParams = Depends(), auth: Auth = Depen
 async def add_apinfo(data: schemas.ApiInfo, auth: Auth = Depends(AllUserAuth())):
     data.create_user_id = auth.user.id
     return SuccessResponse(await crud.ApInfoDal(auth.db).create_data(data=data))
+
+
+@app.put("/apinfo/{data_id}", summary="更新接口")
+async def update_apinfo(
+        data_id: int,
+        data: schemas.ApiInfo,
+        auth: Auth = Depends(AllUserAuth())
+):
+    return SuccessResponse(await crud.ApInfoDal(auth.db).put_data(data_id, data))
+
+
+@app.delete("/delapinfo", summary="硬删除接口")
+async def delete_apinfo(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.ApInfoDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
+    return SuccessResponse("删除成功")
+
+
+@app.delete("/softdelapinfo", summary="软删除接口")
+async def delete_apinfo(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.ApInfoDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
+    return SuccessResponse("删除成功")
