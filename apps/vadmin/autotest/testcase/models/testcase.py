@@ -12,14 +12,14 @@ from apps.vadmin.auth.models import VadminUser
 from db.db_base import BaseModel
 
 
-class TestCase(BaseModel):
+class TestCaseInfo(BaseModel):
     __tablename__ = "test_case"
     __table_args__ = ({'comment': '测试用例表'})
 
     case_name: Mapped[str] = mapped_column(String(255), nullable=True, comment="用例名称", index=True)
     project_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="所属项目")
     remarks: Mapped[str] = mapped_column(String(255), comment="备注")
-    headers: Mapped[JSON] = mapped_column(JSON, nullable="场景请求头")
+    headers: Mapped[JSON] = mapped_column(JSON, comment="场景请求头")
     variables: Mapped[JSON] = mapped_column(JSON, comment="场景变量")
     step_data: Mapped[JSON] = mapped_column(JSON, comment="场景步骤")
     step_rely: Mapped[int] = mapped_column(Integer, comment="步骤依赖 0:不依赖|1:依赖")

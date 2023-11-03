@@ -12,7 +12,7 @@ from apps.vadmin.auth.models import VadminUser
 from db.db_base import BaseModel
 
 
-class Functions(BaseModel):
+class FunctionsInfo(BaseModel):
     __tablename__ = "functions"
     __table_args__ = ({'comment': '自定义函数表'})
 
