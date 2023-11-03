@@ -6,3 +6,4 @@
 # @File    : __init__.py
 # @Software: PyCharm
 # @desc    : 初始化文件
+from .api_report import ApiReportParams

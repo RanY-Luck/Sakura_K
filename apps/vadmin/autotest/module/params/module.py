@@ -8,6 +8,7 @@
 # @desc    : 模块分页
 
 from fastapi import Depends
+
 from core.dependencies import Paging, QueryParams
 
 
@@ -18,7 +19,7 @@ class ModuleParams(QueryParams):
 
     def __init__(
             self,
-            module_name: str = None,
+            module_name: str | None = None,
             params: Paging = Depends()
     ):
         super().__init__(params)
