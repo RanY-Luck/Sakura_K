@@ -45,14 +45,23 @@ class VadminUser(BaseModel):
 
     roles: Mapped[set[VadminRole]] = relationship(secondary=vadmin_auth_user_roles)
 
-    # 生成哈希密码
     @staticmethod
     def get_password_hash(password: str) -> str:
+        """
+        生成哈希密码
+        :param password: 源密码
+        :return: 哈希密码
+        """
         return pwd_context.hash(password)
 
-    # 验证登录密码
     @staticmethod
     def verify_password(password: str, hashed_password: str) -> bool:
+        """
+        验证原始密码是否与哈希密码一致
+        :param password: 源密码
+        :param hashed_password: 哈希密码
+        :return:
+        """
         return pwd_context.verify(password, hashed_password)
 
     def is_admin(self) -> bool:
