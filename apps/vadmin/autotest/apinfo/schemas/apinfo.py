@@ -7,10 +7,11 @@
 # @Software: PyCharm
 # @desc    :
 
-from pydantic import BaseModel, ConfigDict, validator
-from apps.vadmin.auth.schemas import UserSimpleOut
-from core.data_types import DatetimeStr
 from typing import Any, Dict, List
+
+from pydantic import BaseModel, ConfigDict, validator
+
+from core.data_types import DatetimeStr
 
 
 class RequestModel(BaseModel):
@@ -77,17 +78,5 @@ class ApiInfo(BaseModel):
 class ApInfoSimpleOut(ApiInfo):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    create_datetime: DatetimeStr
-    update_datetime: DatetimeStr
-
-
-class ApInfoOut(ApInfoSimpleOut):
-    model_config = ConfigDict(from_attributes=True)
-    create_user: UserSimpleOut
-
-
-class ApInfoDel(ApiInfo):
-    model_config = ConfigDict(from_attributes=True)
-    is_delete: bool
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

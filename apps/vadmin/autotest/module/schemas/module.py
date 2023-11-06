@@ -8,7 +8,7 @@
 # @desc    :
 
 from pydantic import BaseModel, ConfigDict, validator
-from apps.vadmin.auth.schemas import UserSimpleOut
+
 from core.data_types import DatetimeStr
 
 
@@ -34,17 +34,5 @@ class Module(BaseModel):
 class ModuleSimpleOut(Module):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    create_datetime: DatetimeStr
-    update_datetime: DatetimeStr
-
-
-class ModuleOut(ModuleSimpleOut):
-    model_config = ConfigDict(from_attributes=True)
-    create_user: UserSimpleOut
-
-
-class ModuleDel(Module):
-    model_config = ConfigDict(from_attributes=True)
-    is_delete: bool
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
