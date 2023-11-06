@@ -10,15 +10,16 @@
 from apps.vadmin.analysis.views import app as vadmin_analysis_app
 from apps.vadmin.auth.utils.login import app as auth_app
 from apps.vadmin.auth.views import app as vadmin_auth_app
+from apps.vadmin.autotest.apinfo.views import app as apinfo_app
+from apps.vadmin.autotest.env.views import app as env_app
+from apps.vadmin.autotest.module.views import app as module_app
+from apps.vadmin.autotest.project.views import app as project_app
 from apps.vadmin.help.views import app as vadmin_help_app
 from apps.vadmin.record.views import app as vadmin_record_app
 from apps.vadmin.redbook.views import app as redbook_app
 from apps.vadmin.resource.views import app as vadmin_resource_app
 from apps.vadmin.system.views import app as vadmin_system_app
 from apps.vadmin.workplace.views import app as vadmin_workplace_app
-from apps.vadmin.autotest.project.views import app as project_app
-from apps.vadmin.autotest.module.views import app as module_app
-from apps.vadmin.autotest.apinfo.views import app as apinfo_app
 
 # 引入应用中的路由
 urlpatterns = [
@@ -34,4 +35,5 @@ urlpatterns = [
     {"ApiRouter": project_app, "prefix": "/vadmin/autotest/project", "tags": ["项目管理"]},
     {"ApiRouter": module_app, "prefix": "/vadmin/autotest/module", "tags": ["模块管理"]},
     {"ApiRouter": apinfo_app, "prefix": "/vadmin/autotest/apinfo", "tags": ["接口管理"]},
+    {"ApiRouter": env_app, "prefix": "/vadmin/autotest/env", "tags": ["环境管理"]},
 ]

@@ -12,7 +12,7 @@ from apps.vadmin.auth.models import VadminUser
 from db.db_base import BaseModel
 
 
-class Env(BaseModel):
+class EnvInfo(BaseModel):
     __tablename__ = "env_management"
     __table_args__ = ({'comment': '环境管理表'})
 
