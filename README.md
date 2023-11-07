@@ -43,11 +43,8 @@ Redis (推荐使用最新稳定版)
 
 1. 安装依赖
 
-```python
-pip3
-install - r
-requirements.txt - i
-https: // mirrors.aliyun.com / pypi / simple /
+```text
+pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 ```
 
 2. 修改项目数据库配置信息
@@ -103,13 +100,10 @@ ALIYUN_OSS = {
 IP_PARSE_ENABLE = True
 IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
 ```
-
 并在`alembic.ini`文件中配置数据库信息，用于数据库映射
 
 # mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
-
 # 开发环境[dev]
-
 ```text
 mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
@@ -118,14 +112,12 @@ sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sak
 ```
 
 # 生产环境[pro]
-
 ```text
 mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
 version_locations = %(here)s/alembic/versions_pro
 sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
 ```
-
 3. 创建数据库
 
 ```text
@@ -151,7 +143,6 @@ python3 main.py init --env dev
 ```
 
 5. 修改项目基本配置信息
-
 - 修改数据库表 `vadmin_system_settings` 中的关键信息
 
 ```text
@@ -177,11 +168,9 @@ email_port
 
 6. 启动
 
-```python
-# 运行程序
-python3
-main.py
-run
+```text
+#运行程序
+python3 main.py run
 ```
 
 ## 其他操作
@@ -220,27 +209,16 @@ git commit -m "clear cached"
 
 - 执行数据库迁移命令（终端执行）
 
-```python
+```text
 # 执行命令（生产环境）：
-python
-main.py
-migrate
+python main.py migrate
 
 # 执行命令（开发环境）：
-python
-main.py
-migrate - -env
-dev
+python main.py migrate --env dev
 
 # 开发环境的原命令【非执行】
-alembic - -name
-dev
-revision - -autogenerate - m
-2.0
-alembic - -name
-dev
-upgrade
-head
+alembic --name dev revision --autogenerate -m 2.0
+alembic --name dev upgrade head
 ```
 
 ## 查数据
@@ -397,5 +375,4 @@ mac系统安装虚拟环境和激活虚拟环境
 > source env/bin/activate
 
 ## 如何快速开发一个接口
-
 待补充
