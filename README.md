@@ -31,7 +31,7 @@
 
 ### 准备工作
 
-```
+```text
 Python == 3.10 (其他版本均未测试)
 nodejs >= 14.0 (推荐使用最新稳定版)
 Mysql >= 8.0
@@ -43,9 +43,11 @@ Redis (推荐使用最新稳定版)
 
 1. 安装依赖
 
-```
-
-pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+```python
+pip3
+install - r
+requirements.txt - i
+https: // mirrors.aliyun.com / pypi / simple /
 ```
 
 2. 修改项目数据库配置信息
@@ -68,7 +70,7 @@ SQLALCHEMY_DATABASE_TYPE = "mysql"
 Redis 数据库配置
 """
 REDIS_DB_ENABLE = True
-REDIS_DB_URL = "Redis://:密码@地址:端口/数据库"
+REDIS_DB_URL = "redis://:密码@地址:端口/数据库"
 
 """
 MongoDB 数据库配置
@@ -106,23 +108,27 @@ IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
 
 # mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
-[dev]
+# 开发环境[dev]
 
-# 开发环境
+```text
+mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
 version_locations = %(here)s/alembic/versions_dev
 sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
+```
 
-[pro]
+# 生产环境[pro]
 
-# 生产环境
+```text
+mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
 version_locations = %(here)s/alembic/versions_pro
 sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
+```
 
 3. 创建数据库
 
-```
+```text
 mysql> create database sakura_k;  # 创建数据库
 mysql> use sakura_k;           # 使用已创建的数据库 
 mysql> set names utf8;         # 设置编码
@@ -137,18 +143,18 @@ mysql> set names utf8;         # 设置编码
 # 比如要初始化开发环境，那么env参数应该为 dev，并且 application/settings.DEBUG 应该 = True
 # 比如要初始化生产环境，那么env参数应该为 pro，并且 application/settings.DEBUG 应该 = False
 
-# （生产环境）
+（生产环境）
 python3 main.py init
 
-# （开发环境）
+（开发环境）
 python3 main.py init --env dev
 ```
 
 5. 修改项目基本配置信息
 
-- 修改数据库表 - vadmin_system_settings 中的关键信息
+- 修改数据库表 `vadmin_system_settings` 中的关键信息
 
-```python
+```text
 【可选配置】
 # 阿里云短信配置
 sms_access_key
@@ -171,9 +177,11 @@ email_port
 
 6. 启动
 
-```
-#运行程序
-python3 main.py run
+```python
+# 运行程序
+python3
+main.py
+run
 ```
 
 ## 其他操作
@@ -199,7 +207,7 @@ http://127.0.0.1:9000/docs
 
 Git更新ignore文件直接修改gitignore是不会生效的，需要先去掉已经托管的文件，修改完成之后再重新添加并提交。
 
-```
+```text
 第一步：
 git rm -r --cached .
 去掉已经托管的文件
@@ -212,23 +220,34 @@ git commit -m "clear cached"
 
 - 执行数据库迁移命令（终端执行）
 
-```
+```python
 # 执行命令（生产环境）：
-python main.py migrate
+python
+main.py
+migrate
 
 # 执行命令（开发环境）：
-python main.py migrate --env dev
+python
+main.py
+migrate - -env
+dev
 
 # 开发环境的原命令【非执行】
-alembic --name dev revision --autogenerate -m 2.0
-alembic --name dev upgrade head
+alembic - -name
+dev
+revision - -autogenerate - m
+2.0
+alembic - -name
+dev
+upgrade
+head
 ```
 
 ## 查数据
 
 自定义的一些查询过滤
 
-```
+```text
 # 日期查询
 # 值的类型：str
 # 值得格式：%Y-%m-%d：2023-05-14
@@ -379,7 +398,4 @@ mac系统安装虚拟环境和激活虚拟环境
 
 ## 如何快速开发一个接口
 
-第一步：所有接口逻辑写在/apps/vadmin/目录下,创建一个包,然后再里面分别创建models，params，schemas包目录和crud.py,views.py文件
-models包目录下是数据模型，可以自定义存什么样的数据
-第二步：在models下创建个自定义的py文件
-1
+待补充
