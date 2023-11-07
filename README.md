@@ -102,7 +102,6 @@ IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
 ```
 并在`alembic.ini`文件中配置数据库信息，用于数据库映射
 
-# mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 # 开发环境[dev]
 ```text
 mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
