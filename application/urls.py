@@ -14,6 +14,7 @@ from apps.vadmin.autotest.apinfo.views import app as apinfo_app
 from apps.vadmin.autotest.env.views import app as env_app
 from apps.vadmin.autotest.module.views import app as module_app
 from apps.vadmin.autotest.project.views import app as project_app
+from apps.vadmin.autotest.testcase.views import app as testcase_app
 from apps.vadmin.help.views import app as vadmin_help_app
 from apps.vadmin.record.views import app as vadmin_record_app
 from apps.vadmin.redbook.views import app as redbook_app
@@ -36,4 +37,5 @@ urlpatterns = [
     {"ApiRouter": module_app, "prefix": "/vadmin/autotest/module", "tags": ["模块管理"]},
     {"ApiRouter": apinfo_app, "prefix": "/vadmin/autotest/apinfo", "tags": ["接口管理"]},
     {"ApiRouter": env_app, "prefix": "/vadmin/autotest/env", "tags": ["环境管理"]},
+    {"ApiRouter": testcase_app, "prefix": "/vadmin/autotest/testcase", "tags": ["测试用例管理"]},
 ]

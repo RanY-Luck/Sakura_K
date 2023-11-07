@@ -6,3 +6,13 @@
 # @File    : crud.py
 # @Software: PyCharm
 # @desc    :
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from core.crud import DalBase
+from . import models, schemas
+
+
+class TestCaseDal(DalBase):
+
+    def __init__(self, db: AsyncSession):
+        super(TestCaseDal, self).__init__(db, models.TestCaseInfo, schemas.TestCaseSimpleOut)

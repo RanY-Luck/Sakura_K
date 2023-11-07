@@ -9,7 +9,7 @@
 
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, ConfigDict, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from core.data_types import DatetimeStr
 
@@ -61,14 +61,14 @@ class ApiInfo(BaseModel):
     wait_data: Dict[str, Any]
     create_user_id: int
 
-    @validator('status', pre=True, always=True)
+    @field_validator('status')
     def validate_status_priority(cls, value):
         if value not in {10, 20}:
             raise ValueError("status必须是10或20")
         return value
 
-    @validator('method', pre=True, always=True)
-    def validate_method(cls, value):
+    @field_validator('method')
+    def validate_method_priority(cls, value):
         valid_methods = ["GET", "POST", "PUT", "DELETE"]
         if value not in valid_methods:
             raise ValueError("method是无效的HTTP方法")

@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    :
 
-from pydantic import BaseModel, ConfigDict, validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from core.data_types import DatetimeStr
 
@@ -24,7 +24,7 @@ class Module(BaseModel):
     priority: int = 4
     create_user_id: int
 
-    @validator('priority', pre=True, always=True)
+    @field_validator('priority')
     def validate_priority(cls, value):
         if value < 1 or value > 4:
             raise ValueError("priority必须在1到4之间")
