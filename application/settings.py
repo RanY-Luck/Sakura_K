@@ -200,3 +200,27 @@ SUBSCRIBE = 'kinit_queue'
 定时任务脚本目录
 """
 TASKS_ROOT = "utils/task/tasks"
+
+"""
+项目描述
+"""
+PROJECT_DESCRIPTION: str = """
+🎉 Sakura_K 管理员接口汇总 🎉
+本项目基于Fastapi与Vue3+Typescript+Vite4+element-plus的基础项目 前端基于vue-element-plus-admin框架开发
+#### Description/说明
+<details>
+<summary>点击展开/Click to expand</summary>
+> [中文/Chinese]
+- Sakura_K测试平台，更多功能正在开发中。
+- 本项目开源在[GitHub：Sakura_K](https://github.com/ranyong1997/Sakura_K)。
+- 本项目仅供学习交流使用，严禁用于违法用途，如有侵权请联系作者。
+</details>
+#### Contact author/联系作者
+<details>
+<summary>点击展开/Click to expand</summary>
+- WeChat: RanY_Luck
+- Email: [ranyong1209@gmail.com](mailto:ranyong1209@gmail.com)
+- Github: [✶  🎀  GitHub地址  🎀  ✶](https://github.com/ranyong1997)
+- 联系我: ![微信二维码](https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F4bb5e771-42f5-47ce-952b-c122c611905a%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1701941750&t=3271891773bfa092923625a10c2cc7d5)
+</details>
+"""

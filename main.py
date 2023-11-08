@@ -43,10 +43,8 @@ def create_app():
     """
     app = FastAPI(
         title="Sakura_K",  # 标题
-        description="""
-        🎉 Sakura_K 管理员接口汇总 🎉
-        本项目基于Fastapi与Vue3+Typescript+Vite4+element-plus的基础项目 前端基于vue-element-plus-admin框架开发""",
         version=settings.VERSION,  # 版本号
+        description=settings.PROJECT_DESCRIPTION,  # Swagger描述
         lifespan=lifespan  # 指定了应用程序的生命周期管理器
     )
     # 调用了 import_modules 函数来导入指定的中间件，该函数接受三个参数：modules 表示要导入的模块列表，message 表示当前导入的模块的消息，
