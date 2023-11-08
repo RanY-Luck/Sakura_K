@@ -17,10 +17,10 @@ class DataSourceParams(QueryParams):
 
     def __init__(
             self,
-            name: str | None = None,
+            data_name: str | None = None,
             params: Paging = Depends()
     ):
         super().__init__(params)
-        self.name = ('like', name)
+        self.data_name = ('like', data_name)
         self.v_order = "desc"
         self.v_order_field = "create_datetime"

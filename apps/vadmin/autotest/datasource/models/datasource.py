@@ -12,12 +12,12 @@ from apps.vadmin.auth.models import VadminUser
 from db.db_base import BaseModel
 
 
-class Data_Source(BaseModel):
+class DataSourceInfo(BaseModel):
     __tablename__ = "data_source"
     __table_args__ = ({'comment': '数据源表'})
 
-    name: Mapped[str] = mapped_column(String(255), index=True, comment="数据源名称")
-    type: Mapped[str] = mapped_column(String(255), comment="类型")
+    data_name: Mapped[str] = mapped_column(String(255), index=True, comment="数据源名称")
+    type: Mapped[int] = mapped_column(Integer, comment="类型：1 Mysql", default=1)
     host: Mapped[str] = mapped_column(String(255), comment="Ip")
     port: Mapped[int] = mapped_column(Integer, comment="端口")
     user: Mapped[str] = mapped_column(String(255), comment="用户名")

@@ -6,4 +6,4 @@
 # @File    : __init__.py
 # @Software: PyCharm
 # @desc    : 初始化文件
-from .datasource import Data_Source
+from .datasource import DataSourceInfo
