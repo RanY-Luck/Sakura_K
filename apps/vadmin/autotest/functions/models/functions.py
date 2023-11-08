@@ -16,7 +16,7 @@ class FunctionsInfo(BaseModel):
     __tablename__ = "functions"
     __table_args__ = ({'comment': '自定义函数表'})
 
-    name: Mapped[str] = mapped_column(String(255), nullable=False, comment="函数名称")
+    function_name: Mapped[str] = mapped_column(String(255), nullable=False, comment="函数名称")
     remarks: Mapped[str] = mapped_column(String(255), comment="备注")
     project_id: Mapped[int] = mapped_column(Integer, comment="关联项目")
     content: Mapped[Text] = mapped_column(Text, comment="自定义函数内容")
