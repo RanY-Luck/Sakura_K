@@ -345,12 +345,12 @@ users, count = UserDal(db).get_datas(
 
 外键查询示例
 
-以常见问题表为主表，查询出创建用户名称为kinit的用户，创建了哪些常见问题，并加载出用户信息：
+以常见问题表为主表，查询出创建用户名称为root的用户，创建了哪些常见问题，并加载出用户信息：
 
 ```python
 v_options = [joinedload(VadminIssue.create_user)]
 v_join = [["create_user"]]
-v_where = [VadminUser.name == "kinit"]
+v_where = [VadminUser.name == "root"]
 datas = await crud.IssueCategoryDal(auth.db).get_datas(
     limit=0,
     v_options=options,
