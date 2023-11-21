@@ -15,10 +15,12 @@ from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from application.settings import DEBUG
 from core.logger import logger
 
 
 class CustomException(Exception):
+
 
     def __init__(
             self,
@@ -43,10 +45,11 @@ def register_exception(app: FastAPI):
         """
         自定义异常
         """
-        print("请求地址", request.url.__str__())
-        print("捕捉到重写CustomException异常异常：custom_exception_handler")
-        # logger.error(exc.desc)
-        # logger.error(exc.msg)
+        if DEBUG:
+            print("请求地址", request.url.__str__())
+            print("捕捉到重写CustomException异常异常：custom_exception_handler")
+            print(exc.desc)
+            print(exc.msg)
         # 打印栈信息，方便追踪排查异常
         logger.exception(exc)
         return JSONResponse(
@@ -59,9 +62,10 @@ def register_exception(app: FastAPI):
         """
         重写HTTPException异常处理器
         """
-        print("请求地址", request.url.__str__())
-        print("捕捉到重写HTTPException异常异常：unicorn_exception_handler")
-        # logger.error(exc.detail)
+        if DEBUG:
+            print("请求地址", request.url.__str__())
+            print("捕捉到重写HTTPException异常异常：unicorn_exception_handler")
+            print(exc.detail)
         # 打印栈信息，方便追踪排查异常
         logger.exception(exc)
         return JSONResponse(
@@ -77,9 +81,10 @@ def register_exception(app: FastAPI):
         """
         重写请求验证异常处理器
         """
-        print("请求地址", request.url.__str__())
-        print("捕捉到重写请求验证异常异常：validation_exception_handler")
-        # logger.error(exc.errors())
+        if DEBUG:
+            print("请求地址", request.url.__str__())
+            print("捕捉到重写请求验证异常异常：validation_exception_handler")
+            print(exc.errors())
         # 打印栈信息，方便追踪排查异常
         logger.exception(exc)
         msg = exc.errors()[0].get("msg")
@@ -110,9 +115,10 @@ def register_exception(app: FastAPI):
         """
         捕获值异常
         """
-        print("请求地址", request.url.__str__())
-        print("捕捉到值异常：value_exception_handler")
-        # logger.error(exc.__str__())
+        if DEBUG:
+            print("请求地址", request.url.__str__())
+            print("捕捉到值异常：value_exception_handler")
+            print(exc.__str__())
         # 打印栈信息，方便追踪排查异常
         logger.exception(exc)
         return JSONResponse(
@@ -130,9 +136,10 @@ def register_exception(app: FastAPI):
         """
         捕获全部异常
         """
-        print("请求地址", request.url.__str__())
-        print("捕捉到全局异常：all_exception_handler")
-        # logger.error(exc.__str__())
+        if DEBUG:
+            print("请求地址", request.url.__str__())
+            print("捕捉到全局异常：all_exception_handler")
+            print(exc.__str__())
         # 打印栈信息，方便追踪排查异常
         logger.exception(exc)
         return JSONResponse(

@@ -24,6 +24,7 @@ from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiof
 
 from application import settings
 from application import urls
+from core.docs import custom_api_docs
 from core.event import lifespan
 from core.exception import register_exception
 from scripts.create_app.main import CreateApp
@@ -45,7 +46,9 @@ def create_app():
         title="Sakura_K",  # 标题
         version=settings.VERSION,  # 版本号
         description=settings.PROJECT_DESCRIPTION,  # Swagger描述
-        lifespan=lifespan  # 指定了应用程序的生命周期管理器
+        lifespan=lifespan,  # 指定了应用程序的生命周期管理器
+        docs_url=None,
+        redoc_url=None
     )
     # 调用了 import_modules 函数来导入指定的中间件，该函数接受三个参数：modules 表示要导入的模块列表，message 表示当前导入的模块的消息，
     # app 表示 FastAPI 应用程序对象的引用。在这里，modules 和 message 都是 settings.MIDDLEWARES 和 "中间件"，而 app 则是传入的参数。
@@ -70,6 +73,8 @@ def create_app():
     for url in urls.urlpatterns:
         # 最后，使用 include_router 方法来引入应用程序中的路由。
         app.include_router(url["ApiRouter"], prefix=url["prefix"], tags=url["tags"])
+    # 配置接口文档静态资源
+    custom_api_docs(app)
     return app
 
 
