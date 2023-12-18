@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, Body, UploadFile, Request
 from redis.asyncio import Redis
 from sqlalchemy.orm import joinedload
 
-from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth, OpenAuth
+from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.database import redis_getter
 from core.dependencies import IdList
@@ -20,15 +20,6 @@ from . import schemas, crud, models
 from .params import UserParams, RoleParams
 
 app = APIRouter()
-
-
-###########################################################
-#                     接口测试                             #
-###########################################################
-@app.get("/test", summary="接口测试")
-async def test(auth: Auth = Depends(OpenAuth())):
-    await crud.TestDal(auth.db).test()
-    return SuccessResponse
 
 
 ###########################################################
@@ -262,6 +253,6 @@ async def get_role_menu_tree(
         role_id: int,
         auth: Auth = Depends(FullAdminAuth(permissions=["auth.role.create", "auth.role.update"]))
 ):
-    treeselect = await crud.MenuDal(auth.db).get_tree_list(mode=3)
+    tree_data = await crud.MenuDal(auth.db).get_tree_list(mode=3)
     role_menu_tree = await crud.RoleDal(auth.db).get_role_menu_tree(role_id)
-    return SuccessResponse({"role_menu_tree": role_menu_tree, "menus": treeselect})
+    return SuccessResponse({"role_menu_tree": role_menu_tree, "menus": tree_data})
