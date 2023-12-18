@@ -168,8 +168,11 @@ email_port
 6. 启动
 
 ```text
-#运行程序
+# 运行主程序
 python3 main.py run
+
+# 运行定时任务
+python3 /utils/tasks/run.py run
 ```
 
 ## 其他操作
@@ -368,10 +371,202 @@ mac系统安装虚拟环境和激活虚拟环境
 > virtualenv venv # venv为虚拟环境的名称，可以根据需要自定义
 
 注意，如果你想使用Python3创建虚拟环境，需要添加--python选项：
-> virtualenv --python=python3 env
+> virtualenv --python=python3 venv
 
 三、激活虚拟环境
-> source env/bin/activate
+> source venv/bin/activate
+
+## 添加任务
+
+```python
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+def job():
+    print('Hello world!')
+
+scheduler = BlockingScheduler()
+scheduler.add_job(job, 'interval', minutes=1)
+scheduler.start()
+```
+
+**立即执行**
+
+```python
+from apscheduler.schedulers.background import BackgroundScheduler
+
+def job():
+    print("Hello, world!")
+
+scheduler = BackgroundScheduler()
+
+# 立即执行任务
+scheduler.add_job(job, next_run_time=datetime.now(), id='my_job')
+scheduler.start()
+```
+
+**判断是否存在**
+
+```python
+from apscheduler.schedulers.background import BackgroundScheduler
+
+def my_job():
+    print('Hello, world!')
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(my_job, 'interval', seconds=10, id='my_job')
+scheduler.start()
+```
+
+**检查任务是否存在**
+
+```python
+if scheduler.get_job('my_job'):
+    print('任务存在')
+else:
+    print('任务不存在')
+```
+
+**删除任务**
+
+```python
+from apscheduler.schedulers.background import BackgroundScheduler
+
+def my_job():
+    print('Hello, world!')
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(my_job, 'interval', seconds=10, id='my_job')
+scheduler.start()
+
+# 删除任务
+scheduler.remove_job('my_job')
+```
+
+**添加参数**
+
+```python
+from apscheduler.schedulers.background import BackgroundScheduler
+
+def job(arg1, arg2):
+    print('This is a job with arguments: {}, {}'.format(arg1, arg2))
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(job, 'interval', seconds=5, args=('hello', 'world'))
+scheduler.start()
+```
+
+**获取当前正在执行的任务列表**
+
+```python
+from apscheduler.schedulers.background import BackgroundScheduler
+
+def job():
+    print('This is a job.')
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(job, 'interval', seconds=5)
+scheduler.start()
+
+# 获取当前正在执行的任务列表
+jobs = scheduler.get_jobs()
+for job in jobs:
+    print(job)
+```
+
+## 添加定时任务 add_job 方法
+
+APScheduler的add_job方法用于添加定时任务。除了使用Cron表达式来指定定时任务的调度规则之外，add_job方法还支持其他几种方法来设置定时任务的执行时间。以下是add_job方法常用的几种调度方式：
+
+- date：指定一个具体的日期和时间来执行任务。
+
+```python
+scheduler.add_job(job_function, 'date', run_date='2023-06-30 12:00:00')
+```
+
+在上述示例中，任务将在指定的日期和时间（2023年6月30日12:00:00）执行。
+
+- interval：指定一个时间间隔来执行任务。
+
+```python
+scheduler.add_job(job_function, 'interval', minutes=30)
+```
+
+在上述示例中，任务将每隔30分钟执行一次。
+
+- cron：使用Cron表达式来指定任务的执行时间。
+
+```python
+scheduler.add_job(job_function, 'cron', hour=8, minute=0, day_of_week='0-4')
+```
+
+在上述示例中，任务将在每个工作日的早上8点执行。
+
+- timedelta：指定一个时间间隔来执行任务，但相对于当前时间的偏移量。
+
+```python
+from datetime import timedelta
+
+scheduler.add_job(job_function, 'interval', seconds=10, start_date=datetime.now() + timedelta(seconds=5))
+```
+
+在上述示例中，任务将在当前时间的5秒后开始执行，然后每隔10秒执行一次。
+这些方法提供了不同的方式来安排定时任务的执行时间。你可以根据具体需求选择适合的调度方式，并结合相关参数来设置定时任务的执行规则。无论使用哪种方法，都可以通过add_job方法将任务添加到调度器中，以便按照预定的时间规则执行任务。
+
+## cron触发器
+
+**cron**触发器是**APScheduler**中常用的一种触发器类型，用于基于**cron**表达式来触发任务。它提供了灵活且精确的任务调度规则，可以在特定的日期和时间点上触发任务。
+
+以下是关于cron触发器的详细解释：
+
+**创建触发器：**
+要创建一个cron触发器，可以使用CronTrigger类并指定cron表达式作为参数。cron表达式是一种字符串格式，用于指定任务触发的时间规则。它由多个字段组成，每个字段表示时间的不同部分，例如分钟、小时、日期等。示例代码如下：
+
+```python
+from apscheduler.triggers.cron import CronTrigger
+
+# 创建每天上午10点触发的cron触发器
+trigger = CronTrigger(hour=10)
+```
+
+在上述示例中，我们创建了一个每天上午10点触发的cron触发器。
+
+**添加触发器到任务：** 创建触发器后，可以将它与任务相关联，以定义任务的调度规则。可以使用add_job()
+方法的trigger参数将触发器添加到任务中。示例代码如下：
+
+```python
+from apscheduler.schedulers.blocking import BlockingScheduler
+
+def job_function():
+    # 任务逻辑
+
+scheduler = BlockingScheduler()
+scheduler.add_job(job_function, trigger=CronTrigger(hour=10))
+```
+
+在上述示例中，我们将cron触发器添加到了名为job_function的任务中，使得该任务在每天上午10点触发。
+
+**cron表达式：** cron表达式由多个字段组成，用空格分隔。每个字段表示时间的不同部分，具体如下：
+
+```text
+分钟：范围是0-59。
+小时：范围是0-23。
+日期：范围是1-31。
+月份：范围是1-12。
+星期几：范围是0-6，其中0表示星期日，1表示星期一，以此类推。
+```
+
+通过在cron表达式中指定相应的字段值，可以创建各种复杂的调度规则。例如：0 12 * * *表示每天中午12点触发，0 8-18 * *
+MON-FRI表示工作日每小时从早上8点到下午6点之间的整点触发。
+
+```python
+from apscheduler.triggers.cron import CronTrigger
+
+# 创建每周一至周五上午10点触发的cron触发器
+trigger = CronTrigger(hour=10, day_of_week='mon-fri')
+```
+
+在上述示例中，我们创建了一个每周一至周五上午10点触发的cron触发
 
 ## 如何快速开发一个接口
+
 待补充
