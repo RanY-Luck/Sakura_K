@@ -16,7 +16,10 @@ from . import models, schemas
 class IssueDal(DalBase):
 
     def __init__(self, db: AsyncSession):
-        super(IssueDal, self).__init__(db, models.VadminIssue, schemas.IssueSimpleOut)
+        super(IssueDal, self).__init__()
+        self.db = db
+        self.model = models.VadminIssue
+        self.schema = schemas.IssueSimpleOut
 
     async def add_view_number(self, data_id: int) -> None:
         """
@@ -30,4 +33,7 @@ class IssueDal(DalBase):
 class IssueCategoryDal(DalBase):
 
     def __init__(self, db: AsyncSession):
-        super(IssueCategoryDal, self).__init__(db, models.VadminIssueCategory, schemas.IssueCategorySimpleOut)
+        super(IssueCategoryDal, self).__init__()
+        self.db = db
+        self.model = models.VadminIssueCategory
+        self.schema = schemas.IssueSimpleOut

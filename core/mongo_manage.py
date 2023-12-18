@@ -33,7 +33,13 @@ class MongoManage:
     # 倒叙
     ORDER_FIELD = ["desc", "descending"]
 
-    def __init__(self, db: AsyncIOMotorDatabase, collection: str, schema: Any = None, is_object_id: bool = True):
+    def __init__(
+            self,
+            db: AsyncIOMotorDatabase = None,
+            collection: str = None,
+            schema: Any = None,
+            is_object_id: bool = True
+    ):
         self.db = db
         self.collection = db[collection]
         self.schema = schema

@@ -6,7 +6,6 @@
 # @File    : crud.py
 # @Software: PyCharm
 # @desc    : 数据库 增删改查操作
-
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,16 +17,26 @@ from . import models, schemas
 class LoginRecordDal(DalBase):
 
     def __init__(self, db: AsyncSession):
-        super(LoginRecordDal, self).__init__(db, models.VadminLoginRecord, schemas.LoginRecordSimpleOut)
+        super(LoginRecordDal, self).__init__()
+        self.db = db
+        self.model = models.VadminLoginRecord
+        self.schema = schemas.LoginRecordSimpleOut
 
 
 class SMSSendRecordDal(DalBase):
 
     def __init__(self, db: AsyncSession):
-        super(SMSSendRecordDal, self).__init__(db, models.VadminSMSSendRecord, schemas.SMSSendRecordSimpleOut)
+        super(SMSSendRecordDal, self).__init__()
+        self.db = db
+        self.model = models.VadminSMSSendRecord
+        self.schema = schemas.SMSSendRecordSimpleOut
 
 
 class OperationRecordDal(MongoManage):
 
     def __init__(self, db: AsyncIOMotorDatabase):
-        super(OperationRecordDal, self).__init__(db, "operation_record", schemas.OperationRecordSimpleOut)
+        super(OperationRecordDal, self).__init__()
+        self.db = db
+        self.collection = db["operation_record"]
+        self.schema = schemas.OperationRecordSimpleOut
+        self.is_object_id = True
