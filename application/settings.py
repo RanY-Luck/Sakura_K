@@ -13,7 +13,7 @@ from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是
 """
 系统版本
 """
-VERSION = "2.5.2"
+VERSION = "2.5.3"
 
 """
 Banner
@@ -194,12 +194,12 @@ SCHEDULER_TASK = "vadmin_system_task"
 定时任务配置
 """
 # 发布/订阅通道，与定时任务程序相互关联
-SUBSCRIBE = 'kinit_queue'
+SUBSCRIBE = 'sakura_queue'
 
 """
 定时任务脚本目录
 """
-TASKS_ROOT = "utils/task/tasks"
+TASKS_ROOT = "/utils/task/tasks"
 
 """
 项目描述
