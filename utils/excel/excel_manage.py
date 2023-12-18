@@ -36,7 +36,6 @@ class ExcelManage:
     def open_workbook(self, file: str, read_only: bool = False, data_only: bool = False) -> None:
         """
         初始化 excel 文件
-
         :param file: 文件名称或者对象
         :param read_only: 是否只读，优化读取速度
         :param data_only: 是否加载文件对象
@@ -44,17 +43,29 @@ class ExcelManage:
         # 加载excel文件，获取表单
         self.wb = load_workbook(file, read_only=read_only, data_only=data_only)
 
-    def open_sheet(self, sheet_name: str = None, **kwargs) -> None:
+    def open_sheet(
+            self,
+            sheet_name: str = None,
+            file: str = None,
+            read_only=False,
+            data_only: bool = False
+    ) -> None:
         """
         初始化 excel 文件
-
         :param sheet_name: 表单名称，为空则默认第一个
+        :param file:
+        :param read_only:
+        :param data_only:
+        :return:
         """
         # 加载excel文件，获取表单
         if not self.wb:
-            self.open_workbook(kwargs.get("file"), kwargs.get("read_only", False), kwargs.get("data_only", False))
+            self.open_workbook(file, read_only, data_only)
         if sheet_name:
-            self.sheet = self.wb[sheet_name]
+            if sheet_name in self.get_sheets():
+                self.sheet = self.wb[sheet_name]
+            else:
+                self.sheet = self.wb.create_sheet(sheet_name)
         else:
             self.sheet = self.wb.active
 
@@ -68,7 +79,6 @@ class ExcelManage:
     def create_excel(self, sheet_name: str = None) -> None:
         """
         创建 excel 文件
-
         :param sheet_name: 表单名称，为空则默认第一个
         """
         # 加载excel文件，获取表单
@@ -80,7 +90,10 @@ class ExcelManage:
     def readlines(self, min_row: int = 1, min_col: int = 1, max_row: int = None, max_col: int = None) -> list:
         """
         读取指定表单所有数据
-
+        :param min_row: 最小行
+        :param min_col: 最小列
+        :param max_row: 最大行
+        :param max_col: 最大列
         :return: 二维数组
         """
         rows = self.sheet.iter_rows(min_row=min_row, min_col=min_col, max_row=max_row, max_col=max_col)
@@ -96,7 +109,6 @@ class ExcelManage:
     def get_header(self, row: int = 1, col: int = None, asterisk: bool = False) -> list:
         """
         读取指定表单的表头（第一行数据）
-
         :param row: 指定行
         :param col: 最大列
         :param asterisk: 是否去除 * 号
@@ -114,7 +126,6 @@ class ExcelManage:
     def write_list(self, rows: list, header: list = None) -> None:
         """
         写入 excel文件
-
         :param rows: 行数据集
         :param header: 表头
         """
@@ -129,11 +140,13 @@ class ExcelManage:
             }
             for i in range(0, len(data)):
                 if isinstance(data[i], datetime.datetime):
-                    data[i] = data[i].strftime("%Y/%m/%d %H:%M:%S")
+                    data[i] = data[i].strftime("%Y-%m-%d %H:%M:%S")
                     format_columns["date_columns"].append(i + 1)
+                elif isinstance(data[i], bool):
+                    data[i] = 1 if data[i] else 0
             self.sheet.append(data)
-            self.__set_row_style(index + 2, len(data))
-            self.__set_row_format(index + 2, format_columns)
+            self.__set_row_style(index + 2 if header else index + 1, len(data))
+            self.__set_row_format(index + 2 if header else index + 1, format_columns)
         self.__auto_width()
         self.__set_row_border()
 
@@ -141,6 +154,8 @@ class ExcelManage:
         """
         保存 excel 文件到本地
         默认保存到临时目录中
+        :param filename: 保存的文件名称
+        :return:
         """
         date = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
         file_dir = os.path.join(TEMP_DIR, date)
@@ -166,7 +181,6 @@ class ExcelManage:
     ):
         """
         设置行样式
-
         :param row: 行
         :param max_column: 最大列
         :param alignment_style: 单元格内容的对齐设置
@@ -184,12 +198,11 @@ class ExcelManage:
     def __set_row_format(self, row: int, columns: dict):
         """
         格式化行数据类型
-
         :param row: 行
         :param columns: 列数据
         """
         for index in columns.get("date_columns", []):
-            self.sheet.cell(row=row, column=index).number_format = "yyyy/mm/dd h:mm:ss"
+            self.sheet.cell(row=row, column=index).number_format = "yyyy-mm-dd h:mm:ss"
 
     def __set_row_border(self):
         """

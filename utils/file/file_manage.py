@@ -6,17 +6,16 @@
 # @File    : file_manage.py
 # @Software: PyCharm
 # @desc    : 保存图片到本地
-
-import datetime
-import shutil
+import io
+import os
 import sys
-from pathlib import Path
+import zipfile
 
 import aioshutil
 from aiopathlib import AsyncPath
 from fastapi import UploadFile
 
-from application.settings import TEMP_DIR, STATIC_ROOT, BASE_DIR, STATIC_URL, STATIC_DIR
+from application.settings import STATIC_ROOT, BASE_DIR, STATIC_URL
 from core.exception import CustomException
 from utils.file.file_base import FileBase
 
@@ -27,7 +26,7 @@ class FileManage(FileBase):
     """
 
     def __init__(self, file: UploadFile, path: str):
-        self.path = self.generate_path(path, file.filename)
+        self.path = self.generate_static_file_path(path, file.filename)
         self.file = file
 
     async def save_image_local(self, accept: list = None) -> dict:
@@ -37,9 +36,27 @@ class FileManage(FileBase):
         if accept is None:
             accept = self.IMAGE_ACCEPT
         await self.validate_file(self.file, max_size=5, mime_types=accept)
-        return await self.save_local()
+        return await self.async_save_local()
 
-    async def save_local(self) -> dict:
+    async def save_audio_local(self, accept: list = None) -> dict:
+        """
+        保存音频到本地
+        """
+        if accept is None:
+            accept = self.AUDIO_ACCEPT
+        await self.validate_file(self.file, max_size=50, mime_types=accept)
+        return await self.async_save_local()
+
+    async def save_video_local(self, accept: list = None) -> dict:
+        """
+        保存视频文件到本地
+        """
+        if accept is None:
+            accept = self.VIDEO_ACCEPT
+        await self.validate_file(self.file, max_size=100, mime_types=accept)
+        return await self.async_save_local()
+
+    async def async_save_local(self) -> dict:
         """
         保存文件到本地
         """
@@ -47,51 +64,44 @@ class FileManage(FileBase):
         if sys.platform == "win32":
             path = self.path.replace("/", "\\")
         save_path = AsyncPath(STATIC_ROOT) / path
-        if not await save_path.parent.exists():
+        if not await save_path.parent.mkdir(parents=True, exist_ok=True):
             await save_path.parent.mkdir(parents=True, exist_ok=True)
         await save_path.write_bytes(await self.file.read())
         return {
-            "local_path": f"{STATIC_DIR}/{self.path}",
-            "remote_path": f"{STATIC_URL}/{self.path}"
+            "local_path": f"{STATIC_ROOT}/{self.path}",
+            "remote_path": f"{STATIC_URL}/{self.path}",
         }
 
-    @staticmethod
-    async def save_tmp_file(file: UploadFile) -> str:
+    @classmethod
+    async def async_save_temp_file(cls, file: UploadFile) -> str:
         """
         保存临时文件
         """
-        date = datetime.datetime.strftime(datetime.datetime.now(), "%Y%m%d")
-        file_dir = AsyncPath(TEMP_DIR) / date
-        if not await file_dir.exists():
-            await file_dir.mkdir(parents=True, exist_ok=True)
-        filename = file_dir / (str(int(datetime.datetime.now().timestamp())) + file.filename)
-        await filename.write_bytes(await file.read())
-        return str(filename)
+        temp_file_path = await cls.async_generate_temp_file_path(file.filename)
+        await AsyncPath(temp_file_path).write_bytes(await file.read())
+        return temp_file_path
+
+    @classmethod
+    async def unzip(cls, file: UploadFile, dir_path: str) -> str:
+        """
+        解压 zip 压缩包
+        :param file:
+        :param dir_path: 解压路径
+        :return:
+        """
+        if file.content_type != "application/x-zip-compressed":
+            raise CustomException("上传文件类型错误，必须是 zip 压缩包格式！")
+        # 读取上传的文件内容
+        contents = await file.read()
+        # 将文件内容转换为字节流
+        zip_stream = io.BytesIO(contents)
+        # 使用zipfile库解压字节流
+        with zipfile.ZipFile(zip_stream, "r") as zip_ref:
+            zip_ref.extractall(dir_path)
+        return dir_path
 
     @staticmethod
-    def copy(src: str, dst: str) -> None:
-        """
-        复制文件
-        根目录为项目根目录，传过来的文件路径均为相对路径
-
-        :param src: 原始文件
-        :param dst: 目标路径。绝对路径
-        """
-        if src[0] == "/":
-            src = src.lstrip("/")
-        if sys.platform == "win32":
-            src = src.replace("/", "\\")
-            dst = dst.replace("/", "\\")
-        src = Path(BASE_DIR) / src
-        dst = Path(dst)
-        if not src.exists():
-            raise CustomException("源文件不存在！")
-        if not dst.parent.exists():
-            dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(src, dst)
-
-    @staticmethod
-    async def async_copy(src: str, dst: str) -> None:
+    async def async_copy_file(src: str, dst: str) -> None:
         """
         异步复制文件
         根目录为项目根目录，传过来的文件路径均为相对路径
@@ -100,13 +110,22 @@ class FileManage(FileBase):
         """
         if src[0] == "/":
             src = src.lstrip("/")
-        if sys.platform == "win32":
-            src = src.replace("/", "\\")
-            dst = dst.replace("/", "\\")
         src = AsyncPath(BASE_DIR) / src
         if not await src.exists():
-            raise CustomException("源文件不存在！")
+            raise CustomException(f"{src} 源文件不存在！")
         dst = AsyncPath(dst)
         if not await dst.parent.exists():
             await dst.parent.mkdir(parents=True, exist_ok=True)
         await aioshutil.copyfile(src, dst)
+
+    @staticmethod
+    async def async_copy_dir(src: str, dst: str, dirs_exist_ok: bool = True) -> None:
+        """
+        复制目录
+        :param src: 源目录
+        :param dst: 目标目录
+        :param dirs_exist_ok: 是否覆盖
+        """
+        if not os.path.exists(dst):
+            raise CustomException("目标目录不存在！")
+        await aioshutil.copytree(src, dst, dirs_exist_ok=dirs_exist_ok)
