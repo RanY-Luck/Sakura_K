@@ -41,7 +41,7 @@ class MongoManage:
             is_object_id: bool = True
     ):
         self.db = db
-        self.collection = db[collection]
+        self.collection = db[collection] if collection else None
         self.schema = schema
         self.is_object_id = is_object_id
 

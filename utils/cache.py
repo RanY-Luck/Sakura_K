@@ -11,6 +11,7 @@ import json
 from typing import List
 
 from redis.asyncio.client import Redis
+from sqlalchemy import false
 from sqlalchemy.future import select
 from sqlalchemy.orm import joinedload
 
@@ -36,9 +37,9 @@ class Cache:
         model = VadminSystemSettingsTab
         v_options = [joinedload(model.settings)]
         sql = select(model).where(
-            model.is_delete == False,
+            model.is_delete == false(),
             model.tab_name.in_(tab_names),
-            model.disabled == False
+            model.disabled == false()
         ).options(*[load for load in v_options])
         queryset = await session.execute(sql)
         datas = queryset.scalars().unique().all()
@@ -76,7 +77,7 @@ class Cache:
         """
         获取系统配置
         :params tab_name: 配置表标签名称
-        :params retry_num: 重试次数
+        :params retry: 重试次数
         """
         result = await self.rd.get(tab_name)
         if not result and retry > 0:
