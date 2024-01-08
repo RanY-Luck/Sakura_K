@@ -7,8 +7,6 @@
 # @Software: PyCharm
 # @desc    : 阿里云存储对象
 
-import os.path
-
 import oss2  # 安装依赖库：pip install oss2
 from fastapi import UploadFile
 from oss2.models import PutObjectResult
@@ -17,9 +15,7 @@ from pydantic import BaseModel
 from core.exception import CustomException
 from core.logger import logger
 from utils import status
-from utils.file.compress.cpressJPG import compress_jpg_png
 from utils.file.file_base import FileBase
-from utils.file.file_manage import FileManage
 
 
 class BucketConf(BaseModel):
@@ -48,7 +44,7 @@ class AliyunOSS(FileBase):
         self.bucket = oss2.Bucket(auth, bucket.endpoint, bucket.bucket)
         self.baseUrl = bucket.baseUrl
 
-    async def upload_image(self, path: str, file: UploadFile, compress: bool = False, max_size: int = 10) -> str:
+    async def upload_image(self, path: str, file: UploadFile, max_size: int = 10) -> str:
         """
         上传图片
 
@@ -62,14 +58,7 @@ class AliyunOSS(FileBase):
         await self.validate_file(file, max_size, self.IMAGE_ACCEPT)
         # 生成文件路径
         path = self.generate_static_file_path(path, file.filename)
-        if compress:
-            # 压缩图片
-            file_path = await FileManage.async_save_temp_file(file)
-            new_file = compress_jpg_png(file_path, originpath=os.path.abspath(file_path))
-            with open(new_file, "rb") as f:
-                file_data = f.read()
-        else:
-            file_data = await file.read()
+        file_data = await file.read()
         return await self.__upload_file_to_oss(path, file_data)
 
     async def upload_video(self, path: str, file: UploadFile, max_size: int = 100) -> str:
