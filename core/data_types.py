@@ -47,6 +47,14 @@ def datetime_str_vali(value: str | datetime.datetime | int | float | dict):
     raise ValueError("无效的日期时间或字符串数据")
 
 
+# 实现自定义一个日期时间字符串的数据类型
+DatetimeStr = Annotated[
+    str | datetime.datetime | int | float | dict,
+    AfterValidator(datetime_str_vali),
+    PlainSerializer(lambda x: x, return_type=str),
+    WithJsonSchema({'type': 'string'}, mode='serialization')
+]
+
 # 实现自定义一个手机号类型
 Telephone = Annotated[
     str,

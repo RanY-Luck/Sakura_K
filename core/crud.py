@@ -17,7 +17,7 @@ from typing import Any, List, Union
 
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func, delete, update, BinaryExpression, ScalarResult, select, insert, false
+from sqlalchemy import func, delete, update, BinaryExpression, ScalarResult, select, false, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.strategy_options import _AbstractLoad
 from sqlalchemy.sql.selectable import Select as SelectType
@@ -51,22 +51,21 @@ class DalBase:
             **kwargs
     ) -> Any:
         """
-        获取单个数据,默认使用 ID 查询,否则使用关键词查询
+        获取单个数据，默认使用 ID 查询，否则使用关键词查询
 
         :param data_id: 数据 ID
         :param v_start_sql: 初始 sql
-        :param v_select_from: 用于指定查询从哪个表开始,通常与 .join() 等方法一起使用。
-        :param v_join: 创建内连接（INNER JOIN）操作,返回两个表中满足连接条件的交集。
-        :param v_outerjoin: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_options: 用于为查询添加附加选项,如预加载、延迟加载等。
-        :param v_where: 当前表查询条件,原始表达式
-        :param v_order: 排序,默认正序,为 desc 是倒叙
+        :param v_select_from: 用于指定查询从哪个表开始，通常与 .join() 等方法一起使用。
+        :param v_join: 创建内连接（INNER JOIN）操作，返回两个表中满足连接条件的交集。
+        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作，返回两个表中满足连接条件的并集，包括未匹配的行，并用 NULL 值填充。
+        :param v_options: 用于为查询添加附加选项，如预加载、延迟加载等。
+        :param v_where: 当前表查询条件，原始表达式
+        :param v_order: 排序，默认正序，为 desc 是倒叙
         :param v_order_field: 排序字段
-        :param v_return_none: 是否返回空 None,否认 抛出异常,默认抛出异常
+        :param v_return_none: 是否返回空 None，否认 抛出异常，默认抛出异常
         :param v_schema: 指定使用的序列化对象
         :param kwargs: 查询参数
-        :return: 默认返回 ORM 对象,如果存在 v_schema 则会返回 v_schema 结果
+        :return: 默认返回 ORM 对象，如果存在 v_schema 则会返回 v_schema 结果
         """
         if not isinstance(v_start_sql, SelectType):
             v_start_sql = select(self.model).where(self.model.is_delete == false())
@@ -121,33 +120,33 @@ class DalBase:
             v_schema: Any = None,
             v_distinct: bool = False,
             **kwargs
-    ) -> list[Any] | ScalarResult | tuple:
+    ) -> Union[List[Any], ScalarResult, tuple]:
         """
         获取数据列表
+
         :param page: 页码
         :param limit: 当前页数据量
         :param v_start_sql: 初始 sql
-        :param v_select_from: 用于指定查询从哪个表开始,通常与 .join() 等方法一起使用。
-        :param v_join: 创建内连接（INNER JOIN）操作,返回两个表中满足连接条件的交集。
-        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_options: 用于为查询添加附加选项,如预加载、延迟加载等。
-        :param v_where: 当前表查询条件,原始表达式
-        :param v_order: 排序,默认正序,为 desc 是倒叙
+        :param v_select_from: 用于指定查询从哪个表开始，通常与 .join() 等方法一起使用。
+        :param v_join: 创建内连接（INNER JOIN）操作，返回两个表中满足连接条件的交集。
+        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作，返回两个表中满足连接条件的并集，包括未匹配的行，并用 NULL 值填充。
+        :param v_options: 用于为查询添加附加选项，如预加载、延迟加载等。
+        :param v_where: 当前表查询条件，原始表达式
+        :param v_order: 排序，默认正序，为 desc 是倒叙
         :param v_order_field: 排序字段
-        :param v_return_count: 默认为 False,是否返回 count 过滤后的数据总数,不会影响其他返回结果,会一起返回为一个数组
+        :param v_return_count: 默认为 False，是否返回 count 过滤后的数据总数，不会影响其他返回结果，会一起返回为一个数组
         :param v_return_scalars: 返回scalars后的结果
         :param v_return_objs: 是否返回对象
         :param v_schema: 指定使用的序列化对象
         :param v_distinct: 是否结果去重
-        :param kwargs: 查询参数,使用的是自定义表达式
+        :param kwargs: 查询参数，使用的是自定义表达式
         :return: 返回值优先级：v_return_scalars > v_return_objs > v_schema
         """
         sql: SelectType = await self.filter_core(
             v_start_sql=v_start_sql,
             v_select_from=v_select_from,
             v_join=v_join,
-            v_outerjoin=v_outer_join,
+            v_outer_join=v_outer_join,
             v_options=v_options,
             v_where=v_where,
             v_order=v_order,
@@ -155,8 +154,10 @@ class DalBase:
             v_return_sql=True,
             **kwargs
         )
+
         if v_distinct:
             sql = sql.distinct()
+
         count = 0
         if v_return_count:
             count_sql = select(func.count()).select_from(sql.alias())
@@ -199,11 +200,10 @@ class DalBase:
         """
         获取数据总数
 
-        :param v_select_from: 用于指定查询从哪个表开始,通常与 .join() 等方法一起使用。
-        :param v_join: 创建内连接（INNER JOIN）操作,返回两个表中满足连接条件的交集。
-        :param v_outerjoin: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_where: 当前表查询条件,原始表达式
+        :param v_select_from: 用于指定查询从哪个表开始，通常与 .join() 等方法一起使用。
+        :param v_join: 创建内连接（INNER JOIN）操作，返回两个表中满足连接条件的交集。
+        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作，返回两个表中满足连接条件的并集，包括未匹配的行，并用 NULL 值填充。
+        :param v_where: 当前表查询条件，原始表达式
         :param kwargs: 查询参数
         """
         v_start_sql = select(func.count(self.model.id))
@@ -211,7 +211,7 @@ class DalBase:
             v_start_sql=v_start_sql,
             v_select_from=v_select_from,
             v_join=v_join,
-            v_outerjoin=v_outer_join,
+            v_outer_join=v_outer_join,
             v_where=v_where,
             v_return_sql=True,
             **kwargs
@@ -228,11 +228,10 @@ class DalBase:
     ) -> Any:
         """
         创建单个数据
-
         :param data: 创建数据
         :param v_options: 指示应使用select在预加载中加载给定的属性。
-        :param v_schema: 指定使用的序列化对象
-        :param v_return_obj: 是否返回对象
+        :param v_schema: ，指定使用的序列化对象
+        :param v_return_obj: ，是否返回对象
         """
         if isinstance(data, dict):
             obj = self.model(**data)
@@ -265,8 +264,8 @@ class DalBase:
         :param data_id: 修改行数据的 ID
         :param data: 数据内容
         :param v_options: 指示应使用select在预加载中加载给定的属性。
-        :param v_return_obj: 是否返回对象
-        :param v_schema: 指定使用的序列化对象
+        :param v_return_obj: ，是否返回对象
+        :param v_schema: ，指定使用的序列化对象
         """
         obj = await self.get_data(data_id, v_options=v_options)
         obj_dict = jsonable_encoder(data)
@@ -304,7 +303,7 @@ class DalBase:
             self.db.add(obj)
         await self.db.flush()
         if obj:
-            # 使用 get_data 或者 get_datas 获取到实例后如何更新了实例,并需要序列化实例,那么需要执行 refresh 刷新才能正常序列化
+            # 使用 get_data 或者 get_datas 获取到实例后如何更新了实例，并需要序列化实例，那么需要执行 refresh 刷新才能正常序列化
             await self.db.refresh(obj)
         return obj
 
@@ -319,8 +318,8 @@ class DalBase:
         序列化
         :param obj:
         :param v_options: 指示应使用select在预加载中加载给定的属性。
-        :param v_return_obj: ,是否返回对象
-        :param v_schema: ,指定使用的序列化对象
+        :param v_return_obj: ，是否返回对象
+        :param v_schema: ，指定使用的序列化对象
         :return:
         """
         if v_options:
@@ -348,15 +347,15 @@ class DalBase:
         数据过滤核心功能
 
         :param v_start_sql: 初始 sql
-        :param v_select_from: 用于指定查询从哪个表开始,通常与 .join() 等方法一起使用。
-        :param v_join: 创建内连接（INNER JOIN）操作,返回两个表中满足连接条件的交集。
-        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_options: 用于为查询添加附加选项,如预加载、延迟加载等。
-        :param v_where: 当前表查询条件,原始表达式
-        :param v_order: 排序,默认正序,为 desc 是倒叙
+        :param v_select_from: 用于指定查询从哪个表开始，通常与 .join() 等方法一起使用。
+        :param v_join: 创建内连接（INNER JOIN）操作，返回两个表中满足连接条件的交集。
+        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作，返回两个表中满足连接条件的并集，包括未匹配的行，并用 NULL 值填充。
+        :param v_options: 用于为查询添加附加选项，如预加载、延迟加载等。
+        :param v_where: 当前表查询条件，原始表达式
+        :param v_order: 排序，默认正序，为 desc 是倒叙
         :param v_order_field: 排序字段
         :param v_return_sql: 是否直接返回 sql
-        :return: 返回过滤后的总数据 或 sql
+        :return: 返回过滤后的总数居 或 sql
         """
         if not isinstance(v_start_sql, SelectType):
             v_start_sql = select(self.model).where(self.model.is_delete == false())
@@ -365,7 +364,7 @@ class DalBase:
             v_start_sql=v_start_sql,
             v_select_from=v_select_from,
             v_join=v_join,
-            v_outerjoin=v_outer_join,
+            v_outer_join=v_outer_join,
             v_options=v_options
         )
 
@@ -394,14 +393,14 @@ class DalBase:
             v_select_from: List[Any] = None,
             v_join: List[Any] = None,
             v_outer_join: List[Any] = None,
-            v_options: List[_AbstractLoad] = None
+            v_options: List[_AbstractLoad] = None,
     ) -> SelectType:
         """
         :param v_start_sql: 初始 sql
-        :param v_select_from: 用于指定查询从哪个表开始,通常与 .join() 等方法一起使用。
-        :param v_join: 创建内连接（INNER JOIN）操作,返回两个表中满足连接条件的交集。
-        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作,返回两个表中满足连接条件的并集,包括未匹配的行,并用 NULL 值填充。
-        :param v_options: 用于为查询添加附加选项,如预加载、延迟加载等。
+        :param v_select_from: 用于指定查询从哪个表开始，通常与 .join() 等方法一起使用。
+        :param v_join: 创建内连接（INNER JOIN）操作，返回两个表中满足连接条件的交集。
+        :param v_outer_join: 用于创建外连接（OUTER JOIN）操作，返回两个表中满足连接条件的并集，包括未匹配的行，并用 NULL 值填充。
+        :param v_options: 用于为查询添加附加选项，如预加载、延迟加载等。
         """
         if v_select_from:
             v_start_sql = v_start_sql.select_from(*v_select_from)
@@ -462,7 +461,7 @@ class DalBase:
                             raise CustomException("SQL查询语法错误")
                     elif len(value) == 2 and value[1] not in [None, [], ""]:
                         if value[0] == "date":
-                            # 根据日期查询, 关键函数是：func.time_format和func.date_format
+                            # 根据日期查询， 关键函数是：func.time_format和func.date_format
                             conditions.append(func.date_format(attr, "%Y-%m-%d") == value[1])
                         elif value[0] == "like":
                             conditions.append(attr.like(f"%{value[1]}%"))

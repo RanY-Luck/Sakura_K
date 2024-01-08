@@ -16,10 +16,10 @@ from utils.task.scheduler import Scheduler
 
 class ScheduledTask:
     class JobExecStrategy(Enum):
-        interval = "interval"
-        date = "date"
-        cron = "cron"
-        once = "once"
+        interval = "interval"  # 间隔
+        date = "date"  # 日期
+        cron = "cron"  # cron表达式
+        once = "once"  # 某个时间段运行一次
 
     def __init__(self):
         self.mongo = None
@@ -96,8 +96,8 @@ class ScheduledTask:
         :return:
         """
         self.start_mongo()
-        self.start_scheduler()
         self.start_redis()
+        self.start_scheduler()
 
         pubsub = self.rd.subscribe(SUBSCRIBE)
 
@@ -115,7 +115,7 @@ class ScheduledTask:
                 print(content)
                 getattr(self, operation)(**task)
             else:
-                print("意外", message)
+                print("意外报错:", message)
 
     def start_mongo(self) -> None:
         """

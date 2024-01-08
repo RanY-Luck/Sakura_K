@@ -7,5 +7,6 @@
 # @Software: PyCharm
 # @desc    : 初始化文件
 
+from .dept import DeptParams
 from .role import RoleParams
 from .user import UserParams

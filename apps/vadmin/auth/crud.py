@@ -6,7 +6,6 @@
 # @File    : crud.py
 # @Software: PyCharm
 # @desc    : 增删改查
-
 import copy
 from datetime import datetime
 from typing import Any
@@ -14,7 +13,7 @@ from typing import Any
 from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
 from redis.asyncio import Redis
-from sqlalchemy import select
+from sqlalchemy import select, false
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.strategy_options import _AbstractLoad
@@ -50,6 +49,33 @@ class UserDal(DalBase):
     def __init__(self, db: AsyncSession):
         super(UserDal, self).__init__(db, models.VadminUser, schemas.UserSimpleOut)
 
+    async def recursion_get_dept_ids(
+            self,
+            user: models.VadminUser,
+            depts: list[models.VadminDept] = None,
+            dept_ids: list[int] = None
+    ) -> list:
+        """
+        递归获取所有关联部门 id
+        :param user:
+        :param depts: 所有部门实例
+        :param dept_ids: 父级部门id列表
+        :return:
+        """
+        if not depts:
+            depts = await DeptDal(self.db).get_datas(limit=0, v_return_objs=True)
+            result = []
+            for i in user.depts:
+                result.append(i.id)
+            result.extend(await self.recursion_get_dept_ids(user, depts, result))
+            return list(set(result))
+        elif dept_ids:
+            result = [i.id for i in filter(lambda item: item.parent_id in dept_ids, depts)]
+            result.extend(await self.recursion_get_dept_ids(user, depts, result))
+            return result
+        else:
+            return []
+
     async def update_login_info(self, user: models.VadminUser, last_ip: str) -> None:
         """
         更新当前登录信息
@@ -70,6 +96,11 @@ class UserDal(DalBase):
     ) -> Any:
         """
         创建用户
+        :param data:
+        :param v_options:
+        :param v_return_obj:
+        :param v_schema:
+        :return:
         """
         unique = await self.get_data(telephone=data.telephone, v_return_none=True)
         if unique:
@@ -77,11 +108,13 @@ class UserDal(DalBase):
         password = data.telephone[5:12] if settings.DEFAULT_PASSWORD == "0" else settings.DEFAULT_PASSWORD
         data.password = self.model.get_password_hash(password)
         data.avatar = data.avatar if data.avatar else settings.DEFAULT_AVATAR
-        obj = self.model(**data.model_dump(exclude={'role_ids'}))
+        obj = self.model(**data.model_dump(exclude={'role_ids', "dept_ids"}))
         if data.role_ids:
             roles = await RoleDal(self.db).get_datas(limit=0, id=("in", data.role_ids), v_return_objs=True)
             for role in roles:
                 obj.roles.add(role)
+        if data.dept_ids:
+            depts = await DeptDal
         await self.flush(obj)
         return await self.out_dict(obj, v_options, v_return_obj, v_schema)
 
@@ -531,6 +564,81 @@ class MenuDal(DalBase):
         if count > 0:
             raise CustomException("无法删除存在角色关联的菜单", code=400)
         await super(MenuDal, self).delete_datas(ids, v_soft, **kwargs)
+
+
+class DeptDal(DalBase):
+    def __init__(self, db: AsyncSession):
+        super(DeptDal, self).__init__()
+        self.db = db
+        self.model = models.VadminDept
+        self.schema = schemas.DeptSimpleOut
+
+    async def get_tree_list(self, mode: int) -> list:
+        """
+        1：获取部门树列表
+        2：获取部门树选择项，添加/修改部门时使用
+        3：获取部门树列表，用户添加部门权限时使用
+        :param model:
+        :return:
+        """
+        if mode == 3:
+            sql = select(self.model).where(self.model.disabled == 0, self.model.is_delete == false())
+        else:
+            sql = select(self.model).where(self.model.is_delete == false())
+        queryset = await self.db.scalars(sql)
+        datas = list(queryset.all())
+        roots = filter(lambda i: not i.parent_id, datas)
+        if mode == 1:
+            menus = self.generate_tree_list(datas, roots)
+        elif mode == 2 or mode == 3:
+            menus = self.generate_tree_options(datas, roots)
+        else:
+            raise CustomException("获取部门失败，无可用选项", code=400)
+
+    def generate_tree_list(self, depts: list[models.VadminDept], nodes: filter) -> list:
+        """
+        生成部门树列表
+        :param depts: 总部门列表
+        :param nodes: 每层节点部门列表
+        :return:
+        """
+        data = []
+        for root in nodes:
+            router = schemas.DeptTreeListOut.model_validate(root)
+            sons = filter(lambda i: i.parent_id == root.id, depts)
+            router.children = self.generate_tree_list(depts, sons)
+            data.append(router.model_dump())
+        return data
+
+    def generate_tree_options(self, depts: list[models.VadminDept], nodes: filter) -> list:
+        """
+        生成部门树选择项
+        :param depts: 总部门列表
+        :param nodes: 每层节点部门列表
+        :return:
+        """
+        data = []
+        for root in nodes:
+            router = {"value": root.id, "label": root.name, "order": root.order}
+            sons = filter(lambda i: i.parent_id == root.id, depts)
+            router["children"] = self.generate_tree_options(depts, sons)
+            data.append(router)
+        return data
+
+    @classmethod
+    def dept_order(cls, datas: list, order: str = "order", children: str = "children") -> list:
+        """
+        部门排序
+        :param datas:
+        :param order:
+        :param children:
+        :return:
+        """
+        result = sorted(datas, key=lambda dept: dept[order])
+        for item in result:
+            if item[children]:
+                item[children] = sorted(item[children], key=lambda dept: dept[order])
+        return result
 
 
 class TestDal(DalBase):

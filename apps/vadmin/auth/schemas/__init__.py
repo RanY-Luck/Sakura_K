@@ -6,7 +6,7 @@
 # @File    : __init__.py
 # @Software: PyCharm
 # @desc    : 初始化文件
-
-from .menu import Menu, MenuSimpleOut, RouterOut, Meta, TreeListOut
+from .dept import Dept, DeptSimpleOut, DeptTreeListOut
+from .menu import Menu, MenuSimpleOut, RouterOut, Meta, MenuTreeListOut
 from .role import Role, RoleOut, RoleIn, RoleOptionsOut, RoleSimpleOut
 from .user import UserOut, UserUpdate, User, UserIn, UserSimpleOut, ResetPwd, UserUpdateBaseInfo

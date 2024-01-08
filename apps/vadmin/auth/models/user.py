@@ -14,7 +14,8 @@ from sqlalchemy import String, Boolean, DateTime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from db.db_base import BaseModel
-from .m2m import vadmin_auth_user_roles
+from .dept import VadminDept
+from .m2m import vadmin_auth_user_roles, vadmin_auth_user_depts
 from .role import VadminRole
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -44,6 +45,7 @@ class VadminUser(BaseModel):
     is_wx_server_openid: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否已有服务端微信平台openid")
 
     roles: Mapped[set[VadminRole]] = relationship(secondary=vadmin_auth_user_roles)
+    depts: Mapped[set[VadminDept]] = relationship(secondary=vadmin_auth_user_depts)
 
     @staticmethod
     def get_password_hash(password: str) -> str:
