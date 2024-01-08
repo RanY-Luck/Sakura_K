@@ -21,7 +21,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, func, Boolean
+from sqlalchemy import DateTime, Integer, func, Boolean, inspect
 from sqlalchemy.orm import Mapped, mapped_column
 
 from core.database import Base
@@ -43,3 +43,30 @@ class BaseModel(Base):
     )
     delete_datetime: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment='删除时间')
     is_delete: Mapped[bool] = mapped_column(Boolean, default=False, comment="是否软删除 0 非删除 1 删除")
+
+    @classmethod
+    def get_column_attrs(cls) -> list:
+        """
+        获取模型中除relationships外的所有字段名称
+        :return:
+        """
+        mapper = inspect(cls)
+        return mapper.columns_attrs.keys()
+
+    @classmethod
+    def get_attrs(cls) -> list:
+        """
+        获取模型所有字段名称
+        :return:
+        """
+        mapper = inspect(cls)
+        return mapper.attrs.keys()
+
+    @classmethod
+    def get_relationships_attrs(cls) -> list:
+        """
+        获取模型中 relationships 所有字段名称
+        :return:
+        """
+        mapper = inspect(cls)
+        return mapper.relationships.keys()
