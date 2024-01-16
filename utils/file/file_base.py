@@ -20,7 +20,7 @@ from utils.tools import generate_string
 
 
 class FileBase:
-    IMAGE_ACCEPT = ["image/png", "image/jpeg", "image/gif", "image/x-icon"]
+    IMAGE_ACCEPT = ["image/png", "image/jpeg", "image/gif", "image/x-icon", "image/webp"]
     VIDEO_ACCEPT = ["video/mp4", "video/mpeg"]
     AUDIO_ACCEPT = ["audio/wav", "audio/mp3", "audio/m4a", "audio/wma", "audio/ogg", "audio/mpeg", "audio/x-wav"]
     ALL_ACCEPT = [*IMAGE_ACCEPT, *VIDEO_ACCEPT, *AUDIO_ACCEPT]
