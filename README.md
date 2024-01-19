@@ -570,3 +570,7 @@ trigger = CronTrigger(hour=10, day_of_week='mon-fri')
 ## 如何快速开发一个接口
 
 待补充
+
+## 状态
+
+![Alt](https://repobeats.axiom.co/api/embed/546d79172006719d9475258d7353106ee6bef2a4.svg "Repobeats analytics image")
