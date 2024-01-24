@@ -61,3 +61,17 @@ async def delete_env(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth()
 async def delete_env(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.TestCaseDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")
+
+
+###########################################################
+#                   运行测试用例                            #
+###########################################################
+
+@app.post("/runtestcase", summary="运行测试用例")
+async def run_testcase(params: schemas.TestCaseSimpleOut, auth: Auth = Depends(AllUserAuth())):
+    if not params.id:
+        raise ValueError("id 不能为空")
+    # 查询出用户id
+    # 查询出用户名
+    current_user_info = await cu
+    current_user_id = currentr

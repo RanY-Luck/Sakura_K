@@ -11,6 +11,7 @@ from application.settings import MONGO_DB_NAME, MONGO_DB_URL, REDIS_DB_URL, SUBS
 from core.logger import logger
 from utils.task.Mongo import get_database as get_mongo
 from utils.task.Redis import get_database as get_redis
+from utils.task.Redis.redis_manage import RedisManage
 from utils.task.scheduler import Scheduler
 
 
@@ -99,6 +100,8 @@ class ScheduledTask:
         self.start_redis()
         self.start_scheduler()
 
+        assert isinstance(self.rd, RedisManage)
+
         pubsub = self.rd.subscribe(SUBSCRIBE)
 
         logger.info("已成功启动程序，等待接收消息...")
@@ -125,7 +128,6 @@ class ScheduledTask:
         """
         self.mongo = get_mongo()
         self.mongo.connect_to_database(MONGO_DB_URL, MONGO_DB_NAME)
-        print("成功连接 MongoDB")
 
     def start_scheduler(self) -> None:
         """
@@ -135,7 +137,7 @@ class ScheduledTask:
         """
         self.scheduler = Scheduler()
         self.scheduler.start()
-        print("成功启动 Scheduler")
+        print("Scheduler 启动成功")
 
     def start_redis(self) -> None:
         """
@@ -145,7 +147,6 @@ class ScheduledTask:
         """
         self.rd = get_redis()
         self.rd.connect_to_database(REDIS_DB_URL)
-        print("成功连接 Redis")
 
     def close(self) -> None:
         """
@@ -156,7 +157,8 @@ class ScheduledTask:
         :return:
         """
         self.mongo.close_database_connection()
-        self.scheduler.shutdown()
+        if self.scheduler:
+            self.scheduler.shutdown()
         self.rd.close_database_connection()
 
 
