@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, Body, UploadFile, Request
 from redis.asyncio import Redis
 from sqlalchemy.orm import joinedload
 
-from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
+from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth, OpenAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.database import redis_getter
 from core.dependencies import IdList
@@ -26,9 +26,8 @@ app = APIRouter()
 #    接口测试
 ###########################################################
 @app.get("/test", summary="接口测试")
-async def test(auth: Auth = Depends(FullAdminAuth())):
-    print(auth)
-    return SuccessResponse()
+async def test(auth: Auth = Depends(OpenAuth())):
+    return SuccessResponse(await crud.TestDal(auth.db).relationship_where_operations_has())
 
 
 ###########################################################
