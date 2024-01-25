@@ -63,7 +63,7 @@ class UserUpdate(User):
     """
     更新用户详细信息
     """
-    name: str | None = None
+    name: str
     telephone: Telephone
     email: Email | None = None
     nickname: str | None = None
