@@ -22,7 +22,7 @@ class ViewGenerate(GenerateBase):
             zh_name: str,
             en_name: str,
             schema_class_name: str,
-            schema_simple_out_name: str,
+            schema_simple_out_class_name: str,
             dal_class_name: str,
             param_class_name: str
     ):
@@ -30,11 +30,11 @@ class ViewGenerate(GenerateBase):
         初始化工作
         :param model: 提前定义好的 ORM 模型
         :param zh_name: 功能中文名称，主要用于描述、注释
+        :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         :param schema_class_name:
         :param schema_simple_out_class_name:
         :param dal_class_name:
         :param param_class_name:
-        :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         en_name 例子：
             如果 en_name 由多个单词组成那么请使用 _ 下划线拼接
             在命名文件名称时，会执行使用 _ 下划线名称
@@ -43,7 +43,7 @@ class ViewGenerate(GenerateBase):
         """
         self.model = model
         self.schema_class_name = schema_class_name
-        self.schema_simple_out_class_name = schema_simple_out_name
+        self.schema_simple_out_class_name = schema_simple_out_class_name
         self.dal_class_name = dal_class_name
         self.param_class_name = param_class_name
         self.zh_name = zh_name
