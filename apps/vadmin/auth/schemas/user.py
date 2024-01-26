@@ -63,7 +63,7 @@ class UserUpdate(User):
     """
     更新用户详细信息
     """
-    name: str
+    name: str | None = None
     telephone: Telephone
     email: Email | None = None
     nickname: str | None = None
@@ -89,6 +89,7 @@ class UserSimpleOut(User):
 
 class UserOut(UserSimpleOut):
     model_config = ConfigDict(from_attributes=True)
+
     roles: list[RoleSimpleOut] = []
     depts: list[DeptSimpleOut] = []
 

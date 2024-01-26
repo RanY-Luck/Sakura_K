@@ -37,7 +37,7 @@ class DictTypeSimpleOut(DictType):
     update_datetime: DatetimeStr
 
 
-class DictTypeSelectOut(BaseModel):
+class DictTypeOptionsOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     label: str = Field(alias='dict_name')

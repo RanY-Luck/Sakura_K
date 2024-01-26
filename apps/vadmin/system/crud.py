@@ -36,7 +36,7 @@ class DictTypeDal(DalBase):
         super(DictTypeDal, self).__init__()
         self.db = db
         self.model = models.VadminDictType
-        self.schema = schemas.DictTypeSelectOut
+        self.schema = schemas.DictTypeSimpleOut
 
     async def get_dicts_details(self, dict_types: list[str]) -> dict:
         """
@@ -62,7 +62,7 @@ class DictTypeDal(DalBase):
         """获取选择数据，全部数据"""
         sql = select(self.model)
         queryset = await self.db.execute(sql)
-        return [schemas.DictTypeSelectOut.model_validate(i).model_dump() for i in queryset.scalars().all()]
+        return [schemas.DictTypeOptionsOut.model_validate(i).model_dump() for i in queryset.scalars().all()]
 
 
 class DictDetailsDal(DalBase):

@@ -49,7 +49,10 @@ class UserDal(DalBase):
     ]
 
     def __init__(self, db: AsyncSession):
-        super(UserDal, self).__init__(db, models.VadminUser, schemas.UserSimpleOut)
+        super(UserDal, self).__init__()
+        self.db = db
+        self.model = models.VadminUser
+        self.schema = schemas.UserSimpleOut
 
     async def recursion_get_dept_ids(
             self,
@@ -61,7 +64,7 @@ class UserDal(DalBase):
         递归获取所有关联部门 id
         :param user:
         :param depts: 所有部门实例
-        :param dept_ids: 父级部门id列表
+        :param dept_ids: 父级部门 id 列表
         :return:
         """
         if not depts:
@@ -116,7 +119,9 @@ class UserDal(DalBase):
             for role in roles:
                 obj.roles.add(role)
         if data.dept_ids:
-            depts = await DeptDal
+            depts = await DeptDal(self.db).get_datas(limit=0, id=("in", data.dept_ids), v_return_objs=True)
+            for dept in depts:
+                obj.depts.add(dept)
         await self.flush(obj)
         return await self.out_dict(obj, v_options, v_return_obj, v_schema)
 
@@ -130,6 +135,12 @@ class UserDal(DalBase):
     ) -> Any:
         """
         更新用户信息
+        :param data_id:
+        :param data:
+        :param v_options:
+        :param v_return_obj:
+        :param v_schema:
+        :return:
         """
         obj = await self.get_data(data_id, v_options=[joinedload(self.model.roles), joinedload(self.model.depts)])
         data_dict = jsonable_encoder(data)
@@ -142,6 +153,14 @@ class UserDal(DalBase):
                     for role in roles:
                         obj.roles.add(role)
                 continue
+            elif key == "dept_ids":
+                if value:
+                    depts = await DeptDal(self.db).get_datas(limit=0, id=("in", value), v_return_objs=True)
+                    if obj.depts:
+                        obj.depts.clear()
+                    for dept in depts:
+                        obj.depts.add(dept)
+                continue
             setattr(obj, key, value)
         await self.flush(obj)
         return await self.out_dict(obj, None, v_return_obj, v_schema)
@@ -149,6 +168,9 @@ class UserDal(DalBase):
     async def reset_current_password(self, user: models.VadminUser, data: schemas.ResetPwd) -> None:
         """
         重置密码
+        :param user:
+        :param data:
+        :return:
         """
         if data.password != data.password_two:
             raise CustomException(msg="两次密码不一致", code=400)
@@ -162,6 +184,9 @@ class UserDal(DalBase):
     async def update_current_info(self, user: models.VadminUser, data: schemas.UserUpdateBaseInfo) -> Any:
         """
         更新当前用户基本信息
+        :param user:
+        :param data:
+        :return:
         """
         if data.telephone != user.telephone:
             unique = await self.get_data(telephone=data.telephone, v_return_none=True)
@@ -177,7 +202,10 @@ class UserDal(DalBase):
 
     async def export_query_list(self, header: list, params: UserParams) -> dict:
         """
-        导出用户查询列表为excel
+        导出用户查询列表为 excel
+        :param header:
+        :param params:
+        :return:
         """
         datas = await self.get_datas(**params.dict(), v_return_objs=True)
         # 获取表头
@@ -209,6 +237,7 @@ class UserDal(DalBase):
     async def get_import_headers_options(self) -> None:
         """
         补全表头数据选项
+        :return:
         """
         # 角色选择项
         roles = await RoleDal(self.db).get_datas(limit=0, v_return_objs=True, disabled=False, is_admin=False)
@@ -226,16 +255,20 @@ class UserDal(DalBase):
     async def download_import_template(self) -> dict:
         """
         下载用户最新版导入模板
+        :return:
         """
         await self.get_import_headers_options()
-        em = WriteXlsx(sheet_name="用户导入模板")
+        em = WriteXlsx()
+        em.create_excel(sheet_name="用户导入模板", save_static=True)
         em.generate_template(copy.deepcopy(self.import_headers))
         em.close()
-        return {"url": em.file_url, "filename": "用户导入模板.xlsx"}
+        return {"url": em.get_file_url(), "filename": "用户导入模板.xlsx"}
 
     async def import_users(self, file: UploadFile) -> dict:
         """
         批量导入用户数据
+        :param file:
+        :return:
         """
         await self.get_import_headers_options()
         im = ImportManage(file, copy.deepcopy(self.import_headers))
@@ -262,6 +295,8 @@ class UserDal(DalBase):
         """
         初始化所选用户密码
         将用户密码改为系统默认密码，并将初始化密码状态改为false
+        :param ids:
+        :return:
         """
         users = await self.get_datas(limit=0, id=("in", ids), v_return_objs=True)
         result = []
@@ -282,6 +317,9 @@ class UserDal(DalBase):
         """
         初始化所选用户密码并发送通知短信
         将用户密码改为系统默认密码，并将初始化密码状态改为false
+        :param ids:
+        :param rd:
+        :return:
         """
         result = await self.init_password(ids)
         for user in result:
@@ -304,6 +342,9 @@ class UserDal(DalBase):
         """
         初始化所选用户密码并发送通知邮件
         将用户密码改为系统默认密码，并将初始化密码状态改为false
+        :param ids:
+        :param rd:
+        :return:
         """
         result = await self.init_password(ids)
         for user in result:
@@ -332,6 +373,9 @@ class UserDal(DalBase):
     async def update_current_avatar(self, user: models.VadminUser, file: UploadFile) -> str:
         """
         更新当前用户头像
+        :param user:
+        :param file:
+        :return:
         """
         result = await AliyunOSS(BucketConf(**settings.ALIYUN_OSS)).upload_image("avatar", file)
         user.avatar = result
@@ -341,6 +385,10 @@ class UserDal(DalBase):
     async def update_wx_server_openid(self, code: str, user: models.VadminUser, redis: Redis) -> bool:
         """
         更新用户服务端微信平台openid
+        :param code:
+        :param user:
+        :param redis:
+        :return:
         """
         wx = WXOAuth(redis, 0)
         openid = await wx.parsing_openid(code)
@@ -520,7 +568,7 @@ class MenuDal(DalBase):
         """
         data = []
         for root in nodes:
-            router = schemas.TreeListOut.model_validate(root)
+            router = schemas.MenuTreeListOut.model_validate(root)
             if root.menu_type == "0" or root.menu_type == "1":
                 sons = filter(lambda i: i.parent_id == root.id, menus)
                 router.children = self.generate_tree_list(menus, sons)
@@ -547,6 +595,10 @@ class MenuDal(DalBase):
     def menus_order(cls, datas: list, order: str = "order", children: str = "children") -> list:
         """
         菜单排序
+        :param datas:
+        :param order:
+        :param children:
+        :return:
         """
         result = sorted(datas, key=lambda menu: menu[order])
         for item in result:
@@ -569,6 +621,7 @@ class MenuDal(DalBase):
 
 
 class DeptDal(DalBase):
+
     def __init__(self, db: AsyncSession):
         super(DeptDal, self).__init__()
         self.db = db
@@ -580,7 +633,7 @@ class DeptDal(DalBase):
         1：获取部门树列表
         2：获取部门树选择项，添加/修改部门时使用
         3：获取部门树列表，用户添加部门权限时使用
-        :param model:
+        :param mode:
         :return:
         """
         if mode == 3:
@@ -596,6 +649,7 @@ class DeptDal(DalBase):
             menus = self.generate_tree_options(datas, roots)
         else:
             raise CustomException("获取部门失败，无可用选项", code=400)
+        return self.dept_order(menus)
 
     def generate_tree_list(self, depts: list[models.VadminDept], nodes: filter) -> list:
         """

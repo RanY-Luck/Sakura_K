@@ -25,5 +25,7 @@ class VadminDept(BaseModel):
     email: Mapped[str | None] = mapped_column(String(255), comment="邮箱")
 
     parent_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("vadmin_auth_dept.id", ondelete="CASCADE"), comment="上级部门"
+        Integer,
+        ForeignKey("vadmin_auth_dept.id", ondelete='CASCADE'),
+        comment="上级部门"
     )

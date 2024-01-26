@@ -95,6 +95,8 @@ def run(
 def init(env: Environment = Environment.pro):
     """
     初始化数据
+    比如要初始化开发环境，那么env参数应该为 dev，并且 application/settings.DEBUG 应该 = True
+    比如要初始化生产环境，那么env参数应该为 pro，并且 application/settings.DEBUG 应该 = False
     :param env: 指定数据库环境 如果没有提供该参数，则默认为 Environment.pro。
     :return:
     """

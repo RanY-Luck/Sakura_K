@@ -20,11 +20,13 @@ class Dept(BaseModel):
     owner: str | None = None
     phone: str | None = None
     email: str | None = None
+
     parent_id: int | None = None
 
 
 class DeptSimpleOut(Dept):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
