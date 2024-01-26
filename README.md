@@ -567,9 +567,78 @@ trigger = CronTrigger(hour=10, day_of_week='mon-fri')
 
 在上述示例中，我们创建了一个每周一至周五上午10点触发的cron触发
 
-## 如何快速开发一个接口
+## 接口CURD代码自动生成
 
-待补充
+1.目前只支持生成接口代码
+
+2.目前只支持使用脚本方式运行，后续会更新到页面操作
+
+3.代码是根据手动配置的 ORM 模型来生成的，支持参数同步，比如默认值，是否为空...
+
+### 第一步: 需自己编写ORM
+
+```python
+# apps/vadmin/demo_generate/models/demo_generate.py
+
+from sqlalchemy import String, Boolean
+from sqlalchemy.orm import Mapped, mapped_column
+
+from db.db_base import BaseModel
+
+
+class VadminAutomatic(BaseModel):
+    __tablename__ = "vadmin_demo_generate"
+    __table_args__ = ({'comment': '自动生成测试表'})
+
+    name: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="名字")
+    url: Mapped[str] = mapped_column(String(255), index=True, nullable=False, comment="链接")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否可见")
+```
+
+### 第二步: 编写 crud 内容
+
+```python
+# scripts/crud_generate/main.py
+
+# 导入 ORM 模型
+from apps.vadmin.demo_generate.models import VadminAutomatic
+
+# 创建实例
+crud = CrudGenerate(VadminAutomatic, zh_name="自动代码生成测试", en_name="demo_generate")
+# 开始运行
+crud.main()
+```
+
+### 第三步: 运行 main.py文件
+
+```text
+直接在第二步编写完后运行生成
+
+日志打印如下:
+===========================schema 代码创建完成=================================
+===========================dal 代码创建完成=================================
+===========================param 代码创建完成=================================
+===============view 代码创建完成==================
+```
+
+### 第四步: 编写路由地址
+
+```python
+# application/urls.py
+
+from apps.vadmin.demo_generate.views import app as vadmin_demo_generate
+
+{"ApiRouter": vadmin_demo_generate, "prefix": "/vadmin/demo_generate", "tags": ["测试自动生成crud"]},
+```
+
+### 第五步: 进行数据迁移追加
+
+```python
+# alembic/env.py
+
+...
+from apps.vadmin.demo_generate.models import *
+```
 
 ## 状态
 
