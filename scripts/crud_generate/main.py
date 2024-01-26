@@ -23,7 +23,7 @@ from scripts.crud_generate.utils.view_generate import ViewGenerate
 
 class CrudGenerate(GenerateBase):
     APPS_ROOT = os.path.join(BASE_DIR, "apps")
-    SCRIPT_DIR = os.path.join(BASE_DIR, "scripts", "crud_generate")
+    SCRIPT_DIR = os.path.join(BASE_DIR, 'scripts', 'crud_generate')
 
     def __init__(self, model: Type[Base], zh_name: str, en_name: str = None):
         """
@@ -50,7 +50,7 @@ class CrudGenerate(GenerateBase):
         # crud 文件地址
         self.crud_file_path = self.app_dir_path / "crud.py"
         # view 文件地址
-        self.view_file_path = self.app_dir_path / "view.py"
+        self.view_file_path = self.app_dir_path / "views.py"
 
         if en_name:
             self.en_name = en_name
@@ -59,6 +59,7 @@ class CrudGenerate(GenerateBase):
 
         self.schema_file_path = self.schemas_dir_path / f"{self.en_name}.py"
         self.param_file_path = self.params_dir_path / f"{self.en_name}.py"
+
         self.base_class_name = self.snake_to_camel(self.en_name)
         self.schema_simple_out_class_name = f"{self.base_class_name}SimpleOut"
         self.dal_class_name = f"{self.base_class_name}Dal"
@@ -66,7 +67,7 @@ class CrudGenerate(GenerateBase):
 
     def generate_codes(self):
         """
-        生成代码，不做实际操作，只是将代码打印出来
+        生成代码， 不做实际操作，只是将代码打印出来
         :return:
         """
         print(f"==========================={self.schema_file_path} 代码内容=================================")
@@ -163,3 +164,13 @@ class CrudGenerate(GenerateBase):
             self.param_class_name
         )
         view.write_generate_code()
+
+
+if __name__ == '__main__':
+    # 导入 ORM 模型
+    from apps.vadmin.demo_generate.models import VadminAutomatic
+
+    # 创建实例
+    crud = CrudGenerate(VadminAutomatic, zh_name="自动代码生成测试", en_name="demo_generate")
+    # 开始运行
+    crud.main()

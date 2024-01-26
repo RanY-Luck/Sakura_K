@@ -24,7 +24,6 @@ class DalGenerate(GenerateBase):
             en_name: str,
             dal_class_name: str,
             schema_simple_out_class_name: str
-
     ):
         """
         初始化工作
@@ -53,7 +52,7 @@ class DalGenerate(GenerateBase):
 
     def write_generate_code(self):
         """
-        生成crud文件，以及代码内容
+        生成 crud 文件，以及代码内容
         :return:
         """
         if self.crud_file_path.exists():

@@ -11,6 +11,7 @@ from pathlib import Path
 
 
 class GenerateBase:
+
     @staticmethod
     def camel_to_snake(name: str) -> str:
         """
@@ -32,7 +33,7 @@ class GenerateBase:
         """
         # 按下划线分割字符串
         words = name.split('_')
-        # 将每个单词的首字母大写,然后拼接
+        # 将每个单词的首字母大写，然后拼接
         return ''.join(word.capitalize() for word in words)
 
     @staticmethod
@@ -57,15 +58,15 @@ class GenerateBase:
     def generate_modules_code(modules: dict[str, list]) -> str:
         """
         生成模块导入代码
-        :param modules: 导入的模块
+        :param modules: 导入得模块
         :return:
         """
         code = "\n"
         args = modules.pop("args", [])
         for k, v in modules.items():
-            code += f"form {k} import {','.join(v)}\n"
+            code += f"from {k} import {', '.join(v)}\n"
         if args:
-            code += f"import {','.join(args)}\n"
+            code += f"import {', '.join(args)}\n"
         return code
 
     @staticmethod
@@ -92,11 +93,11 @@ class GenerateBase:
     @staticmethod
     def module_code_to_dict(code: str) -> dict:
         """
-        将 from import 语句代码转为dict格式
+        将 from import 语句代码转为 dict 格式
         :param code:
         :return:
         """
-        # 分解代码单行
+        # 分解代码为单行
         lines = code.strip().split('\n')
 
         # 初始化字典
@@ -107,58 +108,61 @@ class GenerateBase:
             # 处理 'from ... import ...' 类型的导入
             if line.startswith('from'):
                 parts = line.split(' import ')
-                module = parts[0][5:]  # 移除'from'并获取模块路径
+                module = parts[0][5:]  # 移除 'from ' 并获取模块路径
                 imports = parts[1].split(',')  # 使用逗号分割导入项
-                imports = [item.strip() for item in imports]
+                imports = [item.strip() for item in imports]  # 移除多余空格
                 if module in modules:
                     modules[module].extend(imports)
                 else:
                     modules[module] = imports
+
             # 处理 'import ...' 类型的导入
             elif line.startswith('import'):
                 imports = line.split('import ')[1]
                 # 分割多个导入项
                 imports = imports.split(', ')
                 for imp in imports:
-                    # 处理直接导入模块
+                    # 处理直接导入的模块
                     modules.setdefault('args', []).append(imp)
-            return modules
+        return modules
 
     @classmethod
     def file_code_split_module(cls, file: Path) -> list:
         """
-        文件代码内容拆分，分别为以下三部分
-        1.文件开头的注释
-        2.全局层面的from import语句。该代码格式会被转为dict格式
-        3.其他代码内容
+        文件代码内容拆分，分为以下三部分
+        1. 文件开头的注释。
+        2. 全局层面的from import语句。该代码格式会被转换为 dict 格式
+        3. 其他代码内容。
         :param file:
         :return:
         """
-        content = file.read_text(encoding='utf-8')
+        content = file.read_text(encoding="utf-8")
         if not content:
             return []
         lines = content.split('\n')
-        parts1 = []  # 文件开头注释
-        parts2 = []  # from import 语句
-        parts3 = []  # 其他代码内容
+        part1 = []  # 文件开头注释
+        part2 = []  # from import 语句
+        part3 = []  # 其他代码内容
 
         # 标记是否已超过注释部分
         past_comments = False
 
         for line in lines:
-            # 检查是否为注释
+            # 检查是否为注释行
             if line.startswith("#") and not past_comments:
-                parts1.append(line)
+                part1.append(line)
             else:
                 # 标记已超过注释部分
                 past_comments = True
                 # 检查是否为 from import 语句
                 if line.startswith("from ") or line.startswith("import "):
-                    parts2.append(line)
+                    part2.append(line)
                 else:
-                    parts3.append(line)
-        part2 = cls.module_code_to_dict('\n'.join(parts2))
-        return ['\n'.join(parts1), part2, '\n'.join(parts3)]
+                    part3.append(line)
+
+        part2 = cls.module_code_to_dict('\n'.join(part2))
+
+        return ['\n'.join(part1), part2, '\n'.join(part3)]
 
     @staticmethod
     def merge_dictionaries(dict1, dict2):
@@ -168,8 +172,9 @@ class GenerateBase:
         :param dict2:
         :return:
         """
-        # 初始化字典结果
+        # 初始化结果字典
         merged_dict = {}
+
         # 合并两个字典中的键值对
         for key in set(dict1) | set(dict2):  # 获取两个字典的键的并集
             merged_dict[key] = list(set(dict1.get(key, []) + dict2.get(key, [])))

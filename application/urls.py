@@ -7,6 +7,7 @@
 # @Software: PyCharm
 # @desc    : 路由文件
 
+# 导入视图
 from apps.vadmin.analysis.views import app as vadmin_analysis_app
 from apps.vadmin.auth.utils.login import app as auth_app
 from apps.vadmin.auth.views import app as vadmin_auth_app
@@ -17,6 +18,7 @@ from apps.vadmin.autotest.functions.views import app as functions_app
 from apps.vadmin.autotest.module.views import app as module_app
 from apps.vadmin.autotest.project.views import app as project_app
 from apps.vadmin.autotest.testcase.views import app as testcase_app
+from apps.vadmin.demo_generate.views import app as vadmin_demo_generate
 from apps.vadmin.help.views import app as vadmin_help_app
 from apps.vadmin.record.views import app as vadmin_record_app
 from apps.vadmin.redbook.views import app as redbook_app
@@ -42,4 +44,6 @@ urlpatterns = [
     {"ApiRouter": testcase_app, "prefix": "/vadmin/autotest/testcase", "tags": ["测试用例管理"]},
     {"ApiRouter": functions_app, "prefix": "/vadmin/autotest/functions", "tags": ["自定义函数管理"]},
     {"ApiRouter": datasource_app, "prefix": "/vadmin/autotest/datasource", "tags": ["数据源管理"]},
+    {"ApiRouter": vadmin_demo_generate, "prefix": "/vadmin/demo_generate", "tags": ["测试自动生成crud"]},
+
 ]

@@ -16,6 +16,7 @@ from .generate_base import GenerateBase
 
 
 class ViewGenerate(GenerateBase):
+
     def __init__(
             self,
             model: Type[Base],
@@ -30,11 +31,11 @@ class ViewGenerate(GenerateBase):
         初始化工作
         :param model: 提前定义好的 ORM 模型
         :param zh_name: 功能中文名称，主要用于描述、注释
-        :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         :param schema_class_name:
         :param schema_simple_out_class_name:
         :param dal_class_name:
         :param param_class_name:
+        :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         en_name 例子：
             如果 en_name 由多个单词组成那么请使用 _ 下划线拼接
             在命名文件名称时，会执行使用 _ 下划线名称
@@ -68,8 +69,8 @@ class ViewGenerate(GenerateBase):
                     # 无文件注释则添加文件注释
                     codes[0] = self.generate_file_desc(self.view_file_path.name, "1.0", "视图层")
                 codes[1] = self.merge_dictionaries(codes[1], self.get_base_module_config())
-                codes[2] = self.get_base_code_content()
-                code = ""
+                codes[2] += self.get_base_code_content()
+                code = ''
                 code += codes[0]
                 code += self.generate_modules_code(codes[1])
                 if "app = APIRouter()" not in codes[2]:
@@ -89,16 +90,17 @@ class ViewGenerate(GenerateBase):
         生成代码
         :return:
         """
-        code = self.generate_file_desc(self.view_file_path.name, "1.0", "路由,视图文件")
+        code = self.generate_file_desc(self.view_file_path.name, "1.0", "路由，视图文件")
         code += self.generate_modules_code(self.get_base_module_config())
         code += "\n\napp = APIRouter()"
         code += self.get_base_code_content()
+
         return code.replace("\t", "    ")
 
     @staticmethod
     def get_base_module_config():
         """
-        获取基础模板导入配置
+        获取基础模块导入配置
         :return:
         """
         modules = {
@@ -119,7 +121,7 @@ class ViewGenerate(GenerateBase):
         :return:
         """
         base_code = "\n\n\n###########################################################"
-        base_code += f"\n#    {self.zh_name}"
+        base_code += f"\n#                      {self.zh_name}                      #"
         base_code += "\n###########################################################"
 
         router = self.en_name.replace("_", "/")

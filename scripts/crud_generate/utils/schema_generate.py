@@ -20,7 +20,7 @@ from scripts.crud_generate.utils.schema import SchemaField
 
 
 class SchemaGenerate(GenerateBase):
-    BASE_FIELD = ["id", "creat_datatime", "update_datetime", "delete_datetime", "is_delete"]
+    BASE_FIELDS = ["id", "create_datetime", "update_datetime", "delete_datetime", "is_delete"]
 
     def __init__(
             self,
@@ -36,8 +36,8 @@ class SchemaGenerate(GenerateBase):
         初始化工作
         :param model: 提前定义好的 ORM 模型
         :param zh_name: 功能中文名称，主要用于描述、注释
-        :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         :param schema_file_path:
+        :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         en_name 例子：
             如果 en_name 由多个单词组成那么请使用 _ 下划线拼接
             在命名文件名称时，会执行使用 _ 下划线名称
@@ -56,23 +56,24 @@ class SchemaGenerate(GenerateBase):
         self.app_dir_path = self.model_file_path.parent.parent
         self.en_name = en_name
         self.schema_file_path = schema_file_path
-        self.schema_dir_path = schemas_dir_path
-        self.schema_init_file_path = self.schema_dir_path / "__init__.py"
+        self.schemas_dir_path = schemas_dir_path
+        self.schema_init_file_path = self.schemas_dir_path / "__init__.py"
 
     def write_generate_code(self):
         """
-        生成 schema 文件,以及代码内容
+        生成 schema 文件，以及代码内容
         :return:
         """
         self.schema_file_path.parent.mkdir(parents=True, exist_ok=True)
         if self.schema_file_path.exists():
-            # 存在则直接删除,重新创建写入
+            # 存在则直接删除，重新创建写入
             self.schema_file_path.unlink()
         self.schema_file_path.touch()
         self.schema_init_file_path.touch()
 
         code = self.generate_code()
         self.schema_file_path.write_text(code, "utf-8")
+
         init_code = self.generate_init_code()
         self.update_init_file(self.schema_init_file_path, init_code)
         print(f"===========================schema 代码创建完成=================================")
@@ -88,13 +89,13 @@ class SchemaGenerate(GenerateBase):
 
     def generate_code(self) -> str:
         """
-        生成schema代码内容
+        生成 schema 代码内容
         :return:
         """
         fields = []
         mapper = model_inspect(self.model)
         for attr_name, column_property in mapper.column_attrs.items():
-            if attr_name in self.BASE_FIELD:
+            if attr_name in self.BASE_FIELDS:
                 continue
             # 假设它是单列属性
             column: ColumnType = column_property.columns[0]
@@ -108,14 +109,15 @@ class SchemaGenerate(GenerateBase):
             )
             fields.append(item)
 
-        code = self.generate_file_desc(self.schema_file_path.name, "1.0", "pydantic 模型,用于数据库序列化操作")
+        code = self.generate_file_desc(self.schema_file_path.name, "1.0", "pydantic 模型，用于数据库序列化操作")
+
         modules = {
             "pydantic": ['BaseModel', "Field", "ConfigDict"],
             "core.data_types": ['DatetimeStr'],
         }
         code += self.generate_modules_code(modules)
-        base_schema_code = f"\n\nclass {self.base_class_name}(BaseModel):"
 
+        base_schema_code = f"\n\nclass {self.base_class_name}(BaseModel):"
         for item in fields:
             field = f"\n\t{item.name}: {item.field_type} {'| None ' if item.nullable else ''}"
             default = None
