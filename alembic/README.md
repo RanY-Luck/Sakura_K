@@ -12,31 +12,20 @@ alembic --name dev upgrade head
 ```
 
 每次新加功能都要迁移请参考这个写上
+```python
+from apps.vadmin.auth.models import *
+from apps.vadmin.system.models import *
+from apps.vadmin.record.models import *
+from apps.vadmin.help.models import *
+from apps.vadmin.resource.models import *
+from apps.vadmin.redbook.models import *
+from apps.vadmin.autotest.project.models import *
+from apps.vadmin.autotest.module.models import *
+from apps.vadmin.autotest.apinfo.models import *
+from apps.vadmin.autotest.datasource.models import *
+from apps.vadmin.autotest.env.models import *
+from apps.vadmin.autotest.functions.models import *
+from apps.vadmin.autotest.report.models import *
+from apps.vadmin.autotest.testcase.models import *
+```
 
-# from apps.vadmin.auth.models import *
-
-# from apps.vadmin.system.models import *
-
-# from apps.vadmin.record.models import *
-
-# from apps.vadmin.help.models import *
-
-# from apps.vadmin.resource.models import *
-
-# from apps.vadmin.redbook.models import *
-
-# from apps.vadmin.autotest.project.models import *
-
-# from apps.vadmin.autotest.module.models import *
-
-# from apps.vadmin.autotest.apinfo.models import *
-
-# from apps.vadmin.autotest.datasource.models import *
-
-# from apps.vadmin.autotest.env.models import *
-
-# from apps.vadmin.autotest.functions.models import *
-
-# from apps.vadmin.autotest.report.models import *
-
-# from apps.vadmin.autotest.testcase.models import *
