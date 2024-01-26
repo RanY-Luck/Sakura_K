@@ -28,6 +28,7 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
+comtypes==1.2.1
 crcmod==1.7
 cryptography==41.0.7
 distro==1.9.0
@@ -95,10 +96,6 @@ yarl==1.9.4
 zipp==3.17.0
 zope.event==5.0
 zope.interface==6.1
-APScheduler~=3.10.4
-pytz~=2023.3.post1
-pywin32==306
-comtypes==1.2.1
 
 requests_toolbelt==1.0.0
 filetype==1.2.0
