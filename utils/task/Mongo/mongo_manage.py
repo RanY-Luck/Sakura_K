@@ -21,8 +21,8 @@ class MongoManage:
     def connect_to_database(self, path: str, db_name: str) -> None:
         """
         连接MongoDB数据库
-        :param path:
-        :param db_name:
+        :param path: 链接地址
+        :param db_name: 数据库名称
         :return:
         """
         # 设置连接超时时长为5秒
@@ -107,10 +107,10 @@ class MongoManage:
     def put_data(self, collection: str, _id: str, data: dict, is_object_id: bool = False) -> UpdateResult:
         """
         更新数据
-        :param collection:
-        :param _id:
-        :param data:
-        :param is_object_id :
+        :param collection: 集合
+        :param _id: 编号
+        :param data: 更新数据内容
+        :param is_object_id : _id是否为 ObjectId 类型
         :return:
         """
         new_data = {'$set': data}
@@ -124,7 +124,7 @@ class MongoManage:
     def filter_condition(cls, **kwargs) -> dict:
         """
         过滤条件
-        :param kwargs:
+        :param kwargs: 过滤条件
         :return:
         """
         params = {}

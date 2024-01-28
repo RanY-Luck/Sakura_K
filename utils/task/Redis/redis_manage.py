@@ -11,7 +11,6 @@ class RedisManage:
     def connect_to_database(self, path: str) -> None:
         """
         连接 Redis 数据库
-
         :param path: redis 连接地址
         :return:
         """
@@ -37,7 +36,6 @@ class RedisManage:
     def close_database_connection(self) -> None:
         """
         关闭 Redis 连接
-
         :return:
         """
         self.rd.close()
@@ -45,7 +43,6 @@ class RedisManage:
     def subscribe(self, channel: str):
         """
         订阅
-
         :param channel: 频道
         :return:
         """
