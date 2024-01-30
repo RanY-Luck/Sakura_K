@@ -18,7 +18,7 @@ class RedBook(BaseModel):
     __tablename__ = "red_book"
     __table_args__ = ({'comment': '小红书资源表'})
 
-    tags: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="标签")
+    tags: Mapped[str] = mapped_column(String(512), index=True, nullable=False, comment="标签")
     title: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="作品标题")
     describe: Mapped[str] = mapped_column(String(512), index=False, nullable=False, comment="作品描述")
     type: Mapped[str] = mapped_column(String(10), index=True, nullable=False, comment="作品类型")
