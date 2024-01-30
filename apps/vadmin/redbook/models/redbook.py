@@ -1,33 +1,29 @@
-"""
-@Project : Sakura_K
-@File    : redbook.py
-@IDE     : PyCharm
-@Author  : RanY
-@Date    : 2023/10/13 10:46
-@Desc    : 小红书素材表
-"""
-from sqlalchemy import String, Integer, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time     : 2024/1/30 17:40
+# @Author   : 冉勇
+# @File     : redbook.py
+# @Software : PyCharm
+# @Desc     : 小红书表
 
-from apps.vadmin.auth.models import VadminUser
+from datetime import datetime
+
+from sqlalchemy import String, Boolean, DateTime
+from sqlalchemy.orm import Mapped, mapped_column
+
 from db.db_base import BaseModel
 
 
-class VadminRedBook(BaseModel):
-    __tablename__ = "vadmin_redbook_images"
-    __table_args__ = ({'comment': '小红书素材表'})
+class RedBook(BaseModel):
+    __tablename__ = "red_book"
+    __table_args__ = ({'comment': '小红书资源表'})
 
-    noteurl: Mapped[str] = mapped_column(String(255), nullable=False, comment="笔记url")
-    notetype: Mapped[str | None] = mapped_column(String(8), comment="笔记类型")
-    notetitle: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="笔记标题")
-    notedescription: Mapped[str] = mapped_column(String(500), comment="笔记描述")
-    notetags: Mapped[str] = mapped_column(String(255), comment="笔记标签")
-    filename: Mapped[str] = mapped_column(String(255), nullable=False, comment="原图片名称")
-    image_url: Mapped[str] = mapped_column(String(500), nullable=False, comment="图片链接")
-
-    create_user_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("vadmin_auth_user.id", ondelete='RESTRICT'),
-        comment="创建人"
-    )
-    create_user: Mapped[VadminUser] = relationship(foreign_keys=create_user_id)
+    tags: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="标签")
+    title: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="作品标题")
+    describe: Mapped[str] = mapped_column(String(512), index=False, nullable=False, comment="作品描述")
+    type: Mapped[str] = mapped_column(String(10), index=True, nullable=False, comment="作品类型")
+    affiliation: Mapped[str] = mapped_column(String(10), index=False, nullable=False, comment="ID归属地")
+    release_time: Mapped[datetime] = mapped_column(DateTime, index=False, nullable=False, comment="发布时间")
+    auth_name: Mapped[str] = mapped_column(String(50), index=False, nullable=False, comment="作者昵称")
+    url: Mapped[str] = mapped_column(String(255), index=False, nullable=False, comment="下载地址")
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否可见")

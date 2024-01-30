@@ -20,7 +20,7 @@ from apps.vadmin.autotest.project.views import app as project_app
 from apps.vadmin.autotest.testcase.views import app as testcase_app
 from apps.vadmin.help.views import app as vadmin_help_app
 from apps.vadmin.record.views import app as vadmin_record_app
-from apps.vadmin.redbook.views import app as redbook_app
+from apps.vadmin.redbook.views import app as red_book_app
 from apps.vadmin.resource.views import app as vadmin_resource_app
 from apps.vadmin.system.views import app as vadmin_system_app
 from apps.vadmin.workplace.views import app as vadmin_workplace_app
@@ -35,7 +35,6 @@ urlpatterns = [
     {"ApiRouter": vadmin_analysis_app, "prefix": "/vadmin/analysis", "tags": ["数据分析管理"]},
     {"ApiRouter": vadmin_help_app, "prefix": "/vadmin/help", "tags": ["帮助中心管理"]},
     {"ApiRouter": vadmin_resource_app, "prefix": "/vadmin/resource", "tags": ["资源管理"]},
-    {"ApiRouter": redbook_app, "prefix": "/vadmin/redbook", "tags": ["小红书资源管理"]},
     {"ApiRouter": project_app, "prefix": "/vadmin/autotest/project", "tags": ["项目管理"]},
     {"ApiRouter": module_app, "prefix": "/vadmin/autotest/module", "tags": ["模块管理"]},
     {"ApiRouter": apinfo_app, "prefix": "/vadmin/autotest/apinfo", "tags": ["接口管理"]},
@@ -43,4 +42,5 @@ urlpatterns = [
     {"ApiRouter": testcase_app, "prefix": "/vadmin/autotest/testcase", "tags": ["测试用例管理"]},
     {"ApiRouter": functions_app, "prefix": "/vadmin/autotest/functions", "tags": ["自定义函数管理"]},
     {"ApiRouter": datasource_app, "prefix": "/vadmin/autotest/datasource", "tags": ["数据源管理"]},
+    {"ApiRouter": red_book_app, "prefix": "/vadmin/redbook", "tags": ["小红书素材"]},
 ]

@@ -168,8 +168,8 @@ class CrudGenerate(GenerateBase):
 
 if __name__ == '__main__':
     # 导入 ORM 模型
-    from apps.vadmin.demo_generate.models import VadminAutomatic
+    from apps.vadmin.redbook.models.redbook import RedBook
     # 创建实例
-    crud = CrudGenerate(VadminAutomatic, zh_name="自动代码生成测试", en_name="demo_generate")
+    crud = CrudGenerate(RedBook, zh_name="小红书素材库", en_name="redbook")
     # 开始运行
     crud.main()
