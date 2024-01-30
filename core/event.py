@@ -112,8 +112,10 @@ async def connect_mongo(app: FastAPI, status: bool):
         # 尝试连接并捕获可能得超时异常
         try:
             # 触发一次服务器通信来确认连接
-            data = await client.server_info()
-            print("Mongo 连接成功", data)
+            await client.server_info()
+            print("Mongo 连接成功")
+            # data = await client.server_info()
+            # print("Mongo 连接成功", data)
         except Exception as e:
             raise ValueError(f"MongoDB 连接失败：{e}")
     else:
