@@ -15,24 +15,25 @@ class MongoManage:
     mongodb 数据库管理器
     mongodb 官网：https://www.mongodb.com/docs/drivers/pymongo/
     """
+
     client: MongoClientType = None
     db: Database = None
 
     def connect_to_database(self, path: str, db_name: str) -> None:
         """
-        连接MongoDB数据库
-        :param path: 链接地址
+        连接 mongodb 数据库
+        :param path: mongodb 连接地址
         :param db_name: 数据库名称
         :return:
         """
         # 设置连接超时时长为5秒
-        self.client = MongoClient(path, ServerSelectionTimeoutError=5000)
+        self.client = MongoClient(path, serverSelectionTimeoutMS=5000)
         self.db = self.client[db_name]
         self.test_connect()
 
-    def get_database(self):
+    def get_databases(self):
         """
-        获取数据库列表,用来测试是否真的连接成功
+        获取数据库列表，用来测试是否真的连接成功
         :return:
         """
         return self.client.list_database_names()
@@ -42,13 +43,13 @@ class MongoManage:
         测试连接是否成功
         :return:
         """
-        # 尝试连接并捕获可能超时的异常
+        # 尝试连接并捕获可能的超时异常
         try:
             # 触发一次服务器通信来确认连接
             self.client.server_info()
-            print("Mongo 连接成功")
+            print("MongoDB 连接成功")
         except ServerSelectionTimeoutError as e:
-            raise ServerSelectionTimeoutError(f"MongoDB 连接失败：{e}")
+            raise ServerSelectionTimeoutError(f"MongoDB 连接失败: {e}")
 
     def close_database_connection(self) -> None:
         """
@@ -62,7 +63,6 @@ class MongoManage:
         创建单个数据
         :param collection: 集合
         :param data: 数据
-        :return:
         """
         data['create_datetime'] = datetime.datetime.now()
         data['update_datetime'] = datetime.datetime.now()
@@ -89,12 +89,11 @@ class MongoManage:
         :param v_return_none: 是否返回空 None，否则抛出异常，默认抛出异常
         :param is_object_id: 是否为 ObjectId
         :param v_schema: 指定使用的序列化对象
-        :param kwargs:
         :return:
         """
         if _id and is_object_id:
             kwargs["_id"] = ObjectId(_id)
-        params = self.filter_condition(**keyword)
+        params = self.filter_condition(**kwargs)
         data = self.db[collection].find_one(params)
         if not data and v_return_none:
             return None
@@ -110,11 +109,12 @@ class MongoManage:
         :param collection: 集合
         :param _id: 编号
         :param data: 更新数据内容
-        :param is_object_id : _id是否为 ObjectId 类型
+        :param is_object_id: _id 是否为 ObjectId 类型
         :return:
         """
         new_data = {'$set': data}
         result = self.db[collection].update_one({'_id': ObjectId(_id) if is_object_id else _id}, new_data)
+
         if result.matched_count > 0:
             return result
         else:

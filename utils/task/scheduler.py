@@ -1,3 +1,11 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# @version        : 1.0
+# @Create Time    : 2023/6/21 10:10
+# @File           : scheduler.py
+# @IDE            : PyCharm
+# @desc           : 简要说明
+
 import datetime
 import importlib
 import re
@@ -14,7 +22,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from application.settings import MONGO_DB_NAME, SCHEDULER_TASK_JOBS, TASKS_ROOT
 from utils.task.Mongo import get_database
-from utils.task.listener import before_job_execution
+from .listener import before_job_execution
 
 
 class Scheduler:
@@ -28,7 +36,7 @@ class Scheduler:
     def start(self, listener: bool = True) -> None:
         """
         创建调度器
-        :param listener:
+        :param listener: 是否注册事件监听器
         :return:
         """
         self.scheduler = BackgroundScheduler()
@@ -40,8 +48,8 @@ class Scheduler:
 
     def __get_mongodb_job_store(self) -> MongoDBJobStore:
         """
-        获取 MongoDBJobStore
-        :return:
+        获取 MongoDB Job Store
+        :return: MongoDB Job Store
         """
         self.db = get_database()
         return MongoDBJobStore(database=MONGO_DB_NAME, collection=self.COLLECTION, client=self.db.client)
@@ -59,8 +67,6 @@ class Scheduler:
         :param job_class: 类路径
         :param trigger: 触发条件
         :param name: 任务名称
-        :param args:
-        :param kwargs:
         :return:
         """
         job_class = self.__import_module(job_class)
@@ -89,7 +95,6 @@ class Scheduler:
         :param timezone: 时区，表示触发器应用的时区。可选参数，默认为 None，使用上海默认时区。
         :param name: 任务名称
         :param args: 非关键字参数
-        :param kwargs:
         :return:
         """
         second, minute, hour, day, month, day_of_week, year = self.__parse_cron_expression(expression)
@@ -110,7 +115,6 @@ class Scheduler:
     def add_date_job(self, job_class: str, expression: str, name: str = None, args: tuple = (), **kwargs) -> None | Job:
         """
         date触发器用于在指定的日期和时间触发一次任务。它适用于需要在特定时间点执行一次的任务，例如执行一次备份操作。
-
         :param job_class: 类路径
         :param expression: date
         :param name: 任务名称
@@ -135,16 +139,15 @@ class Scheduler:
         """
         date触发器用于在指定的日期和时间触发一次任务。它适用于需要在特定时间点执行一次的任务，例如执行一次备份操作。
         :param job_class: 类路径
-        :param expression: interval 表达式，分别为：秒、分、时、天、周，例如，设置 10 * * * * 表示每隔 10 秒执行一次任务。
-        :param start_date: 表示任务的结束时间，可以设置为 datetime 对象或者字符串。
+        :param expression：interval 表达式，分别为：秒、分、时、天、周，例如，设置 10 * * * * 表示每隔 10 秒执行一次任务。
+        :param end_date: 表示任务的结束时间，可以设置为 datetime 对象或者字符串。
                          例如，设置 end_date='2023-06-23 10:00:00' 表示任务在 2023 年 6 月 23 日 10 点结束。
-        :param end_date: 表示任务的起始时间，可以设置为 datetime 对象或者字符串。
+        :param start_date: 表示任务的起始时间，可以设置为 datetime 对象或者字符串。
                            例如，设置 start_date='2023-06-22 10:00:00' 表示从 2023 年 6 月 22 日 10 点开始执行任务。
-        :param timezone: 表示时区，可以设置为字符串或 pytz.timezone 对象。例如，设置 timezone='Asia/Shanghai' 表示使用上海时区。
-        :param jitter: 表示时间抖动，可以设置为整数或浮点数。例如，设置 jitter=2 表示任务的执行时间会在原定时间上随机增加 0~2 秒的时间抖动。
+        :param timezone：表示时区，可以设置为字符串或 pytz.timezone 对象。例如，设置 timezone='Asia/Shanghai' 表示使用上海时区。
+        :param jitter：表示时间抖动，可以设置为整数或浮点数。例如，设置 jitter=2 表示任务的执行时间会在原定时间上随机增加 0~2 秒的时间抖动。
         :param name: 任务名称
         :param args: 非关键字参数
-        :param kwargs:
         :return:
         """
         second, minute, hour, day, week = self.__parse_interval_expression(expression)
@@ -164,7 +167,6 @@ class Scheduler:
     def run_job(self, job_class: str, args: tuple = (), **kwargs) -> None:
         """
         立即执行一次任务，但不会执行监听器，只适合只需要执行任务，不需要记录的任务
-
         :param job_class: 类路径
         :param args: 类路径
         :return: 类实例
@@ -175,7 +177,6 @@ class Scheduler:
     def remove_job(self, name: str) -> None:
         """
         删除任务
-
         :param name: 任务名称
         :return:
         """
@@ -187,7 +188,6 @@ class Scheduler:
     def get_job(self, name: str) -> Job:
         """
         获取任务
-
         :param name: 任务名称
         :return:
         """
@@ -196,7 +196,6 @@ class Scheduler:
     def has_job(self, name: str) -> bool:
         """
         判断任务是否存在
-
         :param name: 任务名称
         :return:
         """
@@ -208,7 +207,6 @@ class Scheduler:
     def get_jobs(self) -> List[Job]:
         """
         获取所有任务
-
         :return:
         """
         return self.scheduler.get_jobs()
@@ -216,7 +214,6 @@ class Scheduler:
     def get_job_names(self) -> List[str]:
         """
         获取所有任务
-
         :return:
         """
         jobs = self.scheduler.get_jobs()
@@ -225,7 +222,6 @@ class Scheduler:
     def __import_module(self, expression: str):
         """
         反射模块
-
         :param expression: 类路径
         :return: 类实例
         """
@@ -247,7 +243,6 @@ class Scheduler:
     def __parse_cron_expression(expression: str) -> tuple:
         """
         解析 cron 表达式
-
         :param expression: cron 表达式，支持六位或七位，分别表示秒、分钟、小时、天、月、星期几、年
         :return: 解析后的秒、分钟、小时、天、月、星期几、年字段的元组
         """
@@ -266,7 +261,6 @@ class Scheduler:
     def __parse_interval_expression(expression: str) -> tuple:
         """
         解析 interval 表达式
-
         :param expression: interval 表达式，分别为：秒、分、时、天、周，例如，设置 10 * * * * 表示每隔 10 秒执行一次任务。
         :return:
         """
@@ -283,7 +277,6 @@ class Scheduler:
     def __parse_string_to_class(cls, expression: str) -> tuple:
         """
         使用正则表达式匹配类路径和参数
-
         :param expression: 表达式
         :return:
         """
@@ -307,7 +300,6 @@ class Scheduler:
     def __parse_arguments(args_str) -> list:
         """
         解析类路径参数字符串
-
         :param args_str: 类参数字符串
         :return:
         """
@@ -335,7 +327,6 @@ class Scheduler:
     def shutdown(self) -> None:
         """
         关闭调度器
-
         :return:
         """
         self.scheduler.shutdown()
