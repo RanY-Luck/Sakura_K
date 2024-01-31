@@ -5,4 +5,4 @@
 # @File     : __init__.py.py
 # @Software : PyCharm
 # @Desc     :
-from .redbook import RedBook
+from .redbook import VadminRedBook
