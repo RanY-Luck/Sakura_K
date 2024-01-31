@@ -89,4 +89,3 @@ class ParamsGenerate(GenerateBase):
         base_code += "\n"
         code += base_code
         return code.replace("\t", "    ")
-

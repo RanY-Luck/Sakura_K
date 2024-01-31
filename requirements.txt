@@ -101,3 +101,7 @@ requests_toolbelt==1.0.0
 filetype==1.2.0
 jsonpath==0.82
 Jinja2==3.0.3
+
+textual>=0.40.0
+pyperclip>=1.8.2
+lxml>=4.9.3
