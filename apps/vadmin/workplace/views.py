@@ -129,11 +129,11 @@ async def get_shortcuts():
         },
         {
             "name": "Swagger UI 接口文档",
-            "link": "http://kinit.ktianc.top/api/docs"
+            "link": ""
         },
         {
             "name": "Redoc 接口文档",
-            "link": "http://kinit.ktianc.top/api/redoc"
+            "link": ""
         },
         {
             "name": "Windi CSS 文档",

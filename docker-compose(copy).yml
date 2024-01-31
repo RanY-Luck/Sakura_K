@@ -103,8 +103,8 @@
 
 version: "3"
 services:
-  kinit-api:
-    container_name: kinit-api_pool
+  Sakura_K-api:
+    container_name: Sakura_K-api_pool
     restart: always
     ports:
       - "9000:9000"
@@ -112,17 +112,17 @@ services:
       - "9000"
     build:
       context: ./
-      dockerfile: ./docker_env/kinit-api_pool/Dockerfile
+      dockerfile: ./docker_env/Sakura_K-api_pool/Dockerfile
     environment:
       TZ: "Asia/Shanghai"
     volumes:
-      - ./kinit-api_pool:/app
+      - ./Sakura_K-api_pool:/app
     networks:
       kinit_network:
         ipv4_address: "177.8.0.2"
 
-  kinit-admin:
-    container_name: kinit-admin
+  Sakura_K-admin:
+    container_name: Sakura_K-admin
     restart: always
     ports:
       - "80:80"
@@ -132,28 +132,28 @@ services:
     environment:
       TZ: "Asia/Shanghai"
     volumes:
-      - ./docker_env/kinit-admin/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker_env/Sakura_K/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./:/usr/share/nginx/html
     networks:
       kinit_network:
         ipv4_address: "177.8.0.3"
 
-  kinit-task:
-    container_name: kinit-task
+  Sakura_K-task:
+    container_name: Sakura_K-task
     restart: always
     build:
       context: ./
-      dockerfile: ./docker_env/kinit-task/Dockerfile
+      dockerfile: ./docker_env/Sakura_K-task/Dockerfile
     environment:
       TZ: "Asia/Shanghai"
     volumes:
-      - ./kinit-task:/app
+      - ./Sakura_K-task:/app
     networks:
       kinit_network:
         ipv4_address: "177.8.0.4"
 
-  kinit-redis:
-    container_name: kinit-redis
+  Sakura_K-redis:
+    container_name: Sakura_K-redis
     restart: always
     image: redis:latest
     ports:
@@ -169,8 +169,8 @@ services:
         ipv4_address: "177.8.0.5"
     command: redis-server /etc/redis/redis.conf
 
-  kinit-mongo:
-    container_name: kinit-mongo
+  Sakura_K-mongo:
+    container_name: Sakura_K-mongo
     restart: always
     image: mongo:latest
     ports:
@@ -190,8 +190,8 @@ services:
         ipv4_address: "177.8.0.6"
     command: mongod --auth --bind_ip 0.0.0.0 # 启用身份验证和允许从任何IP连接
 
-  kinit-mysql:
-    container_name: kinit-mysql
+  Sakura_K-mysql:
+    container_name: Sakura_K-mysql
     restart: always
     image: mysql:latest
     ports:
@@ -205,13 +205,13 @@ services:
     environment:
       TZ: "Asia/Shanghai"
       MYSQL_ROOT_PASSWORD: "123456"
-      MYSQL_DATABASE: "kinit"
+      MYSQL_DATABASE: "root"
     networks:
-      kinit_network:
+      Sakura_K_network:
         ipv4_address: "177.8.0.7"
 
 networks:
-  kinit_network:
+  Sakura_K_network:
     driver: bridge
     ipam:
       driver: default
