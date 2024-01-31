@@ -1,6 +1,6 @@
 """
 @Project : Sakura_K
-@File    : redbook.py
+@File    : XHS-SDK.py
 @IDE     : PyCharm
 @Author  : RanY
 @Date    : 2023/10/13 10:46
