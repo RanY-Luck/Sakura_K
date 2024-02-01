@@ -1,33 +1,32 @@
-"""
-@Project : Sakura_K
-@File    : views.py
-@IDE     : PyCharm
-@Author  : RanY
-@Date    : 2023/10/13 10:45
-@Desc    : 小红书图片资源管理
-"""
-from fastapi import APIRouter, Depends, UploadFile
-from sqlalchemy.orm import joinedload
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# @version        : 1.0
+# @Create Time    : 2024/02/01 10:24
+# @File           : views.py
+# @IDE            : PyCharm
+# @desc           : 路由，视图文件
 
-from application.settings import ALIYUN_OSS
-from apps.vadmin.auth.utils.current import FullAdminAuth
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from apps.vadmin.auth.utils.current import AllUserAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
+from core.database import db_getter
 from core.dependencies import IdList
-from utils.file.aliyun_oss import AliyunOSS, BucketConf
 from utils.response import SuccessResponse
 from utils.xhs.source import XHS
-from . import schemas, crud, params, models
+from . import schemas, crud, params
 from .schemas import Links
 
 app = APIRouter()
 
 
 ###########################################################
-#                  小红书图片资源管理                        #
+#                       小红书素材表                        #
 ###########################################################
 
 @app.put("/redbookdown", summary="获取小红书无水印文件,支持单个下载")
-async def getredbookdown(link: str | None, auth: Auth = Depends(FullAdminAuth())):
+async def getredbookdown(link: str | None, auth: Auth = Depends(AllUserAuth())):
     """获取小红书无水印文件,支持单个下载"""
     # 实例对象
     work_path = "G:\\"  # 作品数据/文件保存根路径，默认值：项目根路径
@@ -60,8 +59,8 @@ async def getredbookdown(link: str | None, auth: Auth = Depends(FullAdminAuth())
     return SuccessResponse()
 
 
-@app.put("/redbookdownmultiple", summary="获取小红书无水印文件,支持批量下载")
-async def getredbookdownmultiple(links: Links, auth: Auth = Depends(FullAdminAuth())):
+@app.put("/redbookdownmultiple", summary="获取小红书无水印文件,支持批量下载,每个链接用英文逗号隔开")
+async def getredbookdownmultiple(links: Links, auth: Auth = Depends(AllUserAuth())):
     """获取小红书无水印文件,支持批量下载"""
     multiple_links = " ".join(links.link or [])
     # 实例对象
@@ -95,39 +94,35 @@ async def getredbookdownmultiple(links: Links, auth: Auth = Depends(FullAdminAut
     return SuccessResponse()
 
 
-@app.get('/redbookimages', summary="获取小红书图片列表")
-async def get_redbook_images_list(p: params.RedBookParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
-    model = models.VadminRedBook
-    v_options = [joinedload(model.create_user)]
-    v_schema = schemas.RedBookImagesOut
-    datas, count = await crud.RedBookDal(auth.db).get_datas(
-        **p.dict(),
-        v_options=v_options,
-        v_schema=v_schema,
-        v_return_scalars=True
-    )
+@app.get("/getredbook", summary="获取小红书素材表列表")
+async def get_redbook_list(p: params.RedbookParams = Depends(), auth: Auth = Depends(AllUserAuth())):
+    datas, count = await crud.RedbookDal(auth.db).get_datas(**p.dict(), v_return_count=True)
     return SuccessResponse(datas, count=count)
 
 
-@app.post("/redbookimages", summary="创建小红书图片")
-async def create_redbook_images(file: UploadFile, auth: Auth = Depends(FullAdminAuth())):
-    # todo:写库有些值要必填
-    filepath = f"/resource/redbookimages/"
-    result = await AliyunOSS(BucketConf(**ALIYUN_OSS)).upload_image(filepath, file)
-    data = schemas.RedBookImages(
-        filename=file.filename,
-        image_url=result,
-        create_user_id=auth.user.id
-    )
-    return SuccessResponse(await crud.RedBookDal(auth.db).create_data(data=data))
+@app.post("/createredbook", summary="创建小红书素材表")
+async def create_redbook(data: schemas.Redbook, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.RedbookDal(auth.db).create_data(data=data))
 
 
-@app.delete("/redbookimages", summary="删除图片", description="硬删除")
-async def delete_redbook_images(ids: IdList = Depends(), auth: Auth = Depends(FullAdminAuth())):
-    await crud.RedBookDal(auth.db).delete_datas(ids.ids, v_soft=False)
+@app.delete("/delredbook", summary="删除小红书素材表", description="硬删除")
+async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.RedbookDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
     return SuccessResponse("删除成功")
 
 
-@app.get("/redbookimages", summary="获取小红书图片信息")
-async def get_redbook_images(data_id: int, auth: Auth = Depends(FullAdminAuth())):
-    return SuccessResponse(await crud.RedBookDal(auth.db).get_data(data_id, v_schema=schemas.RedBookImagesOut))
+@app.delete("/softdelredbook", summary="删除小红书素材表", description="软删除")
+async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.RedbookDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
+    return SuccessResponse("删除成功")
+
+
+@app.put("/redbook/{data_id}", summary="更新小红书素材表")
+async def put_redbook(data_id: int, data: schemas.Redbook, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.RedbookDal(auth.db).put_data(data_id, data))
+
+
+@app.get("/redbook/{data_id}", summary="获取小红书素材表信息")
+async def get_redbook(data_id: int, db: AsyncSession = Depends(db_getter)):
+    schema = schemas.RedbookSimpleOut
+    return SuccessResponse(await crud.RedbookDal(db).get_data(data_id, v_schema=schema))

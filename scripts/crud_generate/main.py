@@ -171,6 +171,6 @@ if __name__ == '__main__':
     from apps.vadmin.redbook.models.redbook import RedBook
 
     # 创建实例
-    crud = CrudGenerate(RedBook, zh_name="小红书素材库", en_name="redbook")
+    crud = CrudGenerate(RedBook, zh_name="小红书素材表", en_name="redbook")
     # 开始运行
     crud.main()
