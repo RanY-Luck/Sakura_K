@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # @version        : 1.0
-# @Create Time    : 2024/02/01 10:24
+# @Create Time    : 2024/02/01 14:37
 # @File           : redbook.py
 # @IDE            : PyCharm
 # @desc           : 小红书素材表

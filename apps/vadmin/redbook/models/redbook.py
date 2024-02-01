@@ -7,12 +7,21 @@
 @Desc    : 小红书素材表
 """
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import String, Boolean, DateTime, Integer, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, backref
 
 from apps.vadmin.auth.models import VadminUser
 from db.db_base import BaseModel
+
+
+class URL(BaseModel):
+    __tablename__ = "red_book_urls"
+    __table_args__ = ({'comment': '小红书下载链接'})
+
+    red_book_id: Mapped[str] = mapped_column(Integer, ForeignKey("red_book.id"))
+    url: Mapped[str] = mapped_column(String(255), index=False, nullable=False, comment="下载地址")
 
 
 class RedBook(BaseModel):
@@ -26,7 +35,7 @@ class RedBook(BaseModel):
     affiliation: Mapped[str] = mapped_column(String(10), index=False, nullable=False, comment="ID归属地")
     release_time: Mapped[datetime] = mapped_column(DateTime, index=False, nullable=False, comment="发布时间")
     auth_name: Mapped[str] = mapped_column(String(50), index=False, nullable=False, comment="作者昵称")
-    url: Mapped[str] = mapped_column(String(255), index=False, nullable=False, comment="下载地址")
+    urls: Mapped[List[URL]] = relationship("URL", backref=backref("red_book", cascade="all"))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否可见")
 
     create_user_id: Mapped[int] = mapped_column(

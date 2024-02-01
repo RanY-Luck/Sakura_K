@@ -7,6 +7,9 @@
 # @Software: PyCharm
 # @desc    : 路由文件
 
+import importlib
+import pkgutil
+
 # 导入视图
 from apps.vadmin.analysis.views import app as vadmin_analysis_app
 from apps.vadmin.auth.utils.login import app as auth_app
@@ -44,3 +47,19 @@ urlpatterns = [
     {"ApiRouter": datasource_app, "prefix": "/vadmin/autotest/datasource", "tags": ["数据源管理"]},
     {"ApiRouter": red_book_app, "prefix": "/vadmin/redbook", "tags": ["小红书素材"]},
 ]
+# 导入apps.quant模块的所有子模块的.model模块
+apps = importlib.import_module('apps')
+for _, app_name, _ in pkgutil.iter_modules(apps.__path__):
+    if app_name == "vadmin":
+        continue
+    quant_module = importlib.import_module(f'apps.{app_name}')
+    for _, module_name, _ in pkgutil.iter_modules(quant_module.__path__):
+        module = importlib.import_module(f'apps.{app_name}.{module_name}.views')
+        # 导入模块中的所有类
+        for attr in dir(module):
+            if attr == "app":
+                class_obj = getattr(module, "app")
+                globals()[attr] = class_obj
+                urlpatterns.append(
+                    {"ApiRouter": class_obj, "prefix": f"/{app_name}/{module_name}", "tags": [module_name]}
+                )
