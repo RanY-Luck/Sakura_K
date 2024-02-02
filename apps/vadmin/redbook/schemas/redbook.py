@@ -5,7 +5,6 @@
 # @File           : redbook.py
 # @IDE            : PyCharm
 # @desc           : pydantic 模型，用于数据库序列化操作
-from datetime import datetime
 from typing import Optional, List
 
 from fastapi import Query
@@ -20,7 +19,7 @@ class Redbook(BaseModel):
     describe: str = Field(..., title="作品描述")
     type: str = Field(..., title="作品类型")
     affiliation: str = Field(..., title="ID归属地")
-    release_time: datetime = Field(..., title="发布时间")
+    release_time: DatetimeStr = Field(..., title="发布时间")
     auth_name: str = Field(..., title="作者昵称")
     is_active: bool = Field(True, title="是否可见")
     create_user_id: int = Field(..., title="创建人")
