@@ -7,6 +7,7 @@
 # @desc           : 路由，视图文件
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from apps.vadmin.auth.utils.current import AllUserAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
@@ -14,7 +15,7 @@ from core.database import db_getter
 from core.dependencies import IdList
 from utils.response import SuccessResponse
 from utils.xhs.source import XHS
-from . import schemas, crud, params
+from . import schemas, crud, params, models
 from .schemas import Links
 
 app = APIRouter()
@@ -95,7 +96,18 @@ async def getredbookdownmultiple(links: Links, auth: Auth = Depends(AllUserAuth(
 
 @app.get("/getredbook", summary="获取小红书素材表列表")
 async def get_redbook_list(p: params.RedbookParams = Depends(), auth: Auth = Depends(AllUserAuth())):
-    datas, count = await crud.RedbookDal(auth.db).get_datas(**p.dict(), v_return_count=True)
+    model = models.RedBook
+    v_options = [joinedload(model.create_user)]
+    # todo: 需要理清关系
+    v_join = [["create_user"]]
+    v_where = [VadminUser.name == "root"]
+
+    datas, count = await crud.RedbookDal(auth.db).get_datas(
+        **p.dict(),
+        v_return_count=True,
+        v_schema=v_schema,
+        v_options=v_options
+    )
     return SuccessResponse(datas, count=count)
 
 

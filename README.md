@@ -364,6 +364,7 @@ datas = await crud.IssueCategoryDal(auth.db).get_datas(
 ```
 
 mac系统安装虚拟环境和激活虚拟环境
+
 一、安装virtualenv
 > sudo pip install virtualenv
 
