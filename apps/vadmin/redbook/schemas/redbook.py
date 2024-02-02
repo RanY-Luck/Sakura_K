@@ -14,6 +14,7 @@ from core.data_types import DatetimeStr
 
 
 class Redbook(BaseModel):
+    source: str = Field(..., title="原文地址")
     tags: str = Field(..., title="标签")
     title: str = Field(..., title="作品标题")
     describe: str = Field(..., title="作品描述")
