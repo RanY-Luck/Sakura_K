@@ -19,3 +19,4 @@ class RedbookDal(DalBase):
         self.db = db
         self.model = models.RedBook
         self.schema = schemas.RedbookSimpleOut
+        self.links = schemas.Links

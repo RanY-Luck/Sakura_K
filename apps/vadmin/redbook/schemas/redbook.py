@@ -5,8 +5,9 @@
 # @File           : redbook.py
 # @IDE            : PyCharm
 # @desc           : pydantic 模型，用于数据库序列化操作
-from typing import Optional, List
 from datetime import datetime
+from typing import Optional, List
+
 from fastapi import Query
 from pydantic import BaseModel, ConfigDict, Field
 
