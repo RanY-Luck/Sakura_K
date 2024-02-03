@@ -168,9 +168,9 @@ class CrudGenerate(GenerateBase):
 
 if __name__ == '__main__':
     # 导入 ORM 模型
-    from apps.vadmin.redbook.models.redbook import RedBook
+    from apps.vadmin.urls.models.redbook import URL
 
     # 创建实例
-    crud = CrudGenerate(RedBook, zh_name="小红书素材表", en_name="redbook")
+    crud = CrudGenerate(URL, zh_name="小红书url表", en_name="urls")
     # 开始运行
     crud.main()

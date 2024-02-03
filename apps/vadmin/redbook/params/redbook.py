@@ -14,3 +14,8 @@ from core.dependencies import Paging, QueryParams
 class RedbookParams(QueryParams):
     def __init__(self, params: Paging = Depends()):
         super().__init__(params)
+
+
+class UrlsParams(QueryParams):
+    def __init__(self, params: Paging = Depends()):
+        super().__init__(params)

@@ -22,6 +22,43 @@ app = APIRouter()
 
 
 ###########################################################
+#                       小红书url表                        #
+###########################################################
+@app.get("/geturls", summary="获取小红书资源原链接")
+async def get_urls_list(p: params.UrlsParams = Depends(), auth: Auth = Depends(AllUserAuth())):
+    datas, count = await crud.UrlsDal(auth.db).get_datas(**p.dict(), v_return_count=True)
+    return SuccessResponse(datas, count=count)
+
+
+@app.post("/createurls", summary="创建小红书资源原链接")
+async def create_urls(data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.UrlsDal(auth.db).create_data(data=data))
+
+
+@app.delete("/delurls", summary="删除小红书资源原链接", description="硬删除")
+async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
+    return SuccessResponse("删除成功")
+
+
+@app.delete("/softdelurls", summary="删除小红书资源原链接", description="软删除")
+async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
+    return SuccessResponse("删除成功")
+
+
+@app.put("/urls/{data_id}", summary="更新小红书资源原链接")
+async def put_urls(data_id: int, data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.UrlsDal(auth.db).put_data(data_id, data))
+
+
+@app.get("/urls/{data_id}", summary="获取小红书资源原链接")
+async def get_urls(data_id: int, db: AsyncSession = Depends(db_getter)):
+    schema = schemas.UrlsSimpleOut
+    return SuccessResponse(await crud.UrlsDal(db).get_data(data_id, v_schema=schema))
+
+
+###########################################################
 #                       小红书素材表                        #
 ###########################################################
 
@@ -96,17 +133,15 @@ async def getredbookdownmultiple(links: Links, auth: Auth = Depends(AllUserAuth(
 
 @app.get("/getredbook", summary="获取小红书素材表列表")
 async def get_redbook_list(p: params.RedbookParams = Depends(), auth: Auth = Depends(AllUserAuth())):
-    model = models.RedBook
-    v_options = [joinedload(model.create_user)]
-    # todo: 需要理清关系
-    v_join = [["create_user"]]
-    v_where = [VadminUser.name == "root"]
-
+    v_options = [joinedload(models.RedBook.create_user)]
+    v_join = [["urls"]]
+    v_where = [models.URL.red_book_id == models.RedBook.create_user]
     datas, count = await crud.RedbookDal(auth.db).get_datas(
         **p.dict(),
-        v_return_count=True,
-        v_schema=v_schema,
-        v_options=v_options
+        v_join=v_join,
+        v_where=v_where,
+        v_options=v_options,
+        v_return_count=True
     )
     return SuccessResponse(datas, count=count)
 

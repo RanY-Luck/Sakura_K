@@ -1,1 +1,1 @@
-from .redbook import RedbookParams
+from .redbook import RedbookParams, UrlsParams
