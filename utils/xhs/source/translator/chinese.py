@@ -60,7 +60,8 @@ class Chinese:
 
     work_path_placeholder: str = "程序根路径"
     user_agent_placeholder: str = "默认 UA"
-    cookie_placeholder: str = "内置 Cookie，建议自行设置"
+    cookie_placeholder_true: str = "小红书网页版 Cookie，无需登录，参数已设置"
+    cookie_placeholder_false: str = "小红书网页版 Cookie，无需登录，参数未设置"
     proxy_placeholder: str = "无代理"
 
     settings_title: str = "程序设置"

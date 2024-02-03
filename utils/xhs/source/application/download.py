@@ -42,7 +42,17 @@ class Download:
                 tasks = self.__ready_download_image(urls, path, name, log)
             case _:
                 raise ValueError
-        tasks = [self.__download(url, path, name, format_, log, bar) for url, name, format_ in tasks]
+        tasks = [
+            self.__download(
+                url,
+                path,
+                name,
+                format_,
+                log,
+                bar
+            ) for url,
+                  name,
+                  format_ in tasks]
         await gather(*tasks)
         return path
 
@@ -51,13 +61,25 @@ class Download:
         path.mkdir(exist_ok=True)
         return path
 
-    def __ready_download_video(self, urls: list[str], path: Path, name: str, log) -> list:
+    def __ready_download_video(
+            self,
+            urls: list[str],
+            path: Path,
+            name: str,
+            log
+    ) -> list:
         if any(path.glob(f"{name}.*")):
             logging(log, self.prompt.skip_download(name))
             return []
         return [(urls[0], name, self.video_format)]
 
-    def __ready_download_image(self, urls: list[str], path: Path, name: str, log) -> list:
+    def __ready_download_image(
+            self,
+            urls: list[str],
+            path: Path,
+            name: str,
+            log
+    ) -> list:
         tasks = []
         for i, j in enumerate(urls, start=1):
             file = f"{name}_{i}"
@@ -77,7 +99,7 @@ class Download:
                     response.headers.get("Content-Type")
                 ) or format_
                 temp = self.temp.joinpath(name)
-                real = path.joinpath(name).with_suffix(f".{suffix}")
+                real = path.joinpath(f"{name}.{suffix}")
                 # self.__create_progress(
                 #     bar, int(
                 #         response.headers.get(

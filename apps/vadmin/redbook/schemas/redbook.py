@@ -35,8 +35,7 @@ class RedbookSimpleOut(Redbook):
 
 
 class Urls(BaseModel):
-    red_book_id: int = Field(..., title="None")
-    # todo:url支持列表传递
+    red_book_id: int = Field(..., title="关联表red_book.id")
     url: str = Field(..., title="下载地址")
 
 

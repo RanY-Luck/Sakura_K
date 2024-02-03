@@ -19,7 +19,6 @@ from .static import (
     INFO,
     USERSCRIPT,
     USERAGENT,
-    COOKIE,
     HEADERS,
 )
 from .tools import (

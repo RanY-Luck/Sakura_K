@@ -66,7 +66,7 @@ async def get_urls(data_id: int, db: AsyncSession = Depends(db_getter)):
 async def getredbookdown(link: str | None, auth: Auth = Depends(AllUserAuth())):
     """获取小红书无水印文件,支持单个下载"""
     # 实例对象
-    work_path = "G:\\"  # 作品数据/文件保存根路径，默认值：项目根路径
+    work_path = ""  # 作品数据/文件保存根路径，默认值：项目根路径
     folder_name = "Download"  # 作品文件储存文件夹名称（自动创建），默认值：Download
     user_agent = ""  # 请求头 User-Agent
     cookie = ""  # 小红书网页版 Cookie，无需登录

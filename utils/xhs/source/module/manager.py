@@ -11,7 +11,6 @@ from aiohttp import ClientTimeout
 
 from utils.xhs.source.translator import Chinese
 from utils.xhs.source.translator import English
-from .static import COOKIE
 from .static import HEADERS
 from .static import USERAGENT
 
@@ -19,7 +18,7 @@ __all__ = ["Manager"]
 
 
 class Manager:
-    NAME = compile(r"[^\u4e00-\u9fa5a-zA-Z0-9]")
+    NAME = compile(r"[^\u4e00-\u9fffa-zA-Z0-9！？，。；：“”（）《》]")
 
     def __init__(
             self,
@@ -41,9 +40,8 @@ class Manager:
         self.temp = root.joinpath("./temp")
         self.path = self.__check_path(path)
         self.folder = self.__check_folder(folder)
-        self.blank_headers = HEADERS | {
-            "User-Agent": user_agent or USERAGENT, }
-        self.headers = self.blank_headers | {"Cookie": cookie or COOKIE}
+        self.blank_headers = HEADERS | {"User-Agent": user_agent or USERAGENT, }
+        self.headers = self.blank_headers | {"Cookie": cookie}
         self.retry = retry
         self.chunk = chunk
         self.record_data = record_data
