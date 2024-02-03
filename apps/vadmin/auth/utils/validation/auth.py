@@ -7,23 +7,23 @@
 # @Software: PyCharm
 # @desc    : 用户凭证验证装饰器
 
-from datetime import timedelta, datetime
-
-import jwt
 from fastapi import Request
+import jwt
 from pydantic import BaseModel
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from application import settings
-from apps.vadmin.auth.crud import UserDal
+from sqlalchemy.ext.asyncio import AsyncSession
 from apps.vadmin.auth.models import VadminUser
 from core.exception import CustomException
 from utils import status
+from datetime import timedelta, datetime
+from apps.vadmin.auth.crud import UserDal
 
 
 class Auth(BaseModel):
     user: VadminUser = None
     db: AsyncSession
+    data_range: int | None = None
+    dept_ids: list | None = []
 
     class Config:
         # 接收任意类型
@@ -103,7 +103,10 @@ class AuthValidation:
             request.scope["body"] = "获取失败"
         if is_all:
             return Auth(user=user, db=db)
-        data_range, dept_ids = await cls.get_user_data_range(user, db)
+        if user.roles:
+            data_range, dept_ids = await cls.get_user_data_range(user, db)
+        else:
+            raise ValueError("用户角色不能为空.")
         return Auth(user=user, db=db, data_range=data_range, dept_ids=dept_ids)
 
     @classmethod
