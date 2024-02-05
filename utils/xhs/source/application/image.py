@@ -13,26 +13,16 @@ class Image:
                 return [
                     Html.format_url(
                         cls.__generate_png_link(
-                            cls.__extract_png_token(
-                                Namespace.object_extract(
-                                    i,
-                                    "urlDefault"
-                                )
-                            )
-                        )
-                    ) for i in images]
+                            cls.__extract_png_token(Namespace.object_extract(
+                                i,
+                                "urlDefault")))) for i in images]
             case "webp":
                 return [
                     Html.format_url(
                         cls.__generate_webp_link(
-                            cls.__extract_webp_token(
-                                Namespace.object_extract(
-                                    i,
-                                    "urlDefault"
-                                )
-                            )
-                        )
-                    ) for i in images]
+                            cls.__extract_webp_token(Namespace.object_extract(
+                                i,
+                                "urlDefault")))) for i in images]
         raise ValueError
 
     @staticmethod

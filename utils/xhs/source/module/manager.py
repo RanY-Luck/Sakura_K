@@ -40,7 +40,8 @@ class Manager:
         self.temp = root.joinpath("./temp")
         self.path = self.__check_path(path)
         self.folder = self.__check_folder(folder)
-        self.blank_headers = HEADERS | {"User-Agent": user_agent or USERAGENT, }
+        self.blank_headers = HEADERS | {
+            "User-Agent": user_agent or USERAGENT, }
         self.headers = self.blank_headers | {"Cookie": cookie}
         self.retry = retry
         self.chunk = chunk
@@ -55,8 +56,7 @@ class Manager:
         )
         self.download_session = ClientSession(
             headers=self.blank_headers,
-            timeout=ClientTimeout(connect=timeout)
-        )
+            timeout=ClientTimeout(connect=timeout))
         self.prompt = language
 
     def __check_path(self, path: str) -> Path:
@@ -113,7 +113,7 @@ class Manager:
             return
         with path.joinpath(f"{name}.txt").open("a", encoding="utf-8") as f:
             time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            content = f"{time.center(50, '=')}\n{dumps(data, indent=4, ensure_ascii=False)}\n"
+            content = f"{time.center(50,'=')}\n{dumps(data,indent=4,ensure_ascii=False)}\n"
             f.write(content)
 
     async def close(self):

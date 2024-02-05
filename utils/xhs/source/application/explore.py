@@ -47,8 +47,7 @@ class Explore:
 
     def __extract_time(self, container: dict, data: Namespace):
         container["发布时间"] = datetime.fromtimestamp(
-            time /
-            1000
+            time / 1000
         ).strftime(
             self.time_format
         ) if (

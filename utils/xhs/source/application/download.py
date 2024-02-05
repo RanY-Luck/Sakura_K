@@ -49,10 +49,9 @@ class Download:
                 name,
                 format_,
                 log,
-                bar
-            ) for url,
-                  name,
-                  format_ in tasks]
+                bar) for url,
+            name,
+            format_ in tasks]
         await gather(*tasks)
         return path
 
@@ -66,8 +65,7 @@ class Download:
             urls: list[str],
             path: Path,
             name: str,
-            log
-    ) -> list:
+            log) -> list:
         if any(path.glob(f"{name}.*")):
             logging(log, self.prompt.skip_download(name))
             return []
@@ -78,8 +76,7 @@ class Download:
             urls: list[str],
             path: Path,
             name: str,
-            log
-    ) -> list:
+            log) -> list:
         tasks = []
         for i, j in enumerate(urls, start=1):
             file = f"{name}_{i}"
@@ -96,8 +93,7 @@ class Download:
                 if response.status != 200:
                     return False
                 suffix = self.__extract_type(
-                    response.headers.get("Content-Type")
-                ) or format_
+                    response.headers.get("Content-Type")) or format_
                 temp = self.temp.joinpath(name)
                 real = path.joinpath(f"{name}.{suffix}")
                 # self.__create_progress(
@@ -113,8 +109,6 @@ class Download:
             logging(log, self.prompt.download_success(name))
             return True
         except ClientError as error:
-            self.manager.delete(temp)
-            # self.__create_progress(bar, None)
             logging(log, str(error), ERROR)
             logging(log, self.prompt.download_error(name), ERROR)
             return False

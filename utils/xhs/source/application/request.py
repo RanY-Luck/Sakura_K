@@ -27,6 +27,7 @@ class Html:
             async with self.session.get(
                     url,
                     proxy=self.proxy,
+                    ssl=False,
                     **kwargs,
             ) as response:
                 if response.status != 200:

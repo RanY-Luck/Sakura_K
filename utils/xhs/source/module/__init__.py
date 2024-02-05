@@ -48,7 +48,6 @@ __all__ = [
     "INFO",
     "USERSCRIPT",
     "USERAGENT",
-    "COOKIE",
     "HEADERS",
     "retry",
     "logging",

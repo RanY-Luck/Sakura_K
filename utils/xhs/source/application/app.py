@@ -5,7 +5,9 @@ from asyncio import gather
 from asyncio import sleep
 from contextlib import suppress
 from re import compile
+
 from pyperclip import paste
+
 from utils.xhs.source.expansion import Converter
 from utils.xhs.source.expansion import Namespace
 from utils.xhs.source.module import Manager
@@ -43,17 +45,17 @@ class XHS:
 
     def __init__(
             self,
-            work_path="",
-            folder_name="Download",
-            user_agent: str = None,
-            cookie: str = None,
-            proxy: str = None,
-            timeout=10,
-            chunk=1024 * 1024,
-            max_retry=5,
-            record_data=False,
-            image_format="PNG",
-            folder_mode=False,
+            work_path="",  # 作品数据/文件保存根路径，默认值：项目根路径
+            folder_name="Download",  # 作品文件储存文件夹名称（自动创建），默认值：Download
+            user_agent: str = None,  # 请求头 User-Agent
+            cookie: str = None,  # 小红书网页版 Cookie，无需登录
+            proxy: str = None,  # 网络代理
+            timeout=10,  # 请求数据超时限制，单位：秒，默认值：10
+            chunk=1024 * 1024,  # 下载文件时，每次从服务器获取的数据块大小，单位：字节
+            max_retry=5,  # 请求数据失败时，重试的最大次数，单位：秒，默认值：5
+            record_data=True,  # 是否记录作品数据至文件
+            image_format="PNG",  # 图文作品文件下载格式，支持：PNG、WEBP
+            folder_mode=False,  # 是否将每个作品的文件储存至单独的文件夹
             language="zh-CN",
             language_object: Chinese | English = None,
     ):
@@ -94,14 +96,17 @@ class XHS:
     async def __download_files(self, container: dict, download: bool, log, bar):
         name = self.__naming_rules(container)
         path = self.manager.folder
-        if (u := container["下载地址"]) and download:
-            path = await self.download.run(u, name, container["作品类型"], log, bar)
-        elif not u:
-            logging(log, self.prompt.download_link_error, ERROR)
-        self.manager.save_data(path, name, container)
+        try:
+            if (u := container["下载地址"]) and download:
+                path = await self.download.run(u, name, container["作品类型"], log, bar)
+            elif not u:
+                logging(log, self.prompt.download_link_error, ERROR)
+            self.manager.save_data(path, name, container)
+        except Exception as e:
+            raise e
 
     async def extract(self, url: str, download=False, efficient=False, log=None, bar=None) -> list[dict]:
-        # return  # 调试代码
+        # return url  # 调试代码
         urls = await self.__extract_links(url, log)
         if not urls:
             logging(log, self.prompt.extract_link_failure, WARNING)
@@ -114,9 +119,7 @@ class XHS:
         urls = []
         for i in url.split():
             if u := self.SHORT.search(i):
-                i = await self.html.request_url(
-                    u.group(), False, log
-                )
+                i = await self.html.request_url(u.group(), False, log)
             if u := self.SHARE.search(i):
                 urls.append(u.group())
             elif u := self.LINK.search(i):
@@ -132,7 +135,6 @@ class XHS:
             return {}
         await self.__suspend(efficient)
         data = self.explore.run(namespace)
-        # logging(log, data)  # 调试代码
         if not data:
             logging(log, self.prompt.extract_data_failure(url), ERROR)
             return {}
@@ -143,8 +145,9 @@ class XHS:
                 self.__extract_image(data, namespace)
             case _:
                 data["下载地址"] = []
-        await self.__download_files(data, download, log, bar)
+        # await self.__download_files(data, download, log, bar)
         logging(log, self.prompt.processing_completed(url))
+        print("你想要的数据--->", data)
         return data
 
     def __generate_data_object(self, html: str) -> Namespace:
@@ -152,7 +155,6 @@ class XHS:
         return Namespace(data)
 
     def __naming_rules(self, data: dict) -> str:
-        """下载文件默认使用 作品标题 或 作品 ID 作为文件名称，可修改此方法自定义文件名称格式"""
         time_ = data["发布时间"].replace(":", ".")
         author = self.manager.filter_name(data["作者昵称"]) or data["作者ID"]
         title = self.manager.filter_name(data["作品标题"]) or data["作品ID"]
