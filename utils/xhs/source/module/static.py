@@ -5,13 +5,6 @@ __all__ = [
     "VERSION_MINOR",
     "VERSION_BETA",
     "ROOT",
-    "REPOSITORY",
-    "LICENCE",
-    "RELEASES",
-    "MASTER",
-    "PROMPT",
-    "GENERAL",
-    "PROGRESS",
     "ERROR",
     "WARNING",
     "INFO",
@@ -25,9 +18,6 @@ VERSION_MINOR = 8
 VERSION_BETA = True
 ROOT = Path(__file__).resolve().parent.parent.parent
 
-REPOSITORY = "https://github.com/JoeanAmier/XHS-Downloader"
-LICENCE = "GNU General Public License v3.0"
-RELEASES = "https://github.com/JoeanAmier/XHS-Downloader/releases/latest"
 
 USERSCRIPT = "https://raw.githubusercontent.com/JoeanAmier/XHS-Downloader/master/static/XHS-Downloader.js"
 
@@ -51,10 +41,6 @@ USERAGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 "
     "Safari/537.36 Edg/121.0.0.0")
 
-MASTER = "b #fff200"
-PROMPT = "b turquoise2"
-GENERAL = "b bright_white"
-PROGRESS = "b bright_magenta"
 ERROR = "b bright_red"
 WARNING = "b bright_yellow"
 INFO = "b bright_green"
