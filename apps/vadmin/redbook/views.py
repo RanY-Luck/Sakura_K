@@ -5,6 +5,8 @@
 # @File           : views.py
 # @IDE            : PyCharm
 # @desc           : 路由，视图文件
+import json
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -92,7 +94,8 @@ async def getredbookdown(link: str | None, auth: Auth = Depends(AllUserAuth())):
     ) as xhs:  # 使用自定义参数
         download = True  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
-        print(await xhs.extract(link))  # 下载单个作品
+        await xhs.extract(link)  # 下载单个作品
+        # print(await xhs.extract(link))  # 下载单个作品
     return SuccessResponse()
 
 

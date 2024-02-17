@@ -17,10 +17,10 @@ SQLALCHEMY_DATABASE_URL = "mysql+asyncmy://username:password@host:port/dbname"
 """
 Redis 数据库配置项
 连接Redis引擎官方文档：https://redis.io/docs/
-Redis链接配置说明：Redis://:密码@地址:端口/数据库
+Redis链接配置说明：redis://:密码@地址:端口/数据库
 """
 REDIS_DB_ENABLE = True
-REDIS_DB_URL = "Redis://:123456@127.0.0.1:6379/0"
+REDIS_DB_URL = "redis://:123456@127.0.0.1:6379/0"
 
 """
 MongoDB 数据库配置项

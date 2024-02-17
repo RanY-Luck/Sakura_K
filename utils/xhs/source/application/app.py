@@ -147,7 +147,7 @@ class XHS:
                 data["下载地址"] = []
         # await self.__download_files(data, download, log, bar)
         logging(log, self.prompt.processing_completed(url))
-        print("你想要的数据--->", data)
+        print(f"{self.prompt.start_processing(url)},你想要的数据--->{data}", )
         return data
 
     def __generate_data_object(self, html: str) -> Namespace:
