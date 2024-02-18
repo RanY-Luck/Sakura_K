@@ -1,5 +1,5 @@
 """
-@Project : Sakura_K
+@Project : sakura_k
 @File    : views.py
 @IDE     : PyCharm
 @Author  : RanY

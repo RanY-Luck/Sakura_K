@@ -28,7 +28,7 @@ MongoDB 数据库配置项
 MongoDB链接配置说明：mongodb://用户名:密码@地址:端口/?authSource={MONGO_DB_NAME}
 """
 MONGO_DB_ENABLE = True
-MONGO_DB_NAME = "Sakura_k"
+MONGO_DB_NAME = "sakura_k"
 MONGO_DB_URL = f"mongodb://127.0.0.1:27017/?authSource={MONGO_DB_NAME}"
 
 """

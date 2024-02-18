@@ -43,7 +43,7 @@ def create_app():
     :return:
     """
     app = FastAPI(
-        title="Sakura_K",  # 标题
+        title="sakura_k",  # 标题
         version=settings.VERSION,  # 版本号
         description=settings.PROJECT_DESCRIPTION,  # Swagger描述
         lifespan=lifespan,  # 指定了应用程序的生命周期管理器

@@ -18,6 +18,7 @@ bin-release/
 # information for Eclipse / Flash Builder.
 docker_env/mysql/data/
 docker_env/redis/data/
+docker_env/mongo/data/
 */.idea
 dvadmin-doc/docs/.vuepress/dist
 application/config/development.py
@@ -27,3 +28,4 @@ alembic.ini
 __pycache__
 logs/*
 !logs/.gitkeep
+

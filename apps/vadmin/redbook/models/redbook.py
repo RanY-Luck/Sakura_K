@@ -1,5 +1,5 @@
 """
-@Project : Sakura_K
+@Project : sakura_k
 @File    : XHS-SDK.py
 @IDE     : PyCharm
 @Author  : RanY

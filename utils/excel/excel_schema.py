@@ -1,5 +1,5 @@
 """
-@Project : Sakura_K
+@Project : sakura_k
 @File    : excel_schema.py
 @IDE     : PyCharm
 @Author  : RanY
