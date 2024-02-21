@@ -5,7 +5,6 @@
 # @File           : views.py
 # @IDE            : PyCharm
 # @desc           : 路由，视图文件
-import json
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -94,9 +93,8 @@ async def getredbookdown(link: str | None, auth: Auth = Depends(AllUserAuth())):
     ) as xhs:  # 使用自定义参数
         download = True  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
-        await xhs.extract(link)  # 下载单个作品
-        # print(await xhs.extract(link))  # 下载单个作品
-    return SuccessResponse()
+        data = await xhs.extract(link, download)
+    return SuccessResponse(data=data)
 
 
 @app.put("/redbookdownmultiple", summary="获取小红书无水印文件,支持批量下载")
@@ -104,7 +102,7 @@ async def getredbookdownmultiple(links: Links, auth: Auth = Depends(AllUserAuth(
     """获取小红书无水印文件,支持批量下载"""
     multiple_links = " ".join(links.link or [])
     # 实例对象
-    work_path = "G:\\"  # 作品数据/文件保存根路径，默认值：项目根路径
+    work_path = ""  # 作品数据/文件保存根路径，默认值：项目根路径
     folder_name = "Download"  # 作品文件储存文件夹名称（自动创建），默认值：Download
     user_agent = ""  # 请求头 User-Agent
     cookie = ""  # 小红书网页版 Cookie，无需登录
@@ -130,8 +128,8 @@ async def getredbookdownmultiple(links: Links, auth: Auth = Depends(AllUserAuth(
     ) as xhs:  # 使用自定义参数
         download = True  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
-        print(await xhs.extract(multiple_links, download))  # 支持传入多个作品链接
-    return SuccessResponse()
+        data = await xhs.extract(multiple_links, download)
+    return SuccessResponse(data=data)
 
 
 @app.get("/getredbook", summary="获取小红书素材表列表")

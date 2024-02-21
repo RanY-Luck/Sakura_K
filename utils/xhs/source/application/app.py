@@ -105,7 +105,7 @@ class XHS:
         except Exception as e:
             raise e
 
-    async def extract(self, url: str, download=False, efficient=False, log=None, bar=None) -> list[dict]:
+    async def extract(self, url: str, download=True, efficient=False, log=None, bar=None) -> list[dict]:
         # return url  # 调试代码
         urls = await self.__extract_links(url, log)
         if not urls:
@@ -145,7 +145,7 @@ class XHS:
                 self.__extract_image(data, namespace)
             case _:
                 data["下载地址"] = []
-        # await self.__download_files(data, download, log, bar)
+        await self.__download_files(data, download, log, bar)
         logging(log, self.prompt.processing_completed(url))
         print(f"{self.prompt.start_processing(url)},你想要的数据--->{data}", )
         return data

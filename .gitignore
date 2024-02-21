@@ -28,4 +28,5 @@ alembic.ini
 __pycache__
 logs/*
 !logs/.gitkeep
+utils/xhs/Download
 
