@@ -1,1 +1,1 @@
-from .redbook import Redbook, RedbookSimpleOut, Links, Urls, UrlsSimpleOut
+from .redbook import Redbook, RedbookSimpleOut, Links, Urls, UrlsSimpleOut, RedBookConfig
