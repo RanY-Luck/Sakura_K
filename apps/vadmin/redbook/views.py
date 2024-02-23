@@ -7,12 +7,10 @@
 # @desc           : 路由，视图文件
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from apps.vadmin.auth.utils.current import AllUserAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
-from core.database import db_getter
 from core.dependencies import IdList
 from utils.response import SuccessResponse
 from utils.xhs.source import XHS
@@ -23,47 +21,10 @@ app = APIRouter()
 
 
 ###########################################################
-#                       小红书url表                        #
-###########################################################
-@app.get("/geturls", summary="获取小红书资源原链接")
-async def get_urls_list(p: params.UrlsParams = Depends(), auth: Auth = Depends(AllUserAuth())):
-    datas, count = await crud.UrlsDal(auth.db).get_datas(**p.dict(), v_return_count=True)
-    return SuccessResponse(datas, count=count)
-
-
-@app.post("/createurls", summary="创建小红书资源原链接")
-async def create_urls(data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.UrlsDal(auth.db).create_data(data=data))
-
-
-@app.delete("/delurls", summary="删除小红书资源原链接", description="硬删除")
-async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
-    await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
-    return SuccessResponse("删除成功")
-
-
-@app.delete("/softdelurls", summary="删除小红书资源原链接", description="软删除")
-async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
-    await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
-    return SuccessResponse("删除成功")
-
-
-@app.put("/urls/{data_id}", summary="更新小红书资源原链接")
-async def put_urls(data_id: int, data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.UrlsDal(auth.db).put_data(data_id, data))
-
-
-@app.get("/urls/{data_id}", summary="获取小红书资源原链接")
-async def get_urls(data_id: int, db: AsyncSession = Depends(db_getter)):
-    schema = schemas.UrlsSimpleOut
-    return SuccessResponse(await crud.UrlsDal(db).get_data(data_id, v_schema=schema))
-
-
-###########################################################
-#                       小红书素材表                        #
+#                     小红书作品下载                        #
 ###########################################################
 
-@app.put("/redbookdown", summary="获取小红书无水印文件,支持单个下载")
+@app.post("/redbookdown", summary="获取小红书作品信息,支持单个下载")
 async def getredbookdown(
         link: str = Query(..., description="小红书链接"),
         config: RedBookConfig = RedBookConfig(),
@@ -79,7 +40,7 @@ async def getredbookdown(
     return SuccessResponse(data=data)
 
 
-@app.put("/redbookdownmultiple", summary="获取小红书无水印文件,支持批量下载")
+@app.post("/redbookdownmultiple", summary="获取小红书作品信息,支持批量下载")
 async def getredbookdownmultiple(
         links: Links,
         auth: Auth = Depends(AllUserAuth())
@@ -117,6 +78,42 @@ async def getredbookdownmultiple(
     return SuccessResponse(data=data)
 
 
+###########################################################
+#                      小红书无水印表                       #
+###########################################################
+@app.get("/geturls", summary="获取小红书无水印原链接")
+async def get_urls_list(p: params.UrlsParams = Depends(), auth: Auth = Depends(AllUserAuth())):
+    datas, count = await crud.UrlsDal(auth.db).get_datas(**p.dict(), v_return_count=True)
+    return SuccessResponse(datas, count=count)
+
+
+@app.post("/createurls", summary="创建小红书无水印原链接")
+async def create_urls(data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.UrlsDal(auth.db).create_data(data=data))
+
+
+@app.put("/urls/{data_id}", summary="更新小红书无水印原链接")
+async def put_urls(data_id: int, data: schemas.Urls, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.UrlsDal(auth.db).put_data(data_id, data))
+
+
+@app.delete("/delurls", summary="删除小红书无水印原链接", description="硬删除")
+async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
+    return SuccessResponse("删除成功")
+
+
+@app.delete("/softdelurls", summary="删除小红书无水印原链接", description="软删除")
+async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.UrlsDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
+    return SuccessResponse("删除成功")
+
+
+
+
+###########################################################
+#                       小红书素材表                        #
+###########################################################
 @app.get("/getredbook", summary="获取小红书素材表列表")
 async def get_redbook_list(p: params.RedbookParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     v_options = [joinedload(models.RedBook.create_user)]
@@ -137,6 +134,11 @@ async def create_redbook(data: schemas.Redbook, auth: Auth = Depends(AllUserAuth
     return SuccessResponse(await crud.RedbookDal(auth.db).create_data(data=data))
 
 
+@app.put("/redbook/{data_id}", summary="更新小红书素材表")
+async def put_redbook(data_id: int, data: schemas.Redbook, auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.RedbookDal(auth.db).put_data(data_id, data))
+
+
 @app.delete("/delredbook", summary="删除小红书素材表", description="硬删除")
 async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.RedbookDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
@@ -148,13 +150,8 @@ async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllU
     await crud.RedbookDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")
 
-
-@app.put("/redbook/{data_id}", summary="更新小红书素材表")
-async def put_redbook(data_id: int, data: schemas.Redbook, auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.RedbookDal(auth.db).put_data(data_id, data))
-
-
-@app.get("/redbook/{data_id}", summary="获取小红书素材表信息")
-async def get_redbook(data_id: int, db: AsyncSession = Depends(db_getter)):
-    schema = schemas.RedbookSimpleOut
-    return SuccessResponse(await crud.RedbookDal(db).get_data(data_id, v_schema=schema))
+# @app.get("/urls/{data_id}", summary="获取小红书信息+无水印)
+# async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
+# todo: 查表red_book_urls的url
+#     schema = schemas.RedbookSimpleOut
+#     return SuccessResponse(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
