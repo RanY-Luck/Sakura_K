@@ -6,7 +6,7 @@
 # @IDE            : PyCharm
 # @desc           : 路由，视图文件
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
@@ -98,7 +98,7 @@ async def get_urls(data_id: int, db: AsyncSession = Depends(db_getter)):
 
 @app.put("/redbookdown", summary="获取小红书无水印文件,支持单个下载")
 async def getredbookdown(
-        link: str | None,
+        link: str = Query(..., description="小红书链接"),
         config: RedBookConfig = RedBookConfig(),
         auth: Auth = Depends(AllUserAuth())
 ):
@@ -112,43 +112,65 @@ async def getredbookdown(
     return SuccessResponse(data=data)
 
 
+# async def download_multiple_links(links: Links, config: RedBookConfig):
+async def download_multiple_links(links: Links, config: RedBookConfig = RedBookConfig()):
+    multiple_links = " ".join(links.link or [])
+    async with XHS(
+            **config.model_dump()
+    ) as xhs:
+        download = True  # 是否下载作品文件，默认值：False
+        return await xhs.extract(multiple_links, download)
+
+
 @app.put("/redbookdownmultiple", summary="获取小红书无水印文件,支持批量下载")
-async def getredbookdownmultiple(
+async def get_redbook_down_multiple(
         links: Links,
-        auth: Auth = Depends(AllUserAuth())
+        auth: Auth = Depends(AllUserAuth()),
+        config: RedBookConfig = RedBookConfig()  # 使用默认配置
 ):
     """获取小红书无水印文件,支持批量下载"""
-    multiple_links = " ".join(links.link or [])
-    # 实例对象
-    work_path = ""  # 作品数据/文件保存根路径，默认值：项目根路径
-    folder_name = "Download"  # 作品文件储存文件夹名称（自动创建），默认值：Download
-    user_agent = ""  # 请求头 User-Agent
-    cookie = ""  # 小红书网页版 Cookie，无需登录
-    proxy = None  # 网络代理
-    timeout = 5  # 请求数据超时限制，单位：秒，默认值：10
-    chunk = 1024 * 1024 * 10  # 下载文件时，每次从服务器获取的数据块大小，单位：字节
-    max_retry = 5  # 请求数据失败时，重试的最大次数，单位：秒，默认值：5
-    record_data = True  # 是否记录作品数据至文件
-    image_format = "PNG"  # 图文作品文件下载格式，支持：PNG、WEBP
-    folder_mode = True  # 是否将每个作品的文件储存至单独的文件夹
-    async with XHS(
-            work_path=work_path,
-            folder_name=folder_name,
-            user_agent=user_agent,
-            cookie=cookie,
-            proxy=proxy,
-            timeout=timeout,
-            chunk=chunk,
-            max_retry=max_retry,
-            record_data=record_data,
-            image_format=image_format,
-            folder_mode=folder_mode,
-    ) as xhs:  # 使用自定义参数
-        download = True  # 是否下载作品文件，默认值：False
-        # 返回作品详细信息，包括下载地址
-        data = await xhs.extract(multiple_links, download)
-        # todo: 如果没有输入url，则判断报错
+    data = await download_multiple_links(links, config)
     return SuccessResponse(data=data)
+
+
+# 历史老代码
+# @app.put("/redbookdownmultiple", summary="获取小红书无水印文件,支持批量下载")
+# async def getredbookdownmultiple(
+#         links: Links,
+#         auth: Auth = Depends(AllUserAuth())
+# ):
+#     """获取小红书无水印文件,支持批量下载"""
+#     multiple_links = " ".join(links.link or [])
+#     # 实例对象
+#     work_path = ""  # 作品数据/文件保存根路径，默认值：项目根路径
+#     folder_name = "Download"  # 作品文件储存文件夹名称（自动创建），默认值：Download
+#     user_agent = ""  # 请求头 User-Agent
+#     cookie = ""  # 小红书网页版 Cookie，无需登录
+#     proxy = None  # 网络代理
+#     timeout = 5  # 请求数据超时限制，单位：秒，默认值：10
+#     chunk = 1024 * 1024 * 10  # 下载文件时，每次从服务器获取的数据块大小，单位：字节
+#     max_retry = 5  # 请求数据失败时，重试的最大次数，单位：秒，默认值：5
+#     record_data = True  # 是否记录作品数据至文件
+#     image_format = "PNG"  # 图文作品文件下载格式，支持：PNG、WEBP
+#     folder_mode = True  # 是否将每个作品的文件储存至单独的文件夹
+#     async with XHS(
+#             work_path=work_path,
+#             folder_name=folder_name,
+#             user_agent=user_agent,
+#             cookie=cookie,
+#             proxy=proxy,
+#             timeout=timeout,
+#             chunk=chunk,
+#             max_retry=max_retry,
+#             record_data=record_data,
+#             image_format=image_format,
+#             folder_mode=folder_mode,
+#     ) as xhs:  # 使用自定义参数
+#         download = True  # 是否下载作品文件，默认值：False
+#         # 返回作品详细信息，包括下载地址
+#         data = await xhs.extract(multiple_links, download)
+#         # todo: 如果没有输入url，则判断报错
+#     return SuccessResponse(data=data)
 
 
 @app.get("/getredbook", summary="获取小红书素材表列表")
