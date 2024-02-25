@@ -47,7 +47,7 @@ class UrlsSimpleOut(Urls):
 
 
 class Links(BaseModel):
-    # link: Optional[List[str]] = Query(None, description="多个链接，逗号分隔")
+    """多个URL"""
     link: Optional[List[str]] = Field(..., description="多个链接，逗号分隔")
 
 
