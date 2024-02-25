@@ -13,7 +13,7 @@ from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是
 """
 系统版本
 """
-VERSION = "3.6.5"
+VERSION = "3.7.0"
 
 """
 Banner
@@ -110,8 +110,6 @@ TEMP_URL：路由访问
 TEMP_DIR：临时文件目录绝对地址
 官方文档：https://fastapi.tiangolo.com/tutorial/static-files/
 """
-TEMP_ENABLE = True
-TEMP_URL = "/temp"
 TEMP_DIR = os.path.join(BASE_DIR, "temp")
 
 """
