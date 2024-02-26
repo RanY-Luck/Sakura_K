@@ -6,7 +6,7 @@ __all__ = ['Explore']
 
 
 class Explore:
-    time_format = "%Y-%m-%d_%H:%M:%S"
+    time_format = "%Y-%m-%d %H:%M:%S"
     explore_type = {"video": "视频", "normal": "图文"}
 
     def run(self, data: Namespace) -> dict:
@@ -46,19 +46,10 @@ class Explore:
         container["IP归属地"] = data.safe_extract("ipLocation")
 
     def __extract_time(self, container: dict, data: Namespace):
-        container["发布时间"] = datetime.fromtimestamp(
-            time / 1000
-        ).strftime(
-            self.time_format
-        ) if (
-            time := data.safe_extract("time")) else "未知"
-        container["最后更新时间"] = datetime.fromtimestamp(
-            last /
-            1000
-        ).strftime(
-            self.time_format
-        ) if (
-            last := data.safe_extract("lastUpdateTime")) else "未知"
+        container["发布时间"] = datetime.fromtimestamp(time / 1000).strftime(self.time_format) \
+            if (time := data.safe_extract("time")) else "未知"
+        container["最后更新时间"] = datetime.fromtimestamp(last / 1000).strftime(self.time_format) \
+            if (last := data.safe_extract("lastUpdateTime")) else "未知"
 
     @staticmethod
     def __extract_user(container: dict, data: Namespace):
