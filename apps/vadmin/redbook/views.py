@@ -109,20 +109,14 @@ async def delete_urls_list(ids: IdList = Depends(), auth: Auth = Depends(AllUser
     return SuccessResponse("删除成功")
 
 
-
-
 ###########################################################
 #                       小红书素材表                        #
 ###########################################################
 @app.get("/getredbook", summary="获取小红书素材表列表")
 async def get_redbook_list(p: params.RedbookParams = Depends(), auth: Auth = Depends(AllUserAuth())):
     v_options = [joinedload(models.RedBook.create_user)]
-    v_join = [["urls"]]
-    v_where = [models.URL.red_book_id == models.RedBook.create_user]
     datas, count = await crud.RedbookDal(auth.db).get_datas(
         **p.dict(),
-        v_join=v_join,
-        v_where=v_where,
         v_options=v_options,
         v_return_count=True
     )
@@ -150,8 +144,21 @@ async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllU
     await crud.RedbookDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")
 
-# @app.get("/urls/{data_id}", summary="获取小红书信息+无水印)
-# async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
-# todo: 查表red_book_urls的url
-#     schema = schemas.RedbookSimpleOut
-#     return SuccessResponse(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
+
+@app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
+async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
+    schema = schemas.RedbookSimpleOut
+    return SuccessResponse(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
+
+# @app.get("/redbookurls/{id}", summary="获取小红书信息+无水印链接")
+# async def get_issue_categorys(id: int, auth: Auth = Depends(AllUserAuth())):
+#     model = models.RedBook
+#     options = [joinedload(model.create_user)]
+#     schema = schemas.RedbookUrlsSimpleOut
+#     datas, count = await crud.UrlsDal(auth.db).get_datas(
+#         id,
+#         v_options=options,
+#         v_schema=schema,
+#         v_return_count=True
+#     )
+#     return SuccessResponse(datas, count=count)

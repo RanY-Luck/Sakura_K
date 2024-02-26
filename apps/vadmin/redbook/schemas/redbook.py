@@ -46,6 +46,9 @@ class UrlsSimpleOut(Urls):
     update_datetime: DatetimeStr = Field(..., title="更新时间")
 
 
+# 需要写pydantic类型
+
+
 class Links(BaseModel):
     """多个URL"""
     link: Optional[List[str]] = Field(..., description="多个链接，逗号分隔")
