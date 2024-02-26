@@ -67,8 +67,6 @@ def create_app():
     # 此外，如果启用了静态文件服务，使用 StaticFiles 中间件来挂载静态目录。
     if settings.STATIC_ENABLE:
         app.mount(settings.STATIC_URL, app=StaticFiles(directory=settings.STATIC_ROOT))
-    if settings.TEMP_ENABLE:
-        app.mount(settings.TEMP_URL, app=StaticFiles(directory=settings.TEMP_DIR))
     # 引入应用中的路由
     for url in urls.urlpatterns:
         # 最后，使用 include_router 方法来引入应用程序中的路由。

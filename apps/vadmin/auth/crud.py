@@ -250,7 +250,7 @@ class UserDal(DalBase):
             gender_objs = await vadmin_system_crud.DictTypeDal(self.db).get_dicts_details(["sys_vadmin_gender"])
             sys_vadmin_gender = gender_objs.get('sys_vadmin_gender', [])
             gender_options = [{"label": i["label"], "value": i["value"]} for i in sys_vadmin_gender]
-            options["gender_options"]
+            options["gender_options"] = gender_options
         return options
 
     async def get_import_headers_options(self) -> None:
@@ -259,16 +259,16 @@ class UserDal(DalBase):
         :return:
         """
         # 角色选择项
-        roles_options = await RoleDal(self.db).get_datas(limit=0, v_return_objs=True, disabled=False, is_admin=False)
+        role_options = await RoleDal(self.db).get_datas(limit=0, v_return_objs=True, disabled=False, is_admin=False)
         role_item = self.import_headers[4]
         assert isinstance(role_item, dict)
         role_item["options"] = [{"label": role.name, "value": role.id} for role in role_options]
 
         # 性别选择项
-        dict_types_options = await vadmin_system_crud.DictTypeDal(self.db).get_dicts_details(["sys_vadmin_gender"])
+        gender_options = await vadmin_system_crud.DictTypeDal(self.db).get_dicts_details(["sys_vadmin_gender"])
         gender_item = self.import_headers[3]
         assert isinstance(gender_item, dict)
-        sys_vadmin_gender = dict_types_options.get("sys_vadmin_gender")
+        sys_vadmin_gender = gender_options.get("sys_vadmin_gender")
         gender_item["options"] = [{"label": item["label"], "value": item["value"]} for item in sys_vadmin_gender]
 
     async def download_import_template(self) -> dict:

@@ -105,8 +105,6 @@ ACCESS_TOKEN_CACHE_MINUTES = 30
 
 """
 挂载临时文件，并添加路由访问，此路由不会再接口文档中显示
-TEMP_ENABLE：是否启用临时文件目录访问
-TEMP_URL：路由访问
 TEMP_DIR：临时文件目录绝对地址
 官方文档：https://fastapi.tiangolo.com/tutorial/static-files/
 """
