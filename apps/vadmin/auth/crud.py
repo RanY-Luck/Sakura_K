@@ -20,7 +20,6 @@ from sqlalchemy.orm import joinedload, aliased
 from sqlalchemy.orm.strategy_options import _AbstractLoad, contains_eager
 
 from application import settings
-from apps.vadmin.help import models as vadmin_help_models
 from apps.vadmin.system import crud as vadmin_system_crud
 from core.crud import DalBase
 from core.exception import CustomException
@@ -988,26 +987,3 @@ class TestDal(DalBase):
         result3 = queryset3.unique().all()
         for data in result3:
             print(f"用户编号：{data.id} 用户名称：{data.name}")
-
-    async def relationship_where_operations_has(self):
-        """
-        关系运算符操作： has 方法使用示例
-        官方文档： https://docs.sqlalchemy.org/en/20/orm/queryguide/select.html#relationship-where-operators
-
-        has 方法用于多对一关系中，与 any 方法使用方式同理，只有满足条件的元素才会被查询出来。
-
-        对多关系中使用 has 方法会报错，报错内容如下：
-        sqlalchemy.exc.InvalidRequestError: 'has()' not implemented for collections.  Use any().
-        :return:
-        """
-        print("==============================has 方法使用案例1=========================================")
-        # 用户（models.VadminUser）与 帮助问题（models.VadminIssue）为多对一关系
-        # 查找出只有满足关联了用户名称为 "ranyong" 的所有帮助问题，没有关联的则不会查询出来
-        sql1 = select(vadmin_help_models.VadminIssue).where(
-            vadmin_help_models.VadminIssue.create_user.has(models.VadminUser.name == "ranyong")
-        )
-
-        queryset1 = await self.db.scalars(sql1)
-        result1 = queryset1.unique().all()
-        for data in result1:
-            print(f"问题编号：{data.id} 问题标题：{data.title}")

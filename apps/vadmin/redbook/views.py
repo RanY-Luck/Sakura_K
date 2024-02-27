@@ -149,15 +149,7 @@ async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
     schema = schemas.RedbookSimpleOut
     return SuccessResponse(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
 
-# @app.get("/redbookurls/{id}", summary="获取小红书信息+无水印链接")
-# async def get_issue_categorys(id: int, auth: Auth = Depends(AllUserAuth())):
-#     model = models.RedBook
-#     options = [joinedload(model.create_user)]
-#     schema = schemas.RedbookUrlsSimpleOut
-#     datas, count = await crud.UrlsDal(auth.db).get_datas(
-#         id,
-#         v_options=options,
-#         v_schema=schema,
-#         v_return_count=True
-#     )
-#     return SuccessResponse(datas, count=count)
+
+@app.get("/test", summary="接口测试")
+async def test(auth: Auth = Depends(AllUserAuth())):
+    return SuccessResponse(await crud.DeptDal(auth.db).test_join_form())
