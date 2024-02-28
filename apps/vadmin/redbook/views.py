@@ -152,4 +152,4 @@ async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
 
 @app.get("/test", summary="接口测试")
 async def test(auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.DeptDal(auth.db).test_join_form())
+    return SuccessResponse(await crud.RedBookUrlstDal(auth.db).test_join_form())
