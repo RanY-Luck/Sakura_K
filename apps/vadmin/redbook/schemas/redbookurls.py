@@ -7,7 +7,8 @@
 # @Desc     : pydantic 模型，用于数据库序列化操作
 from pydantic import ConfigDict
 
-from apps.vadmin.redbook.schemas import RedbookSimpleOut, UrlsSimpleOut
+from .redbook import RedbookSimpleOut
+from .url import UrlsSimpleOut
 
 
 class RedBookUrlsOut(RedbookSimpleOut):
