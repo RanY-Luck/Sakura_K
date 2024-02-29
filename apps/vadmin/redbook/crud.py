@@ -40,13 +40,13 @@ class RedBookUrlstDal(DalBase):
 
     async def test_join_form(self):
         red_id = 1
-        # sql = select(models.RedBook, models.URL).join_from(
-        sql = select(models.URL, models.RedBook).join_from(
+        # sql: SELECT * FROM red_book JOIN red_book_urls ON red_book.id = red_book_urls.red_book_id WHERE red_book.id = 1;
+        sql = select(models.RedBook, models.URL).join_from(
             models.RedBook, models.URL, models.RedBook.id == models.URL.red_book_id
         ).where(models.RedBook.id == red_id)
         print(sql)
         queryset = await self.db.scalars(sql)
         result = queryset.unique().all()
         for data in result:
-            # print(f"source：{data.source} tags：{data.tags} title：{data.title} {data}")
+            print(f"source：{data.source} tags：{data.tags} title：{data.title} {data}")
             print(f"{data}")
