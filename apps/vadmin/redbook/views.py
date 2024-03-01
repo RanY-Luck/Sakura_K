@@ -6,6 +6,7 @@
 # @IDE            : PyCharm
 # @desc           : 路由，视图文件
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from apps.vadmin.auth.utils.current import AllUserAuth
@@ -144,10 +145,22 @@ async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllU
     return SuccessResponse("删除成功")
 
 
+# @app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
+# async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
+#     schema = schemas.RedbookSimpleOut
+#     return SuccessResponse(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
+
 @app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
 async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
-    schema = schemas.RedbookSimpleOut
-    return SuccessResponse(await crud.RedbookDal(auth.db).get_data(id, v_schema=schema))
+    schema = schemas.RedBookUrlsOut
+    return SuccessResponse(
+        await crud.RedBookUrlstDal(auth.db).get_datas(
+            v_start_sql=select(models.RedBook, models.URL).join_from(models.RedBook, models.URL).where(
+                models.RedBook.id == id
+            ),
+            v_schema=schema
+        )
+    )
 
 
 @app.get("/test", summary="接口测试")
