@@ -23,12 +23,14 @@ async def listen_for_messages():
 async def run_performance_test():
     print("开始压测")
     result = await atomic_bomb_engine.run_async(
-        url="https:baidu.com",
+        url="http://127.0.0.1:9000/docs",
         method="GET",
         test_duration_secs=300,
         concurrent_requests=200,
         timeout_secs=10,
         verbose=False,
+        should_prevent=True,
+        assert_options=[atomic_bomb_engine.assert_option("$.code", 200)]
     )
     print(time.ctime(), result)
 
