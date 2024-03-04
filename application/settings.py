@@ -13,7 +13,7 @@ from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是
 """
 系统版本
 """
-VERSION = "3.7.0"
+VERSION = "3.7.1"
 
 """
 Banner
