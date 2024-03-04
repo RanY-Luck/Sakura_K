@@ -5,13 +5,15 @@
 # @File     : redbookurls.py
 # @Software : PyCharm
 # @Desc     : pydantic 模型，用于数据库序列化操作
+from pydantic import BaseModel
 from pydantic import ConfigDict
 
 from .redbook import RedbookSimpleOut
 from .url import UrlsSimpleOut
 
 
-class RedBookUrlsOut(RedbookSimpleOut):
+class RedBookUrlsOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     urls: UrlsSimpleOut
+    red_book: RedbookSimpleOut

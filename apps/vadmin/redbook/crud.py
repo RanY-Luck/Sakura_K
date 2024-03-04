@@ -5,6 +5,8 @@
 # @File           : crud.py
 # @IDE            : PyCharm
 # @desc           : 数据访问层
+from typing import Any
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -38,16 +40,24 @@ class RedBookUrlstDal(DalBase):
         self.model = models
         self.schema = schemas
 
-    async def test_join_form(self):
-        red_id = 2
+    async def get_redbook_urls(self, red_id: int) -> list[dict[str, Any]]:
         # sql: SELECT * FROM red_book JOIN red_book_urls ON red_book.id = red_book_urls.red_book_id WHERE red_book.id = 1;
         sql = select(models.RedBook, models.URL)
         sql = sql.join_from(models.RedBook, models.URL).where(models.RedBook.id == red_id)
         print(sql)
         queryset = await self.db.execute(sql)
         result = queryset.fetchall()
+        # 将结果转换为 JoinResultSchema 的实例列表
+        serialized_result = []
         for red_book, url in result:
-            print(
-                f"url: {url.url} red_book_id: {url.red_book_id} "
-                f"Source: {red_book.source} tags: {red_book.tags} title: {red_book.title} describe: {red_book.describe}"
+            serialized_result.append(
+                {
+                    'url': url.url,
+                    'red_book_id': url.red_book_id,
+                    'source': red_book.source,
+                    'tags': red_book.tags,
+                    'title': red_book.title,
+                    'describe': red_book.describe
+                }
             )
+        return serialized_result
