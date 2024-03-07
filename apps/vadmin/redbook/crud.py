@@ -73,4 +73,4 @@ class RedBookUrlsDal(DalBase):
                 unique_data.append(item)
             url_list.append(url)
         # 判断为空则返回 null
-        return {"data": unique_data, "urls": url_list} if unique_data else None
+        return {"info": unique_data, "urls": url_list} if unique_data else None
