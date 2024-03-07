@@ -63,4 +63,18 @@ class RedBookUrlstDal(DalBase):
                     'auth_name': red_book.auth_name,
                 }
             )
-        return serialized_result
+        url_list = []
+        unique_data = []
+        red_book_ids = set()
+        for item in serialized_result:
+            url = item['url']
+            red_book_id = item['red_book_id']
+            if red_book_id not in red_book_ids:
+                red_book_ids.add(red_book_id)
+                unique_data.append(item)
+            url_list.append(url)
+        response_data = {
+            "data": unique_data,
+            "urls": url_list
+        }
+        return response_data

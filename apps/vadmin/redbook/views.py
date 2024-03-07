@@ -152,21 +152,7 @@ async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllU
 @app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
 async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
     data = await crud.RedBookUrlstDal(auth.db).get_redbook_urls(red_id=id)
-    url_list = []
-    unique_data = []
-    red_book_ids = set()
-    for item in data:
-        url = item['url']
-        red_book_id = item['red_book_id']
-        if red_book_id not in red_book_ids:
-            red_book_ids.add(red_book_id)
-            unique_data.append(item)
-        url_list.append(url)
-    response_data = {
-        "data": unique_data,
-        "urls": url_list
-    }
-    return SuccessResponse(response_data)
+    return SuccessResponse(data)
 
 
 
