@@ -44,7 +44,6 @@ class RedBookUrlstDal(DalBase):
         # sql: SELECT * FROM red_book JOIN red_book_urls ON red_book.id = red_book_urls.red_book_id WHERE red_book.id = 1;
         sql = select(models.RedBook, models.URL)
         sql = sql.join_from(models.RedBook, models.URL).where(models.RedBook.id == red_id)
-        print(sql)
         queryset = await self.db.execute(sql)
         result = queryset.fetchall()
         # 将结果转换为 JoinResultSchema 的实例列表
@@ -57,7 +56,11 @@ class RedBookUrlstDal(DalBase):
                     'source': red_book.source,
                     'tags': red_book.tags,
                     'title': red_book.title,
-                    'describe': red_book.describe
+                    'describe': red_book.describe,
+                    'type': red_book.type,
+                    'affiliation': red_book.affiliation,
+                    'release_time': red_book.release_time,
+                    'auth_name': red_book.auth_name,
                 }
             )
         return serialized_result

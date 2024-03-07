@@ -6,7 +6,6 @@
 # @IDE            : PyCharm
 # @desc           : 路由，视图文件
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
 from apps.vadmin.auth.utils.current import AllUserAuth
@@ -153,19 +152,22 @@ async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllU
 @app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
 async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
     data = await crud.RedBookUrlstDal(auth.db).get_redbook_urls(red_id=id)
-    return SuccessResponse(data)
+    url_list = []
+    unique_data = []
+    red_book_ids = set()
+    for item in data:
+        url = item['url']
+        red_book_id = item['red_book_id']
+        if red_book_id not in red_book_ids:
+            red_book_ids.add(red_book_id)
+            unique_data.append(item)
+        url_list.append(url)
+    response_data = {
+        "data": unique_data,
+        "urls": url_list
+    }
+    return SuccessResponse(response_data)
 
-
-@app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
-async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
-    v_start_sql = f"SELECT * FROM red_book JOIN red_book_urls ON red_book.id = red_book_urls.red_book_id WHERE red_book.id = {id} AND red_book_urls.red_book_id = {id};"
-    v_select_from = select(models.RedBook, models.URL).join(models.RedBook)
-    data = await crud.RedbookDal(auth.db).get_datas(
-        v_start_sql=v_start_sql
-    )
-    print(v_select_from)
-    print("data", data)
-    return SuccessResponse(data)
 
 
 @app.get("/test", summary="接口测试")
