@@ -32,7 +32,7 @@ class UrlsDal(DalBase):
         self.schema = schemas.UrlsSimpleOut
 
 
-class RedBookUrlstDal(DalBase):
+class RedBookUrlsDal(DalBase):
 
     def __init__(self, db: AsyncSession):
         super(RedBookUrlstDal, self).__init__()
@@ -41,7 +41,6 @@ class RedBookUrlstDal(DalBase):
         self.schema = schemas
 
     async def get_redbook_urls(self, red_id: int) -> list[dict[str, Any]]:
-        # sql: SELECT * FROM red_book JOIN red_book_urls ON red_book.id = red_book_urls.red_book_id WHERE red_book.id = 1;
         sql = select(models.RedBook, models.URL)
         sql = sql.join_from(models.RedBook, models.URL).where(models.RedBook.id == red_id)
         queryset = await self.db.execute(sql)
@@ -73,8 +72,4 @@ class RedBookUrlstDal(DalBase):
                 red_book_ids.add(red_book_id)
                 unique_data.append(item)
             url_list.append(url)
-        response_data = {
-            "data": unique_data,
-            "urls": url_list
-        }
-        return response_data
+        return {"data": unique_data, "urls": url_list}

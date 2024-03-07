@@ -151,11 +151,10 @@ async def delete_redbook_list(ids: IdList = Depends(), auth: Auth = Depends(AllU
 
 @app.get("/urls/{id}", summary="获取小红书信息+无水印链接")
 async def get_urls(id: int, auth: Auth = Depends(AllUserAuth())):
-    data = await crud.RedBookUrlstDal(auth.db).get_redbook_urls(red_id=id)
+    data = await crud.RedBookUrlsDal(auth.db).get_redbook_urls(red_id=id)
     return SuccessResponse(data)
-
 
 
 @app.get("/test", summary="接口测试")
 async def test(auth: Auth = Depends(AllUserAuth())):
-    return SuccessResponse(await crud.RedBookUrlstDal(auth.db).get_redbook_urls())
+    return SuccessResponse(await crud.RedBookUrlsDal(auth.db).get_redbook_urls())
