@@ -35,7 +35,7 @@ class UrlsDal(DalBase):
 class RedBookUrlsDal(DalBase):
 
     def __init__(self, db: AsyncSession):
-        super(RedBookUrlstDal, self).__init__()
+        super(RedBookUrlsDal, self).__init__()
         self.db = db
         self.model = models
         self.schema = schemas
@@ -72,4 +72,5 @@ class RedBookUrlsDal(DalBase):
                 red_book_ids.add(red_book_id)
                 unique_data.append(item)
             url_list.append(url)
-        return {"data": unique_data, "urls": url_list}
+        # 判断为空则返回 null
+        return {"data": unique_data, "urls": url_list} if unique_data else None
