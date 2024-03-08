@@ -240,7 +240,7 @@ async def delete_menus(ids: IdList = Depends(), auth: Auth = Depends(FullAdminAu
 
 
 @app.put("/menus/{data_id}", summary="更新菜单信息")
-async def put_menus(
+async def get_menus(
         data_id: int,
         data: schemas.Menu, auth: Auth = Depends(FullAdminAuth(permissions=["auth.menu.update"]))
 ):

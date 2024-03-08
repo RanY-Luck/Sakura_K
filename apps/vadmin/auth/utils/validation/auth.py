@@ -7,16 +7,18 @@
 # @Software: PyCharm
 # @desc    : 用户凭证验证装饰器
 
-from fastapi import Request
+from datetime import timedelta, datetime
+
 import jwt
+from fastapi import Request
 from pydantic import BaseModel
-from application import settings
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from application import settings
+from apps.vadmin.auth.crud import UserDal
 from apps.vadmin.auth.models import VadminUser
 from core.exception import CustomException
 from utils import status
-from datetime import timedelta, datetime
-from apps.vadmin.auth.crud import UserDal
 
 
 class Auth(BaseModel):
@@ -58,7 +60,8 @@ class AuthValidation:
             telephone: str = payload.get("sub")
             exp: int = payload.get("exp")
             is_refresh: bool = payload.get("is_refresh")
-            if telephone is None or is_refresh:
+            password: bool = payload.get("password")
+            if not telephone or is_refresh or not password:
                 raise CustomException(
                     msg="未认证，请您重新登录",
                     code=status.HTTP_403_FORBIDDEN,
@@ -77,8 +80,8 @@ class AuthValidation:
                 status_code=status.HTTP_403_FORBIDDEN
             )
         except jwt.exceptions.ExpiredSignatureError:
-            raise CustomException(msg="认证已过期，请您重新登录", code=cls.error_code, status_code=cls.error_code)
-        return telephone
+            raise CustomException(msg="认证已失效，请您重新登录", code=cls.error_code, status_code=cls.error_code)
+        return telephone, password
 
     @classmethod
     async def validate_user(cls, request: Request, user: VadminUser, db: AsyncSession, is_all: bool = True) -> Auth:

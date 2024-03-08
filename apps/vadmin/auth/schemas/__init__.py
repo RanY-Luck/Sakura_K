@@ -9,4 +9,4 @@
 from .dept import Dept, DeptSimpleOut, DeptTreeListOut
 from .menu import Menu, MenuSimpleOut, RouterOut, Meta, MenuTreeListOut
 from .role import Role, RoleOut, RoleIn, RoleOptionsOut, RoleSimpleOut
-from .user import UserOut, UserUpdate, User, UserIn, UserSimpleOut, ResetPwd, UserUpdateBaseInfo
+from .user import UserOut, UserUpdate, User, UserIn, UserSimpleOut, ResetPwd, UserUpdateBaseInfo, UserPasswordOut

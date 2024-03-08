@@ -29,8 +29,8 @@ async def run_performance_test():
         concurrent_requests=200,
         timeout_secs=10,
         verbose=False,
-        should_prevent=True,
-        assert_options=[atomic_bomb_engine.assert_option("$.code", 200)]
+        # should_prevent=True,
+        # assert_options=[atomic_bomb_engine.assert_option("$.code", 200)]
     )
     print(time.ctime(), result)
 

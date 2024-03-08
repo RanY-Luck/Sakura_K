@@ -22,10 +22,11 @@ from fastapi.routing import APIRoute
 from user_agents import parse
 
 from application.settings import OPERATION_RECORD_METHOD, MONGO_DB_ENABLE, IGNORE_OPERATION_FUNCTION, \
-    DEMO_WHITE_LIST_PATH, DEMO
+    DEMO_WHITE_LIST_PATH, DEMO, DEMO_BLACK_LIST_PATH
 from apps.vadmin.record.crud import OperationRecordDal
 from core.database import mongo_getter
 from core.logger import logger
+from utils import status
 from utils.response import ErrorResponse
 
 
@@ -134,8 +135,15 @@ def register_demo_env_middleware(app: FastAPI):
         path = request.scope.get("path")
         if request.method != "GET":
             print("路由：", path, request.method)
-        if DEMO and request.method != "GET" and path not in DEMO_WHITE_LIST_PATH:
-            return ErrorResponse(msg="演示环境，禁止操作")
+        if DEMO and request.method != "GET":
+            if path in DEMO_BLACK_LIST_PATH:
+                return ErrorResponse(
+                    status=status.HTTP_403_FORBIDDEN,
+                    code=status.HTTP_403_FORBIDDEN,
+                    msg="演示环境，禁止操作"
+                )
+            elif path not in DEMO_WHITE_LIST_PATH:
+                return ErrorResponse(msg="演示环境，禁止操作")
         return await call_next(request)
 
 

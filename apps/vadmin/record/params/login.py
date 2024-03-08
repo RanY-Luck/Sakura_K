@@ -20,6 +20,7 @@ class LoginParams(QueryParams):
     """
     列表分页
     """
+
     def __init__(
             self,
             ip: str = None,
@@ -35,3 +36,4 @@ class LoginParams(QueryParams):
         self.address = ("like", address)
         self.status = status
         self.platform = platform
+        self.v_order = "desc"
