@@ -35,7 +35,7 @@ DEBUG = True
 """
 是否开启演示功能，开启则取消所有的POST、DELETE、PUT操作权限
 """
-DEMO = not DEBUG
+DEMO = True
 
 """
 演示功能白名单
