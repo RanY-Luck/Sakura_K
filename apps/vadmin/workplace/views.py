@@ -124,20 +124,24 @@ async def get_team():
 async def get_shortcuts():
     data = [
         {
+            "name": "GitHub 项目仓库",
+            "link": "https://github.com/ranyong1997/Sakura_K_Admin"
+        },
+        {
             "name": "前端文档",
             "link": "https://element-plus-admin-doc.cn/"
         },
         {
             "name": "Swagger UI 接口文档",
-            "link": ""
+            "link": "http://127.0.0.1:9000/docs"
         },
         {
             "name": "Redoc 接口文档",
-            "link": ""
+            "link": "http://127.0.0.1:9000/redocs"
         },
         {
-            "name": "Windi CSS 文档",
-            "link": "https://cn.windicss.org/guide/"
+            "name": "UnoCSS 文档",
+            "link": "https://unocss.nodejs.cn/guide/"
         },
         {
             "name": "Iconify 文档",
