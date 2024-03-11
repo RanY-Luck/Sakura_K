@@ -187,11 +187,12 @@ http://127.0.0.1:9000/docs
 - 提交代码模板
 
 ```
-✨ Feat: 新增
-🐞 Fix: 修复
-📃 Docs: 文档
-🦄 Refactor: 重构
-🎈 Perf: 优化
+✨ Feat(): 新增
+🐞 Fix(): 修复
+📃 Docs(): 文档
+🦄 Refactor(): 重构
+🎈 Perf(): 优化
+
 ```
 
 - Git提交代码
