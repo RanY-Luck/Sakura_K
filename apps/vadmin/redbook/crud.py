@@ -9,6 +9,7 @@ from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.strategy_options import _AbstractLoad
 
 from core.crud import DalBase
 from . import models, schemas
@@ -22,6 +23,23 @@ class RedbookDal(DalBase):
         self.model = models.RedBook
         self.schema = schemas.RedbookSimpleOut
 
+    async def create_data_info(
+            self,
+            data: schemas,
+            v_options: list[_AbstractLoad] = None,
+            v_return_obj: bool = False,
+            v_schema: Any = None
+    ) -> Any:
+        """
+        创建小红书图文信息(非链接)
+        :param data:
+        :param v_options:
+        :param v_return_obj:
+        :param v_schema:
+        :return:
+        """
+        pass
+
 
 class UrlsDal(DalBase):
 
@@ -30,6 +48,23 @@ class UrlsDal(DalBase):
         self.db = db
         self.model = models.URL
         self.schema = schemas.UrlsSimpleOut
+
+    async def create_data_urls(
+            self,
+            data: schemas,
+            v_options: list[_AbstractLoad] = None,
+            v_return_obj: bool = False,
+            v_schema: Any = None
+    ) -> Any:
+        """
+        创建小红书源链接(非图文信息)
+        :param data:
+        :param v_options:
+        :param v_return_obj:
+        :param v_schema:
+        :return:
+        """
+        pass
 
 
 class RedBookUrlsDal(DalBase):
@@ -40,7 +75,12 @@ class RedBookUrlsDal(DalBase):
         self.model = models
         self.schema = schemas
 
-    async def get_redbook_urls(self, red_id: int) -> list[dict[str, Any]]:
+    async def get_redbook_urls(self, red_id: int) -> dict[str, list[Any] | list[dict[str, Any]]] | None:
+        """
+        获取小红书信息+无水印链接
+        :param red_id: 小红书id
+        :return:
+        """
         sql = select(models.RedBook, models.URL)
         sql = sql.join_from(models.RedBook, models.URL).where(models.RedBook.id == red_id)
         queryset = await self.db.execute(sql)
@@ -74,3 +114,4 @@ class RedBookUrlsDal(DalBase):
             url_list.append(url)
         # 判断为空则返回 null
         return {"info": unique_data, "urls": url_list} if unique_data else None
+
