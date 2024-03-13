@@ -6,7 +6,6 @@
 # @File    : current.py
 # @Software: PyCharm
 # @desc    : 获取认证后的信息工具
-
 from typing import Annotated
 
 from fastapi import Request, Depends
@@ -65,8 +64,8 @@ class AllUserAuth(AuthValidation):
         """
         if not settings.OAUTH_ENABLE:
             return Auth(db=db)
-        telephone = self.validate_token(request, token)
-        user = await UserDal(db).get_data(telephone=telephone, v_return_none=True)
+        telephone, password = self.validate_token(request, token)
+        user = await UserDal(db).get_data(telephone=telephone, password=password, v_return_none=True)
         return await self.validate_user(request, user, db, is_all=True)
 
 
@@ -98,7 +97,8 @@ class FullAdminAuth(AuthValidation):
         options = [
             joinedload(VadminUser.roles).subqueryload(VadminRole.menus),
             joinedload(VadminUser.roles).subqueryload(VadminRole.depts),
-            joinedload(VadminUser.depts)]
+            joinedload(VadminUser.depts)
+        ]
         user = await UserDal(db).get_data(
             telephone=telephone,
             password=password,

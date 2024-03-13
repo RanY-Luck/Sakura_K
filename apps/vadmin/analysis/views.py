@@ -39,13 +39,13 @@ async def get_banners():
         {
             "id": 3,
             "image": "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-        },
+        }
     ]
     return SuccessResponse(data)
 
 
 @app.get("/user/access/source", summary="用户来源")
-async def get_user_access_source():
+async def get_user_access_source(auth: Auth = Depends(AllUserAuth())):
     data = [
         {"value": 1000, "name": 'analysis.directAccess'},
         {"value": 310, "name": 'analysis.mailMarketing'},
@@ -57,7 +57,7 @@ async def get_user_access_source():
 
 
 @app.get("/weekly/user/activity", summary="每周用户活跃量")
-async def get_weekly_user_activity():
+async def get_weekly_user_activity(auth: Auth = Depends(AllUserAuth())):
     data = [
         {"value": 13253, "name": 'analysis.monday'},
         {"value": 34235, "name": 'analysis.tuesday'},
@@ -71,7 +71,7 @@ async def get_weekly_user_activity():
 
 
 @app.get("/monthly/sales", summary="每月销售额")
-async def get_monthly_sales():
+async def get_monthly_sales(auth: Auth = Depends(AllUserAuth())):
     data = [
         {"estimate": 100, "actual": 120, "name": 'analysis.january'},
         {"estimate": 120, "actual": 82, "name": 'analysis.february'},

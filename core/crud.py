@@ -64,8 +64,7 @@ class DalBase:
         :param v_order_field: 排序字段
         :param v_return_none: 是否返回空 None，否认 抛出异常，默认抛出异常
         :param v_schema: 指定使用的序列化对象
-        :param v_expire_all: 使当前会话（Session）中所有已加载的对象过期，确保您获取的是数据库中的最新数据，但可能会有性能损耗，
-        博客：https://blog.csdn.net/k_genius/article/details/135490378。
+        :param v_expire_all: 使当前会话（Session）中所有已加载的对象过期，确保您获取的是数据库中的最新数据，但可能会有性能损耗，博客：https://blog.csdn.net/k_genius/article/details/135490378。
         :param kwargs: 查询参数
         :return: 默认返回 ORM 对象，如果存在 v_schema 则会返回 v_schema 结果
         """
@@ -129,7 +128,6 @@ class DalBase:
     ) -> Union[list[Any], ScalarResult, tuple]:
         """
         获取数据列表
-
         :param page: 页码
         :param limit: 当前页数据量
         :param v_start_sql: 初始 sql
@@ -145,8 +143,7 @@ class DalBase:
         :param v_return_objs: 是否返回对象
         :param v_schema: 指定使用的序列化对象
         :param v_distinct: 是否结果去重
-        :param v_expire_all: 使当前会话（Session）中所有已加载的对象过期，确保您获取的是数据库中的最新数据，但可能会有性能损耗，
-        博客：https://blog.csdn.net/k_genius/article/details/135490378。
+        :param v_expire_all: 使当前会话（Session）中所有已加载的对象过期，确保您获取的是数据库中的最新数据，但可能会有性能损耗，博客：https://blog.csdn.net/k_genius/article/details/135490378。
         :param kwargs: 查询参数，使用的是自定义表达式
         :return: 返回值优先级：v_return_scalars > v_return_objs > v_schema
         """
@@ -255,7 +252,6 @@ class DalBase:
         批量创建数据
         SQLAlchemy 2.0 批量插入不支持 MySQL 返回值：
         https://docs.sqlalchemy.org/en/20/orm/queryguide/dml.html#getting-new-objects-with-returning
-
         :param datas: 字典数据列表
         """
         await self.db.execute(insert(self.model), datas)
@@ -405,6 +401,7 @@ class DalBase:
             v_options: list[_AbstractLoad] = None,
     ) -> SelectType:
         """
+        关系查询，关系加载
         :param v_start_sql: 初始 sql
         :param v_select_from: 用于指定查询从哪个表开始，通常与 .join() 等方法一起使用。
         :param v_join: 创建内连接（INNER JOIN）操作，返回两个表中满足连接条件的交集。
