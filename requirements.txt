@@ -105,4 +105,4 @@ Jinja2==3.0.3
 textual>=0.40.0
 pyperclip>=1.8.2
 lxml>=4.9.3
-atomic_bomb_engine_py
+atomic-bomb-engine-py
