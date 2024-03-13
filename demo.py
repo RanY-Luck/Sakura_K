@@ -19,7 +19,7 @@ async def listen_for_messages():
         else:
             await asyncio.sleep(0.3)
 
-
+@server.ui(port=8000)
 async def run_performance_test():
     print("开始压测")
     result = await atomic_bomb_engine.run_async(
