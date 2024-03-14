@@ -5,7 +5,7 @@
 # @File           : crud.py
 # @IDE            : PyCharm
 # @desc           : 数据访问层
-from typing import Any
+from typing import Any, Dict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,22 +23,27 @@ class RedbookDal(DalBase):
         self.model = models.RedBook
         self.schema = schemas.RedbookSimpleOut
 
-    async def create_data_info(
-            self,
-            data: schemas,
-            v_options: list[_AbstractLoad] = None,
-            v_return_obj: bool = False,
-            v_schema: Any = None
-    ) -> Any:
+    async def create_data_info(self, data: Dict, create_user_id: int) -> models.RedBook:
         """
         创建小红书图文信息(非链接)
-        :param data:
-        :param v_options:
-        :param v_return_obj:
-        :param v_schema:
+        :param data: 返回的图文信息
         :return:
         """
-        pass
+        redbook_data = data[0]
+        redbook = models.RedBook(
+            source=redbook_data['作品ID'],
+            tags=' '.join(redbook_data['作品标签']),
+            title=redbook_data['作品标题'],
+            describe=redbook_data['作品描述'],
+            type=redbook_data['作品类型'],
+            affiliation=redbook_data['IP归属地'],
+            release_time=redbook_data['发布时间'],
+            auth_name=redbook_data['作者昵称'],
+            create_user_id=create_user_id,
+        )
+        self.db.add(redbook)
+        await self.db.commit()
+        return redbook
 
 
 class UrlsDal(DalBase):
@@ -114,4 +119,3 @@ class RedBookUrlsDal(DalBase):
             url_list.append(url)
         # 判断为空则返回 null
         return {"info": unique_data, "urls": url_list} if unique_data else None
-

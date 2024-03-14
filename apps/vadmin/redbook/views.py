@@ -30,48 +30,12 @@ async def getredbookdown(
         auth: Auth = Depends(AllUserAuth())
 ):
     """获取小红书无水印文件,支持单个下载"""
-    async with XHS(
-            **config.model_dump()
-    ) as xhs:  # 使用自定义参数
+    async with XHS(**config.model_dump()) as xhs:  # 使用自定义参数
         download = True  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
-        # data = await xhs.extract(link, download)
-        # print("需要的数据", data)
-        data = [
-            {
-                "收藏数量": "100+",
-                "评论数量": "10+",
-                "分享数量": "10+",
-                "点赞数量": "1k+",
-                "作品标签": [
-                    "赏樱",
-                    "樱花季",
-                    "樱花拍照"
-                ],
-                "作品ID": "65e66a7e000000000b00e08b",
-                "作品标题": "又到了樱花绽放时🌸",
-                "作品描述": "辰山的早樱开啦～\n起了个大早终于拍到啦\n感谢出镜：@兔子Zzz不吃胡萝卜\n#赏樱[话题]# #樱花季[话题]# #樱花拍照[话题]#",
-                "作品类型": "图文",
-                "IP归属地": "上海",
-                "发布时间": "2024-03-05 08:42:38",
-                "最后更新时间": "2024-03-05 08:42:39",
-                "作者昵称": "Phoenix凤凰叔",
-                "作者ID": "5e2f0d650000000001004645",
-                "下载地址": [
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlskg5nhf1lig8hi5n2jqb78?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlsjg5nhf1lig8hi575jetmg?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlsj05nhf1lig8hi52i5iofg?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlsi05nhf1lig8hi5kngg870?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlshg5nhf1lig8hi5b1fr0e8?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlsh05nhf1lig8hi5ceprja8?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlsg05nhf1lig8hi50ea4i3o?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlsgg5nhf1lig8hi5i6jc2oo?imageView2/2/w/format/png",
-                    "https://ci.xiaohongshu.com/1040g00830vumnn0mlseg5nhf1lig8hi5d07i9jg?imageView2/2/w/format/png"
-                ]
-            }
-        ]
-        # todo: 先办法存入到数据库
-    return SuccessResponse(data=data)
+        data = await xhs.extract(link, download)
+        await crud.RedbookDal(auth.db).create_data_info(data, auth.user.id)
+        return SuccessResponse(data)
 
 
 @app.post("/redbookdownmultiple", summary="获取小红书作品信息,支持批量下载")
@@ -109,7 +73,8 @@ async def getredbookdownmultiple(
         download = True  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
         data = await xhs.extract(multiple_links, download)
-    return SuccessResponse(data=data)
+        # todo:多链接下载需要for写入数据库
+        return SuccessResponse(data)
 
 
 ###########################################################

@@ -5,7 +5,6 @@
 # @File     : redbookurls.py
 # @Software : PyCharm
 # @Desc     : pydantic 模型，用于数据库序列化操作
-
 from __future__ import annotations
 
 from typing import List

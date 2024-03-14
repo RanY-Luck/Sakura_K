@@ -237,8 +237,8 @@ class DalBase:
         创建单个数据
         :param data: 创建数据
         :param v_options: 指示应使用select在预加载中加载给定的属性。
-        :param v_schema: ，指定使用的序列化对象
-        :param v_return_obj: ，是否返回对象
+        :param v_schema: 指定使用的序列化对象
+        :param v_return_obj: 是否返回对象
         """
         if isinstance(data, dict):
             obj = self.model(**data)

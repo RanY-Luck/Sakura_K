@@ -14,11 +14,11 @@ from core.data_types import DatetimeStr
 
 class Redbook(BaseModel):
     source: str = Field(..., title="原文地址")
-    tags: str = Field(..., title="标签")
+    tags: List[str] = Field(..., title="标签")
     title: str = Field(..., title="作品标题")
     describe: str = Field(..., title="作品描述")
     type: str = Field(..., title="作品类型")
-    affiliation: str = Field(..., title="ID归属地")
+    affiliation: str = Field(..., title="IP归属地")
     release_time: DatetimeStr = Field(..., title="发布时间")
     auth_name: str = Field(..., title="作者昵称")
     is_active: bool = Field(True, title="是否可见")
@@ -31,9 +31,6 @@ class RedbookSimpleOut(Redbook):
     id: int = Field(..., title="编号")
     create_datetime: DatetimeStr = Field(..., title="创建时间")
     update_datetime: DatetimeStr = Field(..., title="更新时间")
-
-
-# 需要写pydantic类型
 
 
 class Links(BaseModel):
