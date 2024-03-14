@@ -9,7 +9,6 @@ from typing import Any, Dict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm.strategy_options import _AbstractLoad
 
 from core.crud import DalBase
 from . import models, schemas
@@ -45,6 +44,15 @@ class RedbookDal(DalBase):
         await self.db.commit()
         return redbook
 
+    async def create_batch_data_info(self, data: Dict, create_user_id: int) -> models.RedBook:
+        """
+        批量创建小红书图文信息(非链接)
+        :param data:
+        :param create_user_id:
+        :return:
+        """
+        pass
+
 
 class UrlsDal(DalBase):
 
@@ -54,22 +62,27 @@ class UrlsDal(DalBase):
         self.model = models.URL
         self.schema = schemas.UrlsSimpleOut
 
-    async def create_data_urls(
-            self,
-            data: schemas,
-            v_options: list[_AbstractLoad] = None,
-            v_return_obj: bool = False,
-            v_schema: Any = None
-    ) -> Any:
+    async def create_data_urls(self, data: Dict, create_user_id: int) -> models.RedBook:
         """
-        创建小红书源链接(非图文信息)
-        :param data:
-        :param v_options:
-        :param v_return_obj:
-        :param v_schema:
+        创建小红书图文信息(非链接)
+        :param data: 返回的图文信息
         :return:
         """
-        pass
+        redbook_data = data[0]
+        redbook = models.RedBook(
+            source=redbook_data['作品ID'],
+            tags=' '.join(redbook_data['作品标签']),
+            title=redbook_data['作品标题'],
+            describe=redbook_data['作品描述'],
+            type=redbook_data['作品类型'],
+            affiliation=redbook_data['IP归属地'],
+            release_time=redbook_data['发布时间'],
+            auth_name=redbook_data['作者昵称'],
+            create_user_id=create_user_id,
+        )
+        self.db.add(redbook)
+        await self.db.commit()
+        return redbook
 
 
 class RedBookUrlsDal(DalBase):
