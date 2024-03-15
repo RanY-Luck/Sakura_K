@@ -34,7 +34,15 @@ async def getredbookdown(
         download = True  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
         data = await xhs.extract(link, download)
-        await crud.RedbookDal(auth.db).create_data_info(data, auth.user.id)
+        # 插入RedBook表
+        redbook = await crud.RedbookDal(auth.db).create_data_info(data, auth.user.id)
+        # 插入URL表，是用RedBook的id
+        redbook_id = redbook.id
+        # # 遍历插入URL表
+        for item in data:
+            if '下载地址' in item:
+                for url in item['下载地址']:
+                    await crud.UrlsDal(auth.db).create_data_urls(redbook_id, url)
         return SuccessResponse(data)
 
 

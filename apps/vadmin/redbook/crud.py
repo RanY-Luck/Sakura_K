@@ -41,7 +41,8 @@ class RedbookDal(DalBase):
             create_user_id=create_user_id,
         )
         self.db.add(redbook)
-        await self.db.commit()
+        await self.db.flush()
+        redbook_id = redbook.id
         return redbook
 
     async def create_batch_data_info(self, data: Dict, create_user_id: int) -> models.RedBook:
@@ -62,27 +63,20 @@ class UrlsDal(DalBase):
         self.model = models.URL
         self.schema = schemas.UrlsSimpleOut
 
-    async def create_data_urls(self, data: Dict, create_user_id: int) -> models.RedBook:
+    async def create_data_urls(self, red_book_id: int, url: str) -> models.URL:
         """
         创建小红书图文信息(非链接)
-        :param data: 返回的图文信息
+        :param url: 无水印源链接
+        :param red_book_id: 对应返回的图文信息的id
         :return:
         """
-        redbook_data = data[0]
-        redbook = models.RedBook(
-            source=redbook_data['作品ID'],
-            tags=' '.join(redbook_data['作品标签']),
-            title=redbook_data['作品标题'],
-            describe=redbook_data['作品描述'],
-            type=redbook_data['作品类型'],
-            affiliation=redbook_data['IP归属地'],
-            release_time=redbook_data['发布时间'],
-            auth_name=redbook_data['作者昵称'],
-            create_user_id=create_user_id,
+        urls = models.URL(
+            red_book_id=red_book_id,
+            url=url,
         )
-        self.db.add(redbook)
-        await self.db.commit()
-        return redbook
+        self.db.add(urls)
+        await self.db.flush()
+        return urls
 
 
 class RedBookUrlsDal(DalBase):

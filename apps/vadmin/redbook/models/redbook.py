@@ -28,7 +28,7 @@ class RedBook(BaseModel):
     __table_args__ = ({'comment': '小红书素材表'})
 
     source: Mapped[str] = mapped_column(String(255), index=False, nullable=False, comment="原文地址")
-    tags: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="标签")
+    tags: Mapped[str] = mapped_column(String(255), index=True, nullable=False, comment="标签")
     title: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="作品标题")
     describe: Mapped[str] = mapped_column(String(512), index=False, nullable=False, comment="作品描述")
     type: Mapped[str] = mapped_column(String(10), index=True, nullable=False, comment="作品类型")
