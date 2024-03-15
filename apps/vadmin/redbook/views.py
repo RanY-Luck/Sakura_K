@@ -52,6 +52,7 @@ async def getredbookdownmultiple(
         auth: Auth = Depends(AllUserAuth())
 ):
     """获取小红书无水印文件,支持批量下载"""
+    results = []
     multiple_links = " ".join(links.link or [])
     # 实例对象
     work_path = ""  # 作品数据/文件保存根路径，默认值：项目根路径
@@ -78,11 +79,22 @@ async def getredbookdownmultiple(
             image_format=image_format,
             folder_mode=folder_mode,
     ) as xhs:  # 使用自定义参数
-        download = True  # 是否下载作品文件，默认值：False
+        download = False  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
         data = await xhs.extract(multiple_links, download)
-        # todo:多链接下载需要for写入数据库
-        return SuccessResponse(data)
+        for item in data:
+            # 批量插入RedBook表
+            # todo: 调试传参
+            redbook = await crud.RedbookDal(auth.db).create_batch_data_info(data)
+            print("item--->", item)
+            print("redbook--->", redbook)
+        #     redbook_id = redbook.id
+        #     # 遍历插入URL表
+        #     for item in data:
+        #         if '下载地址' in item:
+        #             for url in item['下载地址']:
+        #                 await crud.UrlsDal(auth.db).create_batch_data_urls(redbook_id, url)
+        # return SuccessResponse(data)
 
 
 ###########################################################
