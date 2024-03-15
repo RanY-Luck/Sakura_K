@@ -5,7 +5,6 @@
 # @File     : url.py
 # @Software : PyCharm
 # @Desc     : pydantic 模型，用于数据库序列化操作
-from typing import List
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -14,7 +13,7 @@ from core.data_types import DatetimeStr
 
 class Urls(BaseModel):
     red_book_id: int = Field(..., title="关联表red_book.id")
-    url: List[str] = Field(..., title="下载地址")
+    url: str = Field(..., title="下载地址")
 
 
 class UrlsSimpleOut(Urls):
