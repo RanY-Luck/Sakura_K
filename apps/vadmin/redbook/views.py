@@ -84,17 +84,8 @@ async def getredbookdownmultiple(
         data = await xhs.extract(multiple_links, download)
         for item in data:
             # 批量插入RedBook表
-            # todo: 调试传参
-            redbook = await crud.RedbookDal(auth.db).create_batch_data_info(data)
-            print("item--->", item)
-            print("redbook--->", redbook)
-        #     redbook_id = redbook.id
-        #     # 遍历插入URL表
-        #     for item in data:
-        #         if '下载地址' in item:
-        #             for url in item['下载地址']:
-        #                 await crud.UrlsDal(auth.db).create_batch_data_urls(redbook_id, url)
-        # return SuccessResponse(data)
+            data_list = await crud.RedbookDal(auth.db).create_data_info(item, create_user_id=1)
+        return SuccessResponse(data)
 
 
 ###########################################################

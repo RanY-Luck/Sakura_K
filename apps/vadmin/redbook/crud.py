@@ -5,14 +5,13 @@
 # @File           : crud.py
 # @IDE            : PyCharm
 # @desc           : 数据访问层
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.crud import DalBase
 from . import models, schemas
-from .models import RedBook
 
 
 class RedbookDal(DalBase):
@@ -46,36 +45,8 @@ class RedbookDal(DalBase):
         redbook_id = redbook.id
         return redbook
 
-    async def create_batch_data_info(self, data: List[Dict]) -> List[RedBook]:
-        """
-        批量创建小红书图文信息(非链接)
-        :param data:
-        :param create_user_id:
-        :return:
-        """
-        # redbooks = []
-        # print(data)
-        # todo: 调试传参
-        for redbook_data in data:
-            print(redbook_data)
-            # print(redbook_data["作品ID"])
-        # #     print(redbook_data[1]["作品ID"])
-        #     # redbook = models.RedBook(
-        #     #     source=redbook_data['作品ID'],
-        #     #     tags=' '.join(redbook_data['作品标签']),
-        #     #     title=redbook_data['作品标题'],
-        #     #     describe=redbook_data['作品描述'],
-        #     #     type=redbook_data['作品类型'],
-        #     #     affiliation=redbook_data['IP归属地'],
-        #     #     release_time=redbook_data['发布时间'],
-        #     #     auth_name=redbook_data['作者昵称'],
-        #     #     create_user_id=create_user_id,
-        #     # )
-        #     # self.db.add(redbook)
-        #     # await self.db.flush()
-        #     # redbook_id = redbook.id
-        #     redbooks.append(redbooks)
-        # return redbooks
+    async def create_batch_data_info(self, data_list):
+        print("data", data_list)
 
 
 class UrlsDal(DalBase):
