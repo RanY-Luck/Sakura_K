@@ -107,7 +107,7 @@ IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
 mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
 version_locations = %(here)s/alembic/versions_dev
-sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
+sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
 ```
 
 # 生产环境[pro]
@@ -115,7 +115,7 @@ sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sak
 mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
 version_locations = %(here)s/alembic/versions_pro
-sqlalchemy.url = sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
+sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
 ```
 3. 创建数据库
 
