@@ -46,7 +46,9 @@ class RedbookDal(DalBase):
         return redbook
 
     async def create_batch_data_info(self, data_list):
-        print("data", data_list)
+        print("data--->", data_list)
+        for key, value in data_list.items():
+            print(f"Key: {key}, Value: {value}")
 
 
 class UrlsDal(DalBase):
