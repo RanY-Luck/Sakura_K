@@ -31,7 +31,7 @@ async def getredbookdown(
 ):
     """获取小红书无水印文件,支持单个下载"""
     async with XHS(**config.model_dump()) as xhs:  # 使用自定义参数
-        download = True  # 是否下载作品文件，默认值：False
+        download = False  # 是否下载作品文件，默认值：False
         # 返回作品详细信息，包括下载地址
         data = await xhs.extract(link, download)
         # 插入RedBook表
