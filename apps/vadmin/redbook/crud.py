@@ -57,15 +57,33 @@ class RedbookDal(DalBase):
         """
         redbook_ids = []
         for item in data_list:
+            source = item.get('作品ID')
+            tags = item.get("作品标签")
+            title = item.get('作品标题')
+            describe = item.get('作品描述')
+            type = item.get('作品类型')
+            affiliation = item.get('IP归属地')
+            release_time = item.get('发布时间')
+            auth_name = item.get('作者昵称')
+            # 检查关键字是否为空
+            if not all([source, title, describe, auth_name]):
+                continue
+            if tags is None:
+                targs_str = ""
+            else:
+                try:
+                    targs_str = ' '.join(tags)
+                except TypeError:
+                    targs_str = str(tags)
             redbook = models.RedBook(
-                source=item.get('作品ID'),
-                tags=' '.join(item.get('作品标签')),
-                title=item.get('作品标题'),
-                describe=item.get('作品描述'),
-                type=item.get('作品类型'),
-                affiliation=item.get('IP归属地'),
-                release_time=item.get('发布时间'),
-                auth_name=item.get('作者昵称'),
+                source=source,
+                tags=targs_str,
+                title=title,
+                describe=describe,
+                type=type,
+                affiliation=affiliation,
+                release_time=release_time,
+                auth_name=auth_name,
                 create_user_id=create_user_id
             )
             self.db.add(redbook)

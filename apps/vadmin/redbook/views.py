@@ -42,7 +42,11 @@ async def getredbookdown(
         for item in data:
             if '下载地址' in item:
                 for url in item['下载地址']:
-                    await crud.UrlsDal(auth.db).create_data_urls(redbook_id, url)
+                    try:
+                        await crud.UrlsDal(auth.db).create_data_urls(redbook_id, url)
+                    except Exception as e:
+                        print(f"插入URL出错: {e}, 作品ID: {redbook_id}, URL: {url}")
+                        continue
         return SuccessResponse(data)
 
 
@@ -83,13 +87,16 @@ async def getredbookdownmultiple(
         # 返回作品详细信息，包括下载地址
         data = await xhs.extract(multiple_links, download)
         # 批量插入RedBook表，是用RedBook的id
-        data_list = await crud.RedbookDal(auth.db).create_batch_data_info(data, auth.user.id)
-        # 遍历data和data_list,找到对应的id和url数据
-        for item_data, red_book_id in zip(data, data_list):
-            # 遍历当前作品的下载链接
-            if '下载地址' in item_data:
-                for url in item_data['下载地址']:
-                    await crud.UrlsDal(auth.db).create_batch_data_urls(red_book_id, url)
+        try:
+            data_list = await crud.RedbookDal(auth.db).create_batch_data_info(data, auth.user.id)
+            # 遍历data和data_list,找到对应的id和url数据
+            for item_data, red_book_id in zip(data, data_list):
+                # 遍历当前作品的下载链接
+                if '下载地址' in item_data:
+                    for url in item_data['下载地址']:
+                        await crud.UrlsDal(auth.db).create_batch_data_urls(red_book_id, url)
+        except Exception as e:
+            print(f"处理小红书url出错: {e}")
         return SuccessResponse(data)
 
 

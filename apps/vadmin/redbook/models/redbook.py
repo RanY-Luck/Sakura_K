@@ -33,7 +33,7 @@ class RedBook(BaseModel):
     describe: Mapped[str] = mapped_column(String(1000), index=False, nullable=False, comment="作品描述")
     type: Mapped[str] = mapped_column(String(10), index=True, nullable=False, comment="作品类型")
     affiliation: Mapped[str] = mapped_column(String(10), index=False, nullable=False, comment="ID归属地")
-    release_time: Mapped[datetime] = mapped_column(DateTime, index=False, nullable=False, comment="发布时间")
+    release_time: Mapped[datetime] = mapped_column(DateTime, index=False, nullable=True, comment="发布时间")
     auth_name: Mapped[str] = mapped_column(String(50), index=False, nullable=False, comment="作者昵称")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否可见")
 
