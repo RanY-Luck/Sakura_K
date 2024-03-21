@@ -30,7 +30,7 @@ class RedBook(BaseModel):
     source: Mapped[str] = mapped_column(String(255), index=False, nullable=False, comment="原文地址")
     tags: Mapped[str] = mapped_column(String(255), index=True, nullable=False, comment="标签")
     title: Mapped[str] = mapped_column(String(50), index=True, nullable=False, comment="作品标题")
-    describe: Mapped[str] = mapped_column(String(512), index=False, nullable=False, comment="作品描述")
+    describe: Mapped[str] = mapped_column(String(1000), index=False, nullable=False, comment="作品描述")
     type: Mapped[str] = mapped_column(String(10), index=True, nullable=False, comment="作品类型")
     affiliation: Mapped[str] = mapped_column(String(10), index=False, nullable=False, comment="ID归属地")
     release_time: Mapped[datetime] = mapped_column(DateTime, index=False, nullable=False, comment="发布时间")
