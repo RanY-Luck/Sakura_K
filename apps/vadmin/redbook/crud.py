@@ -9,6 +9,8 @@ from typing import Any, Dict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import InstrumentedAttribute
+from sqlalchemy.orm.base import _T_co
 
 from core.crud import DalBase
 from . import models, schemas
@@ -45,7 +47,14 @@ class RedbookDal(DalBase):
         redbook_id = redbook.id
         return redbook
 
-    async def create_batch_data_info(self, data_list, create_user_id: int):
+    async def create_batch_data_info(self, data_list: Dict, create_user_id: int) -> list[
+        InstrumentedAttribute[_T_co] | _T_co]:
+        """
+        批量创建小红书图文信息(非链接)
+        :param data_list:
+        :param create_user_id:
+        :return:
+        """
         redbook_ids = []
         for item in data_list:
             redbook = models.RedBook(
@@ -97,7 +106,7 @@ class UrlsDal(DalBase):
         """
         urls = models.URL(
             red_book_id=red_book_id,
-            url=url,
+            url=url
         )
         self.db.add(urls)
         await self.db.flush()

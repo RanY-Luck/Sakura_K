@@ -84,13 +84,12 @@ async def getredbookdownmultiple(
         data = await xhs.extract(multiple_links, download)
         # 批量插入RedBook表，是用RedBook的id
         data_list = await crud.RedbookDal(auth.db).create_batch_data_info(data, auth.user.id)
-        # 插入URL表，遍历RedBook的id
-        for redbook_id in data_list:
-            # 遍历插入URL表
-            for item in data:
-                if '下载地址' in item:
-                    for url in item['下载地址']:
-                        await crud.UrlsDal(auth.db).create_data_urls(redbook_id, url)
+        # 遍历data和data_list,找到对应的id和url数据
+        for item_data, red_book_id in zip(data, data_list):
+            # 遍历当前作品的下载链接
+            if '下载地址' in item_data:
+                for url in item_data['下载地址']:
+                    await crud.UrlsDal(auth.db).create_batch_data_urls(red_book_id, url)
         return SuccessResponse(data)
 
 
