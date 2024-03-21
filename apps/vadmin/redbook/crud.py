@@ -45,10 +45,24 @@ class RedbookDal(DalBase):
         redbook_id = redbook.id
         return redbook
 
-    async def create_batch_data_info(self, data_list):
-        print("data--->", data_list)
-        for key, value in data_list.items():
-            print(f"Key: {key}, Value: {value}")
+    async def create_batch_data_info(self, data_list, create_user_id: int):
+        redbook_ids = []
+        for item in data_list:
+            redbook = models.RedBook(
+                source=item.get('作品ID'),
+                tags=' '.join(item.get('作品标签')),
+                title=item.get('作品标题'),
+                describe=item.get('作品描述'),
+                type=item.get('作品类型'),
+                affiliation=item.get('IP归属地'),
+                release_time=item.get('发布时间'),
+                auth_name=item.get('作者昵称'),
+                create_user_id=create_user_id
+            )
+            self.db.add(redbook)
+            await self.db.flush()
+            redbook_ids.append(redbook.id)
+        return redbook_ids
 
 
 class UrlsDal(DalBase):
