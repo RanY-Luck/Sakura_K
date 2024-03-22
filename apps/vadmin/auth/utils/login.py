@@ -59,7 +59,7 @@ async def api_login_for_access_token(
         raise CustomException(status_code=error_code, code=error_code, msg="此手机号无权限")
     access_token = LoginManage.create_token({"sub": user.telephone, "password": user.password})
     record = LoginForm(platform='2', method='0', telephone=data.username, password=data.password)
-    resp = {"access_token": access_token, "token_type": "bearer"}
+    resp = {"access_token": access_token, "token_type": "Bearer"}
     await VadminLoginRecord.create_login_record(db, record, True, request, resp)
     return resp
 
@@ -90,7 +90,7 @@ async def login_for_access_token(
         resp = {
             "access_token": access_token,
             "refresh_token": refresh_token,
-            "token_type": "bearer",
+            "token_type": "Bearer",
             "is_reset_password": result.user.is_reset_password,
             "is_wx_server_openid": result.user.is_wx_server_openid
         }
@@ -138,7 +138,7 @@ async def wx_login_for_access_token(
     resp = {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer",
+        "token_type": "Bearer",
         "is_reset_password": user.is_reset_password,
         "is_wx_server_openid": user.is_wx_server_openid
     }
@@ -175,6 +175,6 @@ async def token_refresh(refresh: str = Body(..., title="刷新Token")):
     resp = {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer"
+        "token_type": "Bearer"
     }
     return SuccessResponse(resp)
