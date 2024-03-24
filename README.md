@@ -378,6 +378,16 @@ mac系统安装虚拟环境和激活虚拟环境
 三、激活虚拟环境
 > source venv/bin/activate
 
+### 可能遇到的问题：
+`redis.exceptions.RedisError: Redis 连接失败: MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.
+`
+
+解决办法：
+```shell
+redis-cli -a 123456 -p 6379
+
+config set stop-writes-on-bgsave-error no
+````
 ## 添加任务
 
 ```python
