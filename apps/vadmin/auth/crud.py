@@ -446,12 +446,23 @@ class RoleDal(DalBase):
             v_return_obj: bool = False,
             v_schema: Any = None
     ) -> Any:
-        """创建数据"""
-        obj = self.model(**data.model_dump(exclude={'menu_ids'}))
+        """
+        创建数据
+        :param data:
+        :param v_options:
+        :param v_return_obj:
+        :param v_schema:
+        :return:
+        """
+        obj = self.model(**data.model_dump(exclude={'menu_ids', 'dept_ids'}))
         if data.menu_ids:
             menus = await MenuDal(db=self.db).get_datas(limit=0, id=("in", data.menu_ids), v_return_objs=True)
             for menu in menus:
                 obj.menus.add(menu)
+        if data.dept_ids:
+            depts = await DeptDal(db=self.db).get_datas(limit=0, id=("in", data.dept_ids), v_return_objs=True)
+            for dept in depts:
+                obj.depts.add(dept)
         await self.flush(obj)
         return await self.out_dict(obj, v_options, v_return_obj, v_schema)
 
@@ -463,8 +474,16 @@ class RoleDal(DalBase):
             v_return_obj: bool = False,
             v_schema: Any = None
     ) -> Any:
-        """更新单个数据"""
-        obj = await self.get_data(data_id, v_options=[joinedload(self.model.menus)])
+        """
+        更新单个数据
+        :param data_id:
+        :param data:
+        :param v_options:
+        :param v_return_obj:
+        :param v_schema:
+        :return:
+        """
+        obj = await self.get_data(data_id, v_options=[joinedload(self.model.menus), joinedload(self.model.depts)])
         obj_dict = jsonable_encoder(data)
         for key, value in obj_dict.items():
             if key == "menu_ids":
@@ -474,6 +493,14 @@ class RoleDal(DalBase):
                         obj.menus.clear()
                     for menu in menus:
                         obj.menus.add(menu)
+                continue
+            elif key == "dept_ids":
+                if value:
+                    depts = await DeptDal(db=self.db).get_datas(limit=0, id=("in", value), v_return_objs=True)
+                    if obj.depts:
+                        obj.depts.clear()
+                    for dept in depts:
+                        obj.depts.add(dept)
                 continue
             setattr(obj, key, value)
         await self.flush(obj)
