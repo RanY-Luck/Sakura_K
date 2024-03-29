@@ -17,8 +17,6 @@ class ModuleInfo(BaseModel):
     __table_args__ = ({'comment': '模块列表'})
 
     module_name: Mapped[str] = mapped_column(String(64), nullable=False, comment="模块名称")
-    project_id: Mapped[int] = mapped_column(Integer, comment="归属项目id")
-    config_id: Mapped[int] = mapped_column(Integer, comment="关联配置id")
     test_user: Mapped[str] = mapped_column(String(100), comment="测试人员")
     simple_desc: Mapped[str] = mapped_column(String(100), comment="描述")
     remarks: Mapped[str] = mapped_column(String(100), comment="备注")

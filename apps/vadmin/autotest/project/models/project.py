@@ -24,8 +24,7 @@ class ProjectInfo(BaseModel):
     publish_app: Mapped[str] = mapped_column(String(100), comment='发布应用')
     simple_desc: Mapped[str] = mapped_column(String(100), comment='简要描述')
     remarks: Mapped[str] = mapped_column(String(100), comment='其他信息')
-    config_id: Mapped[int] = mapped_column(Integer, comment='关联配置id')
-    product_id: Mapped[int] = mapped_column(Integer, comment='产品线id')
+
 
     create_user_id: Mapped[int] = mapped_column(
         Integer,
