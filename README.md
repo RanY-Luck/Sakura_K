@@ -102,7 +102,7 @@ IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
 ```
 并在`alembic.ini`文件中配置数据库信息，用于数据库映射
 
-# 开发环境[dev]
+### 开发环境[dev]
 ```text
 mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
@@ -110,7 +110,7 @@ version_locations = %(here)s/alembic/versions_dev
 sqlalchemy.url = mysql+asyncmy://root:123456@127.0.0.1:3306/sakura_k
 ```
 
-# 生产环境[pro]
+### 生产环境[pro]
 ```text
 mysql+pymysql://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
 
