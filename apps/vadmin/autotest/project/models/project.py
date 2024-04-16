@@ -22,9 +22,8 @@ class ProjectInfo(BaseModel):
     test_user: Mapped[str] = mapped_column(String(100), comment='测试人员')
     dev_user: Mapped[str] = mapped_column(String(100), comment='开发人员')
     publish_app: Mapped[str] = mapped_column(String(100), comment='发布应用')
-    simple_desc: Mapped[str] = mapped_column(String(100), comment='简要描述')
-    remarks: Mapped[str] = mapped_column(String(100), comment='其他信息')
-
+    simple_desc: Mapped[str] = mapped_column(String(100), nullable=True, comment='简要描述')
+    remarks: Mapped[str] = mapped_column(String(100), nullable=True, comment='备注')
 
     create_user_id: Mapped[int] = mapped_column(
         Integer,

@@ -80,7 +80,7 @@ def create_app():
 def run(
         host: str = typer.Option(default='0.0.0.0', help='监听主机IP，默认开放给本网络所有主机'),
         port: int = typer.Option(default=9000, help='监听端口'),
-        reload: bool = typer.Option(default=True, help='是否启用热加载')
+        reload: bool = typer.Option(default=False, help='是否启用热加载')
 ):
     """
     启动项目
