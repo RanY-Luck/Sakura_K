@@ -43,7 +43,7 @@ async def create_project(data: schemas.Project, auth: Auth = Depends(AllUserAuth
     return SuccessResponse(await crud.ProjectDal(auth.db).create_data(data=data))
 
 
-@app.put("/project/{data_id}", summary="更新项目")
+@app.put("/{data_id}", summary="更新项目")
 async def update_project(
         data_id: int,
         data: schemas.Project,
