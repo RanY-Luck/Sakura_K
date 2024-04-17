@@ -6,7 +6,7 @@
 # @Software : PyCharm
 # @Desc     :
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, PositiveInt
 
 from core.data_types import DatetimeStr
 
@@ -17,21 +17,21 @@ class Project(BaseModel):
     test_user: str
     dev_user: str
     publish_app: str
-    simple_desc: str
-    remarks: str
-    create_user_id: int
+    simple_desc: str | None = None
+    remarks: str | None = None
+    create_user_id: PositiveInt
 
     @field_validator(
         'project_name', 'responsible_name', 'test_user', 'dev_user', 'publish_app', 'simple_desc', 'remarks'
     )
     def validate_string_fields(cls, value):
-        if len(value) > 100:
+        if value is not None and len(value) > 100:
             raise ValueError("不能超过100个字符")
         return value
 
     @field_validator('create_user_id')
     def validate_positive_integer(cls, value):
-        if value < 0:
+        if value <= 0:
             raise ValueError("必须为正整数")
         return value
 
