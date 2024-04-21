@@ -14,14 +14,12 @@ from core.data_types import DatetimeStr
 
 class Module(BaseModel):
     module_name: str
-    project_id: int
-    config_id: int
     test_user: str
-    simple_desc: str
-    remarks: str
-    module_packages: str
+    project_id: int
     leader_user: str
     priority: int = 4
+    simple_desc: str | None = None
+    remarks: str | None = None
     create_user_id: int
 
     @field_validator('priority')
