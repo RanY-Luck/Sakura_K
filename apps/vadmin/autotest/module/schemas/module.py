@@ -15,6 +15,7 @@ from core.data_types import DatetimeStr
 class Module(BaseModel):
     module_name: str
     test_user: str
+    dev_user: str
     project_id: int
     responsible_name: str
     priority: int = 4

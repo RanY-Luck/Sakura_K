@@ -20,6 +20,7 @@ class ModuleInfo(BaseModel):
 
     module_name: Mapped[str] = mapped_column(String(10), nullable=False, comment="模块名称", index=True)
     test_user: Mapped[str] = mapped_column(String(10), comment="测试人员")
+    dev_user: Mapped[str] = mapped_column(String(10), comment="开发人员")
     responsible_name: Mapped[str] = mapped_column(String(10), comment="负责人")
     priority: Mapped[int] = mapped_column(Integer, comment="默认执行用例优先级", default=4)
     simple_desc: Mapped[str] = mapped_column(String(100), comment="简要描述")
