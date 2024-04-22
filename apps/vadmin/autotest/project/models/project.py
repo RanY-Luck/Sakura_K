@@ -17,11 +17,11 @@ class ProjectInfo(BaseModel):
     __tablename__ = "project_info"
     __table_args__ = ({'comment': '项目列表'})
 
-    project_name: Mapped[str] = mapped_column(String(64), nullable=False, comment='类别名称', index=True)
-    responsible_name: Mapped[str] = mapped_column(String(64), comment='负责人')
-    test_user: Mapped[str] = mapped_column(String(100), comment='测试人员')
-    dev_user: Mapped[str] = mapped_column(String(100), comment='开发人员')
-    publish_app: Mapped[str] = mapped_column(String(100), comment='发布应用')
+    project_name: Mapped[str] = mapped_column(String(10), nullable=False, comment='项目名称', index=True)
+    responsible_name: Mapped[str] = mapped_column(String(10), comment='负责人')
+    test_user: Mapped[str] = mapped_column(String(10), comment='测试人员')
+    dev_user: Mapped[str] = mapped_column(String(10), comment='开发人员')
+    publish_app: Mapped[str] = mapped_column(String(32), comment='发布应用')
     simple_desc: Mapped[str] = mapped_column(String(100), nullable=True, comment='简要描述')
     remarks: Mapped[str] = mapped_column(String(100), nullable=True, comment='备注')
 
