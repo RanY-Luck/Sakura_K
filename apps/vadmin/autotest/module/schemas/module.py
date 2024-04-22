@@ -6,8 +6,6 @@
 # @File    : module.py
 # @Software: PyCharm
 # @desc    :
-from typing import Optional
-
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from core.data_types import DatetimeStr
@@ -31,18 +29,9 @@ class Module(BaseModel):
         return value
 
 
-# TODO:bug待修复
 class ModuleSimpleOut(Module):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    project_name: Optional[str]
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
 
-    @field_validator('project_name')
-    def set_project_name(cls, v, values):
-        project = values.get('project', {})
-        project_name = project.get('project_name')
-        if project_name:
-            return project_name
-        return v
