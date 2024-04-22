@@ -16,7 +16,7 @@ class Module(BaseModel):
     module_name: str
     test_user: str
     project_id: int
-    leader_user: str
+    responsible_name: str
     priority: int = 4
     simple_desc: str | None = None
     remarks: str | None = None
