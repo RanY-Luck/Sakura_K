@@ -8,7 +8,8 @@
 # @desc    :
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import joinedload, contains_eager
+from sqlalchemy.orm import joinedload
+
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.dependencies import IdList
@@ -23,8 +24,6 @@ app = APIRouter()
 ###########################################################
 @app.get("/getmodulelist", summary="获取模块列表")
 async def get_project_list(p: params.ModuleParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
-    # sql:
-    # SELECT project_info.project_name,module_info.module_name FROM project_info INNER JOIN module_info ON project_info.id = module_info.project_id;
     model = models.ModuleInfo
     options = [joinedload(model.create_user)]
     schema = schemas.ModuleSimpleOut
@@ -43,7 +42,7 @@ async def create_module(data: schemas.Module, auth: Auth = Depends(AllUserAuth()
     return SuccessResponse(await crud.ModuleDal(auth.db).create_data(data=data))
 
 
-@app.put("/module/{data_id}", summary="更新模块")
+@app.put("/{data_id}", summary="更新模块")
 async def update_module(
         data_id: int,
         data: schemas.Module,

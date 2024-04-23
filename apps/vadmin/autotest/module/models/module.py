@@ -23,8 +23,8 @@ class ModuleInfo(BaseModel):
     project_name: Mapped[str] = mapped_column(String(10), comment="对应的项目名称")
     responsible_name: Mapped[str] = mapped_column(String(10), comment="负责人")
     priority: Mapped[int] = mapped_column(Integer, comment="默认执行用例优先级", default=4)
-    simple_desc: Mapped[str] = mapped_column(String(100), comment="简要描述")
-    remarks: Mapped[str] = mapped_column(String(100), comment="备注")
+    simple_desc: Mapped[str] = mapped_column(String(100), nullable=True, comment="简要描述")
+    remarks: Mapped[str] = mapped_column(String(100), nullable=True, comment="备注")
 
     create_user_id: Mapped[int] = mapped_column(
         Integer,
