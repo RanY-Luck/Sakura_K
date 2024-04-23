@@ -32,8 +32,9 @@ class ModuleInfo(BaseModel):
         comment="创建人"
     )
     project_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("project_info.id", ondelete='CASCADE'),
+        Integer,
+        ForeignKey("project_info.id", ondelete='CASCADE'),
         comment="对应的项目的ID"
     )
     create_user: Mapped[VadminUser] = relationship(foreign_keys=create_user_id)
-    project_name: Mapped["ProjectInfo"] = relationship(foreign_keys=project_id, back_populates="project")
+    project_name: Mapped[ProjectInfo] = relationship(foreign_keys=project_id)
