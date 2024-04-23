@@ -36,10 +36,6 @@ class Project(BaseModel):
         return value
 
 
-class Project_Name(BaseModel):
-    project_name: str
-
-
 class ProjectSimpleOut(Project):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -47,5 +43,10 @@ class ProjectSimpleOut(Project):
     update_datetime: DatetimeStr
 
 
-class ProjectListOut(Project_Name):
+class Project_Name(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+    project_name: str
+
+
+class ProjectListOut(Project_Name):
+    pass
