@@ -16,6 +16,7 @@ class Module(BaseModel):
     project_name: str
     test_user: str
     dev_user: str
+    project_id: int
     responsible_name: str
     priority: int = 4
     simple_desc: str | None = None
@@ -29,7 +30,7 @@ class Module(BaseModel):
         return value
 
     @field_validator(
-        'module_name', 'project_name', 'responsible_name', 'test_user', 'dev_user', 'simple_desc',
+        'module_name', 'responsible_name', 'test_user', 'dev_user', 'simple_desc',
         'remarks'
     )
     def validate_string_fields(cls, value):
@@ -37,7 +38,7 @@ class Module(BaseModel):
             raise ValueError("不能超过100个字符")
         return value
 
-    @field_validator('create_user_id')
+    @field_validator('create_user_id', 'project_id')
     def validate_positive_integer(cls, value):
         if value <= 0:
             raise ValueError("必须为正整数")
