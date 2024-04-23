@@ -8,6 +8,7 @@
 # @desc    :
 from pydantic import BaseModel, ConfigDict, field_validator, PositiveInt
 
+from apps.vadmin.autotest.project.schemas import ProjectListOut
 from core.data_types import DatetimeStr
 
 
@@ -49,3 +50,8 @@ class ModuleSimpleOut(Module):
     id: int
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
+
+
+class ModuleListOut(ModuleSimpleOut):
+    model_config = ConfigDict(from_attributes=True)
+    project_name: ProjectListOut

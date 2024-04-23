@@ -25,8 +25,8 @@ app = APIRouter()
 @app.get("/getmodulelist", summary="获取模块列表")
 async def get_project_list(p: params.ModuleParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
     model = models.ModuleInfo
-    options = [joinedload(model.create_user)]
-    schema = schemas.ModuleSimpleOut
+    options = [joinedload(model.create_user), joinedload(model.project_name)]
+    schema = schemas.ModuleListOut
     datas, count = await crud.ModuleDal(auth.db).get_datas(
         **p.dict(),
         v_options=options,
