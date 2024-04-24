@@ -52,6 +52,6 @@ class ModuleSimpleOut(Module):
     update_datetime: DatetimeStr
 
 
-class ModuleListOut(Module):
+class ModuleListOut(ModuleSimpleOut):
     model_config = ConfigDict(from_attributes=True)
     project_name: ProjectListOut
