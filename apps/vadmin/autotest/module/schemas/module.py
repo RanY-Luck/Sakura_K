@@ -8,17 +8,18 @@
 # @desc    :
 from pydantic import BaseModel, ConfigDict, field_validator, PositiveInt
 
+from apps.vadmin.auth.schemas import UserLoginName
 from apps.vadmin.autotest.project.schemas import ProjectListOut
 from core.data_types import DatetimeStr
 
 
 class Module(BaseModel):
     module_name: str
-    project_id: int
+    project_id: PositiveInt
     test_user: str
     dev_user: str
     responsible_name: str
-    priority: int = 4
+    priority: PositiveInt = 4
     simple_desc: str | None = None
     remarks: str | None = None
     create_user_id: PositiveInt
@@ -38,7 +39,7 @@ class Module(BaseModel):
             raise ValueError("不能超过100个字符")
         return value
 
-    @field_validator('create_user_id', 'project_id')
+    @field_validator('create_user_id', 'project_id', 'priority')
     def validate_positive_integer(cls, value):
         if value <= 0:
             raise ValueError("必须为正整数")
@@ -55,3 +56,4 @@ class ModuleSimpleOut(Module):
 class ModuleListOut(ModuleSimpleOut):
     model_config = ConfigDict(from_attributes=True)
     project_name: ProjectListOut
+    create_user: UserLoginName
