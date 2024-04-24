@@ -9,6 +9,7 @@ from typing import List
 
 from pydantic import BaseModel, ConfigDict
 
+from apps.vadmin.auth.schemas import UserLoginName
 from core.data_types import DatetimeStr
 
 
@@ -36,5 +37,6 @@ class Env(BaseModel):
 class EnvSimpleOut(Env):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    create_user: UserLoginName
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

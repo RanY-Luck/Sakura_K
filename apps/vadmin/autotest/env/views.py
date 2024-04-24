@@ -43,7 +43,7 @@ async def create_env(data: schemas.Env, auth: Auth = Depends(AllUserAuth())):
     return SuccessResponse(await crud.EnvDal(auth.db).create_data(data=data))
 
 
-@app.put("/env/{data_id}", summary="更新环境")
+@app.put("/{data_id}", summary="更新环境")
 async def update_apinfo(
         data_id: int,
         data: schemas.Env,
