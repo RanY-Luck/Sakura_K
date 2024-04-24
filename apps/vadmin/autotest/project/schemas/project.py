@@ -8,6 +8,7 @@
 
 from pydantic import BaseModel, ConfigDict, field_validator, PositiveInt
 
+from apps.vadmin.auth.schemas import UserLoginName
 from core.data_types import DatetimeStr
 
 
@@ -39,6 +40,7 @@ class Project(BaseModel):
 class ProjectSimpleOut(Project):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    create_user: UserLoginName
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
 
@@ -49,4 +51,4 @@ class Project_Name(BaseModel):
 
 
 class ProjectListOut(Project_Name):
-    pass
+    model_config = ConfigDict(from_attributes=True)

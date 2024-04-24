@@ -39,6 +39,11 @@ class User(BaseModel):
     is_wx_server_openid: bool | None = False
 
 
+class UserInfo(BaseModel):
+    name: str | None = None
+    nickname: str | None = None
+
+
 class UserIn(User):
     """
     创建用户
@@ -85,6 +90,10 @@ class UserSimpleOut(User):
     is_reset_password: bool | None = None
     last_login: DatetimeStr | None = None
     last_ip: str | None = None
+
+
+class UserLoginName(UserInfo):
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserPasswordOut(UserSimpleOut):
