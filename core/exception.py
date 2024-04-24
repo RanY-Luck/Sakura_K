@@ -21,7 +21,6 @@ from core.logger import logger
 
 class CustomException(Exception):
 
-
     def __init__(
             self,
             msg: str,
@@ -62,16 +61,16 @@ def register_exception(app: FastAPI):
         """
         重写HTTPException异常处理器
         """
-        if DEBUG:
-            print("请求地址", request.url.__str__())
-            print("捕捉到重写HTTPException异常异常：unicorn_exception_handler")
-            print(exc.detail)
-        # 打印栈信息，方便追踪排查异常
-        logger.exception(exc)
+        logger.error(f"请求地址:{request.url.__str__()}")
+        logger.error("捕捉到重写HTTPException异常异常：unicorn_exception_handler")
+        logger.error(exc.detail)
+        if not DEBUG:
+            # 打印栈信息，方便追踪排查异常
+            logger.exception(exc)
         return JSONResponse(
-            status_code=200,
+            status_code=exc.status_code,
             content={
-                "code": status.HTTP_400_BAD_REQUEST,
+                "code": exc.status_code,
                 "message": exc.detail,
             }
         )
