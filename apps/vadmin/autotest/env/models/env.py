@@ -16,12 +16,11 @@ class EnvInfo(BaseModel):
     __tablename__ = "env_management"
     __table_args__ = ({'comment': '环境管理表'})
 
-    env_name: Mapped[str] = mapped_column(String(255), nullable=False, comment="环境名称", index=True)
+    env_name: Mapped[str] = mapped_column(String(10), nullable=False, comment="环境名称", index=True)
     dns: Mapped[str] = mapped_column(String(255), comment="环境域名")
-    remarks: Mapped[str] = mapped_column(String(255), comment="备注")
     env_variables: Mapped[JSON] = mapped_column(JSON, comment="环境变量")
-    headers: Mapped[JSON] = mapped_column(JSON, comment="环境请求头")
-    data_sources: Mapped[JSON] = mapped_column(JSON, comment="数据源")
+    headers: Mapped[JSON] = mapped_column(JSON, nullable=True, comment="HTTP配置")
+    remarks: Mapped[str] = mapped_column(String(100), nullable=True, comment="备注")
     create_user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("vadmin_auth_user.id", ondelete='RESTRICT'),

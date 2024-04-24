@@ -5,7 +5,7 @@
 # @File     : env.py
 # @Software : PyCharm
 # @Desc     :
-from typing import Any, List, Optional
+from typing import List
 
 from pydantic import BaseModel, ConfigDict
 
@@ -26,11 +26,10 @@ class EnvVariable(BaseModel):
 
 class Env(BaseModel):
     env_name: str
-    dns: Optional[str] = None
-    remarks: Optional[str] = None
-    headers: List[Header]
-    env_variables: List[EnvVariable]
-    data_sources: Any
+    dns: str
+    remarks: str | None = None
+    headers: List[Header] = None
+    env_variables: List[EnvVariable] = None
     create_user_id: int
 
 
