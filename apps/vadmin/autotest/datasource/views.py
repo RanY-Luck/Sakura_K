@@ -42,7 +42,7 @@ async def add_datasource(data: schemas.DataSource, auth: Auth = Depends(AllUserA
     return SuccessResponse(await crud.DataSourceDal(auth.db).create_data(data=data))
 
 
-@app.put("/datasource/{data_id}", summary="更新数据源")
+@app.put("/{data_id}", summary="更新数据源")
 async def update_datasource(
         data_id: int,
         data: schemas.DataSource,

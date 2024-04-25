@@ -20,7 +20,7 @@ class DataSourceInfo(BaseModel):
     type: Mapped[int] = mapped_column(Integer, comment="类型：1 Mysql", default=1)
     host: Mapped[str] = mapped_column(String(255), comment="IP")
     port: Mapped[int] = mapped_column(Integer, comment="端口")
-    user: Mapped[str] = mapped_column(String(255), comment="用户名")
+    username: Mapped[str] = mapped_column(String(255), comment="用户名")
     password: Mapped[str] = mapped_column(String(255), comment="密码")
     create_user_id: Mapped[int] = mapped_column(
         Integer,
