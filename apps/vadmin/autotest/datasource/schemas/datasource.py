@@ -11,31 +11,56 @@ from apps.vadmin.auth.schemas import UserLoginName
 from core.data_types import DatetimeStr
 
 
-class DataSource(BaseModel):
-    data_name: str
-    type: PositiveInt = 1
-    host: str
-    port: int = 3306
-    username: str
-    password: str
-    create_user_id: PositiveInt
+class DataType(BaseModel):
+    type_name: str | None = None
+    type_id: int | None = None
 
-    @field_validator('type')
-    def validate_status_priority(cls, value):
-        if value not in {1}:
-            raise ValueError("type必须是1,目前只支持mysql类型")
-        return value
-
-    @field_validator('create_user_id', 'type', 'port')
+    @field_validator('type_id')
     def validate_positive_integer(cls, value):
         if value <= 0:
             raise ValueError("必须为正整数")
         return value
 
 
+class DataSource(BaseModel):
+    data_name: str
+    type_id: PositiveInt = 1
+    host: str
+    port: int = 3306
+    username: str
+    password: str
+    create_user_id: PositiveInt
+
+    @field_validator('type_id')
+    def validate_status_priority(cls, value):
+        if value not in {1}:
+            raise ValueError("type必须是1,目前只支持mysql类型")
+        return value
+
+    @field_validator('create_user_id', 'type_id', 'port')
+    def validate_positive_integer(cls, value):
+        if value <= 0:
+            raise ValueError("必须为正整数")
+        return value
+
+
+class TypeSimpleOut(DataType):
+    model_config = ConfigDict(from_attributes=True)
+
+
 class DataSourceSimpleOut(DataSource):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    type_id: int
+    create_datetime: DatetimeStr
+    update_datetime: DatetimeStr
+
+
+class DataSourceListOut(DataSource):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    type_id: int
+    type: TypeSimpleOut
     create_user: UserLoginName
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr
