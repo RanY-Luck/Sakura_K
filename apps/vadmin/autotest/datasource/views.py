@@ -61,3 +61,47 @@ async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUse
 async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.DataSourceDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")
+
+
+###########################################################
+#                   数据源类型管理                          #
+###########################################################
+@app.get("/getdatatypelist", summary="获取数据源类型列表")
+async def get_datatype_list(p: params.DataTypeParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
+    model = models.DataType
+    options = [joinedload(model.create_user)]
+    schema = schemas.DataTypeSimpleOut
+    datas, count = await crud.DataTypeDal(auth.db).get_datas(
+        **p.dict(),
+        v_options=options,
+        v_schema=schema,
+        v_return_count=True
+    )
+    return SuccessResponse(datas, count=count)
+
+
+@app.post("/adddatatype", summary="新增数据源类型")
+async def add_datatype(data: schemas.DataType, auth: Auth = Depends(AllUserAuth())):
+    data.create_user_id = auth.user.id
+    return SuccessResponse(await crud.DataTypeDal(auth.db).create_data(data=data))
+
+
+@app.put("/datatype/{data_id}", summary="更新数据源类型")
+async def update_datatype(
+        data_id: int,
+        data: schemas.DataType,
+        auth: Auth = Depends(AllUserAuth())
+):
+    return SuccessResponse(await crud.DataTypeDal(auth.db).put_data(data_id, data))
+
+
+@app.delete("/deldatatype", summary="硬删除数据源类型")
+async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.DataTypeDal(auth.db).delete_datas(ids=ids.ids)
+    return SuccessResponse("删除成功")
+
+
+@app.delete("/softdeldatatype", summary="软删除数据源类型")
+async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
+    await crud.DataTypeDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
+    return SuccessResponse("删除成功")

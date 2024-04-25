@@ -14,12 +14,18 @@ from core.data_types import DatetimeStr
 class DataType(BaseModel):
     type_name: str | None = None
     type_id: int | None = None
+    create_user_id: PositiveInt
 
-    @field_validator('type_id')
+    @field_validator('create_user_id', 'type_id')
     def validate_positive_integer(cls, value):
         if value <= 0:
             raise ValueError("必须为正整数")
         return value
+
+
+class DataTypeInfo(BaseModel):
+    type_name: str
+    type_id: int
 
 
 class DataSource(BaseModel):
@@ -44,7 +50,16 @@ class DataSource(BaseModel):
         return value
 
 
-class TypeSimpleOut(DataType):
+class DataTypeSimpleOut(DataType):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    create_user_id: int
+    create_user: UserLoginName
+    create_datetime: DatetimeStr
+    update_datetime: DatetimeStr
+
+
+class DataTypeNameSimpleOut(DataTypeInfo):
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -60,7 +75,7 @@ class DataSourceListOut(DataSource):
     model_config = ConfigDict(from_attributes=True)
     id: int
     type_id: int
-    type: TypeSimpleOut
+    type: DataTypeNameSimpleOut
     create_user: UserLoginName
     create_datetime: DatetimeStr
     update_datetime: DatetimeStr

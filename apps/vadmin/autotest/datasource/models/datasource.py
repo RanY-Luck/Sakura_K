@@ -18,6 +18,12 @@ class DataType(BaseModel):
 
     type_name: Mapped[str] = mapped_column(String(10), comment="数据源名称")
     type_id: Mapped[int] = mapped_column(Integer, index=True, comment="类型：1 Mysql", default=1)
+    create_user_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("vadmin_auth_user.id", ondelete='RESTRICT'),
+        comment="创建人"
+    )
+    create_user: Mapped[VadminUser] = relationship(foreign_keys=create_user_id)
 
 
 class DataSourceInfo(BaseModel):

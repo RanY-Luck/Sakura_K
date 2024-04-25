@@ -24,3 +24,19 @@ class DataSourceParams(QueryParams):
         self.data_name = ('like', data_name)
         self.v_order = "desc"
         self.v_order_field = "create_datetime"
+
+
+class DataTypeParams(QueryParams):
+    """
+    列表分页
+    """
+
+    def __init__(
+            self,
+            type_name: str | None = None,
+            params: Paging = Depends()
+    ):
+        super().__init__(params)
+        self.type_name = ('like', type_name)
+        self.v_order = "desc"
+        self.v_order_field = "create_datetime"
