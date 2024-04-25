@@ -16,9 +16,9 @@ class DataSourceInfo(BaseModel):
     __tablename__ = "data_source"
     __table_args__ = ({'comment': '数据源表'})
 
-    data_name: Mapped[str] = mapped_column(String(255), index=True, comment="数据源名称")
+    data_name: Mapped[str] = mapped_column(String(10), index=True, comment="数据源名称")
     type: Mapped[int] = mapped_column(Integer, comment="类型：1 Mysql", default=1)
-    host: Mapped[str] = mapped_column(String(255), comment="Ip")
+    host: Mapped[str] = mapped_column(String(255), comment="IP")
     port: Mapped[int] = mapped_column(Integer, comment="端口")
     user: Mapped[str] = mapped_column(String(255), comment="用户名")
     password: Mapped[str] = mapped_column(String(255), comment="密码")
