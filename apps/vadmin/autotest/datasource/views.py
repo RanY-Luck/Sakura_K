@@ -53,7 +53,7 @@ async def update_datasource(
 
 @app.delete("/deldatasource", summary="硬删除数据源")
 async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
-    await crud.DataSourceDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
+    await crud.DataSourceDal(auth.db).delete_datas(ids=ids.ids)
     return SuccessResponse("删除成功")
 
 
