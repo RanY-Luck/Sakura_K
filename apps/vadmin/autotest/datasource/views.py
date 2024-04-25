@@ -25,8 +25,8 @@ app = APIRouter()
 @app.get("/getdatasourcelist", summary="获取数据源列表")
 async def get_datasource_list(p: params.DataSourceParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
     model = models.DataSourceInfo
-    options = [joinedload(model.create_user)]
-    schema = schemas.DataSourceSimpleOut
+    options = [joinedload(model.create_user), joinedload(model.type)]
+    schema = schemas.DataSourceListOut
     datas, count = await crud.DataSourceDal(auth.db).get_datas(
         **p.dict(),
         v_options=options,
