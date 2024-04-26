@@ -14,6 +14,6 @@ class Test:
 
         :return:
         """
-        print('{}, 定时任务测试实例，参数为: {}, {}'.format(datetime.datetime.now(), self.name, self.age))
+        print(f'{datetime.datetime.now()}, 定时任务测试实例，参数为: {self.name}, {self.age}')
         time.sleep(3)
         return '任务执行完成'

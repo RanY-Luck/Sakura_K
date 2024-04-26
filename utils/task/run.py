@@ -35,7 +35,7 @@ class ScheduledTask:
         :param job_params: 执行参数
         :return:
         """
-        name = job_params.get("name", None)
+        name = job_params.get("name")
         error_info = None
         try:
             if exec_strategy == self.JobExecStrategy.interval.value:
