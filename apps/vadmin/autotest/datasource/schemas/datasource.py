@@ -50,6 +50,16 @@ class DataSource(BaseModel):
         return value
 
 
+# 查询时将密码排除
+class DataSourceInfo(BaseModel):
+    data_name: str
+    type_id: PositiveInt = 1
+    host: str
+    port: int = 3306
+    username: str
+    create_user_id: PositiveInt
+
+
 class DataTypeSimpleOut(DataType):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -71,7 +81,7 @@ class DataSourceSimpleOut(DataSource):
     update_datetime: DatetimeStr
 
 
-class DataSourceListOut(DataSource):
+class DataSourceListOut(DataSourceInfo):
     model_config = ConfigDict(from_attributes=True)
     id: int
     type_id: int
