@@ -30,3 +30,4 @@ logs/*
 !logs/.gitkeep
 utils/xhs/Download
 static/system
+utils/task/logs
