@@ -610,7 +610,7 @@ class VadminAutomatic(BaseModel):
 ### 第二步: 编写 crud 内容
 
 ```python
-# scripts/crud_generate/main.py
+# scripts/crud_generate/run.py
 
 # 导入 ORM 模型
 from apps.vadmin.demo_generate.models import VadminAutomatic

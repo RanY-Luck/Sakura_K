@@ -3,7 +3,7 @@
 # @Time    : 2023/4/27 19:50
 # @Author  : 冉勇
 # @Site    : 
-# @File    : main.py
+# @File    : run.py
 # @Software: PyCharm
 # @desc    : 主程序入口
 
@@ -90,7 +90,7 @@ def run(
     uvicorn.run(app='main:create_app', host=host, port=port, lifespan="on", factory=True, reload=reload)
 
 
-@shell_app.command()  # 装饰器将该函数注册为命令行命令。当用户在命令行中输入 python main.py init 时，就会执行该函数。
+@shell_app.command()  # 装饰器将该函数注册为命令行命令。当用户在命令行中输入 python run.py init 时，就会执行该函数。
 def init(env: Environment = Environment.pro):
     """
     初始化数据
@@ -115,11 +115,11 @@ def migrate(env: Environment = Environment.pro):
     InitializeData.migrate_model(env)
 
 
-@shell_app.command()  # 该函数注册为命令行命令。当用户在命令行中输入 python main.py init_app <path> 时，就会执行该函数。
+@shell_app.command()  # 该函数注册为命令行命令。当用户在命令行中输入 python run.py init_app <path> 时，就会执行该函数。
 def init_app(path: str):
     """
     自动创建初始化APP结构
-    命令例子：python main.py init-app vadmin/test
+    命令例子：python run.py init-app vadmin/test
     :param path: app路径，根目录为apps，填写apps后面路径即可，例子：vadmin/auth
     :return:
     """
