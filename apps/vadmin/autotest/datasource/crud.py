@@ -18,7 +18,3 @@ class DataSourceDal(DalBase):
         super(DataSourceDal, self).__init__(db, models.DataSourceInfo, schemas.DataSourceSimpleOut)
 
 
-class DataTypeDal(DalBase):
-
-    def __init__(self, db: AsyncSession):
-        super(DataTypeDal, self).__init__(db, models.DataType, schemas.DataTypeSimpleOut)
