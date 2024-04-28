@@ -379,14 +379,23 @@ mac系统安装虚拟环境和激活虚拟环境
 > source venv/bin/activate
 
 ### 可能遇到的问题：
-`redis.exceptions.RedisError: Redis 连接失败: MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.
+问题1:`redis.exceptions.RedisError: Redis 连接失败: MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.
+`
+问题2:`ERROR:    [Errno 10048] error while attempting to bind on address ('0.0.0.0', 9000): 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
 `
 
 解决办法：
+
 ```shell
-redis-cli -a 123456 -p 6379
+解决问题1:redis-cli -a 123456 -p 6379
 
 config set stop-writes-on-bgsave-error no
+
+解决问题2:
+[Win]--> cmd:netstat -ano | findstr :9000
+taskkill /f /pid 进程ID
+[Mac]--> cmd: lsof -i:9000
+kill -9 PID
 ````
 ## 添加任务
 
