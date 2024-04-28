@@ -20,14 +20,13 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from application.settings import STATIC_ROOT, REDIS_DB_ENABLE
+from application.settings import STATIC_ROOT, REDIS_DB_ENABLE, SUBSCRIBE
 from core.crud import DalBase
 from core.database import redis_getter
 from core.exception import CustomException
 from core.mongo_manage import MongoManage
 from utils import status
 from utils.file.file_manage import FileManage
-from utils.task.application.settings import SUBSCRIBE
 from . import models, schemas
 
 
