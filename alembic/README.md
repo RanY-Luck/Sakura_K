@@ -27,6 +27,5 @@ from apps.vadmin.autotest.env.models import *
 from apps.vadmin.autotest.functions.models import *
 from apps.vadmin.autotest.report.models import *
 from apps.vadmin.autotest.testcase.models import *
-from apps.vadmin.redbook.models import *
 ```
 
