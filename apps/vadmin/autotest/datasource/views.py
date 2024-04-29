@@ -40,7 +40,8 @@ async def get_datasource_list(p: params.DataSourceParams = Depends(), auth: Auth
 @app.post("/testconnect", summary="测试连接")
 async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
     db_helper = DatabaseHelper(source_info=data)
-    return SuccessResponse(await db_helper.test_db_connection())
+    datas = await db_helper.test_db_connection()
+    return SuccessResponse(datas)
 
 
 @app.post("/adddatasource", summary="新增数据源")

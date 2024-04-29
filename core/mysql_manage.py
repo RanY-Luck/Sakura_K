@@ -5,7 +5,6 @@
 # @File     : mysql_manage.py
 # @Software : PyCharm
 # @Desc     :
-import asyncio
 
 import aiomysql
 
@@ -135,7 +134,7 @@ async def main():
     query = "SELECT * FROM red_book LIMIT 10;"
     result = await db_helper.execute_query('sakura_k', query)
     print(result)
-    # # 执行操作
+    # 执行操作
     # query = "INSERT INTO data_source(data_name,`host`,`port`,username,`password`,create_user_id,id,create_datetime," \
     #         "update_datetime,is_delete,type_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
     # params = (
@@ -144,5 +143,4 @@ async def main():
     # result = await db_helper.execute_query('sakura_k', query, params)
     # print(result)
 
-
-asyncio.run(main())
+# asyncio.run(main())
