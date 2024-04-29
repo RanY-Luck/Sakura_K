@@ -5,6 +5,8 @@
 # @File     : mysql_manage.py
 # @Software : PyCharm
 # @Desc     :
+import asyncio
+
 import aiomysql
 
 from apps.vadmin.autotest.datasource.schemas import SourceInfo
@@ -90,29 +92,36 @@ class DatabaseHelper:
             logger.error(f"操作数据库失败：{self.db_config}，报错：{e}")
             return {"message": f"操作失败: {e}"}
 
-# # 数据库配置
-# db_config = {
-#     'host': '127.0.0.1',
-#     'port': 3306,
-#     'user': 'root',
-#     'password': '123456',
-# }
-# source_info = SourceInfo(**db_config)
-# db_helper = DatabaseHelper(source_info)
-#
-# # 测试连接
-# result = await db_helper.test_db_connection()
-# print(result)
-# # 获取所有数据库
-# result = await db_helper.get_database()
-# print(result)
-# # 执行查询
-# query = "SELECT * FROM red_book LIMIT 10;"
-# result = await db_helper.execute_query('sakura_k', query)
-# print(result)
-# 执行操作
-# query = "INSERT INTO data_source(data_name,`host`,`port`,username,`password`,create_user_id,id,create_datetime," \
-#         "update_datetime,is_delete,type_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-# params = (
-#     'demo', '127.0.0.1', '3306', 'ranyong', '123456', '1', '4', '2024-04-28 16:02:58', '2024-04-28 16:02:58', '0', '1')
-# db_helper.execute_query('sakura_k', query, params)
+
+async def main():
+    # 数据库配置
+    db_config = {
+        'host': '127.0.0.1',
+        'port': 3306,
+        'user': 'root',
+        'password': '123456',
+    }
+    source_info = SourceInfo(**db_config)
+    db_helper = DatabaseHelper(source_info)
+
+    # 测试连接
+    result = await db_helper.test_db_connection()
+    print(result)
+    # 获取所有数据库
+    result = await db_helper.get_database()
+    print(result)
+    # 执行查询
+    query = "SELECT * FROM red_book LIMIT 10;"
+    result = await db_helper.execute_query('sakura_k', query)
+    print(result)
+    # # 执行操作
+    # query = "INSERT INTO data_source(data_name,`host`,`port`,username,`password`,create_user_id,id,create_datetime," \
+    #         "update_datetime,is_delete,type_id) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+    # params = (
+    #     'demo', '127.0.0.1', '3306', 'ranyong', '123456', '1', '4', '2024-04-28 16:02:58', '2024-04-28 16:02:58', '0',
+    #     '1')
+    # result = await db_helper.execute_query('sakura_k', query, params)
+    # print(result)
+
+
+asyncio.run(main())
