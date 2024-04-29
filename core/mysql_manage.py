@@ -58,17 +58,35 @@ class DatabaseHelper:
             logger.error(f"获取数据库名称失败：{self.db_config}，报错：{e}")
             return {"message": f"获取数据库名称失败: {e}"}
 
+    async def get_tables(self, database):
+        """
+        获取指定数据库中的所有表名
+        :param database: 数据库名
+        :return: 表名列表
+        """
+        try:
+            conn = await aiomysql.connect(**self.db_config)
+            async with conn.cursor() as cursor:
+                # 选择数据库
+                await cursor.execute(f"USE {database}")
+                # 查询表名
+                await cursor.execute("SHOW TABLES")
+                # 获取结果
+                tables = [table[0] async for table in cursor]
+            await conn.ensure_closed()
+            logger.info(f"数据库 {database} 中的表有: {tables}")
+            return {"tables": tables}
+        except aiomysql.Error as e:
+            logger.error(f"获取数据库 {database} 中的表名失败: {e}")
+            return {"message": f"获取数据库 {database} 中的表名失败: {e}"}
+
     async def execute_query(self, database, query, params=None):
         """
-        在指定的数据库中执行 SQL 查询语句。
-
-        Args:
-            database (str): 要操作的数据库名称。
-            query (str): SQL 查询语句。
-            params (tuple, optional): 查询参数,如果有则传递,否则传递 None。
-
-        Returns:
-            dict: 包含查询结果的字典,格式为 {"data": query_result}。若发生异常,则返回错误信息。
+        在指定的数据库中执行 SQL 查询语句
+        :param database: 要操作的数据库名称
+        :param query: SQL 查询语句
+        :param params: 查询参数,如果有则传递,否则传递 None
+        :return:
         """
         try:
             # 连接数据库
@@ -109,6 +127,9 @@ async def main():
     print(result)
     # 获取所有数据库
     result = await db_helper.get_database()
+    print(result)
+    # 获取指定库的所有表
+    result = await db_helper.get_tables("sakura_k")
     print(result)
     # 执行查询
     query = "SELECT * FROM red_book LIMIT 10;"
