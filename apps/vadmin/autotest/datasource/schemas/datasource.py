@@ -16,7 +16,7 @@ class DataSource(BaseModel):
     type_id: str
     host: str
     port: int = 3306
-    username: str
+    user: str
     password: str
     create_user_id: PositiveInt
 
@@ -42,7 +42,7 @@ class DataSourceInfo(BaseModel):
     type_id: str
     host: str
     port: int = 3306
-    username: str
+    user: str
     create_user_id: PositiveInt
 
 

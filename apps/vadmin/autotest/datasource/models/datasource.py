@@ -20,7 +20,7 @@ class DataSourceInfo(BaseModel):
     type_id: Mapped[str] = mapped_column(String(10), comment="数据源类型")
     host: Mapped[str] = mapped_column(String(255), comment="IP")
     port: Mapped[int] = mapped_column(Integer, comment="端口")
-    username: Mapped[str] = mapped_column(String(255), comment="用户名")
+    user: Mapped[str] = mapped_column(String(255), comment="用户名")
     password: Mapped[str] = mapped_column(String(255), comment="密码")
     create_user_id: Mapped[int] = mapped_column(
         Integer,
