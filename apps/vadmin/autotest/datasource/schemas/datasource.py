@@ -27,6 +27,15 @@ class DataSource(BaseModel):
         return value
 
 
+# 数据源信息
+class SourceInfo(BaseModel):
+    host: str
+    port: int
+    user: str
+    password: str
+    database: str = None
+
+
 # 查询时将密码排除
 class DataSourceInfo(BaseModel):
     data_name: str

@@ -12,6 +12,7 @@ from sqlalchemy.orm import joinedload
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.dependencies import IdList
+from core.mysql_manage import DatabaseHelper
 from utils.response import SuccessResponse
 from . import schemas, crud, params, models
 
@@ -34,6 +35,12 @@ async def get_datasource_list(p: params.DataSourceParams = Depends(), auth: Auth
         v_return_count=True
     )
     return SuccessResponse(datas, count=count)
+
+
+@app.post("/testconnect", summary="测试连接")
+async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
+    db_helper = DatabaseHelper(source_info=data)
+    return SuccessResponse(await db_helper.test_db_connection())
 
 
 @app.post("/adddatasource", summary="新增数据源")
