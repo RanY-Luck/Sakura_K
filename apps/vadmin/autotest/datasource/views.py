@@ -97,11 +97,11 @@ async def test_connect(
 async def test_connect(
         data: schemas.SourceInfo,
         databases: str = Query(..., description="数据库库名"),
-        query: str = Query(..., description="SQL 查询语句"),
+        sql: str = Query(..., description="SQL 查询语句"),
         auth: Auth = Depends(FullAdminAuth())
 ):
     db_helper = DatabaseHelper(source_info=data)
-    datas = await db_helper.execute_query(database=databases, query=query)
+    datas = await db_helper.execute_query(database=databases, query=sql)
     return SuccessResponse(datas)
 
 
