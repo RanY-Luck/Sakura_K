@@ -33,7 +33,6 @@ class SourceInfo(BaseModel):
     port: int
     user: str
     password: str
-    database: str = None
 
 
 # 查询时将密码排除
