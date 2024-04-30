@@ -5,7 +5,6 @@
 # @File     : mysql_manage.py
 # @Software : PyCharm
 # @Desc     :
-import asyncio
 import aiomysql
 
 from apps.vadmin.autotest.datasource.schemas import SourceInfo
@@ -35,7 +34,7 @@ class DatabaseHelper:
             return {"message": "MySQL服务器连接成功!"}
         except aiomysql.Error as e:
             logger.error(f"MySQL服务器连接失败：{self.db_config}，报错：{e}")
-            return {"message": f"MySQL服务器连接失败: {e}"}
+            return {"message": f"MySQL服务器连接失败!"}
 
     async def get_database(self):
         """
