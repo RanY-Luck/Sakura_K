@@ -6,7 +6,7 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    :
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import joinedload
 
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
@@ -37,13 +37,6 @@ async def get_datasource_list(p: params.DataSourceParams = Depends(), auth: Auth
     return SuccessResponse(datas, count=count)
 
 
-@app.post("/testconnect", summary="测试连接")
-async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
-    db_helper = DatabaseHelper(source_info=data)
-    datas = await db_helper.test_db_connection()
-    return SuccessResponse(datas)
-
-
 @app.post("/adddatasource", summary="新增数据源")
 async def add_datasource(data: schemas.DataSource, auth: Auth = Depends(AllUserAuth())):
     data.create_user_id = auth.user.id
@@ -69,3 +62,51 @@ async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUse
 async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.DataSourceDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")
+
+
+###########################################################
+#                     数据源获取                            #
+###########################################################
+
+@app.post("/testconnect", summary="测试连接")
+async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
+    db_helper = DatabaseHelper(source_info=data)
+    datas = await db_helper.test_db_connection()
+    return SuccessResponse(datas)
+
+
+@app.post("/dbList", summary="获取数据库中的所有库")
+async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
+    db_helper = DatabaseHelper(source_info=data)
+    datas = await db_helper.get_database()
+    return SuccessResponse(datas)
+
+
+@app.post("/tableList", summary="获取指定数据库中的所有表名")
+async def test_connect(
+        data: schemas.SourceInfo,
+        databases: str = Query(..., description="数据库库名"),
+        auth: Auth = Depends(FullAdminAuth())
+):
+    db_helper = DatabaseHelper(source_info=data)
+    datas = await db_helper.get_tables(database=databases)
+    return SuccessResponse(datas)
+
+
+@app.post("/mysqlexecute", summary="在指定的数据库中执行 SQL 查询语句")
+async def test_connect(
+        data: schemas.SourceInfo,
+        databases: str = Query(..., description="数据库库名"),
+        query: str = Query(..., description="SQL 查询语句"),
+        auth: Auth = Depends(FullAdminAuth())
+):
+    db_helper = DatabaseHelper(source_info=data)
+    datas = await db_helper.execute_query(database=databases, query=query)
+    return SuccessResponse(datas)
+
+
+@app.post("/getalltablesandcolumns", summary="获取所有数据库及其表和列信息")
+async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
+    db_helper = DatabaseHelper(source_info=data)
+    datas = await db_helper.get_all_tables_and_columns()
+    return SuccessResponse(datas)
