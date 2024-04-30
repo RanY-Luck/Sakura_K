@@ -17,8 +17,7 @@ class DatabaseHelper:
             'host': source_info.host,
             'port': source_info.port,
             'user': source_info.user,
-            'password': source_info.password,
-            'db': source_info.database
+            'password': source_info.password
         }
 
     async def test_db_connection(self):
