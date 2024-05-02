@@ -1,5 +1,5 @@
 FROM python:3.10
 
-WORKDIR /task
+WORKDIR /app
 
-CMD [ "python", "run.py"]
+#CMD [ "python", "run.py"]
