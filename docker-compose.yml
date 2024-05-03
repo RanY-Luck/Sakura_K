@@ -56,13 +56,15 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
-    expose:
-      - "27017"
+#    expose:
+#      - "27017"
     volumes:
       - ./docker_env/mongo/data:/data/db
       - ./docker_env/mongo/log:/data/log
       - ./docker_env/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js # 挂载初始化脚本
     environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 123456
       TZ: "Asia/Shanghai" # 设置时区
     networks:
       sakura_network:
