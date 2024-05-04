@@ -174,6 +174,119 @@ python3 main.py run
 # 运行定时任务
 python3 /utils/tasks/run.py run
 ```
+## Docker Compose 生产环境部署
+
+### 准备工作
+
+1. 获取代码
+
+   ```
+   git clone 
+   ```
+
+2. 修改项目环境配置：
+
+   1. 修改 API 端：
+
+      文件路径为：`Sakura_K/application/settings.py`
+
+      ```python
+      # 安全警告: 不要在生产中打开调试运行!
+      DEBUG = False # 生产环境应该改为 False
+      ```
+
+3. 如果已有 Mysql 或者 Redis 或者 MongoDB 数据库，请修改如下内容，如果没有则不需要修改：
+
+   1. 修改 API 端配置文件：
+
+      文件路径为：`Sakura_K/application/config/production.py`
+
+      ```python
+      # Mysql 数据库配置项
+      # 连接引擎官方文档：https://www.osgeo.cn/sqlalchemy/core/engines.html
+      # 数据库链接配置说明：mysql+asyncmy://数据库用户名:数据库密码@数据库地址:数据库端口/数据库名称
+      SQLALCHEMY_DATABASE_URL = "mysql+asyncmy://root:123456@177.8.0.7:3306/kinit"
+      
+      # Redis 数据库配置
+      # 格式："redis://:密码@地址:端口/数据库名称"
+      REDIS_DB_ENABLE = True
+      REDIS_DB_URL = "redis://:123456@177.8.0.5:6379/1"
+      
+      # MongoDB 数据库配置
+      # 格式：mongodb://用户名:密码@地址:端口/?authSource=数据库名称
+      MONGO_DB_ENABLE = True
+      MONGO_DB_NAME = "sakura_k"
+      MONGO_DB_URL = f"mongodb://root:123456@177.8.0.6:27017/?authSource={MONGO_DB_NAME}"
+      ```
+   
+   2将已有的数据库在 `docker-compose.yml` 文件中注释
+   
+4. 配置阿里云 OSS 与 IP 解析接口地址（可选）
+
+   文件路径：`Sakura_K/application/config/production.py`
+
+   ```python
+   # 阿里云对象存储OSS配置
+   # 阿里云账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM用户进行API访问或日常运维，请登录RAM控制台创建RAM用户。
+   # yourEndpoint填写Bucket所在地域对应的Endpoint。以华东1（杭州）为例，
+   # Endpoint填写为https://oss-cn-hangzhou.aliyuncs.com。
+   #  *  [accessKeyId] {String}：通过阿里云控制台创建的AccessKey。
+   #  *  [accessKeySecret] {String}：通过阿里云控制台创建的AccessSecret。
+   #  *  [bucket] {String}：通过控制台或PutBucket创建的bucket。
+   #  *  [endpoint] {String}：bucket所在的区域， 默认oss-cn-hangzhou。
+   ALIYUN_OSS = {
+       "accessKeyId": "accessKeyId",
+       "accessKeySecret": "accessKeySecret",
+       "endpoint": "endpoint",
+       "bucket": "bucket",
+       "baseUrl": "baseUrl"
+   }
+   
+   # 获取IP地址归属地
+   # 文档：https://user.ip138.com/ip/doc
+   IP_PARSE_ENABLE = False
+   IP_PARSE_TOKEN = "IP_PARSE_TOKEN"
+   ```
+   
+5. 前端项目打包：
+
+   ```shell
+   cd kinit-admin
+   
+   # 安装依赖包
+   pnpm install
+   
+   # 打包
+   pnpm run build:pro
+   ```
+
+### 启动并初始化项目
+
+```shell
+# 启动并创建所有容器
+docker-compose up -d
+
+# 初始化数据
+docker-compose exec kinit-api python3 main.py init
+
+# 重启所有容器
+docker-compose restart
+
+
+# 其他命令：
+
+# 停止所有容器
+docker-compose down
+
+# 查看所有容器状态
+docker-compose ps -a
+```
+
+### 访问项目
+
+- 访问地址：http://localhost (默认为此地址，如有修改请按照配置文件)
+- 账号：`` 密码：``
+- 接口地址：http://localhost:9000/docs (默认为此地址，如有修改请按照配置文件)
 
 ## 其他操作
 
@@ -381,6 +494,7 @@ mac系统安装虚拟环境和激活虚拟环境
 ### 可能遇到的问题：
 问题1:`redis.exceptions.RedisError: Redis 连接失败: MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.
 `
+
 问题2:`ERROR:    [Errno 10048] error while attempting to bind on address ('0.0.0.0', 9000): 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
 `
 
