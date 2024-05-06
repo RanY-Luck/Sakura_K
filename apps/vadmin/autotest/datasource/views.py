@@ -7,6 +7,7 @@
 # @Software: PyCharm
 # @desc    :
 from fastapi import APIRouter, Depends, Query
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import joinedload
 
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
@@ -75,11 +76,17 @@ async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminA
     return SuccessResponse(datas)
 
 
+# @app.post("/A", summary="获取数据库中的所有库")
+# async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
+#     db_helper = DatabaseHelper(source_info=data)
+#     datas = await db_helper.get_database()
+#     return SuccessResponse(datas)
+
 @app.post("/dbList", summary="获取数据库中的所有库")
-async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
-    db_helper = DatabaseHelper(source_info=data)
-    datas = await db_helper.get_database()
-    return SuccessResponse(datas)
+async def test_connect(source_id: int, auth: Auth = Depends(FullAdminAuth())):
+    datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
+    json_data = jsonable_encoder(datas)
+    return SuccessResponse(json_data)
 
 
 @app.post("/tableList", summary="获取指定数据库中的所有表名")
