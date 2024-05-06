@@ -77,17 +77,16 @@ class DatabaseHelper:
             logger.error(f"获取数据库 {database} 中的表名失败: {e}")
             return {"message": f"获取数据库 {database} 中的表名失败: {e}"}
 
-    async def get_all_tables_and_columns(self):
+    async def get_all_databases_and_tables(self):
         """
-        获取所有数据库及其表和列信息
-        :return: 字典形式的数据库信息
+        获取所有数据库及其表信息
+        :return: 字典形式的数据库和表信息
         """
         try:
             conn = await aiomysql.connect(**self.db_config)
             databases_dict = await self.get_database()  # 使用 await 获取返回值
             databases = databases_dict['databases']  # 提取数据库列表
             all_info = {}
-
             for database in databases:
                 async with conn.cursor() as cursor:
                     # 选择数据库
@@ -95,18 +94,13 @@ class DatabaseHelper:
                     # 获取表名
                     await cursor.execute("SHOW TABLES")
                     tables = [table[0] async for table in cursor]
-                    all_info[database] = {}
-                    for table in tables:
-                        # 获取表结构
-                        await cursor.execute(f"DESCRIBE {table}")
-                        columns = [column[0] async for column in cursor]
-                        all_info[database][table] = columns
-                    logger.info(f"数据库 {database} 中的表有: {all_info}")
+                    all_info[database] = tables
+            logger.info(f"获取到的数据库及其表信息: {all_info}")
             await conn.ensure_closed()
             return all_info
         except aiomysql.Error as e:
-            logger.error(f"获取所有数据库及其表和列信息失败: {e}")
-            return {"message": f"获取所有数据库及其表和列信息失败: {e}"}
+            logger.error(f"获取所有数据库及其表信息失败: {e}")
+            return {"message": f"获取所有数据库及其表信息失败: {e}"}
 
     async def execute_query(self, database, query, params=None):
         """
@@ -164,7 +158,7 @@ async def main():
     result = await db_helper.execute_query('sakura_k', query)
     print(result)
     # 获取所有数据库及其表和列信息
-    result = await db_helper.get_all_tables_and_columns()
+    result = await db_helper.get_all_databases_and_tables()
     print(result)
     # 执行操作
     # query = "INSERT INTO data_source(data_name,`host`,`port`,username,`password`,create_user_id,id,create_datetime," \

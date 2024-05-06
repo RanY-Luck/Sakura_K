@@ -121,14 +121,14 @@ async def mysqlexecute(
     return SuccessResponse(datas)
 
 
-@app.post("/getalltablesandcolumns", summary="获取所有数据库及其表和列信息")
+@app.post("/getalltablesandcolumns", summary="获取所有数据库及其表信息")
 async def get_all_tablesandcolumns(source_id: int, auth: Auth = Depends(FullAdminAuth())):
     datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
     if datas:
         source_info = datas[0]
         json_data = jsonable_encoder(source_info)
         db_helper = DatabaseHelper(source_info=json_data)
-        datas = await db_helper.get_all_tables_and_columns()
+        datas = await db_helper.get_all_databases_and_tables()
     else:
         datas = {"message": "无法获取数据源信息"}
     return SuccessResponse(datas)
