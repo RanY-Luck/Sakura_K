@@ -14,10 +14,10 @@ from core.logger import logger
 class DatabaseHelper:
     def __init__(self, source_info: SourceInfo):
         self.db_config = {
-            'host': source_info.host,
-            'port': source_info.port,
-            'user': source_info.user,
-            'password': source_info.password
+            'host': source_info.get('host'),
+            'port': source_info.get('port'),
+            'user': source_info.get('user'),
+            'password': source_info.get('password')
         }
 
     async def test_db_connection(self):

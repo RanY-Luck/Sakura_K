@@ -76,21 +76,21 @@ async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminA
     return SuccessResponse(datas)
 
 
-# @app.post("/A", summary="获取数据库中的所有库")
-# async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
-#     db_helper = DatabaseHelper(source_info=data)
-#     datas = await db_helper.get_database()
-#     return SuccessResponse(datas)
-
 @app.post("/dbList", summary="获取数据库中的所有库")
-async def test_connect(source_id: int, auth: Auth = Depends(FullAdminAuth())):
+async def get_dblist(source_id: int, auth: Auth = Depends(FullAdminAuth())):
     datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
-    json_data = jsonable_encoder(datas)
-    return SuccessResponse(json_data)
+    if datas:
+        source_info = datas[0]  # 假设列表的第一个元素就是我们需要的SourceInfo对象
+        json_data = jsonable_encoder(source_info)
+        db_helper = DatabaseHelper(source_info=json_data)
+        datas = await db_helper.get_database()
+    else:
+        datas = {"message": "无法获取数据源信息"}
+    return SuccessResponse(datas)
 
 
 @app.post("/tableList", summary="获取指定数据库中的所有表名")
-async def test_connect(
+async def get_tablelist(
         data: schemas.SourceInfo,
         databases: str = Query(..., description="数据库库名"),
         auth: Auth = Depends(FullAdminAuth())
@@ -101,7 +101,7 @@ async def test_connect(
 
 
 @app.post("/mysqlexecute", summary="在指定的数据库中执行 SQL 查询语句")
-async def test_connect(
+async def mysqlexecute(
         data: schemas.SourceInfo,
         databases: str = Query(..., description="数据库库名"),
         sql: str = Query(..., description="SQL 查询语句"),
@@ -113,7 +113,7 @@ async def test_connect(
 
 
 @app.post("/getalltablesandcolumns", summary="获取所有数据库及其表和列信息")
-async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
+async def get_all_tablesandcolumns(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
     db_helper = DatabaseHelper(source_info=data)
     datas = await db_helper.get_all_tables_and_columns()
     return SuccessResponse(datas)
