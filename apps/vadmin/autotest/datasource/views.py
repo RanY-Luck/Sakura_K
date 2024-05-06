@@ -108,13 +108,19 @@ async def get_tablelist(
 
 @app.post("/mysqlexecute", summary="在指定的数据库中执行 SQL 查询语句")
 async def mysqlexecute(
-        data: schemas.SourceInfo,
+        source_id: int,
         databases: str = Query(..., description="数据库库名"),
         sql: str = Query(..., description="SQL 查询语句"),
         auth: Auth = Depends(FullAdminAuth())
 ):
-    db_helper = DatabaseHelper(source_info=data)
-    datas = await db_helper.execute_query(database=databases, query=sql)
+    datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
+    if datas:
+        source_info = datas[0]
+        json_data = jsonable_encoder(source_info)
+        db_helper = DatabaseHelper(source_info=json_data)
+        datas = await db_helper.execute_query(database=databases, query=sql)
+    else:
+        datas = {"message": "无法获取数据表信息"}
     return SuccessResponse(datas)
 
 
