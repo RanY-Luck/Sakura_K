@@ -26,14 +26,14 @@ class DatabaseHelper:
         :return:
         """
         try:
-            # 连接数据库
+            # 连接MySQL服务器
             conn = await aiomysql.connect(**self.db_config)
             await conn.ensure_closed()
-            logger.info("MySQL服务器连接成功")
-            return {"message": "MySQL服务器连接成功!"}
+            logger.info(f"连接成功: {self.db_config}")
+            return {"message": "连接成功"}
         except aiomysql.Error as e:
-            logger.error(f"MySQL服务器连接失败：{self.db_config}，报错：{e}")
-            return {"message": f"MySQL服务器连接失败!"}
+            logger.error(f"连接失败: {self.db_config}，报错：{e}")
+            return {"message": f"连接失败: {e}"}
 
     async def get_database(self):
         """
@@ -174,6 +174,5 @@ async def main():
     #     '1')
     # result = await db_helper.execute_query('sakura_k', query, params)
     # print(result)
-
 
 # asyncio.run(main())

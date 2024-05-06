@@ -71,7 +71,7 @@ async def delete_datasource(ids: IdList = Depends(), auth: Auth = Depends(AllUse
 
 @app.post("/testconnect", summary="测试连接")
 async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminAuth())):
-    db_helper = DatabaseHelper(source_info=data)
+    db_helper = DatabaseHelper(source_info=data.model_dump())
     datas = await db_helper.test_db_connection()
     return SuccessResponse(datas)
 

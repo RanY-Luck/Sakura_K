@@ -40,4 +40,4 @@ class DataSourceInfoDal(DalBase):
         sql = select(models.DataSourceInfo).where(models.DataSourceInfo.id == source_id)
         queryset = await self.db.execute(sql)
         result = queryset.scalars().all()
-        return [schemas.DataSourceSimpleOut.from_orm(item) for item in result]
+        return [schemas.DataSourceSimpleOut.model_validate(item) for item in result]
