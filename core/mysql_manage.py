@@ -30,10 +30,10 @@ class DatabaseHelper:
             conn = await aiomysql.connect(**self.db_config)
             await conn.ensure_closed()
             logger.info(f"连接成功: {self.db_config}")
-            return {"message": "连接成功"}
+            return {"message": "MySQL服务器连接成功!"}
         except aiomysql.Error as e:
             logger.error(f"连接失败: {self.db_config}，报错：{e}")
-            return {"message": f"连接失败: {e}"}
+            return {"message": f"MySQL服务器连接失败!: {e}"}
 
     async def get_database(self):
         """
