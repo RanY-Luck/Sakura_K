@@ -80,7 +80,7 @@ async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminA
 async def get_dblist(source_id: int, auth: Auth = Depends(FullAdminAuth())):
     datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
     if datas:
-        source_info = datas[0]  # 假设列表的第一个元素就是我们需要的SourceInfo对象
+        source_info = datas[0]
         json_data = jsonable_encoder(source_info)
         db_helper = DatabaseHelper(source_info=json_data)
         datas = await db_helper.get_database()
@@ -91,12 +91,18 @@ async def get_dblist(source_id: int, auth: Auth = Depends(FullAdminAuth())):
 
 @app.post("/tableList", summary="获取指定数据库中的所有表名")
 async def get_tablelist(
-        data: schemas.SourceInfo,
+        source_id: int,
         databases: str = Query(..., description="数据库库名"),
         auth: Auth = Depends(FullAdminAuth())
 ):
-    db_helper = DatabaseHelper(source_info=data)
-    datas = await db_helper.get_tables(database=databases)
+    datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
+    if datas:
+        source_info = datas[0]
+        json_data = jsonable_encoder(source_info)
+        db_helper = DatabaseHelper(source_info=json_data)
+        datas = await db_helper.get_tables(database=databases)
+    else:
+        datas = {"message": "无法获取数据表信息"}
     return SuccessResponse(datas)
 
 
