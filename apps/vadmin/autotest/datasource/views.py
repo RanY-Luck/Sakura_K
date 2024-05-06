@@ -77,7 +77,10 @@ async def test_connect(data: schemas.SourceInfo, auth: Auth = Depends(FullAdminA
 
 
 @app.post("/dbList", summary="获取数据库中的所有库")
-async def get_dblist(source_id: int, auth: Auth = Depends(FullAdminAuth())):
+async def get_dblist(
+        source_id: int = Query(..., description="数据源Id"),
+        auth: Auth = Depends(FullAdminAuth())
+):
     datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
     if datas:
         source_info = datas[0]
@@ -91,7 +94,7 @@ async def get_dblist(source_id: int, auth: Auth = Depends(FullAdminAuth())):
 
 @app.post("/tableList", summary="获取指定数据库中的所有表名")
 async def get_tablelist(
-        source_id: int,
+        source_id: int = Query(..., description="数据源Id"),
         databases: str = Query(..., description="数据库库名"),
         auth: Auth = Depends(FullAdminAuth())
 ):
@@ -108,7 +111,7 @@ async def get_tablelist(
 
 @app.post("/mysqlexecute", summary="在指定的数据库中执行 SQL 查询语句")
 async def mysqlexecute(
-        source_id: int,
+        source_id: int = Query(..., description="数据源Id"),
         databases: str = Query(..., description="数据库库名"),
         sql: str = Query(..., description="SQL 查询语句"),
         auth: Auth = Depends(FullAdminAuth())
@@ -122,7 +125,10 @@ async def mysqlexecute(
 
 
 @app.post("/getalltablesandcolumns", summary="获取所有数据库及其表信息")
-async def get_all_tablesandcolumns(source_id: int, auth: Auth = Depends(FullAdminAuth())):
+async def get_all_tablesandcolumns(
+        source_id: int = Query(..., description="数据源Id"),
+        auth: Auth = Depends(FullAdminAuth())
+):
     datas = await crud.DataSourceInfoDal(auth.db).get_datasource_info(source_id=source_id)
     if datas:
         source_info = datas[0]

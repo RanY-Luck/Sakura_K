@@ -50,7 +50,7 @@ class DatabaseHelper:
                 databases = [db[0] async for db in cursor]
             await conn.ensure_closed()
             logger.info(f"该连接的数据库有表有以下:{databases}")
-            return {"databases": databases}
+            return {"databases": databases, "type": "database"}
         except aiomysql.Error as e:
             logger.error(f"获取数据库名称失败：{self.db_config}，报错：{e}")
             return {"message": f"获取数据库名称失败: {e}"}
@@ -72,7 +72,7 @@ class DatabaseHelper:
                 tables = [table[0] async for table in cursor]
             await conn.ensure_closed()
             logger.info(f"数据库 {database} 中的表有: {tables}")
-            return {"tables": tables}
+            return {"tables": tables, "type": "tables"}
         except aiomysql.Error as e:
             logger.error(f"获取数据库 {database} 中的表名失败: {e}")
             return {"message": f"获取数据库 {database} 中的表名失败: {e}"}
