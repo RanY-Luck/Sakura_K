@@ -20,7 +20,7 @@ class ApiInfo(BaseModel):
     api_name: Mapped[str] = mapped_column(String(255), nullable=False, comment="用例名称", index=True)
     project_id: Mapped[int] = mapped_column(Integer, nullable=False, comment="所属项目")
     module_id: Mapped[int] = mapped_column(Integer, nullable=False, comment="所属模块")
-    status: Mapped[int] = mapped_column(Integer, comment="用例状态：10 生效 20 失效", default=10)
+    status: Mapped[int] = mapped_column(Integer, comment="用例状态：1 生效 0 失效", default=1)
     priority: Mapped[int] = mapped_column(Integer, comment="优先级", default=3)
     tags: Mapped[JSON] = mapped_column(JSON, comment="用例标签")
     url: Mapped[str] = mapped_column(String(255), nullable=False, comment="请求地址")

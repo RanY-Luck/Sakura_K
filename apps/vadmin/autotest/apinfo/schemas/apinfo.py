@@ -18,7 +18,7 @@ class ApiInfo(BaseModel):
     api_name: str
     project_id: int
     module_id: int
-    status: int = 10
+    status: int = 1
     priority: int = 3
     tags: List[str]
     url: str
@@ -29,8 +29,8 @@ class ApiInfo(BaseModel):
 
     @field_validator('status')
     def validate_status_priority(cls, value):
-        if value not in {10, 20}:
-            raise ValueError("status必须是10或20")
+        if value not in {1, 0}:
+            raise ValueError("status必须是1或0")
         return value
 
     @field_validator('method')
