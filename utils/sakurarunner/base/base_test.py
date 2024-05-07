@@ -37,11 +37,8 @@ class BaseTest:
             # 打印返回内容，用于调试
             # logger.info(f'🌐response: {response.text}')
             BaseTest.response_json = response.json()
-            BaseTest.response = response
-            return response
-        else:
-            BaseTest.response = response
-            return response
+        BaseTest.response = response
+        return response
 
     @staticmethod
     def assert_status_code(expected_code: int):
@@ -50,7 +47,7 @@ class BaseTest:
         :param expected_code:
         :return:
         """
-        logger.info(f'------------------🔎返回码断言-------------------')
+        logger.info('------------------🔎返回码断言-------------------')
         status_code = BaseTest.response.status_code
         logger.info(f'status_code: {status_code}')
         logger.info(f'expected_code: {expected_code}')
@@ -63,7 +60,7 @@ class BaseTest:
         :param max_time: 最大响应时间
         :return:
         """
-        logger.info(f'------------------🔎返回时间断言-------------------')
+        logger.info('------------------🔎返回时间断言-------------------')
         response_time = BaseTest.response.elapsed.total_seconds()
         logger.info(f'response_time: {response_time}(s)')
         logger.info(f'max_time: {max_time}(s)')
@@ -79,7 +76,7 @@ class BaseTest:
         :param msg: 断言失败提示
         :return:
         """
-        logger.info(f'------------------🔎返回Json断言-------------------')
+        logger.info('------------------🔎返回Json断言-------------------')
         actual_value = jmespath.search(jmes_path, BaseTest.response_json)
         logger.info(f'actual_value: {actual_value}')
         logger.info(f'jmes_path: {jmes_path}')
@@ -87,7 +84,7 @@ class BaseTest:
         logger.info(f'actual_value: {actual_value}({type(actual_value).__name__})')
         if msg is not None:
             assert actual_value == expected_value, f"{msg}"
-        assert actual_value == expected_value, f"断言失败"
+        assert actual_value == expected_value, "断言失败"
 
     @staticmethod
     def extract_value(jmes_path):
@@ -96,7 +93,7 @@ class BaseTest:
         :param jmes_path: jmes_path路径
         :return:
         """
-        logger.info(f'------------------🎨提取变量-------------------')
+        logger.info('------------------🎨提取变量-------------------')
         value = jmespath.search(jmes_path, BaseTest.response_json)
         logger.info(f'jmes_path: {jmes_path}')
         logger.info(f'value: {value}')
