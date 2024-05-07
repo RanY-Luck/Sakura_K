@@ -5,6 +5,8 @@
 # @File     : base_test.py
 # @Software : PyCharm
 # @Desc     :
+import time
+
 import jmespath
 import requests
 
@@ -100,6 +102,16 @@ class BaseTest:
         logger.info(f'value: {value}')
         return value
 
+    @staticmethod
+    def wait(seconds: int):
+        """
+        强制等待时间
+        :param seconds: 等待时间
+        :return:
+        """
+        logger.info(f'------------------⏰️等待{seconds}秒-------------------')
+        time.sleep(seconds)
+
 
 if __name__ == '__main__':
     BaseTest.RunRequest(
@@ -116,3 +128,4 @@ if __name__ == '__main__':
     BaseTest.assert_response_time(0.1)
     BaseTest.assert_equal('openapi', '3.1.0')
     BaseTest.extract_value('openapi')
+    BaseTest.wait(3)
