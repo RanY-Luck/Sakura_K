@@ -40,6 +40,19 @@ class BaseTest:
             BaseTest.response = response
             return response
 
+    @staticmethod
+    def assert_status_code(expected_code: int):
+        """
+        返回码断言
+        :param expected_code:
+        :return:
+        """
+        logger.info(f'------------------🔎返回码断言-------------------')
+        status_code = BaseTest.response.status_code
+        logger.info(f'status_code: {status_code}')
+        logger.info(f'expected_code: {expected_code}')
+        assert status_code == expected_code, f"Expected status code: {expected_code}, Actual status code: {BaseTest.response.status_code}"
+
 
 if __name__ == '__main__':
     BaseTest.RunRequest(
@@ -52,3 +65,4 @@ if __name__ == '__main__':
             'Connection': 'keep-alive'
         }
     )
+    BaseTest.assert_status_code(200)
