@@ -53,6 +53,19 @@ class BaseTest:
         logger.info(f'expected_code: {expected_code}')
         assert status_code == expected_code, f"Expected status code: {expected_code}, Actual status code: {BaseTest.response.status_code}"
 
+    @staticmethod
+    def assert_response_time(max_time: int):
+        """
+        返回时间断言,用于测试接口在max_time时间内的响应
+        :param max_time: 最大响应时间
+        :return:
+        """
+        logger.info(f'------------------🔎返回时间断言-------------------')
+        response_time = BaseTest.response.elapsed.total_seconds()
+        logger.info(f'response_time: {response_time}(s)')
+        logger.info(f'max_time: {max_time}(s)')
+        assert response_time < max_time, f"Response time exceeds maximum allowed time of {max_time} seconds"
+
 
 if __name__ == '__main__':
     BaseTest.RunRequest(
@@ -66,3 +79,4 @@ if __name__ == '__main__':
         }
     )
     BaseTest.assert_status_code(200)
+    BaseTest.assert_response_time(0.1)
