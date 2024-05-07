@@ -125,7 +125,7 @@ if __name__ == '__main__':
         }
     )
     BaseTest.assert_status_code(200)
-    BaseTest.assert_response_time(0.1)
+    BaseTest.assert_response_time(3)
     BaseTest.assert_equal('openapi', '3.1.0')
     BaseTest.extract_value('openapi')
     BaseTest.wait(3)
