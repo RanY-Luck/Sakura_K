@@ -7,58 +7,24 @@
 # @Software: PyCharm
 # @desc    :
 
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from core.data_types import DatetimeStr
 
 
-class RequestModel(BaseModel):
-    url: str
-    data: str
-    mode: str
-    method: str
-    params: Dict[str, Any]
-    upload: Dict[str, Any]
-    verify: bool
-    cookies: Dict[str, Any]
-    headers: List[str]
-    timeout: int
-    language: str
-    req_json: Dict[str, Any]
-    allow_redirects: bool
-
-
 class ApiInfo(BaseModel):
     api_name: str
     project_id: int
     module_id: int
-    status: int
-    code_id: int
-    code: str
-    priority: int
+    status: int = 10
+    priority: int = 3
     tags: List[str]
     url: str
     method: str
     remarks: str
-    step_type: str
-    pre_steps: Dict[str, Any]
-    post_steps: Dict[str, Any]
-    setup_code: str
-    teardown_code: str
-    setup_hooks: List
-    teardown_hooks: List
-    headers: List
-    variables: List
-    validators: List
-    extracts: List
-    export: List
-    request: RequestModel
-    sql_request: Dict[str, Any]
-    loop_data: Dict[str, Any]
-    if_data: Dict[str, Any]
-    wait_data: Dict[str, Any]
+    headers: List[Dict]
     create_user_id: int
 
     @field_validator('status')
