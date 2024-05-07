@@ -87,6 +87,19 @@ class BaseTest:
             assert actual_value == expected_value, f"{msg}"
         assert actual_value == expected_value, f"断言失败"
 
+    @staticmethod
+    def extract_value(jmes_path):
+        """
+        根据jmes_path提取参数
+        :param jmes_path: jmes_path路径
+        :return:
+        """
+        logger.info(f'------------------🎨提取变量-------------------')
+        value = jmespath.search(jmes_path, BaseTest.response_json)
+        logger.info(f'jmes_path: {jmes_path}')
+        logger.info(f'value: {value}')
+        return value
+
 
 if __name__ == '__main__':
     BaseTest.RunRequest(
@@ -102,3 +115,4 @@ if __name__ == '__main__':
     BaseTest.assert_status_code(200)
     BaseTest.assert_response_time(0.1)
     BaseTest.assert_equal('openapi', '3.1.0')
+    BaseTest.extract_value('openapi')
