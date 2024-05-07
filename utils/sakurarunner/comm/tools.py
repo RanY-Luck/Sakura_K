@@ -4,7 +4,7 @@
 # @Author   : 冉勇
 # @File     : tools.py
 # @Software : PyCharm
-# @Desc     :
+# @Desc     : 测试用例内置函数
 import datetime
 import random
 import string

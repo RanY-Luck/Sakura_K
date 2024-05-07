@@ -7,4 +7,4 @@
 # @Software: PyCharm
 # @desc    : 初始化文件
 
-from .apinfo import RequestModel, ApiInfo, ApInfoSimpleOut
+from .apinfo import ApiInfo, ApInfoSimpleOut

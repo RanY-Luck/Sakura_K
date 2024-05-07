@@ -20,7 +20,7 @@ from application.settings import BASE_DIR
 """
 
 # 移除控制台输出
-# logger.remove(handler_id=None)
+logger.remove(handler_id=None)
 
 log_path = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(log_path):
