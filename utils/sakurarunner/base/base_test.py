@@ -5,6 +5,7 @@
 # @File     : base_test.py
 # @Software : PyCharm
 # @Desc     :
+import jmespath
 import requests
 
 from core.logger import logger
@@ -66,6 +67,26 @@ class BaseTest:
         logger.info(f'max_time: {max_time}(s)')
         assert response_time < max_time, f"Response time exceeds maximum allowed time of {max_time} seconds"
 
+    @staticmethod
+    def assert_equal(jmes_path, expected_value, msg=None):
+        """
+        jmes_path断言
+        官方文档：https://www.osgeo.cn/jmespath/tutorial.html
+        :param jmes_path: jmes_path路径
+        :param expected_value: 期望值
+        :param msg: 断言失败提示
+        :return:
+        """
+        logger.info(f'------------------🔎返回Json断言-------------------')
+        actual_value = jmespath.search(jmes_path, BaseTest.response_json)
+        logger.info(f'actual_value: {actual_value}')
+        logger.info(f'jmes_path: {jmes_path}')
+        logger.info(f'expected_value: {expected_value}({type(expected_value).__name__})')
+        logger.info(f'actual_value: {actual_value}({type(actual_value).__name__})')
+        if msg is not None:
+            assert actual_value == expected_value, f"{msg}"
+        assert actual_value == expected_value, f"断言失败"
+
 
 if __name__ == '__main__':
     BaseTest.RunRequest(
@@ -80,3 +101,4 @@ if __name__ == '__main__':
     )
     BaseTest.assert_status_code(200)
     BaseTest.assert_response_time(0.1)
+    BaseTest.assert_equal('openapi', '3.1.0')
