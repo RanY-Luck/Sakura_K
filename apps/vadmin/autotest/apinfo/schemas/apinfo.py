@@ -12,6 +12,7 @@ from typing import Dict, List
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from core.data_types import DatetimeStr
+from utils.sakurarunner.models.base import BodyType
 
 
 class ApiInfo(BaseModel):
@@ -39,6 +40,20 @@ class ApiInfo(BaseModel):
         if value not in valid_methods:
             raise ValueError("method是无效的HTTP方法")
         return value
+
+
+class HttpRequest(BaseModel):
+    method: str
+    url: str
+    body: str = None
+    body_type: BodyType = BodyType.none
+    headers: dict = {}
+
+    @field_validator('method', 'url')
+    def name_not_empty(cls, v):
+        if isinstance(v, str) and len(v.strip()) == 0:
+            raise ValueError("不能为空")
+        return v
 
 
 class ApInfoSimpleOut(ApiInfo):

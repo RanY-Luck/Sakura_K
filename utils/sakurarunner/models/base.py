@@ -6,7 +6,7 @@
 # @Software : PyCharm
 # @Desc     :
 import typing
-from enum import Enum
+from enum import Enum, IntEnum
 
 from pydantic import HttpUrl
 
@@ -67,3 +67,13 @@ class CheckModeEnum(str, Enum):
     variable_or_func = "variable_or_func"
     RequestHeaders = "request_headers"
     ResponseHeaders = "response_headers"
+
+
+class BodyType(IntEnum):
+    """body类型"""
+    none = 0
+    json = 1
+    form = 2
+    x_form = 3
+    binary = 4
+    graphQL = 5

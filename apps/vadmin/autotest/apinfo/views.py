@@ -9,10 +9,12 @@
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import joinedload
+
 from apps.vadmin.auth.utils.current import AllUserAuth, FullAdminAuth
 from apps.vadmin.auth.utils.validation.auth import Auth
 from core.dependencies import IdList
 from utils.response import SuccessResponse
+from utils.sakurarunner.base.AsyncHttpClient import AsyncRequest
 from . import schemas, crud, params, models
 
 app = APIRouter()
@@ -61,3 +63,10 @@ async def delete_apinfo(ids: IdList = Depends(), auth: Auth = Depends(AllUserAut
 async def delete_apinfo(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.ApInfoDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")
+
+
+@app.post("/http", summary="Http请求")
+async def http_request(data: schemas.HttpRequest, auth: Auth = Depends(AllUserAuth())):
+    r = await AsyncRequest(auth.db).client(data.url, data.body_type, headers=data.headers, body=data.body)
+    response = await r.invoke(data.method)
+    return SuccessResponse(data=response)
