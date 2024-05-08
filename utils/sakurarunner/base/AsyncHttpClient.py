@@ -7,7 +7,6 @@
 # @Desc     :
 import json
 import time
-
 import aiohttp
 from aiohttp import FormData
 
@@ -62,11 +61,11 @@ class AsyncRequest(object):
     @staticmethod
     async def client(url: str, body_type: BodyType = BodyType.json, timeout=15, **kwargs):
         """
-
-        :param url:
-        :param body_type:
-        :param timeout:
-        :param kwargs:
+        发起请求
+        :param url: 请求的URL
+        :param body_type: none-->0(默认) json-->1 form-->2 x_form-->3 binary-->4 graphQL-->5
+        :param timeout: 请求超时时间 默认 15秒
+        :param kwargs: 可变关键字参数,用于传递其他参数,如headers、body等
         :return:
         """
         if not url.startswith(("http://", "https://")):
@@ -80,7 +79,7 @@ class AsyncRequest(object):
                 if body:
                     body = json.loads(body)
             except Exception as e:
-                raise Exception(f"json格式不正确:{e}")
+                raise Exception(f"json格式不正确:{e}") from e
             r = AsyncRequest(url, headers=headers, timeout=timeout, json=body)
         elif body_type == BodyType.form:
             try:
@@ -105,12 +104,12 @@ class AsyncRequest(object):
             r = AsyncRequest(url, headers=headers, timeout=timeout, data=kwargs.get("body"))
         return r
 
-    def get_request_data(body):
-        request_body = body
-        if isinstance(body, bytes):
+    def get_request_data(self):
+        request_body = self
+        if isinstance(self, bytes):
             request_body = request_body.decode()
-        if isinstance(body, FormData):
-            request_body = str(body)
+        if isinstance(self, FormData):
+            request_body = str(self)
         if isinstance(request_body, str) or request_body is None:
             return request_body
         return json.dumps(request_body, ensure_ascii=False, indent=4)
