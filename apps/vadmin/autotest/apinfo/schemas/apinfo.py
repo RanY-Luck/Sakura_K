@@ -45,9 +45,9 @@ class ApiInfo(BaseModel):
 class HttpRequest(BaseModel):
     method: str
     url: str
-    body: str = None
+    body: str = ''
     body_type: BodyType = BodyType.none
-    headers: dict = {}
+    headers: List[str] = []
 
     @field_validator('method', 'url')
     def name_not_empty(cls, v):
