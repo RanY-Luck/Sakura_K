@@ -11,7 +11,7 @@ import json
 import os
 from enum import Enum
 from typing import Any
-
+import base64
 from fastapi import Request
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -507,3 +507,25 @@ class SchedulerTaskJobsDal(MongoManage):
 
     def __init__(self, db: AsyncIOMotorDatabase):
         super(SchedulerTaskJobsDal, self).__init__(db, "scheduler_task_jobs", is_object_id=False)
+
+
+def deocde_web_urls(web_urls_after_base64):
+    """
+    BASE64 解码传来的需要测试访问性的网址列表
+    """
+    web_urls_str = base64.b64decode(web_urls_after_base64.encode("utf-8"))
+    # 转为字符串并去掉空格
+    web_urls_str = str(web_urls_str.decode("utf-8"))
+    web_urls_str = web_urls_str.replace(" ", "")
+    # 如果出现字符串类型转换错误则手动纠正
+    if ("b'" in web_urls_str):
+        web_urls_str = web_urls_str.replace("b'[", "").replace("]'", "")
+    else:
+        web_urls_str = web_urls_str.replace("[", "").replace("]", "")
+    # 去掉引号
+    web_urls_str = web_urls_str.replace("'", "").replace('"', "")
+    # 分割
+    web_urls = web_urls_str.split(",")
+    return web_urls
+
+
