@@ -47,7 +47,7 @@ class HttpRequest(BaseModel):
     url: str
     body: str = ''
     body_type: BodyType = BodyType.none
-    headers: List[str] = []
+    headers: Dict = {}
 
     @field_validator('method', 'url')
     def name_not_empty(cls, v):
