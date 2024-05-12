@@ -75,5 +75,4 @@ class BodyType(IntEnum):
     json = 1
     form = 2
     x_form = 3
-    binary = 4
-    graphQL = 5
+    raw = 4
