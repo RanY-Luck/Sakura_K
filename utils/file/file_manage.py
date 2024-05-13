@@ -65,6 +65,7 @@ class FileManage(FileBase):
             'remote_path': '/media/system/20240304/logo.png'
         }
         """
+        file_size = self.file.size
         path = AsyncPath(self.path)
         if sys.platform == "win32":
             path = AsyncPath(self.path.replace("/", "\\"))
@@ -73,7 +74,8 @@ class FileManage(FileBase):
         await path.write_bytes(await self.file.read())
         return {
             "local_path": str(path),
-            "remote_path": STATIC_URL + str(path).replace(STATIC_ROOT, '').replace("\\", '/')
+            "remote_path": STATIC_URL + str(path).replace(STATIC_ROOT, '').replace("\\", '/'),
+            "file_size": "{:.2f} MB".format(file_size / 1024 / 1024)
         }
 
     @classmethod

@@ -6,7 +6,6 @@
 # @File    : views.py
 # @Software: PyCharm
 # @desc    : 主要接口文件
-import time
 from fastapi import APIRouter, Depends, Body, UploadFile, Form, Request
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from redis.asyncio import Redis
@@ -20,11 +19,10 @@ from core.database import db_getter, redis_getter, mongo_getter
 from core.dependencies import IdList
 from utils.file.aliyun_oss import AliyunOSS, BucketConf
 from utils.file.file_manage import FileManage
-from utils.probe import server_status, web_access
+# from utils.probe import server_status, web_access
 from utils.response import SuccessResponse, ErrorResponse
 from utils.sms.code import CodeSMS
 from . import schemas, crud
-from .crud import deocde_web_urls
 from .params import DictTypeParams, DictDetailParams, TaskParams
 from .params.task import TaskRecordParams
 
@@ -126,6 +124,13 @@ async def upload_video_to_oss(file: UploadFile, path: str = Form(...)):
 async def upload_file_to_oss(file: UploadFile, path: str = Form(...)):
     result = await AliyunOSS(BucketConf(**ALIYUN_OSS)).upload_file(path, file)
     return SuccessResponse(result)
+
+
+@app.post("/upload/file/local", summary="上传文件到本地")
+async def upload_file_to_local(file: UploadFile, path: str = Form(...)):
+    manage = FileManage(file, path)
+    path = await manage.async_save_local()
+    return SuccessResponse(path)
 
 
 @app.post("/upload/image/to/local", summary="上传图片到本地")
@@ -267,25 +272,29 @@ async def get_task_records(
     datas = await crud.TaskRecordDal(db).get_datas(**p.dict())
     return SuccessResponse(datas, count=count)
 
-
 ###########################################################
 #                    探针检测网页存活                        #
 ###########################################################
-@app.get("/status", summary="探针检测网页存活")
-async def get_status(
-        web_urls_after_base64: str = 'WyJodHRwczovL3d3dy5iYWlkdS5jb20iLCAiaHR0cHM6Ly9nb29nbGUuY29tIl0=',
-        auth: Auth = Depends(AllUserAuth())
-):
-    # 当前时间戳
-    status = {"timestamp": time.time()}
-    try:
-        # 服务器当前硬件状态
-        status["server_status"] = server_status.get_all()
-        # 测试该服务器对网站的访问可行性
-        if web_urls_after_base64:
-            web_urls = deocde_web_urls(web_urls_after_base64)
-            status["web_access"] = web_access.test_all(web_urls)
-        # 返回
-        return status
-    except Exception as e:
-        raise ErrorResponse(code=500, msg=str(e))
+# @app.get("/status", summary="探针检测网页存活")
+# async def get_status(
+#         web_urls_after_base64: str = 'WyJodHRwczovL3d3dy5iYWlkdS5jb20iLCAiaHR0cHM6Ly9nb29nbGUuY29tIl0=',
+#         auth: Auth = Depends(AllUserAuth())
+# ):
+#     # 当前时间戳
+#     status = {"timestamp": time.time()}
+#     try:
+#         # 服务器当前硬件状态
+#         status["server_status"] = server_status.get_all()
+#         # 测试该服务器对网站的访问可行性
+#         if web_urls_after_base64:
+#             web_urls = deocde_web_urls(web_urls_after_base64)
+#             status["web_access"] = web_access.test_all(web_urls)
+#         # 返回
+#         return status
+#     except Exception as e:
+#         raise ErrorResponse(code=500, msg=str(e))
+
+
+###########################################################
+#                       文件上传                           #
+###########################################################
