@@ -127,8 +127,9 @@ async def upload_file_to_oss(file: UploadFile, path: str = Form(...)):
 
 
 @app.post("/upload/file/local", summary="上传文件到本地")
-async def upload_file_to_local(file: UploadFile, path: str = Form(...)):
-    manage = FileManage(file, path)
+async def upload_file_to_local(file: UploadFile):
+    filepath = f"/resource/file"
+    manage = FileManage(file, filepath)
     path = await manage.async_save_local()
     return SuccessResponse(path)
 
