@@ -108,3 +108,4 @@ textual>=0.40.0
 pyperclip>=1.8.2
 lxml>=4.9.3
 atomic-bomb-engine-py
+psutil==5.9.8
