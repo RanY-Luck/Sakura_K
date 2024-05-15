@@ -29,10 +29,8 @@ class RequestData(BaseModel):
 
 class Request(BaseModel):
     url: str
-    data: List[RequestData] = []
+    data: str
     method: str
-    params: List = []
-    upload: Dict = {}
     verify: bool = False
     cookies: Dict = {}
     headers: List[RequestHeader] = []
