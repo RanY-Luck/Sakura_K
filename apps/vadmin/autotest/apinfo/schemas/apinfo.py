@@ -8,11 +8,38 @@
 # @desc    :
 
 from typing import Dict, List
-
+from typing import Union
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from core.data_types import DatetimeStr
 from utils.sakurarunner.models.base import BodyType
+
+
+class RequestHeader(BaseModel):
+    key: str
+    value: str
+    remarks: str = ''
+
+
+class RequestData(BaseModel):
+    key: str
+    type: str
+    value: Union[str, dict]
+
+
+class Request(BaseModel):
+    url: str
+    data: List[RequestData] = []
+    method: str
+    params: List = []
+    upload: Dict = {}
+    verify: bool = False
+    cookies: Dict = {}
+    headers: List[RequestHeader] = []
+    timeout: int = 0
+    req_json: Dict = None
+    data_type: str = ''
+    allow_redirects: bool = True
 
 
 class ApiInfo(BaseModel):
@@ -25,7 +52,7 @@ class ApiInfo(BaseModel):
     tags: List[str]
     url: str
     description: str
-    request: Dict
+    request: Request
     variables: List[Dict]
     validators: List[Dict]
     extracts: List[Dict]
