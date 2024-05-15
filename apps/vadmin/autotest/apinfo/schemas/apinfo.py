@@ -21,11 +21,16 @@ class ApiInfo(BaseModel):
     module_id: int
     status: int = 1
     priority: int = 3
+    method: str
     tags: List[str]
     url: str
-    method: str
-    remarks: str
-    headers: List[Dict]
+    description: str
+    request: Dict
+    variables: List[Dict]
+    validators: List[Dict]
+    extracts: List[Dict]
+    setup_hooks: List[Dict]
+    teardown_hooks: List[Dict]
     create_user_id: int
 
     @field_validator('status')

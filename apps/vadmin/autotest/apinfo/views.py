@@ -24,7 +24,7 @@ app = APIRouter()
 #                     接口管理                             #
 ###########################################################
 
-@app.get("/getapinfolist", summary="获取接口信息详情")
+@app.get("/apilist", summary="获取接口信息详情")
 async def get_apinfo_list(p: params.ApInfoParams = Depends(), auth: Auth = Depends(FullAdminAuth())):
     model = models.ApiInfo
     options = [joinedload(model.create_user)]
@@ -38,13 +38,13 @@ async def get_apinfo_list(p: params.ApInfoParams = Depends(), auth: Auth = Depen
     return SuccessResponse(datas, count=count)
 
 
-@app.post("/addapinfo", summary="新增接口")
+@app.post("/addapi", summary="新增接口")
 async def add_apinfo(data: schemas.ApiInfo, auth: Auth = Depends(AllUserAuth())):
     data.create_user_id = auth.user.id
     return SuccessResponse(await crud.ApInfoDal(auth.db).create_data(data=data))
 
 
-@app.put("/apinfo/{data_id}", summary="更新接口")
+@app.put("/{data_id}", summary="更新接口")
 async def update_apinfo(
         data_id: int,
         data: schemas.ApiInfo,
@@ -53,13 +53,13 @@ async def update_apinfo(
     return SuccessResponse(await crud.ApInfoDal(auth.db).put_data(data_id, data))
 
 
-@app.delete("/delapinfo", summary="硬删除接口")
+@app.delete("/delapi", summary="硬删除接口")
 async def delete_apinfo(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.ApInfoDal(auth.db).delete_datas(ids=ids.ids, v_soft=False)
     return SuccessResponse("删除成功")
 
 
-@app.delete("/softdelapinfo", summary="软删除接口")
+@app.delete("/softdelapi", summary="软删除接口")
 async def delete_apinfo(ids: IdList = Depends(), auth: Auth = Depends(AllUserAuth())):
     await crud.ApInfoDal(auth.db).delete_datas(ids=ids.ids, v_soft=True)
     return SuccessResponse("删除成功")
