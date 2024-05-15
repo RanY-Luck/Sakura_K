@@ -7,8 +7,7 @@
 # @Software: PyCharm
 # @desc    :
 
-from typing import Dict, List
-from typing import Union
+from typing import Dict, List, Union, Optional
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from core.data_types import DatetimeStr
@@ -24,20 +23,15 @@ class RequestHeader(BaseModel):
 class RequestData(BaseModel):
     key: str
     type: str
-    value: Union[str, dict]
+    value: Union[str, dict, None] = None
 
 
 class Request(BaseModel):
     url: str
-    data: str
+    data: Optional[Union[str, List[RequestData], Dict]] = None
     method: str
-    verify: bool = False
-    cookies: Dict = {}
     headers: List[RequestHeader] = []
-    timeout: int = 0
-    req_json: Dict = None
     data_type: str = ''
-    allow_redirects: bool = True
 
 
 class ApiInfo(BaseModel):
