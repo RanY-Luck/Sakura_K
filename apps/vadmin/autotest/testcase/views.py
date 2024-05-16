@@ -42,7 +42,7 @@ async def create_testcase(data: schemas.TestCase, auth: Auth = Depends(AllUserAu
     return SuccessResponse(await crud.TestCaseDal(auth.db).create_data(data=data))
 
 
-@app.put("/env/{data_id}", summary="更新测试用例")
+@app.put("/{data_id}", summary="更新测试用例")
 async def update_testcase(
         data_id: int,
         data: schemas.TestCase,

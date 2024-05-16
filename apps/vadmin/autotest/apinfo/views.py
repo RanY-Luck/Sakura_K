@@ -70,3 +70,17 @@ async def http_request(data: schemas.HttpRequest, auth: Auth = Depends(AllUserAu
     r = await AsyncRequest(auth.db).client(data.url, data.body_type, headers=data.headers, body=data.body)
     response = await r.invoke(data.method)
     return SuccessResponse(data=response)
+
+
+@app.post("/debugapi", summary="debug接口")
+async def debug_api(data: schemas.HttpRequest, auth: Auth = Depends(AllUserAuth())):
+    r = await AsyncRequest(auth.db).client(data.url, data.body_type, headers=data.headers, body=data.body)
+    response = await r.invoke(data.method)
+    return SuccessResponse(data=response)
+
+
+@app.post("/runapi", summary="运行接口")
+async def run_api(data: schemas.HttpRequest, auth: Auth = Depends(AllUserAuth())):
+    r = await AsyncRequest(auth.db).client(data.url, data.body_type, headers=data.headers, body=data.body)
+    response = await r.invoke(data.method)
+    return SuccessResponse(data=response)
