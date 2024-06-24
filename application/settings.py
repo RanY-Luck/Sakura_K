@@ -33,6 +33,12 @@ BANNER = """
 DEBUG = True
 
 """
+时间格式化
+"""
+DATETIME_TIMEZONE: str = 'Asia/Shanghai'
+DATETIME_FORMAT: str = '%Y-%m-%d %H:%M:%S'
+
+"""
 是否开启演示功能，开启则取消所有的POST、DELETE、PUT操作权限
 """
 DEMO = False

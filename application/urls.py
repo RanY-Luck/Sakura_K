@@ -27,11 +27,15 @@ from apps.vadmin.redbook.views import app as red_book_app
 from apps.vadmin.resource.views import app as vadmin_resource_app
 from apps.vadmin.system.views import app as vadmin_system_app
 from apps.vadmin.workplace.views import app as vadmin_workplace_app
+from apps.vadmin.monitor.server import app as vadmin_server_app
+from apps.vadmin.monitor.redis import app as vadmin_redis_app
 
 # 引入应用中的路由
 urlpatterns = [
     {"ApiRouter": auth_app, "prefix": "/auth", "tags": ["系统认证"]},
     {"ApiRouter": vadmin_auth_app, "prefix": "/vadmin/auth", "tags": ["权限管理"]},
+    {"ApiRouter": vadmin_server_app, "prefix": "/vadmin/monitors", "tags": ["服务器监控"]},
+    {"ApiRouter": vadmin_redis_app, "prefix": "/vadmin/monitors/redis", "tags": ["服务器监控"]},
     {"ApiRouter": vadmin_system_app, "prefix": "/vadmin/system", "tags": ["系统管理"]},
     {"ApiRouter": vadmin_record_app, "prefix": "/vadmin/record", "tags": ["记录管理"]},
     {"ApiRouter": vadmin_workplace_app, "prefix": "/vadmin/workplace", "tags": ["工作区管理"]},
