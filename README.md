@@ -171,6 +171,9 @@ email_port
 # 运行主程序
 python3 main.py run
 
+# cli命令运行
+fastapi dev main.py 
+
 # 运行定时任务
 python3 /utils/tasks/run.py run
 ```

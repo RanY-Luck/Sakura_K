@@ -12,16 +12,14 @@ FastApi 更新文档：https://github.com/tiangolo/fastapi/releases
 FastApi Github：https://github.com/tiangolo/fastapi
 Typer 官方文档：https://typer.tiangolo.com/
 """
-
 import asyncio
-
 import click
 import typer
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiofiles
-
+from pathlib import Path
 from application import settings
 from application import urls
 from core.docs import custom_api_docs
@@ -87,7 +85,14 @@ def run(
     :return:
     """
     click.echo(settings.BANNER)
-    uvicorn.run(app='main:create_app', host=host, port=port, lifespan="on", factory=True, reload=reload)
+    uvicorn.run(
+        app=f'{Path(__file__).stem}:create_app',
+        host=host,
+        port=port,
+        lifespan="on",
+        factory=True,
+        reload=reload
+    )
 
 
 @shell_app.command()  # 装饰器将该函数注册为命令行命令。当用户在命令行中输入 python run.py init 时，就会执行该函数。
@@ -128,5 +133,10 @@ def init_app(path: str):
     app.run()
 
 
+app = create_app()
+
 if __name__ == '__main__':
-    shell_app()
+    try:
+        shell_app()
+    except Exception as e:
+        raise e

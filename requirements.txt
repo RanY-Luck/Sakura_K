@@ -38,6 +38,7 @@ ecdsa==0.18.0
 et-xmlfile==1.1.0
 exceptiongroup==1.2.0
 fastapi==0.110.0
+fastapi-cli==0.0.2
 frozenlist==1.4.1
 greenlet==3.0.3
 gunicorn==21.2.0
