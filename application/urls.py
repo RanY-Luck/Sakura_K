@@ -35,7 +35,7 @@ urlpatterns = [
     {"ApiRouter": auth_app, "prefix": "/auth", "tags": ["系统认证"]},
     {"ApiRouter": vadmin_auth_app, "prefix": "/vadmin/auth", "tags": ["权限管理"]},
     {"ApiRouter": vadmin_server_app, "prefix": "/vadmin/monitors", "tags": ["服务器监控"]},
-    {"ApiRouter": vadmin_redis_app, "prefix": "/vadmin/monitors/redis", "tags": ["服务器监控"]},
+    {"ApiRouter": vadmin_redis_app, "prefix": "/vadmin/monitors", "tags": ["服务器监控"]},
     {"ApiRouter": vadmin_system_app, "prefix": "/vadmin/system", "tags": ["系统管理"]},
     {"ApiRouter": vadmin_record_app, "prefix": "/vadmin/record", "tags": ["记录管理"]},
     {"ApiRouter": vadmin_workplace_app, "prefix": "/vadmin/workplace", "tags": ["工作区管理"]},

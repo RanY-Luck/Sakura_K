@@ -22,7 +22,6 @@ from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiof
 from pathlib import Path
 from application import settings
 from application import urls
-from core import logger
 from core.docs import custom_api_docs
 from core.event import lifespan
 from core.exception import register_exception
@@ -92,7 +91,9 @@ def run(
         port=port,
         lifespan="on",
         factory=True,
-        reload=reload
+        reload=reload,
+        log_config=None,  # 移除 INFO 级别日志
+        log_level="warning"  # 只打印 warning 日志
     )
 
 
