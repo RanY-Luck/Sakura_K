@@ -14,6 +14,7 @@ from fastapi.security import OAuth2PasswordBearer  # OAuth2PasswordBearer 类是
 系统版本
 """
 VERSION = "3.10.1"
+APP_NAME = "Sakura_K"
 
 """
 Banner
@@ -156,6 +157,7 @@ ALLOW_HEADERS = ["*"]
 EVENTS = [
     "core.event.connect_mongo" if MONGO_DB_ENABLE else None,
     "core.event.connect_redis" if REDIS_DB_ENABLE else None,
+    "core.event.connect_mysql" if MYSQL_DB_ENABLE else None
 ]
 
 """

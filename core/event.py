@@ -6,15 +6,16 @@
 # @File    : event.py
 # @Software: PyCharm
 # @desc    : 全局事件
-
+from sqlalchemy import text
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from redis import asyncio as aioredis
 from redis.exceptions import AuthenticationError, TimeoutError, RedisError
-from sqlalchemy.exc import ProgrammingError
-
+from sqlalchemy.exc import ProgrammingError, SQLAlchemyError
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from application import settings
 from application.settings import REDIS_DB_URL, MONGO_DB_URL, MONGO_DB_NAME, EVENTS
 from core.logger import logger
 from utils.cache import Cache
@@ -23,7 +24,9 @@ from utils.tools import import_modules_async
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info(f"{settings.APP_NAME}开始启动")
     await import_modules_async(EVENTS, "全局事件", app=app, status=True)
+    logger.info(f"{settings.APP_NAME}启动成功")
     yield
     await import_modules_async(EVENTS, "全局事件", app=app, status=False)
 
@@ -69,9 +72,9 @@ async def connect_redis(app: FastAPI, status: bool):
         try:
             response = await rd.ping()
             if response:
-                print("Redis 连接成功")
+                logger.info("Redis 连接成功")
             else:
-                print("Redis 连接失败")
+                logger.info("Redis 连接失败")
         except AuthenticationError as e:
             raise AuthenticationError(f"Redis 连接认证失败，用户名或密码错误: {e}")
         except TimeoutError as e:
@@ -84,7 +87,7 @@ async def connect_redis(app: FastAPI, status: bool):
             logger.error(f"sqlalchemy.exc.ProgrammingError: {e}")
             print(f"sqlalchemy.exc.ProgrammingError: {e}")
     else:
-        print("Redis 连接关闭")
+        logger.info("Redis 连接关闭")
         await app.state.redis.close()
 
 
@@ -111,10 +114,40 @@ async def connect_mongo(app: FastAPI, status: bool):
         # 尝试连接并捕获可能的超时异常
         try:
             # 触发一次服务器通信来确认连接
-            data = await client.server_info()
-            print("MongoDB 连接成功")
+            await client.server_info()
+            logger.info("MongoDB 连接成功")
         except Exception as e:
             raise ValueError(f"MongoDB 连接失败: {e}")
     else:
-        print("MongoDB 连接关闭")
+        logger.info("MongoDB 连接关闭")
         app.state.mongo_client.close()
+
+
+async def connect_mysql(app: FastAPI, status: bool):
+    """
+    把 MySQL 连接挂载到 app 对象上面
+    :param app: FastAPI 应用实例
+    :param status: 连接状态，True 为连接，False 为断开
+    """
+    if status:
+        try:
+            engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URL, echo=True)
+            async_session = sessionmaker(
+                engine, class_=AsyncSession, expire_on_commit=False
+            )
+            app.state.db_engine = engine
+            app.state.db_session = async_session
+            # 测试连接
+            async with engine.connect() as conn:
+                result = await conn.execute(text("SELECT 1"))
+                row = result.fetchone()
+                if row and row[0] == 1:
+                    logger.info("MySQL 连接成功")
+                else:
+                    raise SQLAlchemyError("无法验证 MySQL 连接")
+        except Exception as e:
+            logger.error(f"MySQL 连接失败: {e}")
+            raise
+    else:
+        logger.info("MySQL 连接关闭")
+        await app.state.db_engine.dispose()

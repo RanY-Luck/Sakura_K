@@ -22,6 +22,7 @@ from starlette.staticfiles import StaticFiles  # 依赖安装：pip install aiof
 from pathlib import Path
 from application import settings
 from application import urls
+from core import logger
 from core.docs import custom_api_docs
 from core.event import lifespan
 from core.exception import register_exception
