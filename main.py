@@ -84,7 +84,7 @@ def run(
     启动项目
     :return:
     """
-    click.echo(settings.BANNER)
+    # click.echo(settings.BANNER)
     uvicorn.run(
         app=f'{Path(__file__).stem}:create_app',
         host=host,
@@ -92,7 +92,7 @@ def run(
         lifespan="on",
         factory=True,
         reload=reload,
-        log_config=None,  # 移除 INFO 级别日志
+        # log_config=None,  # 移除 INFO 级别日志
         log_level="warning"  # 只打印 warning 日志
     )
 

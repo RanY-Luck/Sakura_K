@@ -25,6 +25,7 @@ from utils.tools import import_modules_async
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"{settings.APP_NAME}开始启动")
+    print(settings.BANNER)
     await import_modules_async(EVENTS, "全局事件", app=app, status=True)
     logger.info(f"{settings.APP_NAME}启动成功")
     yield
@@ -85,7 +86,6 @@ async def connect_redis(app: FastAPI, status: bool):
             await Cache(app.state.redis).cache_tab_names()
         except ProgrammingError as e:
             logger.error(f"sqlalchemy.exc.ProgrammingError: {e}")
-            print(f"sqlalchemy.exc.ProgrammingError: {e}")
     else:
         logger.info("Redis 连接关闭")
         await app.state.redis.close()
@@ -131,10 +131,8 @@ async def connect_mysql(app: FastAPI, status: bool):
     """
     if status:
         try:
-            engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URL, echo=True)
-            async_session = sessionmaker(
-                engine, class_=AsyncSession, expire_on_commit=False
-            )
+            engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URL, echo=False)
+            async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
             app.state.db_engine = engine
             app.state.db_session = async_session
             # 测试连接

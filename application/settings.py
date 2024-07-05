@@ -157,7 +157,8 @@ ALLOW_HEADERS = ["*"]
 EVENTS = [
     "core.event.connect_mongo" if MONGO_DB_ENABLE else None,
     "core.event.connect_redis" if REDIS_DB_ENABLE else None,
-    "core.event.connect_mysql" if MYSQL_DB_ENABLE else None
+    "core.event.connect_mysql" if MYSQL_DB_ENABLE else None,
+    # "utils.task."
 ]
 
 """
