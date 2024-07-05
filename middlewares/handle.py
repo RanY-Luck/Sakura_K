@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time    : 2024/7/5 10:37
+# @Author  : 冉勇
+# @Site    : 
+# @File    : handle.py
+# @Software: PyCharm
+# @desc    : 全局中间件
+from fastapi import FastAPI
+from middlewares.cors_middleware import add_cors_middleware
+
+
+def handle_middleware(app: FastAPI):
+    """
+    全局中间件处理
+    """
+    # 加载跨域中间件
+    add_cors_middleware(app)
