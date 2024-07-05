@@ -31,3 +31,5 @@ logs/*
 utils/xhs/Download
 static/system
 utils/task/logs
+.env.dev
+.env.prod
