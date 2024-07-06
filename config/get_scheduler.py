@@ -7,6 +7,7 @@
 # @Software: PyCharm
 # @desc    : 定时任务相关操作
 import json
+import module_task
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.jobstores.memory import MemoryJobStore

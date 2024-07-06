@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    : 启动文件
 import uvicorn
-from server import AppConfig
+from server import app, AppConfig
 
 if __name__ == '__main__':
     uvicorn.run(
