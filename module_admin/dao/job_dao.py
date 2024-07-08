@@ -43,10 +43,12 @@ class JobDao:
         """
         job_info = (await db.execute(
             select(SysJob)
-                .where(SysJob.job_name == job.job_name if job.job_name else True,
-                       SysJob.job_group == job.job_group if job.job_group else True,
-                       SysJob.invoke_target == job.invoke_target if job.invoke_target else True,
-                       SysJob.cron_expression == job.cron_expression if job.cron_expression else True)
+                .where(
+                SysJob.job_name == job.job_name if job.job_name else True,
+                SysJob.job_group == job.job_group if job.job_group else True,
+                SysJob.invoke_target == job.invoke_target if job.invoke_target else True,
+                SysJob.cron_expression == job.cron_expression if job.cron_expression else True
+            )
         )).scalars().first()
 
         return job_info
@@ -61,9 +63,11 @@ class JobDao:
         :return: 定时任务列表信息对象
         """
         query = select(SysJob) \
-            .where(SysJob.job_name.like(f'%{query_object.job_name}%') if query_object.job_name else True,
-                   SysJob.job_group == query_object.job_group if query_object.job_group else True,
-                   SysJob.status == query_object.status if query_object.status else True) \
+            .where(
+            SysJob.job_name.like(f'%{query_object.job_name}%') if query_object.job_name else True,
+            SysJob.job_group == query_object.job_group if query_object.job_group else True,
+            SysJob.status == query_object.status if query_object.status else True
+        ) \
             .distinct()
         job_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
@@ -77,9 +81,7 @@ class JobDao:
         :return: 定时任务列表信息对象
         """
         job_list = (await db.execute(
-            select(SysJob)
-                .where(SysJob.status == 0)
-                .distinct()
+            select(SysJob).where(SysJob.status == 0).distinct()
         )).scalars().all()
 
         return job_list
@@ -120,6 +122,5 @@ class JobDao:
         :return:
         """
         await db.execute(
-            delete(SysJob)
-                .where(SysJob.job_id.in_([job.job_id]))
+            delete(SysJob).where(SysJob.job_id.in_([job.job_id]))
         )
