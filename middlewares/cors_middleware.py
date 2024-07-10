@@ -33,8 +33,7 @@ def write_request_log(request: Request, response: Response):
     http_version = f"http/{request.scope['http_version']}"
     content_length = response.raw_headers[0][1]
     process_time = response.headers["X-Process-Time"]
-    content = f"basehttp.log_message: '{request.method} {request.url} {http_version}' {response.status_code}" \
-              f"{response.charset} {content_length} {process_time}"
+    content = f"basehttp.log_message:\n '请求方法:{request.method} 请求地址:{request.url} {http_version}' 状态码:{response.status_code} {response.charset} {content_length} 耗时:{process_time}秒"
     logger.info(content)
 
 

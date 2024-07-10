@@ -12,7 +12,7 @@ from sub_applications.handle import handle_sub_applications
 from middlewares.handle import handle_middleware
 from exceptions.handle import handle_exception
 # from module_admin.controller.login_controller import loginController
-# from module_admin.controller.captcha_controller import captchaController
+from module_admin.controller.captcha_controller import captchaController
 # from module_admin.controller.user_controller import userController
 # from module_admin.controller.menu_controller import menuController
 # from module_admin.controller.dept_controller import deptController
@@ -70,7 +70,7 @@ handle_exception(app)
 # 加载路由列表
 controller_list = [
     # {'router': loginController, 'tags': ['登录模块']},
-    # {'router': captchaController, 'tags': ['验证码模块']},
+    {'router': captchaController, 'tags': ['验证码模块']},
     # {'router': userController, 'tags': ['系统管理-用户管理']},
     # {'router': roleController, 'tags': ['系统管理-角色管理']},
     # {'router': menuController, 'tags': ['系统管理-菜单管理']},
