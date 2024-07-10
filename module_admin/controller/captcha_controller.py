@@ -20,6 +20,9 @@ captchaController = APIRouter()
 
 @captchaController.get("/captchaImage")
 async def get_captcha_image(request: Request):
+    """
+    验证码获取
+    """
     try:
         captcha_enabled = True if await request.app.state.redis.get(
             f"{RedisInitKeyConfig.SYS_CONFIG.get('key')}:sys.account.captchaEnabled"
@@ -40,8 +43,8 @@ async def get_captcha_image(request: Request):
         logger.info(f'编号为{session_id}的会话获取图片验证码成功')
         return ResponseUtil.success(
             model_content=CaptchaCode(
-                captchaEnabled=captcha_enabled,
-                registerEnabled=register_enabled,
+                captchaEnabled=captcha_enabled,  # 验证码开关
+                registerEnabled=register_enabled,  # 注册功能开关
                 img=image,
                 uuid=session_id
             )
