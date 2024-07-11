@@ -17,7 +17,6 @@ from utils.page_util import PageResponseModel
 from utils.response_util import *
 from utils.log_util import *
 from utils.common_util import bytes2file_response
-from utils.time_format_util import get_year, get_day, get_month
 from utils.upload_util import UploadUtil
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
 from module_admin.aspect.data_scope import GetDataScope
