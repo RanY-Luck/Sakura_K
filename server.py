@@ -32,7 +32,7 @@ from config.get_redis import RedisUtil
 from config.get_db import init_create_table
 from config.get_scheduler import SchedulerUtil
 from utils.log_util import logger
-from utils.common_util import worship
+from utils.common_util import worship, panel
 
 
 # 生命周期事件
@@ -46,6 +46,7 @@ async def lifespan(app: FastAPI):
     await RedisUtil.init_sys_config(app.state.redis)
     await SchedulerUtil.init_system_scheduler()
     logger.info(f"{AppConfig.app_name}启动成功")
+    await panel()
     yield
     await RedisUtil.close_redis_pool(app)
     await SchedulerUtil.close_system_scheduler()
