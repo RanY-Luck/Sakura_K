@@ -19,11 +19,10 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 from sqlalchemy.engine.row import Row
 from typing import List
-from config.env import CachePathConfig
-from server import AppConfig
+from config.env import CachePathConfig, AppConfig
 
 
-def worship():
+async def worship():
     print(
         """
         ███████  █████  ██   ██ ██    ██ ██████   █████          ██   ██ 

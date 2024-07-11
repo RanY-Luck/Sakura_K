@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : captcha_controller.py
 # @Software: PyCharm
-# @desc    : 验证码
+# @desc    : 验证码相关接口
 import uuid
 from fastapi import APIRouter, Request
 from config.env import RedisInitKeyConfig

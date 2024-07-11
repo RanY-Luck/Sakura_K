@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from sub_applications.handle import handle_sub_applications
 from middlewares.handle import handle_middleware
 from exceptions.handle import handle_exception
-# from module_admin.controller.login_controller import loginController
+from module_admin.controller.login_controller import loginController
 from module_admin.controller.captcha_controller import captchaController
 # from module_admin.controller.user_controller import userController
 # from module_admin.controller.menu_controller import menuController
@@ -39,7 +39,7 @@ from utils.common_util import worship, panel
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"{AppConfig.app_name}开始启动")
-    worship()
+    await worship()
     await init_create_table()
     app.state.redis = await RedisUtil.create_redis_pool()
     await RedisUtil.init_sys_dict(app.state.redis)
@@ -70,7 +70,7 @@ handle_exception(app)
 
 # 加载路由列表
 controller_list = [
-    # {'router': loginController, 'tags': ['登录模块']},
+    {'router': loginController, 'tags': ['登录模块']},
     {'router': captchaController, 'tags': ['验证码模块']},
     # {'router': userController, 'tags': ['系统管理-用户管理']},
     # {'router': roleController, 'tags': ['系统管理-角色管理']},
