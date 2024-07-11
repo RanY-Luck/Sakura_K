@@ -8,6 +8,8 @@
 # @desc    : 日志工具
 import os
 import time
+import datetime
+import zipfile
 from loguru import logger
 
 # 日志路径
@@ -39,3 +41,35 @@ logger.add(
     compression="zip",
     level="ERROR"
 )
+
+
+def archive_and_delete_yesterdays_logs():
+    yesterday = datetime.date.today() - datetime.timedelta(days=1)
+    yesterday_str = yesterday.strftime("%Y-%m-%d")
+
+    # 创建存档目录
+    archive_dir = os.path.join(log_path, "archives")
+    os.makedirs(archive_dir, exist_ok=True)
+
+    # 查找昨天的日志文件
+    log_files = [f for f in os.listdir(log_path) if f.startswith(f"{yesterday_str}") and f.endswith(".log")]
+
+    if log_files:
+        # 创建ZIP文件
+        zip_filename = os.path.join(archive_dir, f"logs_{yesterday_str}.zip")
+        with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for log_file in log_files:
+                file_path = os.path.join(log_path, log_file)
+                zipf.write(file_path, log_file)
+
+        # 删除原始日志文件
+        for log_file in log_files:
+            file_path = os.path.join(log_path, log_file)
+            os.remove(file_path)
+        print(f"昨天的日志已打包到 {zip_filename} 并删除原始文件")
+    else:
+        print("没有找到昨天的日志文件")
+
+
+# 调用函数来打包并删除昨天的日志
+archive_and_delete_yesterdays_logs()
