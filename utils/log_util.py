@@ -19,8 +19,9 @@ if not os.path.exists(log_path):
     os.mkdir(log_path)
 
 # 仅保存 error 日志
-log_path_error = os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_error.log')
 log_path_info = os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_info.log')
+log_path_error = os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_error.log')
+log_path_warn = os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_warn.log')
 
 logger.add(
     log_path_info,
@@ -38,6 +39,15 @@ logger.add(
     enqueue=True,
     encoding="UTF-8",
     level="ERROR"
+)
+
+logger.add(
+    log_path_warn,
+    rotation="00:00",
+    retention=10,
+    enqueue=True,
+    encoding="UTF-8",
+    level="WARNING"
 )
 
 
