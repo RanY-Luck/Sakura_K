@@ -149,7 +149,7 @@ async def export_system_post_list(
         # 获取全量数据
         post_query_result = await PostService.get_post_list_services(query_db, post_page_query, is_page=False)
         post_export_result = await PostService.export_post_list_services(post_query_result)
-        logger.info('导出成功')
+        logger.info('岗位导出成功')
         return ResponseUtil.streaming(data=bytes2file_response(post_export_result))
     except Exception as e:
         logger.exception(e)

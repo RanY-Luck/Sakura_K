@@ -397,7 +397,7 @@ async def export_system_user_template(request: Request, query_db: AsyncSession =
     """
     try:
         user_import_template_result = await UserService.get_user_import_template_services()
-        logger.info('获取成功')
+        logger.info('系统用户模板导出成功')
         return ResponseUtil.streaming(data=bytes2file_response(user_import_template_result))
     except Exception as e:
         logger.exception(e)
@@ -424,7 +424,7 @@ async def export_system_user_list(
             is_page=False
         )
         user_export_result = await UserService.export_user_list_services(user_query_result)
-        logger.info('导出成功')
+        logger.info('系统用户导出成功')
         return ResponseUtil.streaming(data=bytes2file_response(user_export_result))
     except Exception as e:
         logger.exception(e)
@@ -446,7 +446,7 @@ async def get_system_allocated_role_list(request: Request, user_id: int, query_d
             query_db,
             user_role_query
         )
-        logger.info('获取成功')
+        logger.info('系统分配角色获取成功')
         return ResponseUtil.success(model_content=user_role_allocated_query_result)
     except Exception as e:
         logger.exception(e)
