@@ -28,7 +28,6 @@ logger.add(
     retention=10,
     enqueue=True,
     encoding="UTF-8",
-    compression="zip",
     level="INFO"
 )
 
@@ -38,7 +37,6 @@ logger.add(
     retention=10,
     enqueue=True,
     encoding="UTF-8",
-    compression="zip",
     level="ERROR"
 )
 
