@@ -17,7 +17,7 @@ from module_admin.controller.user_controller import userController
 from module_admin.controller.role_controller import roleController
 from module_admin.controller.menu_controller import menuController
 from module_admin.controller.dept_controller import deptController
-# from module_admin.controller.post_controler import postController
+from module_admin.controller.post_controler import postController
 # from module_admin.controller.dict_controller import dictController
 # from module_admin.controller.config_controller import configController
 # from module_admin.controller.notice_controller import noticeController
@@ -76,7 +76,7 @@ controller_list = [
     {'router': roleController, 'tags': ['系统管理-角色管理']},
     {'router': menuController, 'tags': ['系统管理-菜单管理']},
     {'router': deptController, 'tags': ['系统管理-部门管理']},
-    # {'router': postController, 'tags': ['系统管理-岗位管理']},
+    {'router': postController, 'tags': ['系统管理-岗位管理']},
     # {'router': dictController, 'tags': ['系统管理-字典管理']},
     # {'router': configController, 'tags': ['系统管理-参数管理']},
     # {'router': noticeController, 'tags': ['系统管理-通知公告管理']},
