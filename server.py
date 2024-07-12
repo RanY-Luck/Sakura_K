@@ -14,9 +14,9 @@ from exceptions.handle import handle_exception
 from module_admin.controller.login_controller import loginController
 from module_admin.controller.captcha_controller import captchaController
 from module_admin.controller.user_controller import userController
+from module_admin.controller.role_controller import roleController
 # from module_admin.controller.menu_controller import menuController
 # from module_admin.controller.dept_controller import deptController
-# from module_admin.controller.role_controller import roleController
 # from module_admin.controller.post_controler import postController
 # from module_admin.controller.dict_controller import dictController
 # from module_admin.controller.config_controller import configController
@@ -73,7 +73,7 @@ controller_list = [
     {'router': loginController, 'tags': ['登录模块']},
     {'router': captchaController, 'tags': ['验证码模块']},
     {'router': userController, 'tags': ['系统管理-用户管理']},
-    # {'router': roleController, 'tags': ['系统管理-角色管理']},
+    {'router': roleController, 'tags': ['系统管理-角色管理']},
     # {'router': menuController, 'tags': ['系统管理-菜单管理']},
     # {'router': deptController, 'tags': ['系统管理-部门管理']},
     # {'router': postController, 'tags': ['系统管理-岗位管理']},
