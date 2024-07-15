@@ -16,6 +16,7 @@ class SysDictType(Base):
     字典类型表
     """
     __tablename__ = 'sys_dict_type'
+    __table_args__ = ({'comment': '字典类型表'})
 
     dict_id = Column(Integer, primary_key=True, autoincrement=True, comment='字典主键')
     dict_name = Column(String(100), nullable=True, default='', comment='字典名称')

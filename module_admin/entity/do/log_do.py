@@ -16,6 +16,7 @@ class SysLogininfor(Base):
     系统访问记录
     """
     __tablename__ = 'sys_logininfor'
+    __table_args__ = ({'comment': '系统访问记录表'})
 
     info_id = Column(Integer, primary_key=True, autoincrement=True, comment='访问ID')
     user_name = Column(String(50, collation='utf8_general_ci'), nullable=True, default='', comment='用户账号')

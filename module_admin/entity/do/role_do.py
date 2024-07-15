@@ -16,6 +16,7 @@ class SysRole(Base):
     角色信息表
     """
     __tablename__ = 'sys_role'
+    __table_args__ = ({'comment': '角色信息表'})
 
     role_id = Column(Integer, primary_key=True, autoincrement=True, comment='角色ID')
     role_name = Column(String(30, collation='utf8_general_ci'), nullable=False, comment='角色名称')

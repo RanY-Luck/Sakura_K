@@ -16,6 +16,7 @@ class SysJob(Base):
     定时任务调度表
     """
     __tablename__ = 'sys_job'
+    __table_args__ = ({'comment': '定时任务调度表'})
 
     job_id = Column(Integer, primary_key=True, autoincrement=True, comment='任务ID')
     job_name = Column(String(64, collation='utf8_general_ci'), nullable=False, comment='任务名称')

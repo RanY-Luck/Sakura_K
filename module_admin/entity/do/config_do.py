@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : config_do.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 参数配置表
 from sqlalchemy import Column, Integer, String, DateTime
 from config.database import Base
 from datetime import datetime
@@ -16,6 +16,7 @@ class SysConfig(Base):
     参数配置表
     """
     __tablename__ = 'sys_config'
+    __table_args__ = ({'comment': '参数配置表'})
 
     config_id = Column(Integer, primary_key=True, autoincrement=True, comment='参数主键')
     config_name = Column(String(100), nullable=True, default='', comment='参数名称')

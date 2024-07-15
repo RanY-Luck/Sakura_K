@@ -16,6 +16,7 @@ class SysUser(Base):
     用户信息表
     """
     __tablename__ = 'sys_user'
+    __table_args__ = ({'comment': '用户信息表'})
 
     user_id = Column(Integer, primary_key=True, autoincrement=True, comment='用户ID')
     dept_id = Column(Integer, comment='部门ID')

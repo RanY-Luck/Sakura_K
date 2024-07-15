@@ -16,6 +16,7 @@ class SysPost(Base):
     岗位信息表
     """
     __tablename__ = 'sys_post'
+    __table_args__ = ({'comment': '岗位信息表'})
 
     post_id = Column(Integer, primary_key=True, autoincrement=True, comment='岗位ID')
     post_code = Column(String(64), nullable=False, comment='岗位编码')

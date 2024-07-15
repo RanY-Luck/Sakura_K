@@ -16,6 +16,7 @@ class SysDept(Base):
     部门表
     """
     __tablename__ = 'sys_dept'
+    __table_args__ = ({'comment': '部门表'})
 
     dept_id = Column(Integer, primary_key=True, autoincrement=True, comment='部门id')
     parent_id = Column(Integer, default=0, comment='父部门id')

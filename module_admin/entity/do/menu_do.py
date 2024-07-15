@@ -16,6 +16,7 @@ class SysMenu(Base):
     菜单权限表
     """
     __tablename__ = 'sys_menu'
+    __table_args__ = ({'comment': '菜单权限表'})
 
     menu_id = Column(Integer, primary_key=True, autoincrement=True, comment='菜单ID')
     menu_name = Column(String(50), nullable=False, default='', comment='菜单名称')
