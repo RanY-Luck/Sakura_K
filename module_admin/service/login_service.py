@@ -89,9 +89,8 @@ class LoginService:
         else:
             await cls.__check_login_captcha(request, login_user)
         user = await login_by_account(query_db, login_user.user_name)
-        print(user)
         if not user:
-            logger.warning("用户不存在")
+            logger.warning(f"用户:{login_user.user_name}不存在")
             raise LoginException(data="", message="用户不存在")
         if not PwdUtil.verify_password(login_user.password, user[0].password):
             cache_password_error_count = await request.app.state.redis.get(
