@@ -16,5 +16,5 @@ if __name__ == '__main__':
         port=AppConfig.app_port,
         root_path=AppConfig.app_root_path,
         reload=AppConfig.app_reload,
-        access_log=False
+        access_log=False  # 忽略fastapi本身日志,保留自定义日志
     )
