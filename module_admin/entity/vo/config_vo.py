@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : config_vo.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 参数配置-pydantic模型
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 from typing import Optional

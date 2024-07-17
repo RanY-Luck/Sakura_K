@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : common_vo.py
 # @Software: PyCharm
-# @desc    : 操作、上传相应模型
+# @desc    : 操作、上传-pydantic模型
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 from typing import Optional, Any
