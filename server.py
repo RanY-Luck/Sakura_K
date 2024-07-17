@@ -25,7 +25,7 @@ from module_admin.controller.log_controller import logController
 from module_admin.controller.online_controller import onlineController
 from module_admin.controller.job_controller import jobController
 from module_admin.controller.server_controller import serverController
-# from module_admin.controller.cache_controller import cacheController
+from module_admin.controller.cache_controller import cacheController
 # from module_admin.controller.common_controller import commonController
 from config.env import AppConfig
 from config.get_redis import RedisUtil
@@ -84,7 +84,7 @@ controller_list = [
     {'router': onlineController, 'tags': ['系统监控-在线用户']},
     {'router': jobController, 'tags': ['系统监控-定时任务']},
     {'router': serverController, 'tags': ['系统监控-服务资源']},
-    # {'router': cacheController, 'tags': ['系统监控-缓存监控']},
+    {'router': cacheController, 'tags': ['系统监控-缓存监控']},
     # {'router': commonController, 'tags': ['通用模块']}
 ]
 
