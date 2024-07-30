@@ -13,6 +13,8 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from datetime import timedelta
+
+from module_admin.entity.vo.user_vo import TokenData
 from module_admin.service.user_service import *
 from module_admin.entity.vo.login_vo import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
