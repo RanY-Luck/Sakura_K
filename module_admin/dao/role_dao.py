@@ -10,6 +10,7 @@ from sqlalchemy import select, update, delete, desc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from module_admin.entity.do.role_do import SysRole, SysRoleMenu, SysRoleDept
 from module_admin.entity.do.dept_do import SysDept
+from module_admin.entity.do.user_do import SysUserRole, SysUser
 from module_admin.entity.vo.role_vo import *
 from utils.page_util import PageUtil
 from datetime import datetime, time
@@ -51,7 +52,7 @@ class RoleDao:
                 SysRole.del_flag == 0,
                 SysRole.role_name == role.role_name if role.role_name else True,
                 SysRole.role_key == role.role_key if role.role_key else True
-                )
+            )
                 .order_by(desc(SysRole.create_time))
                 .distinct()
         )).scalars().first()
@@ -72,7 +73,7 @@ class RoleDao:
                 SysRole.role_id == role_id,
                 SysRole.status == 0,
                 SysRole.del_flag == 0
-                )
+            )
         )).scalars().first()
 
         return role_info
@@ -108,28 +109,48 @@ class RoleDao:
         return role_info
 
     @classmethod
-    async def get_role_list(cls, db: AsyncSession, query_object: RolePageQueryModel, is_page: bool = False):
+    async def get_role_list(
+            cls, db: AsyncSession, query_object: RolePageQueryModel, data_scope_sql: str, is_page: bool = False
+    ):
         """
         根据查询参数获取角色列表信息
         :param db: orm对象
         :param query_object: 查询参数对象
+        :param data_scope_sql: 数据权限对应的查询sql语句
         :param is_page: 是否开启分页
         :return: 角色列表信息对象
         """
-        query = select(SysRole) \
-            .where(
-            SysRole.del_flag == 0,
-            SysRole.role_name.like(f'%{query_object.role_name}%') if query_object.role_name else True,
-            SysRole.role_key.like(f'%{query_object.role_key}%') if query_object.role_key else True,
-            SysRole.status == query_object.status if query_object.status else True,
-            SysRole.create_time.between(
-                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+
+        def is_valid_date(date_string):
+            try:
+                datetime.strptime(date_string, '%Y-%m-%d')
+                return True
+            except ValueError:
+                return False
+
+        query = (
+            select(SysRole)
+                .join(SysUserRole, SysUserRole.role_id == SysRole.role_id, isouter=True)
+                .join(SysUser, SysUser.user_id == SysUserRole.user_id, isouter=True)
+                .join(SysDept, SysDept.dept_id == SysUser.dept_id, isouter=True)
+                .where(
+                SysRole.del_flag == '0',
+                SysRole.role_id == query_object.role_id if query_object.role_id is not None else True,
+                SysRole.role_name.like(f'%{query_object.role_name}%') if query_object.role_name else True,
+                SysRole.role_key.like(f'%{query_object.role_key}%') if query_object.role_key else True,
+                SysRole.status == query_object.status if query_object.status else True,
+                SysRole.create_time.between(
+                    datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                    datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
+                )
+                if query_object.begin_time and query_object.end_time and
+                   is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time)
+                else True,
+                eval(data_scope_sql),
             )
-            if query_object.begin_time and query_object.end_time else True
-            ) \
-            .order_by(SysRole.role_sort) \
-            .distinct()
+                .order_by(SysRole.role_sort)
+                .distinct()
+        )
         role_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return role_list
@@ -228,7 +249,7 @@ class RoleDao:
                 .where(
                 SysRoleDept.role_id == role_id,
                 ~select(SysDept).where(func.find_in_set(SysRoleDept.dept_id, SysDept.ancestors)).exists()
-                )
+            )
                 .distinct()
         )).scalars().all()
 

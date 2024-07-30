@@ -44,8 +44,10 @@ class ConfigDao:
         """
         config_info = (await db.execute(
             select(SysConfig)
-                .where(SysConfig.config_key == config.config_key if config.config_key else True,
-                       SysConfig.config_value == config.config_value if config.config_value else True)
+                .where(
+                SysConfig.config_key == config.config_key if config.config_key else True,
+                SysConfig.config_value == config.config_value if config.config_value else True
+            )
         )).scalars().first()
 
         return config_info
@@ -59,15 +61,29 @@ class ConfigDao:
         :param is_page: 是否开启分页
         :return: 参数配置列表信息对象
         """
+
+        def is_valid_date(date_string):
+            try:
+                datetime.strptime(date_string, '%Y-%m-%d')
+                return True
+            except ValueError:
+                return False
+
         query = select(SysConfig) \
-            .where(SysConfig.config_name.like(f'%{query_object.config_name}%') if query_object.config_name else True,
-                   SysConfig.config_key.like(f'%{query_object.config_key}%') if query_object.config_key else True,
-                   SysConfig.config_type == query_object.config_type if query_object.config_type else True,
-                   SysConfig.create_time.between(
-                       datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                       datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)))
-                   if query_object.begin_time and query_object.end_time else True) \
+            .where(
+            SysConfig.config_name.like(f'%{query_object.config_name}%') if query_object.config_name else True,
+            SysConfig.config_key.like(f'%{query_object.config_key}%') if query_object.config_key else True,
+            SysConfig.config_type == query_object.config_type if query_object.config_type else True,
+            SysConfig.create_time.between(
+                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+            )
+            if query_object.begin_time and query_object.end_time and
+               is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time)
+            else True
+        ) \
             .distinct()
+
         config_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return config_list

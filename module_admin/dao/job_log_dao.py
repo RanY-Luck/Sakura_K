@@ -29,15 +29,29 @@ class JobLogDao:
         :param is_page: 是否开启分页
         :return: 定时任务日志列表信息对象
         """
+
+        def is_valid_date(date_string):
+            if not date_string:
+                return False
+            try:
+                datetime.strptime(date_string, '%Y-%m-%d')
+                return True
+            except ValueError:
+                return False
+
         query = select(SysJobLog) \
-            .where(SysJobLog.job_name.like(f'%{query_object.job_name}%') if query_object.job_name else True,
-                   SysJobLog.job_group == query_object.job_group if query_object.job_group else True,
-                   SysJobLog.status == query_object.status if query_object.status else True,
-                   SysJobLog.create_time.between(
-                       datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                       datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)))
-                   if query_object.begin_time and query_object.end_time else True) \
+            .where(
+            SysJobLog.job_name.like(f'%{query_object.job_name}%') if query_object.job_name else True,
+            SysJobLog.job_group == query_object.job_group if query_object.job_group else True,
+            SysJobLog.status == query_object.status if query_object.status else True,
+            SysJobLog.create_time.between(
+                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+            )
+            if is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time) else True
+        ) \
             .distinct()
+
         job_log_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return job_log_list

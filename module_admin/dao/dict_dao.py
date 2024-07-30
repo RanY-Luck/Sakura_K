@@ -45,8 +45,10 @@ class DictTypeDao:
         """
         dict_type_info = (await db.execute(
             select(SysDictType)
-                .where(SysDictType.dict_type == dict_type.dict_type if dict_type.dict_type else True,
-                       SysDictType.dict_name == dict_type.dict_name if dict_type.dict_name else True)
+                .where(
+                SysDictType.dict_type == dict_type.dict_type if dict_type.dict_type else True,
+                SysDictType.dict_name == dict_type.dict_name if dict_type.dict_name else True
+            )
         )).scalars().first()
 
         return dict_type_info
@@ -73,15 +75,29 @@ class DictTypeDao:
         :param is_page: 是否开启分页
         :return: 字典类型列表信息对象
         """
+
+        def is_valid_date(date_string):
+            if not date_string:
+                return False
+            try:
+                datetime.strptime(date_string, '%Y-%m-%d')
+                return True
+            except ValueError:
+                return False
+
         query = select(SysDictType) \
-            .where(SysDictType.dict_name.like(f'%{query_object.dict_name}%') if query_object.dict_name else True,
-                   SysDictType.dict_type.like(f'%{query_object.dict_type}%') if query_object.dict_type else True,
-                   SysDictType.status == query_object.status if query_object.status else True,
-                   SysDictType.create_time.between(
-                       datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                       datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)))
-                   if query_object.begin_time and query_object.end_time else True) \
+            .where(
+            SysDictType.dict_name.like(f'%{query_object.dict_name}%') if query_object.dict_name else True,
+            SysDictType.dict_type.like(f'%{query_object.dict_type}%') if query_object.dict_type else True,
+            SysDictType.status == query_object.status if query_object.status else True,
+            SysDictType.create_time.between(
+                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+            )
+            if is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time) else True
+        ) \
             .distinct()
+
         dict_type_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return dict_type_list
@@ -157,9 +173,11 @@ class DictDataDao:
         """
         dict_data_info = (await db.execute(
             select(SysDictData)
-                .where(SysDictData.dict_type == dict_data.dict_type if dict_data.dict_type else True,
-                       SysDictData.dict_label == dict_data.dict_label if dict_data.dict_label else True,
-                       SysDictData.dict_value == dict_data.dict_value if dict_data.dict_value else True)
+                .where(
+                SysDictData.dict_type == dict_data.dict_type if dict_data.dict_type else True,
+                SysDictData.dict_label == dict_data.dict_label if dict_data.dict_label else True,
+                SysDictData.dict_value == dict_data.dict_value if dict_data.dict_value else True
+            )
         )).scalars().first()
 
         return dict_data_info
@@ -174,10 +192,12 @@ class DictDataDao:
         :return: 字典数据列表信息对象
         """
         query = select(SysDictData) \
-            .where(SysDictData.dict_type == query_object.dict_type if query_object.dict_type else True,
-                   SysDictData.dict_label.like(f'%{query_object.dict_label}%') if query_object.dict_label else True,
-                   SysDictData.status == query_object.status if query_object.status else True)\
-            .order_by(SysDictData.dict_sort)\
+            .where(
+            SysDictData.dict_type == query_object.dict_type if query_object.dict_type else True,
+            SysDictData.dict_label.like(f'%{query_object.dict_label}%') if query_object.dict_label else True,
+            SysDictData.status == query_object.status if query_object.status else True
+        ) \
+            .order_by(SysDictData.dict_sort) \
             .distinct()
         dict_data_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
@@ -195,7 +215,11 @@ class DictDataDao:
             select(SysDictData)
                 .select_from(SysDictType)
                 .where(SysDictType.dict_type == dict_type if dict_type else True, SysDictType.status == 0)
-                .join(SysDictData, and_(SysDictType.dict_type == SysDictData.dict_type, SysDictData.status == 0), isouter=True)
+                .join(
+                SysDictData,
+                and_(SysDictType.dict_type == SysDictData.dict_type, SysDictData.status == 0),
+                isouter=True
+            )
                 .order_by(SysDictData.dict_sort)
                 .distinct()
         )).scalars().all()
