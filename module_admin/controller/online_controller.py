@@ -8,57 +8,45 @@
 # @desc    : 在线用户管理接口
 from fastapi import APIRouter
 from fastapi import Depends
+from config.enums import BusinessType
 from config.get_db import get_db
-from module_admin.service.login_service import LoginService, AsyncSession
+from module_admin.service.login_service import LoginService
 from module_admin.service.online_service import *
 from utils.response_util import *
 from utils.log_util import *
 from utils.page_util import *
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
-from module_admin.annotation.log_annotation import log_decorator
+from module_admin.annotation.log_annotation import Log
 
 onlineController = APIRouter(prefix='/monitor/online', dependencies=[Depends(LoginService.get_current_user)])
 
 
 @onlineController.get(
-    "/list",
-    response_model=PageResponseModel,
-    dependencies=[Depends(CheckUserInterfaceAuth('monitor:online:list'))]
+    '/list', response_model=PageResponseModel, dependencies=[Depends(CheckUserInterfaceAuth('monitor:online:list'))]
 )
 async def get_monitor_online_list(
-        request: Request,
-        online_page_query: OnlineQueryModel = Depends(OnlineQueryModel.as_query)
+        request: Request, online_page_query: OnlineQueryModel = Depends(OnlineQueryModel.as_query)
 ):
     """
     获取在线用户列表
     """
-    try:
-        # 获取全量数据
-        online_query_result = await OnlineService.get_online_list_services(request, online_page_query)
-        logger.info('在线用户列表获取成功')
-        return ResponseUtil.success(
-            model_content=PageResponseModel(rows=online_query_result, total=len(online_query_result))
-        )
-    except Exception as e:
-        logger.exception(e)
-        return ResponseUtil.error(msg=str(e))
+    # 获取全量数据
+    online_query_result = await OnlineService.get_online_list_services(request, online_page_query)
+    logger.info('在线用户列表获取成功')
+
+    return ResponseUtil.success(
+        model_content=PageResponseModel(rows=online_query_result, total=len(online_query_result))
+    )
 
 
-@onlineController.delete("/{token_ids}", dependencies=[Depends(CheckUserInterfaceAuth('monitor:online:forceLogout'))])
-@log_decorator(title='在线用户', business_type=7)
+@onlineController.delete('/{token_ids}', dependencies=[Depends(CheckUserInterfaceAuth('monitor:online:forceLogout'))])
+@Log(title='在线用户', business_type=BusinessType.FORCE)
 async def delete_monitor_online(request: Request, token_ids: str, query_db: AsyncSession = Depends(get_db)):
     """
     强退用户
     """
-    try:
-        delete_online = DeleteOnlineModel(tokenIds=token_ids)
-        delete_online_result = await OnlineService.delete_online_services(request, delete_online)
-        if delete_online_result.is_success:
-            logger.info(delete_online_result.message)
-            return ResponseUtil.success(msg=delete_online_result.message)
-        else:
-            logger.warning(delete_online_result.message)
-            return ResponseUtil.failure(msg=delete_online_result.message)
-    except Exception as e:
-        logger.exception(e)
-        return ResponseUtil.error(msg=str(e))
+    delete_online = DeleteOnlineModel(tokenIds=token_ids)
+    delete_online_result = await OnlineService.delete_online_services(request, delete_online)
+    logger.info(delete_online_result.message)
+
+    return ResponseUtil.success(msg=delete_online_result.message)
