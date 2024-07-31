@@ -6,7 +6,7 @@
 # @File    : role_dao.py
 # @Software: PyCharm
 # @desc    : 角色管理模块数据库操作层
-from sqlalchemy import select, update, delete, desc, func
+from sqlalchemy import select, update, delete, desc, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from module_admin.entity.do.role_do import SysRole, SysRoleMenu, SysRoleDept
 from module_admin.entity.do.dept_do import SysDept
@@ -110,7 +110,11 @@ class RoleDao:
 
     @classmethod
     async def get_role_list(
-            cls, db: AsyncSession, query_object: RolePageQueryModel, data_scope_sql: str, is_page: bool = False
+            cls,
+            db: AsyncSession,
+            query_object: RolePageQueryModel,
+            data_scope_sql: str,
+            is_page: bool = False
     ):
         """
         根据查询参数获取角色列表信息
@@ -120,14 +124,6 @@ class RoleDao:
         :param is_page: 是否开启分页
         :return: 角色列表信息对象
         """
-
-        def is_valid_date(date_string):
-            try:
-                datetime.strptime(date_string, '%Y-%m-%d')
-                return True
-            except ValueError:
-                return False
-
         query = (
             select(SysRole)
                 .join(SysUserRole, SysUserRole.role_id == SysRole.role_id, isouter=True)
@@ -143,10 +139,9 @@ class RoleDao:
                     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
                     datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
                 )
-                if query_object.begin_time and query_object.end_time and
-                   is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time)
+                if query_object.begin_time and query_object.end_time
                 else True,
-                eval(data_scope_sql),
+                eval(data_scope_sql)
             )
                 .order_by(SysRole.role_sort)
                 .distinct()
