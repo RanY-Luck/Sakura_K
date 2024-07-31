@@ -8,7 +8,6 @@
 # @desc    : 日志管理相关接口
 from fastapi import APIRouter
 from fastapi import Depends
-
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
