@@ -70,34 +70,27 @@ class DictTypeDao:
     async def get_dict_type_list(cls, db: AsyncSession, query_object: DictTypePageQueryModel, is_page: bool = False):
         """
         根据查询参数获取字典类型列表信息
+
         :param db: orm对象
         :param query_object: 查询参数对象
         :param is_page: 是否开启分页
         :return: 字典类型列表信息对象
         """
-
-        def is_valid_date(date_string):
-            if not date_string:
-                return False
-            try:
-                datetime.strptime(date_string, '%Y-%m-%d')
-                return True
-            except ValueError:
-                return False
-
-        query = select(SysDictType) \
-            .where(
-            SysDictType.dict_name.like(f'%{query_object.dict_name}%') if query_object.dict_name else True,
-            SysDictType.dict_type.like(f'%{query_object.dict_type}%') if query_object.dict_type else True,
-            SysDictType.status == query_object.status if query_object.status else True,
-            SysDictType.create_time.between(
-                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+        query = (
+            select(SysDictType)
+                .where(
+                SysDictType.dict_name.like(f'%{query_object.dict_name}%') if query_object.dict_name else True,
+                SysDictType.dict_type.like(f'%{query_object.dict_type}%') if query_object.dict_type else True,
+                SysDictType.status == query_object.status if query_object.status else True,
+                SysDictType.create_time.between(
+                    datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                    datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
+                )
+                if query_object.begin_time and query_object.end_time
+                else True,
             )
-            if is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time) else True
-        ) \
-            .distinct()
-
+                .distinct()
+        )
         dict_type_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return dict_type_list

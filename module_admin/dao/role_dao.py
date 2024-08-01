@@ -110,14 +110,11 @@ class RoleDao:
 
     @classmethod
     async def get_role_list(
-            cls,
-            db: AsyncSession,
-            query_object: RolePageQueryModel,
-            data_scope_sql: str,
-            is_page: bool = False
+            cls, db: AsyncSession, query_object: RolePageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         根据查询参数获取角色列表信息
+
         :param db: orm对象
         :param query_object: 查询参数对象
         :param data_scope_sql: 数据权限对应的查询sql语句
@@ -141,7 +138,7 @@ class RoleDao:
                 )
                 if query_object.begin_time and query_object.end_time
                 else True,
-                eval(data_scope_sql)
+                eval(data_scope_sql),
             )
                 .order_by(SysRole.role_sort)
                 .distinct()

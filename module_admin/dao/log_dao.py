@@ -24,21 +24,12 @@ class OperationLogDao:
     async def get_operation_log_list(cls, db: AsyncSession, query_object: OperLogPageQueryModel, is_page: bool = False):
         """
         根据查询参数获取操作日志列表信息
+
         :param db: orm对象
         :param query_object: 查询参数对象
         :param is_page: 是否开启分页
         :return: 操作日志列表信息对象
         """
-
-        def is_valid_date(date_string):
-            if not date_string:
-                return False
-            try:
-                datetime.strptime(date_string, '%Y-%m-%d')
-                return True
-            except ValueError:
-                return False
-
         if query_object.is_asc == 'ascending':
             order_by_column = asc(getattr(SysOperLog, SnakeCaseUtil.camel_to_snake(query_object.order_by_column), None))
         elif query_object.is_asc == 'descending':
@@ -47,22 +38,23 @@ class OperationLogDao:
             )
         else:
             order_by_column = desc(SysOperLog.oper_time)
-
-        query = select(SysOperLog) \
-            .where(
-            SysOperLog.title.like(f'%{query_object.title}%') if query_object.title else True,
-            SysOperLog.oper_name.like(f'%{query_object.oper_name}%') if query_object.oper_name else True,
-            SysOperLog.business_type == query_object.business_type if query_object.business_type else True,
-            SysOperLog.status == query_object.status if query_object.status else True,
-            SysOperLog.oper_time.between(
-                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+        query = (
+            select(SysOperLog)
+                .where(
+                SysOperLog.title.like(f'%{query_object.title}%') if query_object.title else True,
+                SysOperLog.oper_name.like(f'%{query_object.oper_name}%') if query_object.oper_name else True,
+                SysOperLog.business_type == query_object.business_type if query_object.business_type else True,
+                SysOperLog.status == query_object.status if query_object.status else True,
+                SysOperLog.oper_time.between(
+                    datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                    datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
+                )
+                if query_object.begin_time and query_object.end_time
+                else True,
             )
-            if is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time) else True
-        ) \
-            .distinct() \
-            .order_by(order_by_column)
-
+                .distinct()
+                .order_by(order_by_column)
+        )
         operation_log_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return operation_log_list
