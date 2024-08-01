@@ -195,7 +195,7 @@ async def export_system_role_list(
         request: Request,
         role_page_query: RolePageQueryModel = Depends(RolePageQueryModel.as_form),
         query_db: AsyncSession = Depends(get_db),
-        data_scope_sql: str = Depends(GetDataScope('SysDept')),
+        data_scope_sql: str = Depends(GetDataScope('SysDept'))
 ):
     """
     导出角色
