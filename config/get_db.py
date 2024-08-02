@@ -27,4 +27,5 @@ async def init_create_table():
     logger.info("初始化数据库连接...")
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # create_all 方法会创建所有尚不存在的表
     logger.info("数据库连接成功")

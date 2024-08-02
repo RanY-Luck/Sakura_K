@@ -56,8 +56,10 @@ class MyCronTrigger(CronTrigger):
         else:
             day_of_week = None
         year = values[6] if len(values) == 7 else None
-        return cls(second=second, minute=minute, hour=hour, day=day, month=month, week=week,
-                   day_of_week=day_of_week, year=year, timezone=timezone)
+        return cls(
+            second=second, minute=minute, hour=hour, day=day, month=month, week=week,
+            day_of_week=day_of_week, year=year, timezone=timezone
+        )
 
     @classmethod
     def __find_recent_workday(cls, day):
@@ -208,47 +210,60 @@ class SchedulerUtil:
 
     @classmethod
     def scheduler_event_listener(cls, event):
-        # 获取事件类型和任务ID
-        event_type = event.__class__.__name__
-        # 获取任务执行异常信息
-        status = '0'
-        exception_info = ''
-        if event_type == 'JobExecutionEvent' and event.exception:
-            exception_info = str(event.exception)
-            status = '1'
-        job_id = event.job_id
-        query_job = cls.get_scheduler_job(job_id=job_id)
-        if query_job:
-            query_job_info = query_job.__getstate__()
-            # 获取任务名称
-            job_name = query_job_info.get('name')
-            # 获取任务组名
-            job_group = query_job._jobstore_alias
-            # 获取任务执行器
-            job_executor = query_job_info.get('executor')
-            # 获取调用目标字符串
-            invoke_target = query_job_info.get('func')
-            # 获取调用函数位置参数
-            job_args = ','.join(query_job_info.get('args'))
-            # 获取调用函数关键字参数
-            job_kwargs = json.dumps(query_job_info.get('kwargs'))
-            # 获取任务触发器
-            job_trigger = str(query_job_info.get('trigger'))
-            # 构造日志消息
-            job_message = f"事件类型: {event_type}, 任务ID: {job_id}, 任务名称: {job_name}, 执行于{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            job_log = JobLogModel(
-                jobName=job_name,
-                jobGroup=job_group,
-                jobExecutor=job_executor,
-                invokeTarget=invoke_target,
-                jobArgs=job_args,
-                jobKwargs=job_kwargs,
-                jobTrigger=job_trigger,
-                jobMessage=job_message,
-                status=status,
-                exceptionInfo=exception_info,
-                createTime=datetime.now()
-            )
-            session = SessionLocal()
-            JobLogService.add_job_log_services(session, job_log)
-            session.close()
+        try:
+            # 获取事件类型和任务ID
+            event_type = event.__class__.__name__
+            # 获取任务执行异常信息
+            status = '0'
+            exception_info = ''
+            if event_type == 'JobExecutionEvent' and event.exception:
+                exception_info = str(event.exception)
+                status = '1'
+            # 检查事件是否有 job_id 属性
+            if hasattr(event, 'job_id'):
+                job_id = event.job_id
+            else:
+                # 如果没有 job_id，可能需要以其他方式处理或记录这个事件
+                print(f"警告：事件 {event_type} 没有 job_id 属性")
+                return  # 或者执行其他适当的操作
+            query_job = cls.get_scheduler_job(job_id=job_id)
+            if query_job:
+                query_job_info = query_job.__getstate__()
+                # 获取任务名称
+                job_name = query_job_info.get('name')
+                # 获取任务组名
+                job_group = query_job._jobstore_alias
+                # 获取任务执行器
+                job_executor = query_job_info.get('executor')
+                # 获取调用目标字符串
+                invoke_target = query_job_info.get('func')
+                # 获取调用函数位置参数
+                job_args = ','.join(query_job_info.get('args'))
+                # 获取调用函数关键字参数
+                job_kwargs = json.dumps(query_job_info.get('kwargs'))
+                # 获取任务触发器
+                job_trigger = str(query_job_info.get('trigger'))
+                # 构造日志消息
+                job_message = f"事件类型: {event_type}, 任务ID: {job_id}, 任务名称: {job_name}, 执行于{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                job_log = JobLogModel(
+                    jobName=job_name,
+                    jobGroup=job_group,
+                    jobExecutor=job_executor,
+                    invokeTarget=invoke_target,
+                    jobArgs=job_args,
+                    jobKwargs=job_kwargs,
+                    jobTrigger=job_trigger,
+                    jobMessage=job_message,
+                    status=status,
+                    exceptionInfo=exception_info,
+                    createTime=datetime.now()
+                )
+                session = SessionLocal()
+                JobLogService.add_job_log_services(session, job_log)
+                session.close()
+        except AttributeError as e:
+            logger.error(f"处理调度器事件时出错：{e}")
+            logger.error(f"事件类型：{event.__class__.__name__}")
+            logger.error(f"事件属性：{dir(event)}")
+        except Exception as e:
+            logger.exception("处理调度器事件时发生未知错误")

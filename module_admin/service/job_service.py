@@ -6,6 +6,7 @@
 # @File    : job_service.py
 # @Software: PyCharm
 # @desc    : 定时任务管理模块服务层
+from typing import List
 from module_admin.dao.job_dao import *
 from module_admin.service.dict_service import Request, DictDataService
 from module_admin.entity.vo.common_vo import CrudResponseModel

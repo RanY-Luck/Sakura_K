@@ -18,11 +18,11 @@ ASYNC_SQLALCHEMY_DATABASE_URL = f"mysql+asyncmy://{DataBaseConfig.db_username}:{
 
 async_engine = create_async_engine(
     ASYNC_SQLALCHEMY_DATABASE_URL,
-    echo=DataBaseConfig.db_echo,
+    echo=DataBaseConfig.db_echo,  # 为 True 输出所有 SQL 语句
     max_overflow=DataBaseConfig.db_max_overflow,
-    pool_size=DataBaseConfig.db_pool_size,
-    pool_recycle=DataBaseConfig.db_pool_recycle,
-    pool_timeout=DataBaseConfig.db_pool_timeout
+    pool_size=DataBaseConfig.db_pool_size,  # 最大连接数
+    pool_recycle=DataBaseConfig.db_pool_recycle,  # 连接被回收的时间
+    pool_timeout=DataBaseConfig.db_pool_timeout  # 抛出超时异常之前等待返回连接的秒数
 )
 AsyncSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=async_engine)
 
