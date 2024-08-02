@@ -15,13 +15,13 @@ from pydantic.fields import FieldInfo
 
 def as_query(cls: Type[BaseModel]):
     """
-    pydantic模型查询参数装饰器，将pydantic模型用于接收查询参数
+    pydantic模型查询参数装饰器，用于将 Pydantic 模型转换为查询参数
     """
+    # 创建新参数列表
     new_parameters = []
-
+    # 遍历模型字段 循环遍历 Pydantic 模型的所有字段
     for field_name, model_field in cls.model_fields.items():
         model_field: FieldInfo  # type: ignore
-
         if not model_field.is_required():
             new_parameters.append(
                 inspect.Parameter(
@@ -41,6 +41,7 @@ def as_query(cls: Type[BaseModel]):
                 )
             )
 
+    # 定义内部函数
     async def as_query_func(**data):
         return cls(**data)
 
