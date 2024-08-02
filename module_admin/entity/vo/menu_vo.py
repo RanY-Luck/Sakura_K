@@ -18,7 +18,6 @@ class MenuModel(BaseModel):
     """
     菜单表对应pydantic模型
     """
-
     model_config = ConfigDict(alias_generator=to_camel, from_attributes=True)
 
     menu_id: Optional[int] = Field(default=None, description='菜单ID')
@@ -81,7 +80,6 @@ class MenuQueryModel(MenuModel):
     """
     菜单管理不分页查询模型
     """
-
     begin_time: Optional[str] = Field(default=None, description='开始时间')
     end_time: Optional[str] = Field(default=None, description='结束时间')
 
@@ -90,7 +88,6 @@ class DeleteMenuModel(BaseModel):
     """
     删除菜单模型
     """
-
     model_config = ConfigDict(alias_generator=to_camel)
 
     menu_ids: str = Field(description='需要删除的菜单ID')
