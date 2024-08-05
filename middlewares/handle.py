@@ -16,5 +16,6 @@ def handle_middleware(app: FastAPI):
     """
     # 加载跨域中间件
     add_cors_middleware(app)
+    # 加载记录请求日志中间件
     register_request_log_middleware(app)
 

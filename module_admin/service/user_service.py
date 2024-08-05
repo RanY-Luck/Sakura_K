@@ -33,7 +33,7 @@ from module_admin.entity.vo.user_vo import (
     UserProfileModel,
     UserRoleModel,
     UserRoleQueryModel,
-    UserRoleResponseModel,
+    UserRoleResponseModel
 )
 from module_admin.service.config_service import ConfigService
 from module_admin.service.dept_service import DeptService

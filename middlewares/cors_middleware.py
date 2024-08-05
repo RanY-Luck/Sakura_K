@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : cors_middleware.py
 # @Software: PyCharm
-# @desc    : 跨域
+# @desc    : 跨域相关
 import time
 from utils.log_util import logger
 from fastapi import FastAPI, Request, Response
@@ -30,6 +30,9 @@ def add_cors_middleware(app: FastAPI):
 
 
 def write_request_log(request: Request, response: Response):
+    """
+    写入log
+    """
     http_version = f"http/{request.scope['http_version']}"
     content_length = response.raw_headers[0][1]
     process_time = response.headers["X-Process-Time"]

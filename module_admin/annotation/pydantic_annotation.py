@@ -15,7 +15,7 @@ from pydantic.fields import FieldInfo
 
 def as_query(cls: Type[BaseModel]):
     """
-    pydantic模型查询参数装饰器，用于将 Pydantic 模型转换为查询参数
+    用于将 Pydantic 模型转换为查询参数
     """
     # 创建新参数列表
     new_parameters = []
@@ -54,7 +54,7 @@ def as_query(cls: Type[BaseModel]):
 
 def as_form(cls: Type[BaseModel]):
     """
-    pydantic模型表单参数装饰器，将pydantic模型用于接收表单参数
+    用于将将 Pydantic 模型用于接收表单参数
     """
     new_parameters = []
 
