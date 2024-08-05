@@ -22,6 +22,7 @@ from typing import List
 from config.env import CachePathConfig, AppConfig
 
 
+# 启动 Banner
 async def worship():
     print(
         """

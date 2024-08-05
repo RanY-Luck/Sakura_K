@@ -27,7 +27,7 @@ from module_admin.controller.job_controller import jobController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.cache_controller import cacheController
 from module_admin.controller.common_controller import commonController
-from config.env import AppConfig
+from config.env import AppConfig, PROJECT_DESCRIPTION
 from config.get_redis import RedisUtil
 from config.get_db import init_create_table
 from config.get_scheduler import SchedulerUtil
@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
 # 初始化FastAPI对象
 app = FastAPI(
     title=AppConfig.app_name,
-    description=f'{AppConfig.app_name}接口文档',
+    description=PROJECT_DESCRIPTION,  # Swagger描述
     version=AppConfig.app_version,
     lifespan=lifespan
 )
@@ -66,7 +66,6 @@ handle_sub_applications(app)
 handle_middleware(app)
 # 加载全局异常处理方法
 handle_exception(app)
-
 
 # 加载路由列表
 controller_list = [
