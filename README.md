@@ -1,4 +1,4 @@
-```text
+```python
 # 安装项目依赖环境
 pip3 install -r requirements.txt
 
@@ -38,9 +38,11 @@ REDIS_DATABASE = 11
 2.使用命令或数据库连接工具运行sql文件夹下的Sakura_K_fastapi.sql
 
 # 运行后端
+## 运行 cli
+python3 app.py -h
 ## 测试环境
 python3 app.py --env=dev
-## 正事环境
+## 生产环境
 python3 app.py --env=prod
 ```
 
