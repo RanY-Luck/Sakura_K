@@ -80,4 +80,4 @@ def archive_and_delete_yesterdays_logs():
 
 
 # 调用函数来打包并删除昨天的日志
-archive_and_delete_yesterdays_logs()
+# archive_and_delete_yesterdays_logs()
