@@ -71,13 +71,12 @@ def archive_and_delete_yesterdays_logs():
                 zipf.write(file_path, log_file)
 
         # 删除原始日志文件
-        for log_file in log_files:
-            file_path = os.path.join(log_path, log_file)
-            os.remove(file_path)
-        print(f"昨天的日志已打包到 {zip_filename} 并删除原始文件")
+        # for log_file in log_files:
+        #     file_path = os.path.join(log_path, log_file)
+        #     os.remove(file_path)
+        print(f"昨天的日志已打包到 {zip_filename}")
     else:
         print("没有找到昨天的日志文件")
-
 
 # 调用函数来打包并删除昨天的日志
 # archive_and_delete_yesterdays_logs()
