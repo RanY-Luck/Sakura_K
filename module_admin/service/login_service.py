@@ -32,7 +32,7 @@ from utils.log_util import logger
 from utils.message_util import message_service
 from utils.pwd_util import PwdUtil
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login')
 
 
 class CustomOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
@@ -41,16 +41,16 @@ class CustomOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
     """
 
     def __init__(
-        self,
-        grant_type: str = Form(default=None, regex='password'),
-        username: str = Form(),
-        password: str = Form(),
-        scope: str = Form(default=''),
-        client_id: Optional[str] = Form(default=None),
-        client_secret: Optional[str] = Form(default=None),
-        code: Optional[str] = Form(default=''),
-        uuid: Optional[str] = Form(default=''),
-        login_info: Optional[Dict[str, str]] = Form(default=None),
+            self,
+            grant_type: str = Form(default=None, regex='password'),
+            username: str = Form(),
+            password: str = Form(),
+            scope: str = Form(default=''),
+            client_id: Optional[str] = Form(default=None),
+            client_secret: Optional[str] = Form(default=None),
+            code: Optional[str] = Form(default=''),
+            uuid: Optional[str] = Form(default=''),
+            login_info: Optional[Dict[str, str]] = Form(default=None)
     ):
         super().__init__(
             grant_type=grant_type,
@@ -96,7 +96,7 @@ class LoginService:
         )
         # 判断是否开启验证码，开启则验证，否则不验证（dev模式下来自API文档的登录请求不检验）
         if not login_user.captcha_enabled or (
-            (request_from_swagger or request_from_redoc) and AppConfig.app_env == 'dev'
+                (request_from_swagger or request_from_redoc) and AppConfig.app_env == 'dev'
         ):
             pass
         else:
@@ -190,7 +190,10 @@ class LoginService:
 
     @classmethod
     async def get_current_user(
-        cls, request: Request = Request, token: str = Depends(oauth2_scheme), query_db: AsyncSession = Depends(get_db)
+            cls,
+            request: Request = Request,
+            token: str = Depends(oauth2_scheme),
+            query_db: AsyncSession = Depends(get_db)
     ):
         """
         根据token获取当前用户信息
@@ -389,13 +392,13 @@ class LoginService:
         register_enabled = (
             True
             if await request.app.state.redis.get(f'{RedisInitKeyConfig.SYS_CONFIG.key}:sys.account.registerUser')
-            == 'true'
+               == 'true'
             else False
         )
         captcha_enabled = (
             True
             if await request.app.state.redis.get(f'{RedisInitKeyConfig.SYS_CONFIG.key}:sys.account.captchaEnabled')
-            == 'true'
+               == 'true'
             else False
         )
         if user_register.password == user_register.confirm_password:
@@ -566,7 +569,7 @@ class RouterUtil:
         :return: 是否为菜单内部跳转
         """
         return (
-            menu.parent_id == 0 and menu.menu_type == MenuConstant.TYPE_MENU and menu.is_frame == MenuConstant.NO_FRAME
+                menu.parent_id == 0 and menu.menu_type == MenuConstant.TYPE_MENU and menu.is_frame == MenuConstant.NO_FRAME
         )
 
     @classmethod

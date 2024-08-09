@@ -24,22 +24,20 @@ from module_admin.service.user_service import UserService
 from utils.log_util import logger
 from utils.response_util import ResponseUtil
 
-
 loginController = APIRouter()
 
 
 @loginController.post('/login', response_model=Token)
 @Log(title='用户登录', business_type=BusinessType.OTHER, log_type='login')
 async def login(
-    request: Request, form_data: CustomOAuth2PasswordRequestForm = Depends(), query_db: AsyncSession = Depends(get_db)
+        request: Request,
+        form_data: CustomOAuth2PasswordRequestForm = Depends(),
+        query_db: AsyncSession = Depends(get_db)
 ):
-    """
-    登录
-    """
     captcha_enabled = (
         True
         if await request.app.state.redis.get(f'{RedisInitKeyConfig.SYS_CONFIG.key}:sys.account.captchaEnabled')
-        == 'true'
+           == 'true'
         else False
     )
     user = UserLogin(
@@ -90,7 +88,7 @@ async def login(
 
 @loginController.get('/getInfo', response_model=CurrentUserModel)
 async def get_login_user_info(
-    request: Request, current_user: CurrentUserModel = Depends(LoginService.get_current_user)
+        request: Request, current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
     """
     获取登录者信息
@@ -102,9 +100,9 @@ async def get_login_user_info(
 
 @loginController.get('/getRouters')
 async def get_login_user_routers(
-    request: Request,
-    current_user: CurrentUserModel = Depends(LoginService.get_current_user),
-    query_db: AsyncSession = Depends(get_db),
+        request: Request,
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+        query_db: AsyncSession = Depends(get_db),
 ):
     """
     获取登录者
