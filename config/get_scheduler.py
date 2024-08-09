@@ -229,61 +229,40 @@ class SchedulerUtil:
         if event_type == 'JobExecutionEvent' and event.exception:
             exception_info = str(event.exception)
             status = '1'
-        if hasattr(event, 'code'):
-            if event.code == EVENT_JOB_EXECUTED:
-                print(f"Job executed successfully: {event.job_id}")
-            elif event.code == EVENT_JOB_ERROR:
-                print(f"Job failed to execute: {event.job_id}")
-            elif event.code == EVENT_JOB_ADDED:
-                print(f"Job added: {event.job_id}")
-            elif event.code == EVENT_JOB_REMOVED:
-                print(f"Job removed: {event.job_id}")
-            else:
-                print(f"Scheduler event: {event.code}")
-        else:
-            print(f"Unrecognized scheduler event: {event}")
         if hasattr(event, 'job_id'):
             job_id = event.job_id
-        else:
-            # 如果没有 job_id，可能需要以其他方式处理或记录这个事件
-            print(f"警告：事件 {event_type} 没有 job_id 属性")
-            logger.warning(f"警告：事件 {event_type} 没有 job_id 属性")
-            return  # 或者执行其他适当的操作
-        query_job = cls.get_scheduler_job(job_id=job_id)
-        if query_job:
-            query_job_info = query_job.__getstate__()
-            # 获取任务名称
-            job_name = query_job_info.get('name')
-            # 获取任务组名
-            job_group = query_job._jobstore_alias
-            # 获取任务执行器
-            job_executor = query_job_info.get('executor')
-            # 获取调用目标字符串
-            invoke_target = query_job_info.get('func')
-            # 获取调用函数位置参数
-            job_args = ','.join(query_job_info.get('args'))
-            # 获取调用函数关键字参数
-            job_kwargs = json.dumps(query_job_info.get('kwargs'))
-            # 获取任务触发器
-            job_trigger = str(query_job_info.get('trigger'))
-            # 构造日志消息
-            job_message = f"事件类型: {event_type}, 任务ID: {job_id}, 任务名称: {job_name}, 执行于{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-            job_log = JobLogModel(
-                jobName=job_name,
-                jobGroup=job_group,
-                jobExecutor=job_executor,
-                invokeTarget=invoke_target,
-                jobArgs=job_args,
-                jobKwargs=job_kwargs,
-                jobTrigger=job_trigger,
-                jobMessage=job_message,
-                status=status,
-                exceptionInfo=exception_info,
-                createTime=datetime.now()
-            )
-            session = SessionLocal()
-            JobLogService.add_job_log_services(session, job_log)
-            session.close()
-
-    scheduler = BackgroundScheduler()
-    scheduler.add_listener(scheduler_event_listener, EVENT_ALL)
+            query_job = cls.get_scheduler_job(job_id=job_id)
+            if query_job:
+                query_job_info = query_job.__getstate__()
+                # 获取任务名称
+                job_name = query_job_info.get('name')
+                # 获取任务组名
+                job_group = query_job._jobstore_alias
+                # 获取任务执行器
+                job_executor = query_job_info.get('executor')
+                # 获取调用目标字符串
+                invoke_target = query_job_info.get('func')
+                # 获取调用函数位置参数
+                job_args = ','.join(query_job_info.get('args'))
+                # 获取调用函数关键字参数
+                job_kwargs = json.dumps(query_job_info.get('kwargs'))
+                # 获取任务触发器
+                job_trigger = str(query_job_info.get('trigger'))
+                # 构造日志消息
+                job_message = f"事件类型: {event_type}, 任务ID: {job_id}, 任务名称: {job_name}, 执行于{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                job_log = JobLogModel(
+                    jobName=job_name,
+                    jobGroup=job_group,
+                    jobExecutor=job_executor,
+                    invokeTarget=invoke_target,
+                    jobArgs=job_args,
+                    jobKwargs=job_kwargs,
+                    jobTrigger=job_trigger,
+                    jobMessage=job_message,
+                    status=status,
+                    exceptionInfo=exception_info,
+                    createTime=datetime.now()
+                )
+                session = SessionLocal()
+                JobLogService.add_job_log_services(session, job_log)
+                session.close()
