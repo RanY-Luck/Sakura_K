@@ -26,7 +26,7 @@ application/config/production.py
 alembic.ini
 .idea
 __pycache__
-logs/*
+logs/
 !logs/.gitkeep
 utils/xhs/Download
 static/system
