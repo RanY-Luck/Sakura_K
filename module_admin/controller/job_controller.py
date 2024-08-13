@@ -77,7 +77,7 @@ async def edit_system_job(
     编辑定时任务
     """
     edit_job.update_by = current_user.user.user_name
-    edit_job.update_time = datetime.now()
+    edit_job.update_time = datetime.datetime.now()
     edit_job_result = await JobService.edit_job_services(query_db, edit_job)
     logger.info(edit_job_result.message)
 

@@ -8,7 +8,7 @@
 # @desc    : 通知公告接口
 from fastapi import APIRouter, Request, Depends
 from pydantic_validation_decorator import ValidateFields
-
+from datetime import datetime
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
@@ -53,9 +53,9 @@ async def add_system_notice(
     新增系统通知公告
     """
     add_notice.create_by = current_user.user.user_name
-    add_notice.create_time = datetime.now()
+    add_notice.create_time = datetime.datetime.now()
     add_notice.update_by = current_user.user.user_name
-    add_notice.update_time = datetime.now()
+    add_notice.update_time = datetime.datetime.now()
     add_notice_result = await NoticeService.add_notice_services(query_db, add_notice)
     logger.info(add_notice_result.message)
 
@@ -75,7 +75,7 @@ async def edit_system_notice(
     编辑系统通知公告
     """
     edit_notice.update_by = current_user.user.user_name
-    edit_notice.update_time = datetime.now()
+    edit_notice.update_time = datetime.datetime.now()
     edit_notice_result = await NoticeService.edit_notice_services(query_db, edit_notice)
     logger.info(edit_notice_result.message)
 
