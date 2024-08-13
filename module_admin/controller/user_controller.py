@@ -6,25 +6,45 @@
 # @File    : user_controller.py
 # @Software: PyCharm
 # @desc    : 用户管理相关接口
-from fastapi import APIRouter
-from fastapi import Depends, File, Query
+import os
+from datetime import datetime
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional, Union
 from pydantic_validation_decorator import ValidateFields
-from config.enums import BusinessType
 from config.get_db import get_db
 from config.env import UploadConfig
-from module_admin.entity.vo.user_vo import ResetPasswordModel
-from module_admin.service.login_service import LoginService
-from module_admin.service.user_service import *
-from module_admin.service.dept_service import DeptService
-from utils.page_util import PageResponseModel
-from module_admin.entity.vo.dept_vo import DeptModel
-from utils.response_util import *
-from utils.log_util import *
 from module_admin.annotation.log_annotation import Log
-from utils.common_util import bytes2file_response
-from utils.upload_util import UploadUtil
-from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
 from module_admin.aspect.data_scope import GetDataScope
+from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.entity.vo.dept_vo import DeptModel
+from module_admin.entity.vo.user_vo import (
+    AddUserModel,
+    CrudUserRoleModel,
+    CurrentUserModel,
+    DeleteUserModel,
+    EditUserModel,
+    ResetPasswordModel,
+    ResetUserModel,
+    UserDetailModel,
+    UserInfoModel,
+    UserModel,
+    UserPageQueryModel,
+    UserProfileModel,
+    UserRoleQueryModel,
+    UserRoleResponseModel,
+)
+from module_admin.service.login_service import LoginService
+from module_admin.service.user_service import UserService
+from module_admin.service.role_service import RoleService
+from module_admin.service.dept_service import DeptService
+from config.enums import BusinessType
+from utils.common_util import bytes2file_response
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.pwd_util import PwdUtil
+from utils.response_util import ResponseUtil
+from utils.upload_util import UploadUtil
 
 userController = APIRouter(prefix='/system/user', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -147,7 +167,11 @@ async def delete_system_user(
             await UserService.check_user_allowed_services(UserModel(userId=int(user_id)))
             if not current_user.user.admin:
                 await UserService.check_user_data_scope_services(query_db, int(user_id), data_scope_sql)
-    delete_user = DeleteUserModel(userIds=user_ids, updateBy=current_user.user.user_name, updateTime=datetime.now())
+    delete_user = DeleteUserModel(
+        userIds=user_ids,
+        updateBy=current_user.user.user_name,
+        updateTime=datetime.now()
+    )
     delete_user_result = await UserService.delete_user_services(query_db, delete_user)
     logger.info(delete_user_result.message)
 
@@ -261,10 +285,7 @@ async def change_system_user_profile_avatar(
     更改系统用户配置文件头像
     """
     if avatarfile:
-        # relative_path = (
-        #     f'avatar/{datetime.now().strftime("%Y")}/{datetime.now().strftime("%m")}/{datetime.now().strftime("%d")}'
-        # )
-        relative_path = f'avatar/{datetime.datetime.now().strftime("%Y")}/{datetime.datetime.now().strftime("%m")}/{datetime.datetime.now().strftime("%d")}'
+        relative_path = f'avatar/{datetime.now().strftime("%Y")}/{datetime.now().strftime("%m")}/{datetime.now().strftime("%d")}'
         dir_path = os.path.join(UploadConfig.UPLOAD_PATH, relative_path)
         try:
             os.makedirs(dir_path)
