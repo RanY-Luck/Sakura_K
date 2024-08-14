@@ -123,7 +123,7 @@ class DictTypeService:
                             f'{RedisInitKeyConfig.SYS_DICT.key}:{page_object.dict_type}',
                             json.dumps(dict_data, ensure_ascii=False, default=str),
                         )
-                    return CrudResponseModel(is_success=True, message='更新成功')
+                    return CrudResponseModel(is_success=True, message='字典更新成功')
                 except Exception as e:
                     await query_db.rollback()
                     raise e

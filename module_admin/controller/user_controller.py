@@ -285,7 +285,9 @@ async def change_system_user_profile_avatar(
     更改系统用户配置文件头像
     """
     if avatarfile:
-        relative_path = f'avatar/{datetime.now().strftime("%Y")}/{datetime.now().strftime("%m")}/{datetime.now().strftime("%d")}'
+        relative_path = (
+            f'avatar/{datetime.now().strftime("%Y")}/{datetime.now().strftime("%m")}/{datetime.now().strftime("%d")}'
+        )
         dir_path = os.path.join(UploadConfig.UPLOAD_PATH, relative_path)
         try:
             os.makedirs(dir_path)
@@ -300,11 +302,10 @@ async def change_system_user_profile_avatar(
             avatar=f'{UploadConfig.UPLOAD_PREFIX}/{relative_path}/{avatar_name}',
             updateBy=current_user.user.user_name,
             updateTime=datetime.now(),
-            type='avatar',
+            type='avatar'
         )
         edit_user_result = await UserService.edit_user_services(query_db, edit_user)
         logger.info(edit_user_result.message)
-
         return ResponseUtil.success(dict_content={'imgUrl': edit_user.avatar}, msg=edit_user_result.message)
     return ResponseUtil.failure(msg='上传图片异常，请联系管理员')
 

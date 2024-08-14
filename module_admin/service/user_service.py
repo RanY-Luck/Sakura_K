@@ -51,7 +51,7 @@ class UserService:
 
     @classmethod
     async def get_user_list_services(
-        cls, query_db: AsyncSession, query_object: UserPageQueryModel, data_scope_sql: str, is_page: bool = False
+            cls, query_db: AsyncSession, query_object: UserPageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         获取用户列表信息service
@@ -351,14 +351,14 @@ class UserService:
 
     @classmethod
     async def batch_import_user_services(
-        cls,
-        request: Request,
-        query_db: AsyncSession,
-        file: UploadFile,
-        update_support: bool,
-        current_user: CurrentUserModel,
-        user_data_scope_sql: str,
-        dept_data_scope_sql: str,
+            cls,
+            request: Request,
+            query_db: AsyncSession,
+            file: UploadFile,
+            update_support: bool,
+            current_user: CurrentUserModel,
+            user_data_scope_sql: str,
+            dept_data_scope_sql: str,
     ):
         """
         批量导入用户service
@@ -472,7 +472,6 @@ class UserService:
         binary_data = get_excel_template(
             header_list=header_list, selector_header_list=selector_header_list, option_list=option_list
         )
-
         return binary_data
 
     @staticmethod

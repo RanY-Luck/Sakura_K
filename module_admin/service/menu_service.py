@@ -106,7 +106,7 @@ class MenuService:
             try:
                 await MenuDao.edit_menu_dao(query_db, edit_menu)
                 await query_db.commit()
-                result = dict(is_success=True, message='更新成功')
+                result = dict(is_success=True, message='菜单更新成功')
             except Exception as e:
                 await query_db.rollback()
                 raise e
