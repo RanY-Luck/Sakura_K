@@ -6,21 +6,22 @@
 # @File    : post_controler.py
 # @Software: PyCharm
 # @desc    : 岗位相关接口
-from fastapi import APIRouter, Request
-from fastapi import Depends
+from datetime import datetime
+from fastapi import APIRouter, Depends, Request
 from pydantic_validation_decorator import ValidateFields
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
-from module_admin.service.login_service import LoginService, CurrentUserModel
-from module_admin.service.post_service import *
-from module_admin.entity.vo.post_vo import *
-from utils.response_util import *
-from utils.log_util import *
-from utils.page_util import *
-from utils.common_util import bytes2file_response
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.service.login_service import LoginService
+from module_admin.service.post_service import PostService
+from module_admin.entity.vo.post_vo import DeletePostModel, PostModel, PostPageQueryModel
+from module_admin.entity.vo.user_vo import CurrentUserModel
+from utils.common_util import bytes2file_response
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.response_util import ResponseUtil
 
 postController = APIRouter(prefix='/system/post', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -31,7 +32,7 @@ postController = APIRouter(prefix='/system/post', dependencies=[Depends(LoginSer
 async def get_system_post_list(
         request: Request,
         post_page_query: PostPageQueryModel = Depends(PostPageQueryModel.as_query),
-        query_db: AsyncSession = Depends(get_db),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     获取岗位列表
@@ -50,7 +51,7 @@ async def add_system_post(
         request: Request,
         add_post: PostModel,
         query_db: AsyncSession = Depends(get_db),
-        current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
     """
     新增岗位
@@ -72,7 +73,7 @@ async def edit_system_post(
         request: Request,
         edit_post: PostModel,
         query_db: AsyncSession = Depends(get_db),
-        current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
     """
     编辑岗位
@@ -116,7 +117,7 @@ async def query_detail_system_post(request: Request, post_id: int, query_db: Asy
 async def export_system_post_list(
         request: Request,
         post_page_query: PostPageQueryModel = Depends(PostPageQueryModel.as_form),
-        query_db: AsyncSession = Depends(get_db),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     导出岗位
