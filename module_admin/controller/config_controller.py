@@ -6,20 +6,23 @@
 # @File    : config_controller.py
 # @Software: PyCharm
 # @desc    : 参数管理相关接口
-from fastapi import APIRouter
-from fastapi import Depends
+from datetime import datetime
+from fastapi import APIRouter, Depends, Request
 from pydantic_validation_decorator import ValidateFields
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
-from module_admin.service.login_service import LoginService, CurrentUserModel
-from module_admin.service.config_service import *
-from utils.response_util import *
-from utils.log_util import *
-from utils.page_util import *
-from utils.common_util import bytes2file_response
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.entity.vo.config_vo import ConfigModel, ConfigPageQueryModel, DeleteConfigModel
+from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.service.config_service import ConfigService
+from module_admin.service.login_service import LoginService
+from utils.common_util import bytes2file_response
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.response_util import ResponseUtil
+
 
 configController = APIRouter(prefix='/system/config', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -100,7 +103,7 @@ async def refresh_system_config(request: Request, query_db: AsyncSession = Depen
 @Log(title='参数管理', business_type=BusinessType.DELETE)
 async def delete_system_config(request: Request, config_ids: str, query_db: AsyncSession = Depends(get_db)):
     """
-    删除系统配置
+    删除配置参数
     """
     delete_config = DeleteConfigModel(configIds=config_ids)
     delete_config_result = await ConfigService.delete_config_services(request, query_db, delete_config)
@@ -139,7 +142,7 @@ async def query_system_config(request: Request, config_key: str):
 async def export_system_config_list(
         request: Request,
         config_page_query: ConfigPageQueryModel = Depends(ConfigPageQueryModel.as_form),
-        query_db: AsyncSession = Depends(get_db),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     导出系统配置列表
