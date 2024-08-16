@@ -115,6 +115,9 @@ async def get_login_user_routers(
 
 @loginController.post('/register', response_model=CrudResponseModel)
 async def register_user(request: Request, user_register: UserRegister, query_db: AsyncSession = Depends(get_db)):
+    """
+    注册用户
+    """
     user_register_result = await LoginService.register_user_services(request, query_db, user_register)
     logger.info(user_register_result.message)
 
