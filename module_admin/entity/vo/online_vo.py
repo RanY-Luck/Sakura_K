@@ -20,8 +20,8 @@ class OnlineModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
 
     token_id: Optional[str] = Field(default=None, description='会话编号')
-    user_name: Optional[str] = Field(default=None, description='部门名称')
-    dept_name: Optional[str] = Field(default=None, description='用户名称')
+    user_name: Optional[str] = Field(default=None, description='用户名称')
+    dept_name: Optional[str] = Field(default=None, description='部门名称')
     ipaddr: Optional[str] = Field(default=None, description='登录IP地址')
     login_location: Optional[str] = Field(default=None, description='登录地址')
     browser: Optional[str] = Field(default=None, description='浏览器类型')

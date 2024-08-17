@@ -37,6 +37,7 @@ class OnlineService:
         online_info_list = []
         for item in access_token_values_list:
             payload = jwt.decode(item, JwtConfig.jwt_secret_key, algorithms=[JwtConfig.jwt_algorithm])
+            print("payload", payload)
             online_dict = dict(
                 token_id=payload.get('session_id'),
                 user_name=payload.get('user_name'),
@@ -47,6 +48,7 @@ class OnlineService:
                 os=payload.get('login_info').get('os'),
                 login_time=payload.get('login_info').get('loginTime'),
             )
+            print("online_dict",online_dict)
             if query_object.user_name and not query_object.ipaddr:
                 if query_object.user_name == payload.get('login_info').get('ipaddr'):
                     online_info_list = [online_dict]
