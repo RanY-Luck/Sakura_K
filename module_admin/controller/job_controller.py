@@ -6,20 +6,30 @@
 # @File    : job_controller.py
 # @Software: PyCharm
 # @desc    : 定时任务管理相关接口
-from fastapi import APIRouter
-from fastapi import Depends
+from datetime import datetime
+from fastapi import APIRouter, Depends, Request
 from pydantic_validation_decorator import ValidateFields
+from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
 from config.get_db import get_db
-from module_admin.service.login_service import LoginService, CurrentUserModel
-from module_admin.service.job_service import *
-from module_admin.service.job_log_service import *
-from utils.response_util import *
-from utils.log_util import *
-from utils.page_util import *
 from module_admin.annotation.log_annotation import Log
-from utils.common_util import bytes2file_response
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.entity.vo.job_vo import (
+    DeleteJobLogModel,
+    DeleteJobModel,
+    EditJobModel,
+    JobLogPageQueryModel,
+    JobModel,
+    JobPageQueryModel,
+)
+from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.service.job_log_service import JobLogService
+from module_admin.service.job_service import JobService
+from module_admin.service.login_service import LoginService
+from utils.common_util import bytes2file_response
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.response_util import ResponseUtil
 
 jobController = APIRouter(prefix='/monitor', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -77,7 +87,7 @@ async def edit_system_job(
     编辑定时任务
     """
     edit_job.update_by = current_user.user.user_name
-    edit_job.update_time = datetime.datetime.now()
+    edit_job.update_time = datetime.now()
     edit_job_result = await JobService.edit_job_services(query_db, edit_job)
     logger.info(edit_job_result.message)
 

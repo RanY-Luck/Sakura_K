@@ -30,7 +30,7 @@ class OnlineService:
         :param query_object: 查询参数对象
         :return: 在线用户列表信息
         """
-        access_token_keys = await request.app.state.redis.keys(f"{RedisInitKeyConfig.ACCESS_TOKEN.key}*")
+        access_token_keys = await request.app.state.redis.keys(f'{RedisInitKeyConfig.ACCESS_TOKEN.key}*')
         if not access_token_keys:
             access_token_keys = []
         access_token_values_list = [await request.app.state.redis.get(key) for key in access_token_keys]
@@ -48,13 +48,12 @@ class OnlineService:
                 os=payload.get('login_info').get('os'),
                 login_time=payload.get('login_info').get('loginTime'),
             )
-            print("online_dict",online_dict)
             if query_object.user_name and not query_object.ipaddr:
-                if query_object.user_name == payload.get('login_info').get('ipaddr'):
+                if query_object.user_name == payload.get('user_name'):
                     online_info_list = [online_dict]
                     break
             elif not query_object.user_name and query_object.ipaddr:
-                if query_object.ipaddr == payload.get('ipaddr'):
+                if query_object.ipaddr == payload.get('login_info').get('ipaddr'):
                     online_info_list = [online_dict]
                     break
             elif query_object.user_name and query_object.ipaddr:

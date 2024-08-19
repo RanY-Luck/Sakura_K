@@ -6,18 +6,21 @@
 # @File    : notice_controller.py
 # @Software: PyCharm
 # @desc    : 通知公告接口
-from fastapi import APIRouter, Request, Depends
-from pydantic_validation_decorator import ValidateFields
 from datetime import datetime
+from fastapi import APIRouter, Depends, Request
+from pydantic_validation_decorator import ValidateFields
+from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
-from module_admin.service.login_service import LoginService, CurrentUserModel
-from module_admin.service.notice_service import *
-from utils.response_util import *
-from utils.log_util import *
-from utils.page_util import *
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.entity.vo.notice_vo import DeleteNoticeModel, NoticeModel, NoticePageQueryModel
+from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.service.login_service import LoginService
+from module_admin.service.notice_service import NoticeService
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.response_util import ResponseUtil
 
 noticeController = APIRouter(prefix='/system/notice', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -28,7 +31,7 @@ noticeController = APIRouter(prefix='/system/notice', dependencies=[Depends(Logi
 async def get_system_notice_list(
         request: Request,
         notice_page_query: NoticePageQueryModel = Depends(NoticePageQueryModel.as_query),
-        query_db: AsyncSession = Depends(get_db),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     获取系统通知公告列表
@@ -47,15 +50,15 @@ async def add_system_notice(
         request: Request,
         add_notice: NoticeModel,
         query_db: AsyncSession = Depends(get_db),
-        current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
     """
-    新增系统通知公告
+    新增通知公告
     """
     add_notice.create_by = current_user.user.user_name
-    add_notice.create_time = datetime.datetime.now()
+    add_notice.create_time = datetime.now()
     add_notice.update_by = current_user.user.user_name
-    add_notice.update_time = datetime.datetime.now()
+    add_notice.update_time = datetime.now()
     add_notice_result = await NoticeService.add_notice_services(query_db, add_notice)
     logger.info(add_notice_result.message)
 
@@ -69,13 +72,13 @@ async def edit_system_notice(
         request: Request,
         edit_notice: NoticeModel,
         query_db: AsyncSession = Depends(get_db),
-        current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
     """
-    编辑系统通知公告
+    编辑通知公告
     """
     edit_notice.update_by = current_user.user.user_name
-    edit_notice.update_time = datetime.datetime.now()
+    edit_notice.update_time = datetime.now()
     edit_notice_result = await NoticeService.edit_notice_services(query_db, edit_notice)
     logger.info(edit_notice_result.message)
 

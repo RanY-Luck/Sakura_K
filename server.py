@@ -84,7 +84,7 @@ controller_list = [
     {'router': jobController, 'tags': ['系统监控-定时任务']},
     {'router': serverController, 'tags': ['系统监控-服务资源']},
     {'router': cacheController, 'tags': ['系统监控-缓存监控']},
-    {'router': commonController, 'tags': ['通用模块']}
+    {'router': commonController, 'tags': ['通用模块']},
 ]
 
 for controller in controller_list:
