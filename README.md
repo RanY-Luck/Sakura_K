@@ -51,9 +51,8 @@ python3 app.py --env=prod
 ## 第一步:先去`module_admin/entity/do`写表结构
 
 ```python
-from sqlalchemy import Column, Integer, String, DateTime, LargeBinary
+from sqlalchemy import Column, Integer, String, LargeBinary
 from config.database import Base
-from datetime import datetime
 
 
 class SysNotice(Base):
@@ -61,27 +60,24 @@ class SysNotice(Base):
     通知公告表
     """
     __tablename__ = 'sys_notice'
+    __table_args__ = ({'comment': '通知公告表'})
 
     notice_id = Column(Integer, primary_key=True, autoincrement=True, comment='公告ID')
     notice_title = Column(String(50, collation='utf8_general_ci'), nullable=False, comment='公告标题')
     notice_type = Column(String(1, collation='utf8_general_ci'), nullable=False, comment='公告类型（1通知 2公告）')
     notice_content = Column(LargeBinary, comment='公告内容')
     status = Column(String(1, collation='utf8_general_ci'), default='0', comment='公告状态（0正常 1关闭）')
-    create_by = Column(String(64, collation='utf8_general_ci'), default='', comment='创建者')
-    create_time = Column(DateTime, comment='创建时间', default=datetime.now())
-    update_by = Column(String(64, collation='utf8_general_ci'), default='', comment='更新者')
-    update_time = Column(DateTime, comment='更新时间', default=datetime.now())
-    remark = Column(String(255, collation='utf8_general_ci'), comment='备注')
 ```
 
 ## 第二步:再去`module_admin/entity/vo`写 pydantic 模型
 
 ```python
-from pydantic import BaseModel, ConfigDict
-from pydantic.alias_generators import to_camel
-from typing import Optional
 from datetime import datetime
-from module_admin.annotation.pydantic_annotation import as_query, as_form
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
+from pydantic_validation_decorator import NotBlank, Size, Xss
+from typing import Literal, Optional
+from module_admin.annotation.pydantic_annotation import as_form, as_query
 
 
 class NoticeModel(BaseModel):
@@ -90,24 +86,33 @@ class NoticeModel(BaseModel):
     """
     model_config = ConfigDict(alias_generator=to_camel, from_attributes=True)
 
-    notice_id: Optional[int] = None
-    notice_title: Optional[str] = None
-    notice_type: Optional[str] = None
-    notice_content: Optional[bytes] = None
-    status: Optional[str] = None
-    create_by: Optional[str] = None
-    create_time: Optional[datetime] = None
-    update_by: Optional[str] = None
-    update_time: Optional[datetime] = None
-    remark: Optional[str] = None
+    notice_id: Optional[int] = Field(default=None, description='公告ID')
+    notice_title: Optional[str] = Field(default=None, description='公告标题')
+    notice_type: Optional[Literal['1', '2']] = Field(default=None, description='公告类型（1通知 2公告）')
+    notice_content: Optional[bytes] = Field(default=None, description='公告内容')
+    status: Optional[Literal['0', '1']] = Field(default=None, description='公告状态（0正常 1关闭）')
+    create_by: Optional[str] = Field(default=None, description='创建者')
+    create_time: Optional[datetime] = Field(default=None, description='创建时间')
+    update_by: Optional[str] = Field(default=None, description='更新者')
+    update_time: Optional[datetime] = Field(default=None, description='更新时间')
+    remark: Optional[str] = Field(default=None, description='备注')
+
+    @Xss(field_name='notice_title', message='公告标题不能包含脚本字符')
+    @NotBlank(field_name='notice_title', message='公告标题不能为空')
+    @Size(field_name='notice_title', min_length=0, max_length=50, message='公告标题不能超过50个字符')
+    def get_notice_title(self):
+        return self.notice_title
+
+    def validate_fields(self):
+        self.get_notice_title()
 
 
 class NoticeQueryModel(NoticeModel):
     """
     通知公告管理不分页查询模型
     """
-    begin_time: Optional[str] = None
-    end_time: Optional[str] = None
+    begin_time: Optional[str] = Field(default=None, description='开始时间')
+    end_time: Optional[str] = Field(default=None, description='结束时间')
 
 
 @as_query
@@ -116,8 +121,8 @@ class NoticePageQueryModel(NoticeQueryModel):
     """
     通知公告管理分页查询模型
     """
-    page_num: int = 1
-    page_size: int = 10
+    page_num: int = Field(default=1, description='当前页码')
+    page_size: int = Field(default=10, description='每页记录数')
 
 
 class DeleteNoticeModel(BaseModel):
@@ -126,7 +131,8 @@ class DeleteNoticeModel(BaseModel):
     """
     model_config = ConfigDict(alias_generator=to_camel)
 
-    notice_ids: str
+    notice_ids: str = Field(description='需要删除的公告ID')
+
 ```
 
 ## 第三步:再去`module_admin/dao`写对数据库crud操作
@@ -183,23 +189,27 @@ class NoticeDao:
     async def get_notice_list(cls, db: AsyncSession, query_object: NoticePageQueryModel, is_page: bool = False):
         """
         根据查询参数获取通知公告列表信息
+
         :param db: orm对象
         :param query_object: 查询参数对象
         :param is_page: 是否开启分页
         :return: 通知公告列表信息对象
         """
-        query = select(SysNotice)
-            .where(
-            SysNotice.notice_title.like(f'%{query_object.notice_title}%') if query_object.notice_title else True,
-            SysNotice.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
-            SysNotice.notice_type == query_object.notice_type if query_object.notice_type else True,
-            SysNotice.create_time.between(
-                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+        query = (
+            select(SysNotice)
+                .where(
+                SysNotice.notice_title.like(f'%{query_object.notice_title}%') if query_object.notice_title else True,
+                SysNotice.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
+                SysNotice.notice_type == query_object.notice_type if query_object.notice_type else True,
+                SysNotice.create_time.between(
+                    datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                    datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
+                )
+                if query_object.begin_time and query_object.end_time
+                else True,
             )
-            if query_object.begin_time and query_object.end_time else True
+                .distinct()
         )
-            .distinct()
         notice_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return notice_list
@@ -317,7 +327,7 @@ class NoticeService:
             try:
                 await NoticeDao.edit_notice_dao(query_db, edit_notice)
                 await query_db.commit()
-                result = dict(is_success=True, message='更新成功')
+                result = dict(is_success=True, message='通知公告更新成功')
             except Exception as e:
                 await query_db.rollback()
                 raise e
@@ -365,119 +375,109 @@ class NoticeService:
 ## 第五步:再去`module_admin/controller`写接口
 
 ```python
-from fastapi import APIRouter, Request, Depends
+from datetime import datetime
+from fastapi import APIRouter, Depends, Request
+from pydantic_validation_decorator import ValidateFields
+from sqlalchemy.ext.asyncio import AsyncSession
+from config.enums import BusinessType
 from config.get_db import get_db
-from module_admin.service.login_service import LoginService, CurrentUserModel
-from module_admin.service.notice_service import *
-from utils.response_util import *
-from utils.log_util import *
-from utils.page_util import *
+from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
-from module_admin.annotation.log_annotation import log_decorator
+from module_admin.entity.vo.notice_vo import DeleteNoticeModel, NoticeModel, NoticePageQueryModel
+from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.service.login_service import LoginService
+from module_admin.service.notice_service import NoticeService
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.response_util import ResponseUtil
 
 noticeController = APIRouter(prefix='/system/notice', dependencies=[Depends(LoginService.get_current_user)])
 
 
 @noticeController.get(
-    "/list",
-    response_model=PageResponseModel,
-    dependencies=[Depends(CheckUserInterfaceAuth('system:notice:list'))]
+    '/list', response_model=PageResponseModel, dependencies=[Depends(CheckUserInterfaceAuth('system:notice:list'))]
 )
 async def get_system_notice_list(
         request: Request,
         notice_page_query: NoticePageQueryModel = Depends(NoticePageQueryModel.as_query),
-        query_db: AsyncSession = Depends(get_db)
+        query_db: AsyncSession = Depends(get_db),
 ):
-    try:
-        # 获取分页数据
-        notice_page_query_result = await NoticeService.get_notice_list_services(
-            query_db,
-            notice_page_query,
-            is_page=True
-        )
-        logger.info('获取成功')
-        return ResponseUtil.success(model_content=notice_page_query_result)
-    except Exception as e:
-        logger.exception(e)
-        return ResponseUtil.error(msg=str(e))
+    """
+    获取系统通知公告列表
+    """
+    # 获取分页数据
+    notice_page_query_result = await NoticeService.get_notice_list_services(query_db, notice_page_query, is_page=True)
+    logger.info('系统通知公告获取成功')
+
+    return ResponseUtil.success(model_content=notice_page_query_result)
 
 
-@noticeController.post("", dependencies=[Depends(CheckUserInterfaceAuth('system:notice:add'))])
-@log_decorator(title='通知公告管理', business_type=1)
+@noticeController.post('', dependencies=[Depends(CheckUserInterfaceAuth('system:notice:add'))])
+@ValidateFields(validate_model='add_notice')
+@Log(title='通知公告', business_type=BusinessType.INSERT)
 async def add_system_notice(
         request: Request,
         add_notice: NoticeModel,
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
-    try:
-        add_notice.create_by = current_user.user.user_name
-        add_notice.update_by = current_user.user.user_name
-        add_notice_result = await NoticeService.add_notice_services(query_db, add_notice)
-        if add_notice_result.is_success:
-            logger.info(add_notice_result.message)
-            return ResponseUtil.success(msg=add_notice_result.message)
-        else:
-            logger.warning(add_notice_result.message)
-            return ResponseUtil.failure(msg=add_notice_result.message)
-    except Exception as e:
-        logger.exception(e)
-        return ResponseUtil.error(msg=str(e))
+    """
+    新增通知公告
+    """
+    add_notice.create_by = current_user.user.user_name
+    add_notice.create_time = datetime.now()
+    add_notice.update_by = current_user.user.user_name
+    add_notice.update_time = datetime.now()
+    add_notice_result = await NoticeService.add_notice_services(query_db, add_notice)
+    logger.info(add_notice_result.message)
+
+    return ResponseUtil.success(msg=add_notice_result.message)
 
 
-@noticeController.put("", dependencies=[Depends(CheckUserInterfaceAuth('system:notice:edit'))])
-@log_decorator(title='通知公告管理', business_type=2)
+@noticeController.put('', dependencies=[Depends(CheckUserInterfaceAuth('system:notice:edit'))])
+@ValidateFields(validate_model='edit_notice')
+@Log(title='通知公告', business_type=BusinessType.UPDATE)
 async def edit_system_notice(
         request: Request,
         edit_notice: NoticeModel,
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
-    try:
-        edit_notice.update_by = current_user.user.user_name
-        edit_notice.update_time = datetime.now()
-        edit_notice_result = await NoticeService.edit_notice_services(query_db, edit_notice)
-        if edit_notice_result.is_success:
-            logger.info(edit_notice_result.message)
-            return ResponseUtil.success(msg=edit_notice_result.message)
-        else:
-            logger.warning(edit_notice_result.message)
-            return ResponseUtil.failure(msg=edit_notice_result.message)
-    except Exception as e:
-        logger.exception(e)
-        return ResponseUtil.error(msg=str(e))
+    """
+    编辑通知公告
+    """
+    edit_notice.update_by = current_user.user.user_name
+    edit_notice.update_time = datetime.now()
+    edit_notice_result = await NoticeService.edit_notice_services(query_db, edit_notice)
+    logger.info(edit_notice_result.message)
+
+    return ResponseUtil.success(msg=edit_notice_result.message)
 
 
-@noticeController.delete("/{notice_ids}", dependencies=[Depends(CheckUserInterfaceAuth('system:notice:remove'))])
-@log_decorator(title='通知公告管理', business_type=3)
+@noticeController.delete('/{notice_ids}', dependencies=[Depends(CheckUserInterfaceAuth('system:notice:remove'))])
+@Log(title='通知公告', business_type=BusinessType.DELETE)
 async def delete_system_notice(request: Request, notice_ids: str, query_db: AsyncSession = Depends(get_db)):
-    try:
-        delete_notice = DeleteNoticeModel(noticeIds=notice_ids)
-        delete_notice_result = await NoticeService.delete_notice_services(query_db, delete_notice)
-        if delete_notice_result.is_success:
-            logger.info(delete_notice_result.message)
-            return ResponseUtil.success(msg=delete_notice_result.message)
-        else:
-            logger.warning(delete_notice_result.message)
-            return ResponseUtil.failure(msg=delete_notice_result.message)
-    except Exception as e:
-        logger.exception(e)
-        return ResponseUtil.error(msg=str(e))
+    """
+    删除系统通知公告
+    """
+    delete_notice = DeleteNoticeModel(noticeIds=notice_ids)
+    delete_notice_result = await NoticeService.delete_notice_services(query_db, delete_notice)
+    logger.info(delete_notice_result.message)
+
+    return ResponseUtil.success(msg=delete_notice_result.message)
 
 
 @noticeController.get(
-    "/{notice_id}",
-    response_model=NoticeModel,
-    dependencies=[Depends(CheckUserInterfaceAuth('system:notice:query'))]
+    '/{notice_id}', response_model=NoticeModel, dependencies=[Depends(CheckUserInterfaceAuth('system:notice:query'))]
 )
 async def query_detail_system_post(request: Request, notice_id: int, query_db: AsyncSession = Depends(get_db)):
-    try:
-        notice_detail_result = await NoticeService.notice_detail_services(query_db, notice_id)
-        logger.info(f'获取notice_id为{notice_id}的信息成功')
-        return ResponseUtil.success(data=notice_detail_result)
-    except Exception as e:
-        logger.exception(e)
-        return ResponseUtil.error(msg=str(e))
+    """
+    获取系统通知公告信息
+    """
+    notice_detail_result = await NoticeService.notice_detail_services(query_db, notice_id)
+    logger.info(f'获取notice_id为{notice_id}的信息成功')
+
+    return ResponseUtil.success(data=notice_detail_result)
 ```
 
 ## 第六步:最后去`server.py`写路由挂载
