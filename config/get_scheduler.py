@@ -98,10 +98,12 @@ engine = create_engine(
     pool_recycle=DataBaseConfig.db_pool_recycle,
     pool_timeout=DataBaseConfig.db_pool_timeout,
 )
+# 数据库连接
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# 任务存储
 job_stores = {
-    'default': MemoryJobStore(),
-    'sqlalchemy': SQLAlchemyJobStore(url=SQLALCHEMY_DATABASE_URL, engine=engine),
+    'default': MemoryJobStore(),  # 默认内存存储
+    'sqlalchemy': SQLAlchemyJobStore(url=SQLALCHEMY_DATABASE_URL, engine=engine),  # 数据库存储
     'redis': RedisJobStore(
         **dict(
             host=RedisConfig.redis_host,
@@ -110,11 +112,16 @@ job_stores = {
             password=RedisConfig.redis_password,
             db=RedisConfig.redis_database,
         )
-    ),
+    )  # redis存储
 }
+# 配置调度器的执行器和任务默认设置
+# 线程池执行器
 executors = {'default': ThreadPoolExecutor(20), 'processpool': ProcessPoolExecutor(5)}
+# 任务默认设置
 job_defaults = {'coalesce': False, 'max_instance': 1}
+# 实例化调度器
 scheduler = BackgroundScheduler()
+# 配置调度器
 scheduler.configure(jobstores=job_stores, executors=executors, job_defaults=job_defaults)
 
 
@@ -131,14 +138,23 @@ class SchedulerUtil:
         :return:
         """
         logger.info('开始启动定时任务...')
+        # 启动定时任务
         scheduler.start()
+        # 加载系统定时任务
         async with AsyncSessionLocal() as session:
+            # 获取系统定时任务列表
             job_list = await JobDao.get_job_list_for_scheduler(session)
+            # 移除系统定时任务
             for item in job_list:
+                # 移除原有任务
                 query_job = cls.get_scheduler_job(job_id=str(item.job_id))
+                # 移除原有任务
                 if query_job:
+                    # 移除原有任务
                     cls.remove_scheduler_job(job_id=str(item.job_id))
+                # 重新添加任务
                 cls.add_scheduler_job(item)
+        # 启动任务
         scheduler.add_listener(cls.scheduler_event_listener, EVENT_ALL)
         logger.info('系统初始定时任务加载成功')
 
@@ -149,6 +165,7 @@ class SchedulerUtil:
 
         :return:
         """
+        # 关闭定时任务
         scheduler.shutdown()
         logger.info('关闭定时任务成功')
 
@@ -160,6 +177,7 @@ class SchedulerUtil:
         :param job_id: 任务id
         :return: 任务对象
         """
+        # 任务id转字符串
         query_job = scheduler.get_job(job_id=str(job_id))
 
         return query_job
@@ -172,17 +190,29 @@ class SchedulerUtil:
         :param job_info: 任务对象信息
         :return:
         """
+        # 构造任务对象
         scheduler.add_job(
+            # 任务执行函数
             func=eval(job_info.invoke_target),
+            # 任务触发器
             trigger=MyCronTrigger.from_crontab(job_info.cron_expression),
+            # 任务参数
             args=job_info.job_args.split(',') if job_info.job_args else None,
+            # 任务关键字参数
             kwargs=json.loads(job_info.job_kwargs) if job_info.job_kwargs else None,
+            # 任务id
             id=str(job_info.job_id),
+            # 任务名称
             name=job_info.job_name,
+            # 任务异常处理策略
             misfire_grace_time=1000000000000 if job_info.misfire_policy == '3' else None,
+            # 任务并发策略
             coalesce=True if job_info.misfire_policy == '2' else False,
+            # 任务最大实例数
             max_instances=3 if job_info.concurrent == '0' else 1,
+            # 任务存储
             jobstore=job_info.job_group,
+            # 任务执行器
             executor=job_info.job_executor
         )
 
@@ -194,18 +224,31 @@ class SchedulerUtil:
         :param job_info: 任务对象信息
         :return:
         """
+        # 构造任务对象
         scheduler.add_job(
+            # 任务执行函数
             func=eval(job_info.invoke_target),
+            # 任务触发器
             trigger='date',
+            # 任务执行时间
             run_date=datetime.now() + timedelta(seconds=1),
+            # 任务参数
             args=job_info.job_args.split(',') if job_info.job_args else None,
+            # 任务关键字参数
             kwargs=json.loads(job_info.job_kwargs) if job_info.job_kwargs else None,
+            # 任务id
             id=str(job_info.job_id),
+            # 任务名称
             name=job_info.job_name,
+            # 任务异常处理策略
             misfire_grace_time=1000000000000 if job_info.misfire_policy == '3' else None,
+            # 任务并发策略
             coalesce=True if job_info.misfire_policy == '2' else False,
+            # 任务最大实例数
             max_instances=3 if job_info.concurrent == '0' else 1,
+            # 任务存储
             jobstore=job_info.job_group,
+            # 任务执行器
             executor=job_info.job_executor
         )
 
@@ -221,18 +264,27 @@ class SchedulerUtil:
 
     @classmethod
     def scheduler_event_listener(cls, event):
-        # 获取事件类型和任务ID
+        # 获取事件类型
         event_type = event.__class__.__name__
-        # 获取任务执行异常信息
+        # 获取任务状态
         status = '0'
+        # 获取异常信息
         exception_info = ''
+        # 获取任务id
         if event_type == 'JobExecutionEvent' and event.exception:
+            # 任务执行异常
             exception_info = str(event.exception)
+            # 任务执行失败
             status = '1'
+        # 获取任务信息
         if hasattr(event, 'job_id'):
+            # 任务执行成功
             job_id = event.job_id
+            # 获取任务对象
             query_job = cls.get_scheduler_job(job_id=job_id)
+            # 获取任务信息
             if query_job:
+                # 获取任务信息
                 query_job_info = query_job.__getstate__()
                 # 获取任务名称
                 job_name = query_job_info.get('name')
@@ -250,19 +302,34 @@ class SchedulerUtil:
                 job_trigger = str(query_job_info.get('trigger'))
                 # 构造日志消息
                 job_message = f"事件类型: {event_type}, 任务ID: {job_id}, 任务名称: {job_name}, 执行于{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                # 保存任务日志
                 job_log = JobLogModel(
+                    # 任务名称
                     jobName=job_name,
+                    # 任务组名
                     jobGroup=job_group,
+                    # 任务执行器
                     jobExecutor=job_executor,
+                    # 调用目标字符串
                     invokeTarget=invoke_target,
+                    # 调用函数位置参数
                     jobArgs=job_args,
+                    # 调用函数关键字参数
                     jobKwargs=job_kwargs,
+                    # 任务触发器
                     jobTrigger=job_trigger,
+                    # 任务状态
                     jobMessage=job_message,
+                    # 任务状态
                     status=status,
+                    # 异常信息
                     exceptionInfo=exception_info,
+                    # 创建时间
                     createTime=datetime.now()
                 )
+                # 保存任务日志
                 session = SessionLocal()
+                # 保存任务日志
                 JobLogService.add_job_log_services(session, job_log)
+                # 关闭数据库连接
                 session.close()

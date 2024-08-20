@@ -18,7 +18,7 @@
 官方网址：https://hellowac.github.io/alembic_doc/zh/_front_matter.html
 """
 from datetime import datetime
-from sqlalchemy import DateTime, Boolean, inspect, Column, String
+from sqlalchemy import DateTime, Column, String
 from config.database import Base
 
 
@@ -30,7 +30,23 @@ class BaseModel(Base):
     __mapper_args__ = {"eager_defaults": True}  # 防止 insert 插入后不刷新
 
     create_by = Column(String(64), nullable=True, default='', comment='创建者')
-    create_time = Column(DateTime, nullable=True, default=datetime.now(), comment='创建时间')
+    create_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='创建时间')
     update_by = Column(String(64), nullable=True, default='', comment='更新者')
-    update_time = Column(DateTime, nullable=True, default=datetime.now(), comment='更新时间')
+    update_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='更新时间')
     remark = Column(String(500), nullable=True, default='', comment='备注')
+
+    @staticmethod
+    def get_current_time():
+        return datetime.now()
+
+    # 初始化方法，继承父类的初始化参数，并在没有提供create_time和update_time时设置当前时间为默认值
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'create_time' not in kwargs:
+            self.create_time = self.get_current_time()
+        if 'update_time' not in kwargs:
+            self.update_time = self.get_current_time()
+
+    # 返回对象的字符串表示形式，包含对象的类名以及各个属性的值
+    def __repr__(self):
+        return f"<{self.__class__.__name__}(id={self.id}, create_by={self.create_by}, create_time={self.create_time}, update_by={self.update_by}, update_time={self.update_time}, remark={self.remark})>"

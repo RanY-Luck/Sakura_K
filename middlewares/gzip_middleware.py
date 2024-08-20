@@ -15,6 +15,8 @@ def add_gzip_middleware(app: FastAPI):
     添加gzip压缩中间件
 
     :param app: FastAPI对象
+    :minimum_size: 压缩的最小字节数，小于这个字节数的响应将不会被压缩
+    :compresslevel: 压缩级别，范围是0-9，9是最高压缩级别
     :return:
     """
     app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=9)

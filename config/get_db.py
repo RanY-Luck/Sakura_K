@@ -24,6 +24,7 @@ async def init_create_table():
     应用启动时初始化数据库连接
     :return:
     """
+    # 初始化数据库连接并创建所有尚不存在的表
     logger.info("初始化数据库连接...")
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

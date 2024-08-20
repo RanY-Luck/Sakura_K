@@ -27,6 +27,10 @@ class RedisUtil:
         :return: Redis连接对象
         """
         logger.info("开始连接redis...")
+        # 异步连接到Redis数据库的函数
+        # 使用aioredis库从URL创建Redis连接
+        # 参数包括Redis配置中的主机、端口、用户名、密码和数据库编号
+        # 设置编码为utf-8，并解码响应
         redis = await aioredis.from_url(
             url=f"redis://{RedisConfig.redis_host}",
             port=RedisConfig.redis_port,
@@ -79,4 +83,3 @@ class RedisUtil:
         """
         async with AsyncSessionLocal() as session:
             await ConfigService.init_cache_sys_config_services(session, redis)
-

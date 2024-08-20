@@ -38,18 +38,23 @@ from utils.common_util import worship, panel
 # 生命周期事件
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info(f"{AppConfig.app_name}开始启动")
-    await worship()
-    await init_create_table()
-    app.state.redis = await RedisUtil.create_redis_pool()
-    await RedisUtil.init_sys_dict(app.state.redis)
-    await RedisUtil.init_sys_config(app.state.redis)
-    await SchedulerUtil.init_system_scheduler()
-    logger.info(f"{AppConfig.app_name}启动成功")
-    await panel()
-    yield
-    await RedisUtil.close_redis_pool(app)
-    await SchedulerUtil.close_system_scheduler()
+    # 该函数用于管理FastAPI应用的生命周期，包括启动和关闭时的初始化和清理操作
+    try:
+        logger.info(f"{AppConfig.app_name}开始启动")
+        await worship()
+        await init_create_table()
+        app.state.redis = await RedisUtil.create_redis_pool()
+        await RedisUtil.init_sys_dict(app.state.redis)
+        await RedisUtil.init_sys_config(app.state.redis)
+        await SchedulerUtil.init_system_scheduler()
+        logger.info(f"{AppConfig.app_name}启动成功")
+        await panel()
+        yield
+    except Exception as e:
+        logger.error(f"应用启动失败: {e}")
+    finally:
+        await RedisUtil.close_redis_pool(app)
+        await SchedulerUtil.close_system_scheduler()
 
 
 # 初始化FastAPI对象
