@@ -51,8 +51,7 @@ logger.add(
     retention=10,
     enqueue=True,
     encoding="UTF-8",
-    level="INFO",
-    compression="zip"
+    level="INFO"
 )
 logger.add(
     log_path_error,
@@ -60,8 +59,7 @@ logger.add(
     retention=10,
     enqueue=True,
     encoding="UTF-8",
-    level="ERROR",
-    compression="zip"
+    level="ERROR"
 )
 logger.add(
     log_path_warn,
@@ -69,8 +67,7 @@ logger.add(
     retention=10,
     enqueue=True,
     encoding="UTF-8",
-    level="WARNING",
-    compression="zip"
+    level="WARNING"
 )
 
 
