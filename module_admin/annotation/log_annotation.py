@@ -365,30 +365,51 @@ def log_decorator(
                     login_log['userName'] = user_name
                     login_log['status'] = str(status)
                     login_log['msg'] = result_dict.get('msg')
-
+                    # 记录登录日志
                     await LoginLogService.add_login_log_services(query_db, LogininforModel(**login_log))
             else:
+                # 获取当前登录用户信息
                 current_user = await LoginService.get_current_user(request, token, query_db)
+                # 获取操作人姓名及部门名称
                 oper_name = current_user.user.user_name
+                # 获取部门名称
                 dept_name = current_user.user.dept.dept_name if current_user.user.dept else None
+                # 记录操作日志
                 operation_log = OperLogModel(
+                    # 日志标题
                     title=title,
+                    # 业务类型
                     businessType=business_type,
+                    # 被调用函数路径
                     method=func_path,
+                    # 请求方法
                     requestMethod=request_method,
+                    # 操作人类型
                     operatorType=operator_type,
+                    # 操作人姓名
                     operName=oper_name,
+                    # 操作人部门名称
                     deptName=dept_name,
+                    # 请求url
                     operUrl=oper_url,
+                    # 请求ip
                     operIp=oper_ip,
+                    # 请求ip归属区域
                     operLocation=oper_location,
+                    # 请求参数
                     operParam=oper_param,
+                    # 响应结果
                     jsonResult=json_result,
+                    # 响应状态
                     status=status,
+                    # 异常信息
                     errorMsg=error_msg,
+                    # 操作时间
                     operTime=oper_time,
-                    costTime=int(cost_time),
+                    # 请求耗时
+                    costTime=int(cost_time)
                 )
+                # 记录操作日志
                 await OperationLogService.add_operation_log_services(query_db, operation_log)
 
             return result
@@ -398,7 +419,9 @@ def log_decorator(
     return decorator
 
 
+@lru_cache()
 def is_valid_ip(ip):
+    # 判断是否为合法ip
     return re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip) is not None
 
 
@@ -417,11 +440,11 @@ def get_ip_location(oper_ip: str):
             ip_result = requests.get(f'https://qifu-api.baidubce.com/ip/geo/v1/district?ip={oper_ip}')
             if ip_result.status_code == 200:
                 data = ip_result.json().get('data')
-                if data and 'prov' in data and 'city' in data:
+                if data and 'prov' in data and 'continent' in data:
                     prov = data.get('prov')
-                    city = data.get('city')
-                    if prov or city:
-                        oper_location = f'{prov}-{city}'
+                    continent = data.get('continent')
+                    if prov or continent:
+                        oper_location = f'{continent}-{prov}'
     except Exception as e:
         logger.error(f"查询ip归属错误: {e}")
     return oper_location

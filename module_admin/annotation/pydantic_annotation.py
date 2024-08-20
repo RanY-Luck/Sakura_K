@@ -43,6 +43,9 @@ def as_query(cls: Type[BaseModel]):
 
     # 定义内部函数
     async def as_query_func(**data):
+        """
+        将传入的数据转换为 Pydantic 模型实例
+        """
         return cls(**data)
 
     sig = inspect.signature(as_query_func)
