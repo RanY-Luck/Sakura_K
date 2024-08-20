@@ -11,7 +11,9 @@ import json
 import os
 import requests
 import time
+import re
 import warnings
+from utils.log_util import logger
 from datetime import datetime
 from fastapi import Request
 from fastapi.responses import JSONResponse, ORJSONResponse, UJSONResponse
@@ -53,6 +55,7 @@ class Log:
     def __call__(self, func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
+            # 获取当前时间
             start_time = time.time()
             # 获取被装饰函数的文件路径
             file_path = inspect.getfile(func)
@@ -64,11 +67,17 @@ class Log:
             func_path = f'{relative_path}{func.__name__}()'
             # 获取上下文信息
             request: Request = kwargs.get('request')
+            # 获取请求头中的token
             token = request.headers.get('Authorization')
+            # 获取请求参数
             query_db = kwargs.get('query_db')
+            # 获取请求方法
             request_method = request.method
+            # 获取操作人类型
             operator_type = 0
+            # 获取请求头中的User-Agent
             user_agent = request.headers.get('User-Agent')
+            # 判断操作人类型
             if 'Windows' in user_agent or 'Macintosh' in user_agent or 'Linux' in user_agent:
                 operator_type = 1
             if 'Mobile' in user_agent or 'Android' in user_agent or 'iPhone' in user_agent:
@@ -85,12 +94,16 @@ class Log:
             if content_type and (
                     'multipart/form-data' in content_type or 'application/x-www-form-urlencoded' in content_type
             ):
+                # 处理表单请求
                 payload = await request.form()
+                # 处理请求参数
                 oper_param = '\n'.join([f'{key}: {value}' for key, value in payload.items()])
             else:
+                # 处理json请求
                 payload = await request.body()
                 # 通过 request.path_params 直接访问路径参数
                 path_params = request.path_params
+                # 处理请求参数
                 oper_param = {}
                 if payload:
                     oper_param.update(json.loads(str(payload, 'utf-8')))
@@ -105,6 +118,7 @@ class Log:
             oper_time = datetime.now()
             # 此处在登录之前向原始函数传递一些登录信息，用于监测在线用户的相关信息
             login_log = {}
+            # 登录日志
             if self.log_type == 'login':
                 user_agent_info = parse(user_agent)
                 browser = f'{user_agent_info.browser.family}'
@@ -147,6 +161,7 @@ class Log:
                     or isinstance(result, ORJSONResponse)
                     or isinstance(result, UJSONResponse)
             ):
+                # 处理json响应
                 result_dict = json.loads(str(result.body, 'utf-8'))
             else:
                 if request_from_swagger or request_from_redoc:
@@ -383,6 +398,10 @@ def log_decorator(
     return decorator
 
 
+def is_valid_ip(ip):
+    return re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip) is not None
+
+
 @lru_cache()
 def get_ip_location(oper_ip: str):
     """
@@ -393,15 +412,16 @@ def get_ip_location(oper_ip: str):
     """
     oper_location = '内网IP'
     try:
-        if oper_ip != '127.0.0.1' and oper_ip != 'localhost':
+        if oper_ip != '127.0.0.1' and oper_ip != 'localhost' and is_valid_ip(oper_ip):
             oper_location = '未知'
             ip_result = requests.get(f'https://qifu-api.baidubce.com/ip/geo/v1/district?ip={oper_ip}')
             if ip_result.status_code == 200:
-                prov = ip_result.json().get('data').get('prov')
-                city = ip_result.json().get('data').get('city')
-                if prov or city:
-                    oper_location = f'{prov}-{city}'
+                data = ip_result.json().get('data')
+                if data and 'prov' in data and 'city' in data:
+                    prov = data.get('prov')
+                    city = data.get('city')
+                    if prov or city:
+                        oper_location = f'{prov}-{city}'
     except Exception as e:
-        oper_location = '未知'
-        print(e)
+        logger.error(f"查询ip归属错误: {e}")
     return oper_location
