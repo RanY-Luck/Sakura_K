@@ -8,6 +8,7 @@
 # @desc    : 密码工具类
 from passlib.context import CryptContext
 
+# 密码加密算法
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

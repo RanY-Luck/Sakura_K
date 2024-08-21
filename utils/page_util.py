@@ -20,7 +20,6 @@ class PageResponseModel(BaseModel):
     列表分页查询返回模型
     """
     model_config = ConfigDict(alias_generator=to_camel)
-
     rows: List = []
     page_num: Optional[int] = None
     page_size: Optional[int] = None

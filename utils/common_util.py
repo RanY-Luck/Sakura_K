@@ -20,6 +20,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from sqlalchemy.engine.row import Row
 from typing import List
 from config.env import CachePathConfig, AppConfig
+from utils.log_util import logger
 
 
 # 启动 Banner
@@ -37,23 +38,28 @@ async def worship():
 
 
 async def panel():
-    host = str(AppConfig.app_host)
-    port = AppConfig.app_port
-    server_address = f"http://{'127.0.0.1' if host == '0.0.0.0' else host}:{port}"
-    serving_str = f"[dim]ENV:[/dim] {AppConfig.app_env}"
-    serving_str += f"\n\n[dim]API Server URL:[/dim] [link]http://{host}:{port}[/link]"
-    serving_str += f"\n\n[dim]Swagger UI Docs:[/dim] [link]{server_address}/docs[/link]"
-    serving_str += f"\n\n[dim]Redoc HTML Docs:[/dim] [link]{server_address}/redoc[/link]"
+    try:
+        host = str(AppConfig.app_host)
+        port = AppConfig.app_port
+        server_address = f"http://{'127.0.0.1' if host == '0.0.0.0' else host}:{port}"
 
-    # 踩坑1：rich Panel 使用中文会导致边框对不齐的情况
-    panel = Panel(
-        serving_str,
-        title=f"{AppConfig.app_name}",
-        expand=False,
-        padding=(1, 2),
-        style="black on yellow",
-    )
-    print(Padding(panel, 1))
+        serving_str = (
+            f"[dim]ENV:[/dim] {AppConfig.app_env}\n\n"
+            f"[dim]API Server URL:[/dim] [link]http://{host}:{port}[/link]\n\n"
+            f"[dim]Swagger UI Docs:[/dim] [link]{server_address}/docs[/link]\n\n"
+            f"[dim]Redoc HTML Docs:[/dim] [link]{server_address}/redoc[/link]"
+        )
+
+        panel = Panel(
+            serving_str,
+            title=f"{AppConfig.app_name}",
+            expand=False,
+            padding=(1, 2),
+            style="black on yellow"
+        )
+        print(Padding(panel, 1))
+    except Exception as e:
+        logger.error(f"Error in panel function: {e}")
 
 
 class CamelCaseUtil:
@@ -80,6 +86,7 @@ class CamelCaseUtil:
         :param result: 输入数据
         :return: 小驼峰形式结果
         """
+        # 如果是空值，直接返回空值
         if result is None:
             return result
         # 如果是字典，直接转换键

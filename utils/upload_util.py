@@ -39,7 +39,9 @@ class UploadUtil:
         """
         检查文件后缀是否合法
         """
+        # 获取文件后缀
         file_extension = file.filename.rsplit('.', 1)[-1]
+        # 判断文件后缀是否在允许的后缀列表中
         if file_extension in UploadConfig.DEFAULT_ALLOWED_EXTENSION:
             return True
         return False
@@ -49,6 +51,7 @@ class UploadUtil:
         """
         校验文件时间戳是否合法
         """
+        # 获取文件名中的时间戳
         timestamp = filename.rsplit('.', 1)[0].split('_')[-1].split(UploadConfig.UPLOAD_MACHINE)[0]
         try:
             datetime.strptime(timestamp, '%Y%m%d%H%M%S')
@@ -61,6 +64,7 @@ class UploadUtil:
         """
         校验文件机器码是否合法
         """
+        # 获取文件名中的机器码
         if filename.rsplit('.', 1)[0][-4] == UploadConfig.UPLOAD_MACHINE:
             return True
         return False
