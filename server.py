@@ -41,11 +41,17 @@ async def lifespan(app: FastAPI):
     # 该函数用于管理FastAPI应用的生命周期，包括启动和关闭时的初始化和清理操作
     try:
         logger.info(f"{AppConfig.app_name}开始启动")
+        # 启动 Banner
         await worship()
+        # 初始化数据库
         await init_create_table()
+        # 初始化Redis连接池
         app.state.redis = await RedisUtil.create_redis_pool()
+        # 初始化系统字典和系统参数
         await RedisUtil.init_sys_dict(app.state.redis)
+        # 初始化系统参数
         await RedisUtil.init_sys_config(app.state.redis)
+        # 初始化定时任务
         await SchedulerUtil.init_system_scheduler()
         logger.info(f"{AppConfig.app_name}启动成功")
         await panel()
