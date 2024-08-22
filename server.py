@@ -11,6 +11,13 @@ from contextlib import asynccontextmanager
 from sub_applications.handle import handle_sub_applications
 from middlewares.handle import handle_middleware
 from exceptions.handle import handle_exception
+from config.env import AppConfig, PROJECT_DESCRIPTION
+from config.get_redis import RedisUtil
+from config.get_db import init_create_table
+from config.get_scheduler import SchedulerUtil
+from utils.log_util import logger
+from utils.common_util import worship, panel
+# 路由列表
 from module_admin.controller.login_controller import loginController
 from module_admin.controller.captcha_controller import captchaController
 from module_admin.controller.user_controller import userController
@@ -27,12 +34,6 @@ from module_admin.controller.job_controller import jobController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.cache_controller import cacheController
 from module_admin.controller.common_controller import commonController
-from config.env import AppConfig, PROJECT_DESCRIPTION
-from config.get_redis import RedisUtil
-from config.get_db import init_create_table
-from config.get_scheduler import SchedulerUtil
-from utils.log_util import logger
-from utils.common_util import worship, panel
 
 
 # 生命周期事件
