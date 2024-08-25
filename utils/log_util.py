@@ -47,7 +47,6 @@ logger.add(
 # 保留你原有的文件输出配置
 logger.add(
     log_path_info,
-    rotation="00:00",
     retention=10,
     enqueue=True,
     encoding="UTF-8",
@@ -55,7 +54,6 @@ logger.add(
 )
 logger.add(
     log_path_error,
-    rotation="00:00",
     retention=10,
     enqueue=True,
     encoding="UTF-8",
@@ -63,7 +61,6 @@ logger.add(
 )
 logger.add(
     log_path_warn,
-    rotation="00:00",
     retention=10,
     enqueue=True,
     encoding="UTF-8",

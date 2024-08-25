@@ -66,10 +66,10 @@ async def lifespan(app: FastAPI):
 
 # 初始化FastAPI对象
 app = FastAPI(
-    title=AppConfig.app_name,
+    title=AppConfig.app_name,  # 项目名称
     description=PROJECT_DESCRIPTION,  # Swagger描述
-    version=AppConfig.app_version,
-    lifespan=lifespan
+    version=AppConfig.app_version,  # 版本号
+    lifespan=lifespan  # 生命周期事件
 )
 
 # 挂载子应用
@@ -99,5 +99,6 @@ controller_list = [
     {'router': commonController, 'tags': ['通用模块']},
 ]
 
+# 加载路由
 for controller in controller_list:
     app.include_router(router=controller.get('router'), tags=controller.get('tags'))
