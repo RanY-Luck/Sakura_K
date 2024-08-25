@@ -5,6 +5,8 @@ LABEL maintainer="ranyong"
 WORKDIR /Sakura_K
 
 ENV PYTHONUNBUFFERED=1
+# 指定 prod 环境
+ENV ENVIRONMENT=dev
 
 EXPOSE 9099
 
@@ -16,4 +18,4 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . /Sakura_K
 
-CMD ["python", "-m", "uvicorn", "app:app"]
+CMD ["python", "-m", "uvicorn", "app:app", "--env", "$ENV"]
