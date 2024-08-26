@@ -161,7 +161,7 @@ class GetConfig:
         else:
             # 使用argparse定义命令行参数
             parser = argparse.ArgumentParser(description='命令行参数')
-            parser.add_argument('--env', type=str, default='', help='运行环境 dev测试环境 prod生产环境')
+            parser.add_argument('--env', type=str, default='', help='运行环境 dev测试环境 prod生产环境 docker容器环境')
             # 解析命令行参数
             args = parser.parse_args()
             # 设置环境变量，如果未设置命令行参数，默认APP_ENV为dev

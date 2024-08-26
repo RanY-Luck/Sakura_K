@@ -31,8 +31,6 @@ services:
     restart: always
     ports:
       - "6380:6379"
-    environment:
-      TZ: "Asia/Shanghai"
     networks:
       sakura_network:
         ipv4_address: "192.168.0.3"
@@ -52,7 +50,6 @@ services:
     networks:
       sakura_network:
         ipv4_address: "192.168.0.4"
-
 
 networks:
   sakura_network:
