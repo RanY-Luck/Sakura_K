@@ -43,14 +43,14 @@ class CustomOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
     def __init__(
             self,
             grant_type: str = Form(default=None, regex='password'),
-            username: str = Form(),
-            password: str = Form(),
+            username: str = Form(default=''),
+            password: str = Form(default='',),
             scope: str = Form(default=''),
-            client_id: Optional[str] = Form(default=None),
-            client_secret: Optional[str] = Form(default=None),
+            client_id: Optional[str] = Form(default=''),
+            client_secret: Optional[str] = Form(default=''),
             code: Optional[str] = Form(default=''),
             uuid: Optional[str] = Form(default=''),
-            login_info: Optional[Dict[str, str]] = Form(default=None)
+            login_info: Optional[Dict[str, str]] = Form(default='')
     ):
         super().__init__(
             grant_type=grant_type,
