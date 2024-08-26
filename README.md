@@ -1,8 +1,8 @@
-```python
+```shell
 # 安装项目依赖环境
 pip3 install -r requirements.txt
 
-# 配置环境
+# 配置环境（开发、生产环境操作一样）
 根目录复制 .env.dev.example -> .env.dev
 在.env.dev文件中配置开发环境的数据库和redis
 ## 数据库
@@ -14,9 +14,9 @@ DB_PORT = 3306
 # 数据库用户名
 DB_USERNAME = 'root'
 # 数据库密码
-DB_PASSWORD = 'Ranyong_520'
+DB_PASSWORD = '123456'
 # 数据库名称
-DB_DATABASE = 'Sakura_K_fastapi'
+DB_DATABASE = 'skf'
 ############################################
 
 ## redis
@@ -44,6 +44,49 @@ python3 app.py -h
 python3 app.py --env=dev
 ## 生产环境
 python3 app.py --env=prod
+
+# Docker运行
+
+## 启动并创建所有容器
+docker-compose up -d
+
+## 初始化数据
+待补充
+
+## 重启所有容器
+docker-compose restart
+
+## 停止所有容器
+docker-compose down
+
+## 查看所有容器状态
+docker-compose ps -a
+
+## 查看容器日志
+docker logs sakura_k
+```
+
+# 其他操作
+
+- 提交代码模板
+```text
+✨ Feat(): 新增
+🐞 Fix(): 修复
+📃 Docs(): 文档
+🦄 Refactor(): 重构
+🎈 Perf(): 优化
+```
+
+- 代码提交规范
+```text
+第一步：
+git rm -r --cached .
+去掉已经托管的文件
+第二步：
+修改自己的igonre文件内容
+第三步：
+git add .
+git commit -m "clear cached"
 ```
 
 # 接口编写顺序
