@@ -26,8 +26,13 @@ application/config/production.py
 alembic.ini
 .idea
 __pycache__
-logs/*
+logs/
 !logs/.gitkeep
 utils/xhs/Download
 static/system
 utils/task/logs
+.env.dev
+.env.prod
+.env.docker
+vf_admin/upload_path/*
+vf_admin/download_path/*
