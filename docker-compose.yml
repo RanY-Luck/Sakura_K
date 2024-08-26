@@ -4,99 +4,58 @@ services:
     container_name: sakura_k
     restart: always
     ports:
-      - "9000:9000"
-    expose:
-      - "9000"
+      - "9099:9099"
     build:
       context: ./
-      dockerfile: ./docker_env/sakura_k/Dockerfile
+      dockerfile: Dockerfile
     environment:
       TZ: "Asia/Shanghai"
+      REDIS_HOST: redis
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Ranyong_520
+      MYSQL_DATABASE: ruoyi-fastapi
+      MYSQL_PORT: 3306
     volumes:
       - ../sakura_k:/app
+    depends_on:
+      - redis
+      - mysql
     networks:
       sakura_network:
-        ipv4_address: "177.8.0.2"
+        ipv4_address: "192.168.0.2"
 
-#  sakura-task:
-#    container_name: sakura-task
-#    restart: always
-#    build:
-#      context: ./
-#      dockerfile: ./docker_env/sakura_task/Dockerfile
-#    environment:
-#      TZ: "Asia/Shanghai"
-#    volumes:
-#      - .././sakura-task:/app
-#    networks:
-#      sakura_network:
-#        ipv4_address: "177.8.0.4"
-
-
-  sakura-redis:
-    container_name: sakura-redis
-    restart: always
+  redis:
     image: redis:latest
+    container_name: redis
+    restart: always
     ports:
-      - "6379:6379"
-    expose:
-      - "6379"
-    volumes:
-      - ./docker_env/redis/conf/redis.conf:/etc/redis/redis.conf
-    environment:
-      TZ: "Asia/Shanghai"
+      - "6380:6379"
     networks:
       sakura_network:
-        ipv4_address: "177.8.0.5"
-    command: redis-server /etc/redis/redis.conf
+        ipv4_address: "192.168.0.3"
 
-  sakura-mongo:
-    container_name: sakura-mongo
-    restart: always
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-#    expose:
-#      - "27017"
-    volumes:
-      - ./docker_env/mongo/data:/data/db
-      - ./docker_env/mongo/log:/data/log
-      - ./docker_env/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js # 挂载初始化脚本
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 123456
-      TZ: "Asia/Shanghai" # 设置时区
-    networks:
-      sakura_network:
-        ipv4_address: "177.8.0.6"
-    command: mongod --auth --bind_ip 0.0.0.0 # 启用身份验证和允许从任何IP连接
-
-  sakura-mysql:
-    container_name: sakura-mysql
-    restart: always
+  mysql:
     image: mysql:latest
+    container_name: mysql
+    restart: always
     ports:
-      - "3306:3306"
-    expose:
-      - "3306"
-    volumes:
-      - ./docker_env/mysql/conf:/etc/mysql/conf.d
-      - ./docker_env/mysql/data:/var/lib/mysql
-      - ./docker_env/mysql/logs:/logs
+      - "3307:3306"
     environment:
       TZ: "Asia/Shanghai"
-      MYSQL_ROOT_USERNAME: "root"
-      MYSQL_ROOT_PASSWORD: "123456"
-      MYSQL_DATABASE: "sakura_k"
+      MYSQL_ROOT_PASSWORD: Ranyong_520
+      MYSQL_DATABASE: ruoyi-fastapi
+    volumes:
+      - mysql_data:/var/lib/mysql
     networks:
       sakura_network:
-        ipv4_address: "177.8.0.7"
+        ipv4_address: "192.168.0.4"
 
 networks:
   sakura_network:
-    driver: bridge
     ipam:
-      driver: default
       config:
-        - subnet: "177.8.0.0/16"
-          gateway: "177.8.0.1"
+        - subnet: "192.168.0.0/16"
+
+volumes:
+  mysql_data:
