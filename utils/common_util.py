@@ -45,7 +45,7 @@ async def panel():
 
         serving_str = (
             f"[dim]ENV:[/dim] {AppConfig.app_env}\n\n"
-            f"[dim]API Server URL:[/dim] [link]http://{host}:{port}[/link]\n\n"
+            f"[dim]API Server URL:[/dim] [link]{server_address}[/link]\n\n"
             f"[dim]Swagger UI Docs:[/dim] [link]{server_address}/docs[/link]\n\n"
             f"[dim]Redoc HTML Docs:[/dim] [link]{server_address}/redoc[/link]"
         )
