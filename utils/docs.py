@@ -8,10 +8,12 @@
 # @desc    :
 # 自定义接口文档静态文件：https://fastapi.tiangolo.com/how-to/custom-docs-ui-assets/
 from fastapi import FastAPI
-from fastapi.openapi.docs import (
-    get_redoc_html, get_swagger_ui_html, get_swagger_ui_oauth2_redirect_html
-)
 from config.env import AppConfig
+from fastapi.openapi.docs import (
+    get_redoc_html,
+    get_swagger_ui_html,
+    get_swagger_ui_oauth2_redirect_html
+)
 
 
 def custom_api_docs(app: FastAPI):
@@ -26,7 +28,7 @@ def custom_api_docs(app: FastAPI):
         return get_swagger_ui_html(
             openapi_url=app.openapi_url,
             title=app.title + " - Swagger UI",
-            oauth2_redirect_url=app.get_swagger_ui_oauth2_redirect_html,
+            oauth2_redirect_url=get_swagger_ui_oauth2_redirect_html,
             swagger_js_url="/static/swagger_ui/swagger-ui-bundle.js",
             swagger_css_url="/static/swagger_ui/swagger-ui.css",
         )
