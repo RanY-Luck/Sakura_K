@@ -36,3 +36,4 @@ utils/task/logs
 .env.docker
 vf_admin/upload_path/*
 vf_admin/download_path/*
+static/*
