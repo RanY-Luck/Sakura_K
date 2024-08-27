@@ -6,13 +6,15 @@ WORKDIR /Sakura_K
 
 ENV PYTHONUNBUFFERED=1
 
+ENV APP_ENV=docker
+
 EXPOSE 9099
 
 COPY ./requirements.txt ./
 
 RUN pip3 install --upgrade pip
 
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r --no-cache-dir requirements.txt
 
 COPY . /Sakura_K
 
