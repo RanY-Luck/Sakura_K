@@ -51,6 +51,23 @@ services:
       sakura_network:
         ipv4_address: "192.168.0.4"
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    expose:
+      - "80"
+    environment:
+      TZ: "Asia/Shanghai"
+    volumes:
+      - ./docker_env/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./:/usr/share/nginx/html
+    networks:
+      sakura_network:
+        ipv4_address: "192.168.0.5"
+
 networks:
   sakura_network:
     ipam:
