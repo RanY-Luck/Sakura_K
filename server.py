@@ -9,7 +9,6 @@
 from fastapi import FastAPI, Request
 from contextlib import asynccontextmanager
 from starlette.staticfiles import StaticFiles
-from starlette.templating import Jinja2Templates
 from sub_applications.handle import handle_sub_applications
 from middlewares.handle import handle_middleware
 from exceptions.handle import handle_exception
@@ -104,11 +103,3 @@ controller_list = [
 # 加载路由
 for controller in controller_list:
     app.include_router(router=controller.get('router'), tags=controller.get('tags'))
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="static/dist")
-
-
-@app.get("/")
-async def serve_spa(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
