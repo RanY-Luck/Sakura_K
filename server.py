@@ -6,9 +6,8 @@
 # @File    : server.py
 # @Software: PyCharm
 # @desc    :
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from starlette.staticfiles import StaticFiles
 from sub_applications.handle import handle_sub_applications
 from middlewares.handle import handle_middleware
 from exceptions.handle import handle_exception

@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    : 启动文件
 import uvicorn
-from server import app, AppConfig
+from server import app, AppConfig  # noqa: F401
 
 if __name__ == '__main__':
     uvicorn.run(
