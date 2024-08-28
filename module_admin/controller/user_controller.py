@@ -56,7 +56,7 @@ async def get_system_dept_tree(
         data_scope_sql: str = Depends(GetDataScope('SysDept'))
 ):
     """
-    编辑部门列表
+    获取部门列表
     """
     dept_query_result = await DeptService.get_dept_tree_services(query_db, DeptModel(**{}), data_scope_sql)
     logger.info('部门获取成功')

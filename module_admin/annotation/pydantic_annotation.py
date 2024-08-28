@@ -25,7 +25,8 @@ def as_query(cls: Type[BaseModel]):
         if not model_field.is_required():
             new_parameters.append(
                 inspect.Parameter(
-                    model_field.alias,
+                    field_name,
+                    # model_field.alias,
                     inspect.Parameter.POSITIONAL_ONLY,
                     default=Query(default=model_field.default, description=model_field.description),
                     annotation=model_field.annotation
@@ -34,7 +35,8 @@ def as_query(cls: Type[BaseModel]):
         else:
             new_parameters.append(
                 inspect.Parameter(
-                    model_field.alias,
+                    field_name,
+                    # model_field.alias,
                     inspect.Parameter.POSITIONAL_ONLY,
                     default=Query(..., description=model_field.description),
                     annotation=model_field.annotation
@@ -60,14 +62,13 @@ def as_form(cls: Type[BaseModel]):
     用于将将 Pydantic 模型用于接收表单参数
     """
     new_parameters = []
-
     for field_name, model_field in cls.model_fields.items():
         model_field: FieldInfo  # type: ignore
-
         if not model_field.is_required():
             new_parameters.append(
                 inspect.Parameter(
-                    model_field.alias,
+                    field_name,
+                    # model_field.alias,
                     inspect.Parameter.POSITIONAL_ONLY,
                     default=Form(default=model_field.default, description=model_field.description),
                     annotation=model_field.annotation
@@ -76,7 +77,8 @@ def as_form(cls: Type[BaseModel]):
         else:
             new_parameters.append(
                 inspect.Parameter(
-                    model_field.alias,
+                    field_name,
+                    # model_field.alias,
                     inspect.Parameter.POSITIONAL_ONLY,
                     default=Form(..., description=model_field.description),
                     annotation=model_field.annotation
