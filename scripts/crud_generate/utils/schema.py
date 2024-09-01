@@ -1,13 +1,12 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time     : 2024/1/25 10:09
-# @Author   : 冉勇
-# @File     : schema.py
-# @Software : PyCharm
-# @Desc     :
-
+# @Time    : 2024/8/29 10:53
+# @Author  : 冉勇
+# @Site    : 
+# @File    : schema.py
+# @Software: PyCharm
+# @desc    :
 from typing import Any
-
 from pydantic import BaseModel, Field
 
 

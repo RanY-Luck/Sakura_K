@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time     : 2024/1/24 18:02
-# @Author   : 冉勇
-# @File     : generate_base.py
-# @Software : PyCharm
-# @Desc     :
-import datetime
+# @Time    : 2024/8/29 10:49
+# @Author  : 冉勇
+# @Site    : 
+# @File    : generate_base.py
+# @Software: PyCharm
+# @desc    :
 import re
+import datetime
 from pathlib import Path
 
 
@@ -36,22 +37,20 @@ class GenerateBase:
         # 将每个单词的首字母大写，然后拼接
         return ''.join(word.capitalize() for word in words)
 
-    @staticmethod
-    def generate_file_desc(filename: str, version: str = '1.0', desc: str = '') -> str:
+    @staticmethod  # 已改好
+    def generate_file_desc(filename: str, desc: str = '') -> str:
         """
         生成文件注释
         :param filename:
-        :param version:
         :param desc:
         :return:
         """
         code = '#!/usr/bin/python\n# -*- coding: utf-8 -*-'
-        code += f"\n# @version        : {version}"
         code += f"\n# @Create Time    : {datetime.datetime.now().strftime('%Y/%m/%d %H:%M')}"
+        code += f"\n# @Author         : "
         code += f"\n# @File           : {filename}"
-        code += f"\n# @IDE            : PyCharm"
+        code += f"\n# @Software       : PyCharm"
         code += f"\n# @desc           : {desc}"
-        code += f"\n"
         return code
 
     @staticmethod

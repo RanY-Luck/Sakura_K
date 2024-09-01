@@ -1,24 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time     : 2024/1/24 17:56
-# @Author   : 冉勇
-# @File     : run.py
-# @Software : PyCharm
-# @Desc     :
-
-import inspect
-import os.path
+# @Time    : 2024/8/29 10:54
+# @Author  : 冉勇
+# @Site    : 
+# @File    : main.py
+# @Software: PyCharm
+# @desc    :
 import sys
-from pathlib import Path
+import os.path
+import inspect
 from typing import Type
-
-from application.settings import BASE_DIR
-from core.database import Base
-from scripts.crud_generate.utils.dal_generate import DalGenerate
+from config.database import Base
+from config.settings import BASE_DIR
+from pathlib import Path
 from scripts.crud_generate.utils.generate_base import GenerateBase
-from scripts.crud_generate.utils.params_generate import ParamsGenerate
-from scripts.crud_generate.utils.schema_generate import SchemaGenerate
-from scripts.crud_generate.utils.view_generate import ViewGenerate
+from scripts.crud_generate.utils.vo_generate import VoGenerate
+from scripts.crud_generate.utils.dao_generate import DaoGenerate
+from scripts.crud_generate.utils.service_generate import ServiceGenerate
+from scripts.crud_generate.utils.controller_generate import ControllerGenerate
 
 
 class CrudGenerate(GenerateBase):
@@ -43,77 +42,89 @@ class CrudGenerate(GenerateBase):
         self.model_file_path = Path(inspect.getfile(sys.modules[model.__module__]))
         # model 文件 app 路径
         self.app_dir_path = self.model_file_path.parent.parent
-        # schemas 目录地址
-        self.schemas_dir_path = self.app_dir_path / "schemas"
-        # params 目录地址
-        self.params_dir_path = self.app_dir_path / "params"
-        # crud 文件地址
-        self.crud_file_path = self.app_dir_path / "crud.py"
-        # view 文件地址
-        self.view_file_path = self.app_dir_path / "views.py"
+        # vo 目录地址:Sakura_K/module_admin/entity/vo
+        self.vo_dir_path = self.app_dir_path / "vo"  # 已改好
+        # dao 文件地址
+        self.dao_dir_path = self.app_dir_path.parent / "dao"
+        # service 目录地址
+        self.service_dir_path = self.app_dir_path.parent / "service"
+        # controller 文件地址
+        self.controller_dir_path = self.app_dir_path.parent / "controller"
 
         if en_name:
             self.en_name = en_name
         else:
             self.en_name = self.model.__name__
+        # 生成entity/vo/xx_vo.py 文件
+        self.vo_file_path = self.vo_dir_path / f"{self.en_name}_vo.py"
+        # 生成 dao/xx_dao.py 文件
+        self.dao_file_path = self.dao_dir_path / f"{self.en_name}_dao.py"
+        # 生成 service/xx_service.py 文件
+        self.service_file_path = self.service_dir_path / f"{self.en_name}_service.py"
+        # 生成 controller/xx_controller.py 文件
+        self.controller_file_path = self.controller_dir_path / f"{self.en_name}_controller.py"
 
-        self.schema_file_path = self.schemas_dir_path / f"{self.en_name}.py"
-        self.param_file_path = self.params_dir_path / f"{self.en_name}.py"
+        # 生成 vo 中的 pydantic 类名
+        self.base_class_name = self.snake_to_camel(self.en_name)  # 生成pydantic 中的 base 基类 已改好
+        self.vo_query_class_name = f"{self.base_class_name}QueryModel"  # 生成pydantic 中的 query 已改好
+        self.vo_page_query_class_name = f"{self.base_class_name}PageQueryModel"  # 生成pydantic 中的 PageQuery 已改好
+        self.vo_delete_class_name = f"Delete{self.base_class_name}Model"  # 生成pydantic 中的 delete 已改好
+        # 生成 dao 中的 xx_Dao类名 todo: 没用起来
+        self.dao_class_name = f"{self.snake_to_camel(self.en_name)}Dao"
+        # 生成 service 中 xx_Service类名 todo: 没用起来
+        self.service_class_name = f"{self.snake_to_camel(self.en_name)}Service"
 
-        self.base_class_name = self.snake_to_camel(self.en_name)
-        self.schema_simple_out_class_name = f"{self.base_class_name}SimpleOut"
-        self.dal_class_name = f"{self.base_class_name}Dal"
-        self.param_class_name = f"{self.base_class_name}Params"
+    # todo: 先注释
+    # def generate_codes(self):
+    #     """
+    #     生成代码， 不做实际操作，只是将代码打印出来
+    #     :return:
+    #     """
+    #     print(f"==========================={self.vo_file_path} 代码内容=================================")
+    #     schema = VoGenerate(
+    #         self.model,
+    #         self.zh_name,
+    #         self.en_name,
+    #         self.vo_file_path,
+    #         self.vo_dir_path,
+    #         self.base_class_name,
+    #         self.vo_query_class_name,
+    #         self.vo_page_query_class_name,
+    #         self.vo_delete_class_name
+    #     )
+    #     print(schema.generate_code())
+    #
+    #     print(f"==========================={self.dao_file_path} 代码内容=================================")
+    #     dal = DalGenerate(
+    #         self.model,
+    #         self.zh_name,
+    #         self.en_name,
+    #         self.dao_file_path
+    #     )
+    #     print(dal.generate_code())
 
-    def generate_codes(self):
-        """
-        生成代码， 不做实际操作，只是将代码打印出来
-        :return:
-        """
-        print(f"==========================={self.schema_file_path} 代码内容=================================")
-        schema = SchemaGenerate(
-            self.model,
-            self.zh_name,
-            self.en_name,
-            self.schema_file_path,
-            self.schemas_dir_path,
-            self.base_class_name,
-            self.schema_simple_out_class_name
-        )
-        print(schema.generate_code())
+    # print(f"==========================={self.service_file_path} 代码内容=================================")
+    # params = ParamsGenerate(
+    #     self.model,
+    #     self.zh_name,
+    #     self.en_name,
+    #     self.service_dir_path,
+    #     self.service_file_path,
+    #     self.param_class_name
+    # )
+    # print(params.generate_code())
 
-        print(f"==========================={self.dal_class_name} 代码内容=================================")
-        dal = DalGenerate(
-            self.model,
-            self.zh_name,
-            self.en_name,
-            self.dal_class_name,
-            self.schema_simple_out_class_name
-        )
-        print(dal.generate_code())
-
-        print(f"==========================={self.param_file_path} 代码内容=================================")
-        params = ParamsGenerate(
-            self.model,
-            self.zh_name,
-            self.en_name,
-            self.params_dir_path,
-            self.param_file_path,
-            self.param_class_name
-        )
-        print(params.generate_code())
-
-        print(f"==========================={self.view_file_path} 代码内容=================================")
-        view = ViewGenerate(
-            self.model,
-            self.zh_name,
-            self.en_name,
-            self.base_class_name,
-            self.schema_simple_out_class_name,
-            self.dal_class_name,
-            self.param_class_name
-        )
-        print(view.generate_code())
+    # print(f"==========================={self.view_file_path} 代码内容=================================")
+    # view = ViewGenerate(
+    #     self.model,
+    #     self.zh_name,
+    #     self.en_name,
+    #     self.base_class_name,
+    #     self.dao_delete_class_name,
+    #     self.dal_class_name,
+    #     self.param_class_name
+    # )
+    # print(view.generate_code())
 
     def main(self):
         """
@@ -124,53 +135,56 @@ class CrudGenerate(GenerateBase):
         4. 生成 views 代码
         :return:
         """
-        schema = SchemaGenerate(
+        # 1. 生成 entity/vo/xxx_vo 代码 已改好
+        vo = VoGenerate(
             self.model,
             self.zh_name,
             self.en_name,
-            self.schema_file_path,
-            self.schemas_dir_path,
+            self.vo_file_path,
+            self.vo_dir_path,
             self.base_class_name,
-            self.schema_simple_out_class_name
+            self.vo_query_class_name,
+            self.vo_page_query_class_name,
+            self.vo_delete_class_name
         )
-        schema.write_generate_code()
+        vo.write_generate_code()
 
-        dal = DalGenerate(
+        # 2.生成 dao/xxx_dao 代码 已改好
+        dao = DaoGenerate(
             self.model,
             self.zh_name,
             self.en_name,
-            self.dal_class_name,
-            self.schema_simple_out_class_name
+            self.dao_dir_path,
+            self.dao_file_path,
+            self.dao_class_name,
         )
-        dal.write_generate_code()
+        dao.write_generate_code()
 
-        params = ParamsGenerate(
+        # 3. 生成 service/xxx_service 代码 已改好
+        server = ServiceGenerate(
             self.model,
             self.zh_name,
             self.en_name,
-            self.params_dir_path,
-            self.param_file_path,
-            self.param_class_name
+            self.service_class_name
         )
-        params.write_generate_code()
+        server.write_generate_code()
 
-        view = ViewGenerate(
+        # 4. 生成 controller/xxx_controller 代码 已改好
+        controller = ControllerGenerate(
             self.model,
             self.zh_name,
             self.en_name,
-            self.base_class_name,
-            self.schema_simple_out_class_name,
-            self.dal_class_name,
-            self.param_class_name
+            self.controller_dir_path,
+            self.controller_file_path
         )
-        view.write_generate_code()
+        controller.write_generate_code()
 
 
 if __name__ == '__main__':
-    # 导入 ORM 模型
-    from apps.vadmin.urls.models.redbook import URL
+    from module_admin.entity.do.demo_do import Demo
 
-    # 创建实例
-    crud = CrudGenerate(URL, zh_name="小红书url表", en_name="urls")
-    # 开始运行
+    crud = CrudGenerate(Demo, zh_name="测试", en_name="demo")
+    # 只打印代码，不执行创建写入
+    # crud.generate_codes()
+    # 创建并写入代码
     crud.main()
