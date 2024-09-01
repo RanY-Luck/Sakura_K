@@ -6,8 +6,7 @@
 # @File    : server_controller.py
 # @Software: PyCharm
 # @desc    : 服务监控相关接口
-from fastapi import APIRouter, Request
-from fastapi import Depends
+from fastapi import APIRouter, Request, Depends
 from module_admin.service.login_service import LoginService
 from module_admin.service.server_service import *
 from utils.response_util import *

@@ -20,7 +20,7 @@ from module_admin.entity.vo.job_vo import (
     EditJobModel,
     JobLogPageQueryModel,
     JobModel,
-    JobPageQueryModel,
+    JobPageQueryModel
 )
 from module_admin.entity.vo.user_vo import CurrentUserModel
 from module_admin.service.job_log_service import JobLogService

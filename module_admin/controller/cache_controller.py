@@ -6,8 +6,8 @@
 # @File    : cache_controller.py
 # @Software: PyCharm
 # @desc    : 缓存监控相关接口
-from fastapi import APIRouter, Depends, Request
 from typing import List
+from fastapi import APIRouter, Depends, Request
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
 from module_admin.entity.vo.cache_vo import CacheInfoModel, CacheMonitorModel
 from module_admin.service.cache_service import CacheService
