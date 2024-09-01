@@ -37,7 +37,6 @@ class OnlineService:
         online_info_list = []
         for item in access_token_values_list:
             payload = jwt.decode(item, JwtConfig.jwt_secret_key, algorithms=[JwtConfig.jwt_algorithm])
-            print("payload", payload)
             online_dict = dict(
                 token_id=payload.get('session_id'),
                 user_name=payload.get('user_name'),
