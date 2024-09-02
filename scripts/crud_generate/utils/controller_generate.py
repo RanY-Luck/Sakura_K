@@ -23,32 +23,32 @@ class ControllerGenerate(GenerateBase):
             en_name: str,
             controller_dir_path: Path,
             controller_file_path: Path,
+            vo_page_query_class_name: str,
+            service_base_class_name: str,
     ):
         """
         初始化工作
         :param model: 提前定义好的 ORM 模型
         :param zh_name: 功能中文名称，主要用于描述、注释
-        :param schema_class_name:
-        :param schema_simple_out_class_name:
-        :param service_class_name:
-        :param param_class_name:
         :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         en_name 例子：
             如果 en_name 由多个单词组成那么请使用 _ 下划线拼接
             在命名文件名称时，会执行使用 _ 下划线名称
             在命名 class 名称时，会将下划线名称转换为大驼峰命名（CamelCase）
             在命名 url 时，会将下划线转换为 /
+        :param controller_dir_path:
+        :param controller_file_path:
+        :param vo_page_query_class_name:
+        :param service_base_class_name:
+
         """
         self.model = model
-        # self.schema_class_name = schema_class_name
-        # self.schema_simple_out_class_name = schema_simple_out_class_name
         self.zh_name = zh_name
         self.en_name = en_name
-        # model 文件的地址
-        self.model_file_path = Path(inspect.getfile(sys.modules[model.__module__]))
-        # controller 目录地址
         self.controller_dir_path = controller_dir_path
         self.controller_file_path = controller_file_path
+        self.vo_page_query_class_name = vo_page_query_class_name
+        self.service_base_class_name = service_base_class_name
 
     def write_generate_code(self):
         """
@@ -86,7 +86,7 @@ class ControllerGenerate(GenerateBase):
         """
         code = self.generate_file_desc(self.controller_file_path.name, f"{self.zh_name}相关接口")
         code += self.generate_modules_code(self.get_base_module_config())
-        code += f"\n\n{self.en_name}Controller = APIRouter(prefix='/{self.en_name}', dependencies=[Depends(" \
+        code += f"\n{self.en_name}Controller = APIRouter(prefix='/{self.en_name}', dependencies=[Depends(" \
                 f"LoginService.get_current_user)]) "
         code += self.get_base_code_content()
 
@@ -123,13 +123,12 @@ class ControllerGenerate(GenerateBase):
         """
 
         router = self.en_name.replace("_", "/")
-        #
         base_code = f"\n\n\n@{self.en_name}Controller.get(" \
                     f"\n\t\'/{router}/list\', response_model=PageResponseModel, dependencies=[Depends(CheckUserInterfaceAuth('{self.en_name}:{self.en_name}:list'))]" \
                     f"\n)"
         base_code += f"\nasync def get_{self.en_name}_list(" \
                      f"\n\t\trequest: Request," \
-                     f"\n\t\t{self.en_name}_page_query: {self.snake_to_camel(self.en_name)}PageQueryModel = Depends({self.snake_to_camel(self.en_name)}PageQueryModel.as_query),"
+                     f"\n\t\t{self.en_name}_page_query: {self.vo_page_query_class_name} = Depends({self.vo_page_query_class_name}.as_query),"
         base_code += f"\n\t\tquery_db: AsyncSession = Depends(get_db)" \
                      f"\n):"
         base_code += f'''
@@ -137,7 +136,7 @@ class ControllerGenerate(GenerateBase):
      获取{self.zh_name}列表
     """
             '''
-        base_code += f"\n\t{self.en_name}_page_query_result = await {self.snake_to_camel(self.en_name)}Service.get_{self.en_name}_list_services("
+        base_code += f"\n\t{self.en_name}_page_query_result = await {self.service_base_class_name}.get_{self.en_name}_list_services("
         base_code += f"\n\t\tquery_db, {self.en_name}_page_query, is_page=True" \
                      f"\n\t)"
         base_code += f"\n\tlogger.info('{self.en_name}列表获取成功')"

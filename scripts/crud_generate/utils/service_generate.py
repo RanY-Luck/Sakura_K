@@ -21,7 +21,11 @@ class ServiceGenerate(GenerateBase):
             model: Type[Base],
             zh_name: str,
             en_name: str,
-            service_class_name: str
+            service_dir_path: Path,
+            service_file_path: Path,
+            service_base_class_name: str,
+            dao_base_class_name: str,
+            vo_page_query_class_name: str
     ):
         """
         初始化工作
@@ -33,18 +37,18 @@ class ServiceGenerate(GenerateBase):
             在命名文件名称时，会执行使用 _ 下划线名称
             在命名 class 名称时，会将下划线名称转换为大驼峰命名（CamelCase）
             在命名 url 时，会将下划线转换为 /
-        :param service_class_name:
+        :param service_base_class_name:
+        :param dao_base_class_name:
+        :param vo_page_query_class_name:
         """
         self.model = model
-        self.service_class_name = service_class_name
         self.zh_name = zh_name
         self.en_name = en_name
-        # server 文件的地址
-        self.model_file_path = Path(inspect.getfile(sys.modules[model.__module__]))
-        # server 文件 app 路径
-        self.app_dir_path = self.model_file_path.parent.parent.parent
-        # service 文件地址
-        self.service_file_path = self.app_dir_path / f"service/{en_name}_service.py"
+        self.service_dir_path = service_dir_path
+        self.service_file_path = service_file_path
+        self.service_base_class_name = service_base_class_name
+        self.dao_base_class_name = dao_base_class_name
+        self.vo_page_query_class_name = vo_page_query_class_name
 
     def write_generate_code(self):
         """
@@ -95,7 +99,6 @@ class ServiceGenerate(GenerateBase):
             "typing": ["List"],
             "config.constant": ["CommonConstant"],
             "config.enums": ["RedisInitKeyConfig"],
-            "module_admin.exception": ["ServiceException"],
             "exceptions.exception": ["ServiceException"],
             f"utils.common_util": ["CamelCaseUtil", "export_list2excel"]
         }
@@ -106,30 +109,31 @@ class ServiceGenerate(GenerateBase):
         获取基础代码内容
         :return:
         """
-        base_code = f"\n\nclass {self.service_class_name}:"
+        base_code = f"\n\nclass {self.service_base_class_name}:"
         base_code += f'''
     """
     {self.zh_name}管理模块服务层
     """
         '''
+
         # get_xxx_list_services
         base_code += "\n\t@classmethod"
         base_code += f"\n\tasync def get_{self.en_name}_list_services(" \
                      f"\n\t\t\tcls, query_db: AsyncSession," \
-                     f"\n\t\t\tquery_object: {self.snake_to_camel(self.en_name)}PageQueryModel," \
+                     f"\n\t\t\tquery_object: {self.vo_page_query_class_name}," \
                      f"\n\t\t\tis_page: bool = False" \
                      f"\n\t):"
         base_code += f'''
         """
-        获取{self.zh_name}列表信息service
-    
-        :param query_db: orm对象
-        :param query_object: 查询参数对象
-        :param is_page: 是否开启分页
-        :return: 参数配置列表信息对象
+            获取{self.zh_name}列表信息service
+        
+            :param query_db: orm对象
+            :param query_object: 查询参数对象
+            :param is_page: 是否开启分页
+            :return: 参数配置列表信息对象
         """
         '''
-        base_code += f"\n\t\t{self.en_name}_list_result = await {self.snake_to_camel(self.en_name)}Dao.get_{self.en_name}_list(query_db, query_object, is_page)"
+        base_code += f"\n\t\t{self.en_name}_list_result = await {self.dao_base_class_name}.get_{self.en_name}_list(query_db, query_object, is_page)"
         base_code += f"\n\t\treturn {self.en_name}_list_result"
         base_code += "\n"
 
@@ -142,19 +146,19 @@ class ServiceGenerate(GenerateBase):
         base_code += f'''
         """
         新增{self.zh_name}service
-
+    
         :param query_db: orm对象
         :param page_object:  新增{self.zh_name}对象
         :param is_page: 是否开启分页
         :return: 新增{self.zh_name}校验结果
         """
         '''
-        base_code += f"\n\t\t{self.en_name} = await {self.snake_to_camel(self.en_name)}Dao.get_{self.en_name}_detail_by_info(query_db, page_object)"
+        base_code += f"\n\t\t{self.en_name} = await {self.dao_base_class_name}.get_{self.en_name}_detail_by_info(query_db, page_object)"
         base_code += f"\n\t\tif {self.en_name}:"
         base_code += f"\n\t\t\tresult = dict(is_success=False, message='{self.zh_name}已存在')"
         base_code += f"\n\t\telse:"
         base_code += f"\n\t\t\ttry:"
-        base_code += f"\n\t\t\t\tawait {self.snake_to_camel(self.en_name)}Dao.add_{self.en_name}_dao(query_db, page_object)"
+        base_code += f"\n\t\t\t\tawait {self.dao_base_class_name}.add_{self.en_name}_dao(query_db, page_object)"
         base_code += f"\n\t\t\t\tawait query_db.commit()"
         base_code += f"\n\t\t\t\tresult = dict(is_success=True, message='新增成功')"
         base_code += f"\n\t\t\texcept Exception as e:"

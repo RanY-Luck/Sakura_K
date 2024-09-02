@@ -18,7 +18,7 @@ from scripts.crud_generate.utils.generate_base import GenerateBase
 
 
 class VoGenerate(GenerateBase):
-    BASE_FIELDS = ["id", "create_datetime", "update_datetime", "delete_datetime", "is_delete"]
+    BASE_FIELDS = ["id", "create_datetime", "update_datetime"]
 
     def __init__(
             self,
