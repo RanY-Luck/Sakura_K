@@ -27,7 +27,7 @@ class VoGenerate(GenerateBase):
             en_name: str,
             vo_file_path: Path,
             vo_dir_path: Path,
-            base_class_name: str,
+            vo_base_class_name: str,
             vo_query_class_name: str,  # 不分页查询模型
             vo_page_query_class_name: str,  # 分页查询模型
             vo_delete_class_name: str  # 删除模型
@@ -37,30 +37,28 @@ class VoGenerate(GenerateBase):
         初始化工作
         :param model: 提前定义好的 ORM 模型
         :param zh_name: 功能中文名称，主要用于描述、注释
-        :param vo_file_path:
         :param en_name: 功能英文名称，主要用于 schema、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         en_name 例子：
             如果 en_name 由多个单词组成那么请使用 _ 下划线拼接
             在命名文件名称时，会执行使用 _ 下划线名称
             在命名 class 名称时，会将下划线名称转换为大驼峰命名（CamelCase）
             在命名 url 时，会将下划线转换为 /
-        :param base_class_name:
-        :param schema_simple_out_class_name:
+        :param vo_file_path: vo 文件的地址
+        :param vo_dir_path: vo 文件的 app 路径
+        :param vo_base_class_name: 基础类
+        :param vo_query_class_name: 不分页查询模型
+        :param vo_page_query_class_name: 分页查询模型
+        :param vo_delete_class_name: 删除模型
         """
         self.model = model
-        self.base_class_name = base_class_name
         self.zh_name = zh_name
         self.en_name = en_name
+        self.vo_file_path = vo_file_path
+        self.vo_dir_path = vo_dir_path
+        self.vo_base_class_name = vo_base_class_name
         self.vo_query_class_name = vo_query_class_name
         self.vo_page_query_class_name = vo_page_query_class_name
         self.vo_delete_class_name = vo_delete_class_name
-        # model 文件的地址
-        self.model_file_path = Path(inspect.getfile(sys.modules[model.__module__]))
-        # vo 文件 app 路径
-        self.app_dir_path = self.model_file_path.parent.parent
-        # vo 目录地址
-        self.vo_file_path = vo_file_path
-        self.vo_dir_path = vo_dir_path
 
     def write_generate_code(self):
         """
@@ -110,7 +108,7 @@ class VoGenerate(GenerateBase):
             "module_admin.annotation.pydantic_annotation": ['as_form,as_query'],
         }
         code += self.generate_modules_code(modules)
-        base_schema_code = f"\n\nclass {self.base_class_name}(BaseModel):"
+        base_schema_code = f"\n\nclass {self.vo_base_class_name}:"
         for item in fields:
             field = f"\n\t{item.name}: Optional[{item.field_type}] {'' if item.nullable else ''}"
             default = None
@@ -131,7 +129,7 @@ class VoGenerate(GenerateBase):
         code += base_schema_code
 
         # 不分页查询模型
-        base_query_code = f"\n\nclass {self.vo_query_class_name}({self.base_class_name}Model):"
+        base_query_code = f"\n\nclass {self.vo_query_class_name}({self.vo_base_class_name}):"
         base_query_code += f'''
     """
     {self.zh_name}不分页查询模型
@@ -144,7 +142,7 @@ class VoGenerate(GenerateBase):
 
         # 分页查询模型
         base_page_query_code = '''\n\n@as_query\n@as_form'''
-        base_page_query_code += f"\nclass {self.vo_page_query_class_name}({self.vo_query_class_name}):"
+        base_page_query_code += f"\nclass {self.vo_page_query_class_name}({self.vo_base_class_name}):"
         base_page_query_code += f'''
     """
     {self.zh_name}分页查询模型

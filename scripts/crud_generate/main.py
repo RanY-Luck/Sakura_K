@@ -44,18 +44,18 @@ class CrudGenerate(GenerateBase):
         self.app_dir_path = self.model_file_path.parent.parent
         # vo 目录地址:Sakura_K/module_admin/entity/vo
         self.vo_dir_path = self.app_dir_path / "vo"  # 已改好
-        # dao 文件地址
-        self.dao_dir_path = self.app_dir_path.parent / "dao"
-        # service 目录地址
-        self.service_dir_path = self.app_dir_path.parent / "service"
-        # controller 文件地址
-        self.controller_dir_path = self.app_dir_path.parent / "controller"
+        # dao 文件地址 目录地址:Sakura_K/module_admin/dao
+        self.dao_dir_path = self.app_dir_path.parent / "dao"  # 已改好
+        # service 目录地址 目录地址:Sakura_K/module_admin/service
+        self.service_dir_path = self.app_dir_path.parent / "service"  # 已改好
+        # controller 目录地址:Sakura_K/module_admin/controller
+        self.controller_dir_path = self.app_dir_path.parent / "controller"  # 已改好
 
         if en_name:
             self.en_name = en_name
         else:
             self.en_name = self.model.__name__
-        # 生成entity/vo/xx_vo.py 文件
+        # 生成 entity/vo/xx_vo.py 文件
         self.vo_file_path = self.vo_dir_path / f"{self.en_name}_vo.py"
         # 生成 dao/xx_dao.py 文件
         self.dao_file_path = self.dao_dir_path / f"{self.en_name}_dao.py"
@@ -65,10 +65,10 @@ class CrudGenerate(GenerateBase):
         self.controller_file_path = self.controller_dir_path / f"{self.en_name}_controller.py"
 
         # 生成 vo 中的 pydantic 类名
-        self.base_class_name = self.snake_to_camel(self.en_name)  # 生成pydantic 中的 base 基类 已改好
-        self.vo_query_class_name = f"{self.base_class_name}QueryModel"  # 生成pydantic 中的 query 已改好
-        self.vo_page_query_class_name = f"{self.base_class_name}PageQueryModel"  # 生成pydantic 中的 PageQuery 已改好
-        self.vo_delete_class_name = f"Delete{self.base_class_name}Model"  # 生成pydantic 中的 delete 已改好
+        self.vo_base_class_name = f"{self.snake_to_camel(self.en_name)}BaseModel"  # 生成pydantic 中的 base 基类 已改好
+        self.vo_query_class_name = f"{self.vo_base_class_name}QueryModel"  # 生成pydantic 中的 query 已改好
+        self.vo_page_query_class_name = f"{self.vo_base_class_name}PageQueryModel"  # 生成pydantic 中的 PageQuery 已改好
+        self.vo_delete_class_name = f"Delete{self.vo_base_class_name}Model"  # 生成pydantic 中的 delete 已改好
         # 生成 dao 中的 xx_Dao类名 todo: 没用起来
         self.dao_class_name = f"{self.snake_to_camel(self.en_name)}Dao"
         # 生成 service 中 xx_Service类名 todo: 没用起来
@@ -142,7 +142,7 @@ class CrudGenerate(GenerateBase):
             self.en_name,
             self.vo_file_path,
             self.vo_dir_path,
-            self.base_class_name,
+            self.vo_base_class_name,
             self.vo_query_class_name,
             self.vo_page_query_class_name,
             self.vo_delete_class_name
