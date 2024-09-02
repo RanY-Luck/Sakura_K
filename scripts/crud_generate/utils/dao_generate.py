@@ -23,33 +23,28 @@ class DaoGenerate(GenerateBase):
             en_name: str,
             dao_dir_path: Path,
             dao_file_path: Path,
-            dao_class_name: str
+            dao_base_class_name: str
     ):
         """
         初始化工作
         :param model: 提前定义好的 ORM 模型
         :param zh_name: 功能中文名称，主要用于描述、注释
-        :param dao_class_name:
-        :param dao_file_path:
-        :param dao_dir_path:
         :param en_name: 功能英文名称，主要用于 param、param 文件命名，以及它们的 class 命名，dal、url 命名，默认使用 model class
         en_name 例子：
             如果 en_name 由多个单词组成那么请使用 _ 下划线拼接
             在命名文件名称时，会执行使用 _ 下划线名称
             在命名 class 名称时，会将下划线名称转换为大驼峰命名（CamelCase）
             在命名 url 时，会将下划线转换为 /
+        :param dao_file_path:
+        :param dao_dir_path:
+        :param dao_base_class_name:
         """
         self.model = model
-        self.dao_class_name = dao_class_name
         self.zh_name = zh_name
         self.en_name = en_name
-        # model 文件的地址
-        self.dao_file_path = Path(inspect.getfile(sys.modules[model.__module__]))
-        # model 文件 app 路径
-        self.app_dir_path = self.dao_file_path.parent.parent
-        # dao 目录地址
         self.dao_dir_path = dao_dir_path
         self.dao_file_path = dao_file_path
+        self.dao_base_class_name = dao_base_class_name
 
     def write_generate_code(self):
         """
@@ -76,7 +71,7 @@ class DaoGenerate(GenerateBase):
             "sqlalchemy": ['select', 'update', 'delete', 'and_', 'func', 'bindparam', 'or_', 'asc', 'desc'],
             "sqlalchemy.ext.asyncio": ['AsyncSession'],
             "sqlalchemy.orm": ['Session'],
-            f"module_admin.entity.do.{self.en_name}_do": [f'{self.snake_to_camel(self.en_name)}'],
+            f"module_admin.entity.do.{self.en_name}_do": ['*'],
             f"module_admin.entity.vo.{self.en_name}_vo": ['*'],
             "utils.page_util": ['PageUtil'],
             "datetime": ['datetime', 'time'],
@@ -84,17 +79,17 @@ class DaoGenerate(GenerateBase):
         code += self.generate_modules_code(modules)
 
         # 根据 id 获取信息 已改好
-        base_code = f"\n\nclass {self.dao_class_name}:"
+        base_code = f"\n\nclass {self.dao_base_class_name}:"
         base_code += f'''
     """
     {self.zh_name}管理模块数据库操作层
-        """
+    """
         '''
         base_code += f"\n\t@classmethod"
         base_code += f"\n\tasync def get_{self.en_name}_detail_by_id(cls, db: AsyncSession, {self.en_name}_id: int):"
         base_code += f'''
         """
-        根据配置id获取{self.zh_name}详细信息
+        根据id获取{self.zh_name}详细信息
         :param db: orm对象
         :param {self.en_name}_id: 
         :return: 
