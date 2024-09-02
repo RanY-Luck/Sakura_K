@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : controller_generate.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 生成 xx_controller.py
 import inspect
 import sys
 from pathlib import Path

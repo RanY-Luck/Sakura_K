@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : dao_generate.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 生成 xx_dao.py
 import inspect
 import sys
 from pathlib import Path
