@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : generate_base.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 生成代码基础类
 import re
 import datetime
 from pathlib import Path

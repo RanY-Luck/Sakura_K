@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : service_generate.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 生成 xx_service.py
 import inspect
 import sys
 from pathlib import Path

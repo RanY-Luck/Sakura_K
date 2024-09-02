@@ -5,7 +5,7 @@
 # # @Site    :
 # # @File    : vo_generate.py
 # # @Software: PyCharm
-# # @desc    :
+# # @desc    : 生成 xx_vo.py
 import sys
 from typing import Type
 import inspect
