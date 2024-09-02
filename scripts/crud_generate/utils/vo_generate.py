@@ -18,7 +18,7 @@ from scripts.crud_generate.utils.generate_base import GenerateBase
 
 
 class VoGenerate(GenerateBase):
-    BASE_FIELDS = ["id", "create_datetime", "update_datetime"]
+    BASE_FIELDS = ["create_datetime", "update_datetime"]
 
     def __init__(
             self,
@@ -27,10 +27,12 @@ class VoGenerate(GenerateBase):
             en_name: str,
             vo_file_path: Path,
             vo_dir_path: Path,
-            vo_base_class_name: str,
-            vo_query_class_name: str,  # 不分页查询模型
-            vo_page_query_class_name: str,  # 分页查询模型
-            vo_delete_class_name: str  # 删除模型
+            vo_base_model_class_name: str,  # Dept2Model(BaseModel)
+            vo_model_class_name: str,  # Dept2Model
+            vo_query_model_class_name: str,  # Dept2QueryModel
+            vo_query_class_name: str,  # Dept2QueryModel(Dept2Model(BaseModel))
+            vo_page_query_class_name: str,  # Dept2PageQueryModel
+            vo_delete_class_name: str  # DeleteDept2Model
 
     ):
         """
@@ -45,8 +47,10 @@ class VoGenerate(GenerateBase):
             在命名 url 时，会将下划线转换为 /
         :param vo_file_path: vo 文件的地址
         :param vo_dir_path: vo 文件的 app 路径
-        :param vo_base_class_name: 基础类
+        :param vo_model_class_name: 基础类
+        :param vo_base_model_class_name:
         :param vo_query_class_name: 不分页查询模型
+        :param vo_query_model_class_name:
         :param vo_page_query_class_name: 分页查询模型
         :param vo_delete_class_name: 删除模型
         """
@@ -55,8 +59,10 @@ class VoGenerate(GenerateBase):
         self.en_name = en_name
         self.vo_file_path = vo_file_path
         self.vo_dir_path = vo_dir_path
-        self.vo_base_class_name = vo_base_class_name
+        self.vo_base_model_class_name = vo_base_model_class_name
+        self.vo_model_class_name = vo_model_class_name
         self.vo_query_class_name = vo_query_class_name
+        self.vo_query_model_class_name = vo_query_model_class_name
         self.vo_page_query_class_name = vo_page_query_class_name
         self.vo_delete_class_name = vo_delete_class_name
 
@@ -108,8 +114,15 @@ class VoGenerate(GenerateBase):
             "module_admin.annotation.pydantic_annotation": ['as_form,as_query'],
         }
         code += self.generate_modules_code(modules)
-        base_schema_code = f"\n\nclass {self.vo_base_class_name}:"
+        vo_base_schema_code = f"\n\nclass {self.vo_base_model_class_name}:"
+        vo_base_schema_code += f'''
+    """
+    {self.zh_name}对应pydantic模型
+    """
+        '''
+        vo_base_schema_code += "\n\tmodel_config = ConfigDict(alias_generator=to_camel, from_attributes=True)\n"
         for item in fields:
+            print("Item-->", item)
             field = f"\n\t{item.name}: Optional[{item.field_type}] {'' if item.nullable else ''}"
             default = None
             if item.default is not None:
@@ -120,16 +133,17 @@ class VoGenerate(GenerateBase):
             elif default is None and not item.nullable:
                 default = "None"
             # 对所有字段统一使用 None 作为默认值
-            if item.title == "创建时间" or item.title == "更新时间":
+            if item.title == "创建时间" or item.title == "更新时间" or item.default == '':
                 field += f"= Field(default=None, description=\"{item.title}\")"
             else:
                 field += f"= Field(default={default}, description=\"{item.title}\")"
-            base_schema_code += field
-        base_schema_code += "\n"
-        code += base_schema_code
+            vo_base_schema_code += field
+        vo_base_schema_code += "\n"
+        code += vo_base_schema_code
 
         # 不分页查询模型
-        base_query_code = f"\n\nclass {self.vo_query_class_name}({self.vo_base_class_name}):"
+        base_query_code = '''\n\n@as_query'''
+        base_query_code += f"\nclass {self.vo_query_class_name}({self.vo_model_class_name}):"
         base_query_code += f'''
     """
     {self.zh_name}不分页查询模型
@@ -142,7 +156,7 @@ class VoGenerate(GenerateBase):
 
         # 分页查询模型
         base_page_query_code = '''\n\n@as_query\n@as_form'''
-        base_page_query_code += f"\nclass {self.vo_page_query_class_name}({self.vo_base_class_name}):"
+        base_page_query_code += f"\nclass {self.vo_page_query_class_name}({self.vo_query_class_name}):"
         base_page_query_code += f'''
     """
     {self.zh_name}分页查询模型
@@ -162,7 +176,7 @@ class VoGenerate(GenerateBase):
                 '''
         base_delete_code += "\n\tmodel_config = ConfigDict(alias_generator=to_camel)\n"
         base_delete_code += "\n\t# 需要xx自行修改：比如我有上面 pydantic 有个 dept_id, 那么这里就改成 dept_ids)"
-        base_delete_code += f"\n\t{self.en_name}_ids: str = Field(description='需要删除的{self.en_name}_id')"
+        base_delete_code += f"\n\t{self.en_name}_ids: str = Field(default=None, description='需要删除的{self.en_name}ID')"
         base_delete_code += f"\n\tupdate_by: Optional[str] = Field(default=None, description=\"更新者\")"
         base_delete_code += "\n\tupdate_time: Optional[str] = Field(default=None, description=\"更新时间\")"
         base_delete_code += "\n"
