@@ -10,12 +10,12 @@ import sys
 import os.path
 import inspect
 from typing import Type
+from pathlib import Path
 from config.database import Base
 from config.settings import BASE_DIR
-from pathlib import Path
-from scripts.crud_generate.utils.generate_base import GenerateBase
 from scripts.crud_generate.utils.vo_generate import VoGenerate
 from scripts.crud_generate.utils.dao_generate import DaoGenerate
+from scripts.crud_generate.utils.generate_base import GenerateBase
 from scripts.crud_generate.utils.service_generate import ServiceGenerate
 from scripts.crud_generate.utils.controller_generate import ControllerGenerate
 
@@ -65,10 +65,12 @@ class CrudGenerate(GenerateBase):
         self.controller_file_path = self.controller_dir_path / f"{self.en_name}_controller.py"
 
         # 生成 vo 中的 pydantic 类名
-        self.vo_base_class_name = f"{self.snake_to_camel(self.en_name)}BaseModel"  # 生成pydantic 中的 base 基类 已改好
-        self.vo_query_class_name = f"{self.vo_base_class_name}QueryModel"  # 生成pydantic 中的 query 已改好
-        self.vo_page_query_class_name = f"{self.vo_base_class_name}PageQueryModel"  # 生成pydantic 中的 PageQuery 已改好
-        self.vo_delete_class_name = f"Delete{self.vo_base_class_name}Model"  # 生成pydantic 中的 delete 已改好
+        self.vo_base_model_class_name = f"{self.snake_to_camel(self.en_name)}Model(BaseModel)"  # Dept2Model(BaseModel)
+        self.vo_model_class_name = f"{self.snake_to_camel(self.en_name)}Model"  # Dept2Model
+        self.vo_query_model_class_name = f"{self.snake_to_camel(self.en_name)}QueryModel"  # Dept2QueryModel
+        self.vo_query_class_name = f"{self.snake_to_camel(self.en_name)}QueryModel({self.vo_model_class_name})"  # Dept2QueryModel(Dept2Model)
+        self.vo_page_query_class_name = f"{self.snake_to_camel(self.en_name)}PageQueryModel"  # Dept2PageQueryModel
+        self.vo_delete_class_name = f"Delete{self.snake_to_camel(self.en_name)}Model"  # DeleteDept2Model
         # 生成 dao 中的 xx_Dao类名
         self.dao_base_class_name = f"{self.snake_to_camel(self.en_name)}Dao"
         # 生成 service 中 xx_Service类名
@@ -142,8 +144,10 @@ class CrudGenerate(GenerateBase):
             self.en_name,
             self.vo_file_path,
             self.vo_dir_path,
-            self.vo_base_class_name,
+            self.vo_base_model_class_name,
+            self.vo_model_class_name,
             self.vo_query_class_name,
+            self.vo_query_model_class_name,
             self.vo_page_query_class_name,
             self.vo_delete_class_name
         )
@@ -158,7 +162,7 @@ class CrudGenerate(GenerateBase):
             self.dao_file_path,
             self.dao_base_class_name
         )
-        dao.write_generate_code()
+        # dao.write_generate_code()
 
         # 3. 生成 service/xxx_service 代码 已改好
         server = ServiceGenerate(
@@ -171,7 +175,7 @@ class CrudGenerate(GenerateBase):
             self.dao_base_class_name,
             self.vo_page_query_class_name
         )
-        server.write_generate_code()
+        # server.write_generate_code()
 
         # 4. 生成 controller/xxx_controller 代码 已改好
         controller = ControllerGenerate(
@@ -183,13 +187,13 @@ class CrudGenerate(GenerateBase):
             self.vo_page_query_class_name,
             self.service_base_class_name
         )
-        controller.write_generate_code()
+        # controller.write_generate_code()
 
 
 if __name__ == '__main__':
-    from module_admin.entity.do.demo_do import Demo
+    from module_admin.entity.do.demo_do import Dept2
 
-    crud = CrudGenerate(Demo, zh_name="测试", en_name="demo")
+    crud = CrudGenerate(Dept2, zh_name="部门表2", en_name="dept2")
     # 只打印代码，不执行创建写入
     # crud.generate_codes()
     # 创建并写入代码
