@@ -122,7 +122,6 @@ class VoGenerate(GenerateBase):
         '''
         vo_base_schema_code += "\n\tmodel_config = ConfigDict(alias_generator=to_camel, from_attributes=True)\n"
         for item in fields:
-            print("Item-->", item)
             field = f"\n\t{item.name}: Optional[{item.field_type}] {'' if item.nullable else ''}"
             default = None
             if item.default is not None:
