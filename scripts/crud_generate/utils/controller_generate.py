@@ -123,7 +123,12 @@ class ControllerGenerate(GenerateBase):
         """
 
         router = self.en_name.replace("_", "/")
-        base_code = f"\n\n\n@{self.en_name}Controller.get(" \
+        base_code = f'''\n
+"""
+需要自己写 controller 逻辑代码
+"""
+        '''
+        base_code += f"\n\n@{self.en_name}Controller.get(" \
                     f"\n\t\'/{router}/list\', response_model=PageResponseModel, dependencies=[Depends(CheckUserInterfaceAuth('{self.en_name}:{self.en_name}:list'))]" \
                     f"\n)"
         base_code += f"\nasync def get_{self.en_name}_list(" \
@@ -136,12 +141,7 @@ class ControllerGenerate(GenerateBase):
      获取{self.zh_name}列表
     """
             '''
-        base_code += f"\n\t{self.en_name}_page_query_result = await {self.service_base_class_name}.get_{self.en_name}_list_services("
-        base_code += f"\n\t\tquery_db, {self.en_name}_page_query, is_page=True" \
-                     f"\n\t)"
-        base_code += f"\n\tlogger.info('{self.en_name}列表获取成功')"
-        base_code += "\n"
-        base_code += f"\n\treturn ResponseUtil.success(model_content={self.en_name}_page_query_result)"
+        base_code += "\n\tpass"
 
         base_code += "\n"
         return base_code.replace("\t", "    ")

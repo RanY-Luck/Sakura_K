@@ -109,61 +109,15 @@ class ServiceGenerate(GenerateBase):
         获取基础代码内容
         :return:
         """
-        base_code = f"\n\nclass {self.service_base_class_name}:"
+        base_code = f'''
+"""
+需要自己写 service 逻辑代码
+"""
+        '''
+        base_code += f"\n\nclass {self.service_base_class_name}:"
         base_code += f'''
     """
     {self.zh_name}管理模块服务层
     """
         '''
-
-        # get_xxx_list_services
-        base_code += "\n\t@classmethod"
-        base_code += f"\n\tasync def get_{self.en_name}_list_services(" \
-                     f"\n\t\t\tcls, query_db: AsyncSession," \
-                     f"\n\t\t\tquery_object: {self.vo_page_query_class_name}," \
-                     f"\n\t\t\tis_page: bool = False" \
-                     f"\n\t):"
-        base_code += f'''
-        """
-            获取{self.zh_name}列表信息service
-        
-            :param query_db: orm对象
-            :param query_object: 查询参数对象
-            :param is_page: 是否开启分页
-            :return: 参数配置列表信息对象
-        """
-        '''
-        base_code += f"\n\t\t{self.en_name}_list_result = await {self.dao_base_class_name}.get_{self.en_name}_list(query_db, query_object, is_page)"
-        base_code += f"\n\t\treturn {self.en_name}_list_result"
-        base_code += "\n"
-
-        # add_xxx_services
-        base_code += "\n\t@classmethod"
-        base_code += f"\n\tasync def add_{self.en_name}_services(" \
-                     f"\n\t\t\tcls, query_db: AsyncSession," \
-                     f"\n\t\t\tpage_object: {self.snake_to_camel(self.en_name)}Model" \
-                     f"\n\t):"
-        base_code += f'''
-        """
-        新增{self.zh_name}service
-    
-        :param query_db: orm对象
-        :param page_object:  新增{self.zh_name}对象
-        :param is_page: 是否开启分页
-        :return: 新增{self.zh_name}校验结果
-        """
-        '''
-        base_code += f"\n\t\t{self.en_name} = await {self.dao_base_class_name}.get_{self.en_name}_detail_by_info(query_db, page_object)"
-        base_code += f"\n\t\tif {self.en_name}:"
-        base_code += f"\n\t\t\tresult = dict(is_success=False, message='{self.zh_name}已存在')"
-        base_code += f"\n\t\telse:"
-        base_code += f"\n\t\t\ttry:"
-        base_code += f"\n\t\t\t\tawait {self.dao_base_class_name}.add_{self.en_name}_dao(query_db, page_object)"
-        base_code += f"\n\t\t\t\tawait query_db.commit()"
-        base_code += f"\n\t\t\t\tresult = dict(is_success=True, message='新增成功')"
-        base_code += f"\n\t\t\texcept Exception as e:"
-        base_code += f"\n\t\t\t\tawait query_db.rollback()"
-        base_code += f"\n\t\t\t\traise e"
-        base_code += f"\n\t\treturn CrudResponseModel(**result)"
-        base_code += "\n"
         return base_code.replace("\t", "    ")
