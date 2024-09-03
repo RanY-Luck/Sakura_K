@@ -77,56 +77,63 @@ class CrudGenerate(GenerateBase):
         self.service_base_class_name = f"{self.snake_to_camel(self.en_name)}Service"
 
     # todo: 先注释
-    # def generate_codes(self):
-    #     """
-    #     生成代码， 不做实际操作，只是将代码打印出来
-    #     :return:
-    #     """
-    #     print(f"==========================={self.vo_file_path} 代码内容=================================")
-    #     schema = VoGenerate(
-    #         self.model,
-    #         self.zh_name,
-    #         self.en_name,
-    #         self.vo_file_path,
-    #         self.vo_dir_path,
-    #         self.base_class_name,
-    #         self.vo_query_class_name,
-    #         self.vo_page_query_class_name,
-    #         self.vo_delete_class_name
-    #     )
-    #     print(schema.generate_code())
-    #
-    #     print(f"==========================={self.dao_file_path} 代码内容=================================")
-    #     dal = DalGenerate(
-    #         self.model,
-    #         self.zh_name,
-    #         self.en_name,
-    #         self.dao_file_path
-    #     )
-    #     print(dal.generate_code())
+    def generate_codes(self):
+        """
+        生成代码， 不做实际操作，只是将代码打印出来
+        :return:
+        """
+        print(f"==========================={self.vo_file_path} 代码内容=================================")
+        schema = VoGenerate(
+            self.model,
+            self.zh_name,
+            self.en_name,
+            self.vo_file_path,
+            self.vo_dir_path,
+            self.vo_base_model_class_name,
+            self.vo_model_class_name,
+            self.vo_query_class_name,
+            self.vo_query_model_class_name,
+            self.vo_page_query_class_name,
+            self.vo_delete_class_name
+        )
+        print(schema.generate_code())
 
-    # print(f"==========================={self.service_file_path} 代码内容=================================")
-    # params = ParamsGenerate(
-    #     self.model,
-    #     self.zh_name,
-    #     self.en_name,
-    #     self.service_dir_path,
-    #     self.service_file_path,
-    #     self.param_class_name
-    # )
-    # print(params.generate_code())
+        print(f"==========================={self.dao_file_path} 代码内容=================================")
+        dao = DaoGenerate(
+            self.model,
+            self.zh_name,
+            self.en_name,
+            self.dao_dir_path,
+            self.dao_file_path,
+            self.dao_base_class_name,
+            self.vo_model_class_name
+        )
+        print(dao.generate_code())
 
-    # print(f"==========================={self.view_file_path} 代码内容=================================")
-    # view = ViewGenerate(
-    #     self.model,
-    #     self.zh_name,
-    #     self.en_name,
-    #     self.base_class_name,
-    #     self.dao_delete_class_name,
-    #     self.dal_class_name,
-    #     self.param_class_name
-    # )
-    # print(view.generate_code())
+        print(f"==========================={self.service_file_path} 代码内容=================================")
+        server = ServiceGenerate(
+            self.model,
+            self.zh_name,
+            self.en_name,
+            self.service_dir_path,
+            self.service_file_path,
+            self.service_base_class_name,
+            self.dao_base_class_name,
+            self.vo_page_query_class_name
+        )
+        print(server.generate_code())
+
+        print(f"==========================={self.view_file_path} 代码内容=================================")
+        controller = ControllerGenerate(
+            self.model,
+            self.zh_name,
+            self.en_name,
+            self.controller_dir_path,
+            self.controller_file_path,
+            self.vo_page_query_class_name,
+            self.service_base_class_name
+        )
+        print(controller.generate_code())
 
     def main(self):
         """
@@ -192,10 +199,10 @@ class CrudGenerate(GenerateBase):
 
 
 if __name__ == '__main__':
-    from module_admin.entity.do.dept2_do import Dept2
+    from module_admin.entity.do.xxx import xxx
 
-    crud = CrudGenerate(Dept2, zh_name="部门表2", en_name="dept2")
+    crud = CrudGenerate(xxx, zh_name="部门表2", en_name="dept2")
     # 只打印代码，不执行创建写入
-    # crud.generate_codes()
+    crud.generate_codes()
     # 创建并写入代码
     crud.main()
