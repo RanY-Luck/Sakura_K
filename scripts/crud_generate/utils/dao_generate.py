@@ -23,7 +23,8 @@ class DaoGenerate(GenerateBase):
             en_name: str,
             dao_dir_path: Path,
             dao_file_path: Path,
-            dao_base_class_name: str
+            dao_base_class_name: str,
+            vo_model_class_name: str
     ):
         """
         初始化工作
@@ -38,6 +39,7 @@ class DaoGenerate(GenerateBase):
         :param dao_file_path:
         :param dao_dir_path:
         :param dao_base_class_name:
+        :param vo_model_class_name:
         """
         self.model = model
         self.zh_name = zh_name
@@ -45,6 +47,7 @@ class DaoGenerate(GenerateBase):
         self.dao_dir_path = dao_dir_path
         self.dao_file_path = dao_file_path
         self.dao_base_class_name = dao_base_class_name
+        self.vo_model_class_name = vo_model_class_name
 
     def write_generate_code(self):
         """
@@ -68,6 +71,7 @@ class DaoGenerate(GenerateBase):
         code = self.generate_file_desc(self.dao_file_path.name, self.zh_name)
         # 导入模块
         modules = {
+            "typing": ['List'],
             "sqlalchemy": ['select', 'update', 'delete', 'and_', 'func', 'bindparam', 'or_', 'asc', 'desc'],
             "sqlalchemy.ext.asyncio": ['AsyncSession'],
             "sqlalchemy.orm": ['Session'],
@@ -79,7 +83,12 @@ class DaoGenerate(GenerateBase):
         code += self.generate_modules_code(modules)
 
         # 根据 id 获取信息 已改好
-        base_code = f"\n\nclass {self.dao_base_class_name}:"
+        base_code = f'''
+"""
+需要自己写 dao 逻辑代码
+"""
+            '''
+        base_code += f"\n\nclass {self.dao_base_class_name}:"
         base_code += f'''
     """
     {self.zh_name}管理模块数据库操作层
@@ -95,48 +104,35 @@ class DaoGenerate(GenerateBase):
         :return: 
         """
         '''
-        base_code += f"{self.en_name}_info = (await db.execute(select({self.snake_to_camel(self.en_name)}).where({self.snake_to_camel(self.en_name)}.{self.en_name}_id == {self.en_name}_id))).scalars().first()"
+        base_code += f"{self.en_name}_info = (await db.execute(select({self.snake_to_camel(self.en_name)})" \
+                     f".where({self.snake_to_camel(self.en_name)}.{self.en_name}_id == {self.en_name}_id)))" \
+                     f".scalars().first()"
         base_code += f"\n\n\t\treturn {self.en_name}_info"
         base_code += f"\n"
 
-        # # 根据参数获取信息 # todo:每次都是写死，需要改成动态
-        # base_code += f"\n\t@classmethod"
-        # base_code += f"\n\tasync def get_{self.en_name}_detail_by_info(cls, db: AsyncSession, {self.en_name}: {self.snake_to_camel(self.en_name)}Model):"
-        # base_code += f'''
-        # """
-        # 根据配置id获取{self.zh_name}详细信息
-        # :param db: orm对象
-        # :param {self.en_name}:
-        # :return:
-        # """
-        # '''
-        # base_code += f"{self.en_name}_info = ((" \
-        #              f"await db.execute(" \
-        #              f"select({self.snake_to_camel(self.en_name)}).where(" \
-        #              f"{self.snake_to_camel(self.en_name)}.{self.en_name}_key == {self.en_name}.{self.en_name}_key " \
-        #              f"if {self.en_name}.{self.en_name}_key else True," \
-        #              f"{self.snake_to_camel(self.en_name)}.{self.en_name}_value == {self.en_name}.{self.en_name}_value" \
-        #              f" if {self.en_name}.{self.en_name}_value else True,))).scalars().first())"
-        # base_code += f"\n\n\t\treturn {self.en_name}_info"
-        # base_code += f"\n"
-
-        # # 根据查询参数获取参数列表信息
-        # base_code += f"\n\t@classmethod"
-        # base_code += f"\n\tasync def get_{self.en_name}_list(cls, db: AsyncSession, query_object: {self.snake_to_camel(self.en_name)}PageQueryModel, is_page : bool = False):"
-        # base_code += f'''
-        # """
-        # 根据查询参数获取{self.zh_name}参数列表信息
-        # :param db: orm对象
-        # :param query_object: 查询参数对象
-        # :param is_page: 是否开启分页
-        # :return:
-        # """
-        # '''
-        # base_code += f"query = (select({self.snake_to_camel(self.en_name)})" \
-        #              f".where({self.snake_to_camel(self.en_name)}.{self.en_name}_name.like() if query_object.config_name else True,SysConfig.config_key.like() if query_object.{self.en_name}_key else True,SysConfig.config_type == query_object.config_type if query_object.config_type else True,SysConfig.create_time.between(datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),)if query_object.begin_time and query_object.end_time else True,)" \
-        #
-        # base_code += f"\n\n\t\treturn {self.en_name}_info"
-        # base_code += f"\n"
+        # 根据参数获取信息
+        base_code += f"\n\t@classmethod"
+        base_code += f"\n\tasync def get_{self.en_name}_detail_by_info(cls, db: AsyncSession," \
+                     f" {self.en_name}: {self.vo_model_class_name}):"
+        base_code += f'''
+        """
+        根据配置id获取{self.zh_name}详细信息
+        :param db: orm对象
+        :param {self.en_name}:
+        :return:
+        """
+        '''
+        base_code += f"{self.en_name}_info = (" \
+                     f"\n\t\t\t(" \
+                     f"\n\t\t\t\tawait db.execute(" \
+                     f"\n\t\t\t\t\tselect({self.snake_to_camel(self.en_name)}).where(" \
+                     f"\n\t\t\t\t\t\t{self.snake_to_camel(self.en_name)}.xxx == {self.en_name}.xxx " \
+                     f"if {self.en_name}.xxx else True" \
+                     f"\n\t\t\t\t\t)" \
+                     f"\n\t\t\t\t)" \
+                     f"\n\t\t\t).scalars().first())"
+        base_code += f"\n\n\t\treturn {self.en_name}_info"
+        base_code += f"\n"
 
         code += base_code
         return code.replace("\t", "    ")

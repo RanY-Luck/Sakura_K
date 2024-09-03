@@ -71,7 +71,7 @@ class CrudGenerate(GenerateBase):
         self.vo_query_class_name = f"{self.snake_to_camel(self.en_name)}QueryModel({self.vo_model_class_name})"  # Dept2QueryModel(Dept2Model)
         self.vo_page_query_class_name = f"{self.snake_to_camel(self.en_name)}PageQueryModel"  # Dept2PageQueryModel
         self.vo_delete_class_name = f"Delete{self.snake_to_camel(self.en_name)}Model"  # DeleteDept2Model
-        # 生成 dao 中的 xx_Dao类名
+        # 生成 dao 中的class 类名： xx_Dao类名
         self.dao_base_class_name = f"{self.snake_to_camel(self.en_name)}Dao"
         # 生成 service 中 xx_Service类名
         self.service_base_class_name = f"{self.snake_to_camel(self.en_name)}Service"
@@ -160,9 +160,10 @@ class CrudGenerate(GenerateBase):
             self.en_name,
             self.dao_dir_path,
             self.dao_file_path,
-            self.dao_base_class_name
+            self.dao_base_class_name,
+            self.vo_model_class_name
         )
-        # dao.write_generate_code()
+        dao.write_generate_code()
 
         # 3. 生成 service/xxx_service 代码 已改好
         server = ServiceGenerate(
@@ -191,7 +192,7 @@ class CrudGenerate(GenerateBase):
 
 
 if __name__ == '__main__':
-    from module_admin.entity.do.demo_do import Dept2
+    from module_admin.entity.do.dept2_do import Dept2
 
     crud = CrudGenerate(Dept2, zh_name="部门表2", en_name="dept2")
     # 只打印代码，不执行创建写入
