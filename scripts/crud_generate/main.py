@@ -199,7 +199,8 @@ class CrudGenerate(GenerateBase):
 
 
 if __name__ == '__main__':
-    from module_admin.entity.do.xxx import xxx
+    # 导入需要生成的 model
+    from module_admin.entity.do.xxx_do import xxx
 
     crud = CrudGenerate(xxx, zh_name="部门表2", en_name="dept2")
     # 只打印代码，不执行创建写入
