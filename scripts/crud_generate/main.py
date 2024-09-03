@@ -176,7 +176,7 @@ class CrudGenerate(GenerateBase):
             self.dao_base_class_name,
             self.vo_page_query_class_name
         )
-        # server.write_generate_code()
+        server.write_generate_code()
 
         # 4. 生成 controller/xxx_controller 代码 已改好
         controller = ControllerGenerate(
@@ -188,7 +188,7 @@ class CrudGenerate(GenerateBase):
             self.vo_page_query_class_name,
             self.service_base_class_name
         )
-        # controller.write_generate_code()
+        controller.write_generate_code()
 
 
 if __name__ == '__main__':
