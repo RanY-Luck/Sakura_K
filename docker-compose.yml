@@ -1,7 +1,6 @@
 services:
   sakura_k:
-    image: sakura_k:latest
-    container_name: sakura_k
+    container_name: 'sakura_k'
     restart: always
     ports:
       - "9099:9099"
