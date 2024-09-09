@@ -1,21 +1,17 @@
-FROM python:3.10-slim
+FROM tiangolo/uvicorn-gunicorn:python3.10-slim
 
 LABEL maintainer="ranyong"
 
-WORKDIR /Sakura_K
-
-ENV PYTHONUNBUFFERED=1
-
-ENV APP_ENV=docker
-
-EXPOSE 9099
-
-COPY ./requirements.txt ./
+COPY requirements.txt /Sakura_K/requirements.txt
 
 RUN pip3 install --upgrade pip
 
-RUN pip3 install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3 install --no-cache-dir -r /Sakura_K/requirements.txt
 
 COPY . /Sakura_K
 
-CMD ["python", "-m", "uvicorn", "app:app","--host", "0.0.0.0", "--port", "9099"]
+COPY .env.docker /Sakura_K/.env
+# 不写这个不会加载 .env.docker环境（勿动）
+RUN if [ -f ".env.docker" ]; then mv .env.docker .env; fi
+
+CMD ["python", "app.py"]

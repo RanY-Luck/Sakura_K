@@ -2,10 +2,12 @@ services:
   sakura_k:
     container_name: 'sakura_k'
     restart: always
+    env_file:
+      - .env.docker
     ports:
       - "9099:9099"
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile
     environment:
       TZ: "Asia/Shanghai"
