@@ -48,7 +48,7 @@ python3 app.py --env=prod
 # Docker运行
 
 ## 启动并创建所有容器
-docker-compose up -d
+docker-compose up --build -d
 
 ## 初始化数据
 待补充
