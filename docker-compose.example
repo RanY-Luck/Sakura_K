@@ -26,7 +26,7 @@ services:
       REDIS_HOST: redis
       MYSQL_HOST: mysql
       MYSQL_USER: root
-      MYSQL_PASSWORD: Ranyong_520
+      MYSQL_PASSWORD: 123456
       MYSQL_DATABASE: skf
       MYSQL_PORT: 3306
     volumes:
@@ -50,7 +50,7 @@ services:
       - "3307:3306"
     environment:
       TZ: "Asia/Shanghai"
-      MYSQL_ROOT_PASSWORD: Ranyong_520
+      MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: skf
     volumes:
       - mysql_data:/var/lib/mysql
