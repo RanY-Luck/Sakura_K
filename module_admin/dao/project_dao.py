@@ -64,19 +64,18 @@ class ProjectDao:
         query = (
             select(Project)
                 .where(
-                # Project.project_id == query_object.project_id if query_object.project_id is not None else True,
-                # Project.project_name.like(f'%{query_object.project_name}%') if query_object.project_name else True,
-                # Project.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
-                # Project.create_time.between(
-                #     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                #     datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
-                # )
-                # if query_object.begin_time and query_object.end_time
-                # else True,
+                Project.project_id == query_object.project_id if query_object.project_id is not None else True,
+                Project.project_name.like(f'%{query_object.project_name}%') if query_object.project_name else True,
+                Project.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
+                Project.create_time.between(
+                    datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
+                    datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
+                )
+                if query_object.begin_time and query_object.end_time
+                else True,
             )
-                # .distinct()
+                .distinct()
         )
-        # project_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
         project_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return project_list
