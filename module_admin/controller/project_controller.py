@@ -110,6 +110,6 @@ async def query_detail_system_post(request: Request, project_id: int, query_db: 
     根据ID获取项目信息
     """
     project_detail_result = await ProjectService.project_detail_services(query_db, project_id)
-    logger.info(f'获取notice_id为{project_id}的信息成功')
+    logger.info(f'获取project_id为{project_id}的信息成功')
 
     return ResponseUtil.success(data=project_detail_result)
