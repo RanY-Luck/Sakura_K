@@ -7,11 +7,11 @@
 # @Software: PyCharm
 # @desc    : 分页查询方法类
 import math
-from typing import Optional, List
-from sqlalchemy import Select, select, func
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
+from sqlalchemy import func, select, Select
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional, List
 from utils.common_util import CamelCaseUtil
 
 
@@ -20,6 +20,7 @@ class PageResponseModel(BaseModel):
     列表分页查询返回模型
     """
     model_config = ConfigDict(alias_generator=to_camel)
+
     rows: List = []
     page_num: Optional[int] = None
     page_size: Optional[int] = None
@@ -50,11 +51,7 @@ class PageUtil:
         has_next = True if math.ceil(len(data_list) / page_size) > page_num else False
 
         result = PageResponseModel(
-            rows=paginated_data,
-            pageNum=page_num,
-            pageSize=page_size,
-            total=len(data_list),
-            hasNext=has_next
+            rows=paginated_data, pageNum=page_num, pageSize=page_size, total=len(data_list), hasNext=has_next
         )
 
         return result
@@ -72,7 +69,7 @@ class PageUtil:
         """
         if is_page:
             total = (await db.execute(select(func.count('*')).select_from(query.subquery()))).scalar()
-            query_result = (await db.execute(query.offset((page_num - 1) * page_size).limit(page_size)))
+            query_result = await db.execute(query.offset((page_num - 1) * page_size).limit(page_size))
             paginated_data = []
             for row in query_result:
                 if row and len(row) == 1:
@@ -117,11 +114,7 @@ def get_page_obj(data_list: List, page_num: int, page_size: int):
     has_next = True if math.ceil(len(data_list) / page_size) > page_num else False
 
     result = PageResponseModel(
-        rows=paginated_data,
-        pageNum=page_num,
-        pageSize=page_size,
-        total=len(data_list),
-        hasNext=has_next
+        rows=paginated_data, pageNum=page_num, pageSize=page_size, total=len(data_list), hasNext=has_next
     )
 
     return result
