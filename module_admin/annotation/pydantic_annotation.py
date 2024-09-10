@@ -7,10 +7,10 @@
 # @Software: PyCharm
 # @desc    : pydantic 接受查询参数(高级用法)
 import inspect
-from typing import Type
-from fastapi import Query, Form
+from fastapi import Form, Query
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
+from typing import Type
 
 
 def as_query(cls: Type[BaseModel]):
@@ -25,8 +25,7 @@ def as_query(cls: Type[BaseModel]):
         if not model_field.is_required():
             new_parameters.append(
                 inspect.Parameter(
-                    field_name,
-                    # model_field.alias,
+                    model_field.alias,
                     inspect.Parameter.POSITIONAL_ONLY,
                     default=Query(default=model_field.default, description=model_field.description),
                     annotation=model_field.annotation
