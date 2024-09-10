@@ -22,5 +22,5 @@ class Project(BaseModel):
     responsible_name = Column(String(10), nullable=False, default='', comment='负责人')
     test_user = Column(String(10), nullable=False, default='', comment='测试人员')
     dev_user = Column(String(10), nullable=False, default='', comment='开发人员')
-    publish_app = Column(String(32), nullable=False, default='', comment='发布应用')
+    publish_app = Column(String(10), nullable=False, default='', comment='发布应用')
     simple_desc = Column(String(100), nullable=True, default='', comment='简要描述')

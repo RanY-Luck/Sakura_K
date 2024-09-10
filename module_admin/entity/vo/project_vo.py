@@ -55,7 +55,7 @@ class ProjectModel(BaseModel):
         return self.test_user
 
     @NotBlank(field_name='publish_app', message='发布应用不能为空')
-    @Size(field_name='publish_app', min_length=0, max_length=32, message='发布应用长度不能超过32个字符')
+    @Size(field_name='publish_app', min_length=0, max_length=10, message='发布应用长度不能超过32个字符')
     def get_publish_app(self):
         return self.publish_app
 
