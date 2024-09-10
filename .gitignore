@@ -37,3 +37,4 @@ utils/task/logs
 vf_admin/upload_path/*
 vf_admin/download_path/*
 static/*
+docker-compose.yml
