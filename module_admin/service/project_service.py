@@ -103,7 +103,7 @@ class ProjectService:
                 await query_db.rollback()
                 raise e
         else:
-            result = dict(is_success=False, message='传入通知公告id为空')
+            result = dict(is_success=False, message='传入项目id为空')
         return CrudResponseModel(**result)
 
     @classmethod
@@ -115,6 +115,8 @@ class ProjectService:
         :return: 通知公告id对应的信息
         """
         project = await ProjectDao.get_project_detail_by_id(query_db, project_id=project_id)
+        if project is None:
+            return CrudResponseModel(is_success=False, message=f'项目{project_id}不存在')
         result = ProjectModel(**CamelCaseUtil.transform_result(project))
 
         return result
