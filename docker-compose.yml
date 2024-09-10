@@ -27,7 +27,7 @@ services:
       MYSQL_HOST: mysql
       MYSQL_USER: root
       MYSQL_PASSWORD: Ranyong_520
-      MYSQL_DATABASE: ruoyi-fastapi
+      MYSQL_DATABASE: skf
       MYSQL_PORT: 3306
     volumes:
       - ../sakura_k:/app
@@ -51,7 +51,7 @@ services:
     environment:
       TZ: "Asia/Shanghai"
       MYSQL_ROOT_PASSWORD: Ranyong_520
-      MYSQL_DATABASE: ruoyi-fastapi
+      MYSQL_DATABASE: skf
     volumes:
       - mysql_data:/var/lib/mysql
 
