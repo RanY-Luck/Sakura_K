@@ -47,8 +47,14 @@ if [ $? -eq 0 ]; then
     gzip "$BACKUP_DIR/${DB_DATABASE}_${DATE}.sql"
     echo "Backup compressed: $BACKUP_DIR/${DB_DATABASE}_${DATE}.sql.gz"
 
-    # 删除旧的备份文件（例如：保留最近7天的备份）
-    find $BACKUP_DIR -name "*.sql.gz" -type f -mtime +7 -delete
+#    # 删除旧的备份文件（例如：保留最近7天的备份）
+#    find $BACKUP_DIR -name "*.sql.gz" -type f -mtime +7 -delete
+
+    # 保留最近的7次备份，删除更早的备份
+    cd $BACKUP_DIR
+    ls -t *.sql.gz | awk 'NR>7' | xargs -r rm
+
+    echo "Cleaned up old backups, keeping the 7 most recent."
 else
     echo "Error: Backup failed"
     exit 1
