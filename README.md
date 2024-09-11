@@ -66,6 +66,28 @@ docker-compose ps -a
 docker logs sakura_k
 ```
 
+```shell
+# 定时备份linux中数据库(可选)
+假设我项目拉取下来存在:/usr/local/ranyong/Sakura_k目录中
+
+cd /usr/local/ranyong/Sakura_k/sql
+
+## 使脚本可执行
+chmod +x backup_mysql.sh
+
+## 立即运行脚本
+./backup_mysql.sh
+
+## 定时运行脚本
+crontab -e
+
+## 添加定时任务
+例如,要每天凌晨2点运行备份
+0 2 * * * /usr/local/ranyong/Sakura_k/sql/backup_mysql.sh
+
+```
+
+
 # 其他操作
 
 - 提交代码模板
