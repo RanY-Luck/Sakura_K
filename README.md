@@ -81,7 +81,7 @@ chmod +x backup_mysql.sh
 ## 定时运行脚本
 crontab -e
 
-## 添加定时任务
+## 添加定时任务(采用Cron表达式)
 例如,要每天凌晨2点运行备份
 0 2 * * * /usr/local/ranyong/Sakura_k/sql/backup_mysql.sh
 
