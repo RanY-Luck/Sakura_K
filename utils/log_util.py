@@ -96,6 +96,29 @@ def archive_and_delete_yesterdays_logs():
         )
     else:
         print("没有找到昨天的日志文件")
+        logger.add(
+            log_path_info,
+            retention=10,
+            enqueue=True,
+            encoding="UTF-8",
+            level="INFO"
+        )
+
+        logger.add(
+            log_path_error,
+            retention=10,
+            enqueue=True,
+            encoding="UTF-8",
+            level="ERROR"
+        )
+
+        logger.add(
+            log_path_warn,
+            retention=10,
+            enqueue=True,
+            encoding="UTF-8",
+            level="WARNING"
+        )
 
 # 调用函数来打包并删除昨天的日志
-archive_and_delete_yesterdays_logs()
+# archive_and_delete_yesterdays_logs()
