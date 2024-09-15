@@ -289,14 +289,14 @@ if __name__ == '__main__':
     # wn_webhook.send_msg("Hello")
     wn_webhook.send_msg_markdown(
         """
-            **${name}**
-        项目：${project_name}
-        时间：${start_time} ～ ${end_date}
-        共测试：${run_count}次
-        通过数：${run_success_count}
-        异常数：${run_err_count}
-        失败数：${run_fail_count}
-        测试通过率：${rate}%
-        详细统计：[点击查看](${url})
-            """
+    **${name}**
+项目：${project_name}
+时间：${start_time} ～ ${end_date}
+共测试：${run_count}次
+通过数：${run_success_count}
+异常数：${run_err_count}
+失败数：${run_fail_count}
+测试通过率：${rate}%
+详细统计：[点击查看](${url})
+        """
     )
