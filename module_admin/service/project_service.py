@@ -40,7 +40,7 @@ class ProjectService:
         新增项目service
         :param query_db: orm对象
         :param page_object: 新增项目对象
-        :return: 新增增项目校验结果
+        :return: 新增项目校验结果
         """
         project = await ProjectDao.get_project_detail_by_info(query_db, page_object)
         if project:
