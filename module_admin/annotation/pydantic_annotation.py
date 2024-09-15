@@ -95,24 +95,11 @@ def as_form(cls: Type[BaseModel]):
     return cls
 
 
-# def validate_string(field_name: str, max_length: int):
-#     """
-#     用于将将 Pydantic 模型用于校验表单参数
-#     """
-#     def validator(cls, value: Optional[str]):
-#         if value is None:
-#             return value  # 允许值为 None，但如果提供了值，则不能为空字符串
-#         value = value.strip()
-#         if value == '':
-#             raise ValueError(f"{field_name}不能为空")
-#         if len(value) > max_length:
-#             raise ValueError(f"{field_name}不能超过{max_length}个字符")
-#         return value
-#
-#     return validator
-
-
 def validate_string(field_name: str, max_length: int) -> Callable:
+    """
+    用于将将 Pydantic 模型用于校验表单参数
+    """
+
     def validator(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value  # 允许值为 None，但如果提供了值，则不能为空字符串
