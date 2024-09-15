@@ -27,15 +27,17 @@ def get_log_path(log_type):
 
 # 创建一个自定义的 sink 函数
 def custom_sink(message, log_type):
-    log_path = get_log_path(log_type)
-    with open(log_path, "a", encoding="utf-8") as log_file:
-        log_file.write(message)
+    record = message.record
+    if record["level"].name.lower() == log_type:
+        log_path = get_log_path(log_type)
+        with open(log_path, "a", encoding="utf-8") as log_file:
+            log_file.write(message)
 
 
 # 为每种日志类型添加 logger
 logger.add(partial(custom_sink, log_type="info"), level="INFO")
 logger.add(partial(custom_sink, log_type="error"), level="ERROR")
-logger.add(partial(custom_sink, log_type="warn"), level="WARNING")
+logger.add(partial(custom_sink, log_type="warning"), level="WARNING")
 
 
 def archive_and_delete_yesterdays_logs():
@@ -66,7 +68,7 @@ def archive_and_delete_yesterdays_logs():
         print("没有找到昨天的日志文件")
 
 
-# # 示例：如何使用更新后的日志系统
+# 示例：如何使用更新后的日志系统
 # if __name__ == "__main__":
 #     logger.info("这是一条信息日志")
 #     logger.error("这是一条错误日志")
