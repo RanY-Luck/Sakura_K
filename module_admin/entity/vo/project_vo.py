@@ -32,7 +32,7 @@ class ProjectModel(BaseModel):
     update_by: Optional[str] = Field(default=None, description='更新者')
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
     remark: Optional[str] = Field(default=None, description='备注')
-
+    # 校验表单
     validate_project_name = field_validator('project_name')(validate_string('project_name', 10))
     validate_responsible_name = field_validator('responsible_name')(validate_string('responsible_name', 10))
     validate_test_user = field_validator('test_user')(validate_string('test_user', 10))
