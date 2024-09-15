@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2024/7/5 10:51
 # @Author  : 冉勇
-# @Site    : 
+# @Site    :
 # @File    : log_util.py
 # @Software: PyCharm
 # @desc    : 日志工具
@@ -11,6 +11,7 @@ import time
 import datetime
 import zipfile
 from loguru import logger
+from functools import partial
 
 # 日志路径
 log_path = os.path.join(os.getcwd(), 'logs')
@@ -18,33 +19,23 @@ log_path = os.path.join(os.getcwd(), 'logs')
 if not os.path.exists(log_path):
     os.mkdir(log_path)
 
-log_path_info = os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_info.log')
-log_path_error = os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_error.log')
-log_path_warn = os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_warn.log')
 
-logger.add(
-    log_path_info,
-    retention=10,
-    enqueue=True,
-    encoding="UTF-8",
-    level="INFO"
-)
+# 创建一个函数来动态生成日志文件路径
+def get_log_path(log_type):
+    return os.path.join(log_path, f'{time.strftime("%Y-%m-%d")}_{log_type}.log')
 
-logger.add(
-    log_path_error,
-    retention=10,
-    enqueue=True,
-    encoding="UTF-8",
-    level="ERROR"
-)
 
-logger.add(
-    log_path_warn,
-    retention=10,
-    enqueue=True,
-    encoding="UTF-8",
-    level="WARNING"
-)
+# 创建一个自定义的 sink 函数
+def custom_sink(message, log_type):
+    log_path = get_log_path(log_type)
+    with open(log_path, "a", encoding="utf-8") as log_file:
+        log_file.write(message)
+
+
+# 为每种日志类型添加 logger
+logger.add(partial(custom_sink, log_type="info"), level="INFO")
+logger.add(partial(custom_sink, log_type="error"), level="ERROR")
+logger.add(partial(custom_sink, log_type="warn"), level="WARNING")
 
 
 def archive_and_delete_yesterdays_logs():
@@ -71,54 +62,19 @@ def archive_and_delete_yesterdays_logs():
             file_path = os.path.join(log_path, log_file)
             os.remove(file_path)
         print(f"昨天的日志已打包到 {zip_filename}")
-        logger.add(
-            log_path_info,
-            retention=10,
-            enqueue=True,
-            encoding="UTF-8",
-            level="INFO"
-        )
-
-        logger.add(
-            log_path_error,
-            retention=10,
-            enqueue=True,
-            encoding="UTF-8",
-            level="ERROR"
-        )
-
-        logger.add(
-            log_path_warn,
-            retention=10,
-            enqueue=True,
-            encoding="UTF-8",
-            level="WARNING"
-        )
     else:
         print("没有找到昨天的日志文件")
-        logger.add(
-            log_path_info,
-            retention=10,
-            enqueue=True,
-            encoding="UTF-8",
-            level="INFO"
-        )
 
-        logger.add(
-            log_path_error,
-            retention=10,
-            enqueue=True,
-            encoding="UTF-8",
-            level="ERROR"
-        )
 
-        logger.add(
-            log_path_warn,
-            retention=10,
-            enqueue=True,
-            encoding="UTF-8",
-            level="WARNING"
-        )
-
-# 调用函数来打包并删除昨天的日志
-# archive_and_delete_yesterdays_logs()
+# # 示例：如何使用更新后的日志系统
+# if __name__ == "__main__":
+#     logger.info("这是一条信息日志")
+#     logger.error("这是一条错误日志")
+#     logger.warning("这是一条警告日志")
+#
+#     # 模拟第二天的日志
+#     time.sleep(2)  # 等待2秒，确保日期变更（在实际使用中不需要这行）
+#     logger.info("这是第二天的信息日志")
+#
+#     # 执行日志归档
+#     archive_and_delete_yesterdays_logs()
