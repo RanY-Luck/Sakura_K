@@ -200,9 +200,9 @@ class CrudGenerate(GenerateBase):
 
 if __name__ == '__main__':
     # 导入需要生成的 model
-    from module_admin.entity.do.project_do import ProjectInfo
+    from module_admin.entity.do.robot_do import Robot
 
-    crud = CrudGenerate(ProjectInfo, zh_name="项目列表", en_name="project")
+    crud = CrudGenerate(Robot, zh_name="机器人配置", en_name="robot")
     # 只打印代码，不执行创建写入
     # crud.generate_codes()
     # 创建并写入代码
