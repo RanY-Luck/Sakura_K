@@ -6,10 +6,10 @@
 # @File    : common_util.py
 # @Software: PyCharm
 # @desc    : 常用工具
-import pandas as pd
 import io
 import os
 import re
+import pandas as pd
 from rich.padding import Padding
 from rich.panel import Panel
 from rich import print
@@ -40,7 +40,7 @@ async def worship():
 async def panel():
     try:
         host = str(AppConfig.app_host)
-        port = AppConfig.app_port
+        port = int(AppConfig.app_port)
         server_address = f"http://{'127.0.0.1' if host == '0.0.0.0' else host}:{port}"
 
         serving_str = (
