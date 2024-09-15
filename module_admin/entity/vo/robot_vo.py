@@ -31,7 +31,7 @@ class RobotModel(BaseModel):
     update_by: Optional[str] = Field(default=None, description='更新者')
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
     remark: Optional[str] = Field(default=None, description='备注')
-
+    # 校验表单
     validate_robot_name = field_validator('robot_name')(validate_string('robot_name', 10))
     validate_robot_type = field_validator('robot_type')(validate_string('robot_type', 10))
     validate_robot_webhook = field_validator('robot_webhook')(validate_string('robot_webhook', 255))
