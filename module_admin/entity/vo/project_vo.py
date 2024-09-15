@@ -7,11 +7,10 @@
 # @Software: PyCharm
 # @desc    : 项目表类型-pydantic模型
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
-from pydantic_validation_decorator import NotBlank, Size
 from typing import Optional
-from module_admin.annotation.pydantic_annotation import as_form, as_query
+from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 
 class ProjectModel(BaseModel):
@@ -34,37 +33,11 @@ class ProjectModel(BaseModel):
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
     remark: Optional[str] = Field(default=None, description='备注')
 
-    @NotBlank(field_name='project_name', message='项目名称不能为空')
-    @Size(field_name='project_name', min_length=0, max_length=10, message='项目名称长度不能超过10个字符')
-    def get_project_name(self):
-        return self.project_name
-
-    @NotBlank(field_name='responsible_name', message='负责人不能为空')
-    @Size(field_name='responsible_name', min_length=0, max_length=10, message='负责人名称长度不能超过10个字符')
-    def get_responsible_name(self):
-        return self.responsible_name
-
-    @NotBlank(field_name='test_user', message='测试人员不能为空')
-    @Size(field_name='test_user', min_length=0, max_length=10, message='测试人员名称长度不能超过10个字符')
-    def get_test_user(self):
-        return self.test_user
-
-    @NotBlank(field_name='dev_user', message='开发人员')
-    @Size(field_name='dev_user', min_length=0, max_length=10, message='开发人员名称长度不能超过10个字符')
-    def get_dev_user(self):
-        return self.test_user
-
-    @NotBlank(field_name='publish_app', message='发布应用不能为空')
-    @Size(field_name='publish_app', min_length=0, max_length=10, message='发布应用长度不能超过32个字符')
-    def get_publish_app(self):
-        return self.publish_app
-
-    def validate_fields(self):
-        self.get_project_name()
-        self.get_responsible_name()
-        self.get_test_user()
-        self.get_dev_user()
-        self.get_publish_app()
+    validate_project_name = field_validator('project_name')(validate_string('project_name', 10))
+    validate_responsible_name = field_validator('responsible_name')(validate_string('responsible_name', 10))
+    validate_test_user = field_validator('test_user')(validate_string('test_user', 10))
+    validate_dev_user = field_validator('dev_user')(validate_string('dev_user', 10))
+    validate_publish_app = field_validator('publish_app')(validate_string('publish_app', 10))
 
 
 class ProjectQueryModel(ProjectModel):
