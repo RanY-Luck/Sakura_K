@@ -8,6 +8,7 @@
 # @desc    : pydantic 接受查询参数(高级用法)
 import inspect
 from fastapi import Form, Query
+from typing import Optional
 from pydantic import BaseModel
 from pydantic.fields import FieldInfo
 from typing import Type
@@ -92,3 +93,17 @@ def as_form(cls: Type[BaseModel]):
     as_form_func.__signature__ = sig  # type: ignore
     setattr(cls, 'as_form', as_form_func)
     return cls
+
+
+def validate_string(field_name: str, max_length: int):
+    """
+    用于将将 Pydantic 模型用于校验表单参数
+    """
+    def validator(cls, value: Optional[str]):
+        if value is None or value.strip() == '':
+            raise ValueError(f"{field_name}不能为空")
+        if len(value) > max_length:
+            raise ValueError(f"{field_name}不能超过{max_length}个字符")
+        return value
+
+    return validator
