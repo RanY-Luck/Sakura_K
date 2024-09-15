@@ -5,12 +5,12 @@
 # @File           : robot_vo.py
 # @Software       : PyCharm
 # @desc           : 机器人配置表类型--pydantic模型
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field
-from pydantic.alias_generators import to_camel
-from pydantic_validation_decorator import NotBlank, Size
 from typing import Optional
-from module_admin.annotation.pydantic_annotation import as_form, as_query
+from datetime import datetime
+from pydantic import ConfigDict, Field
+from pydantic.alias_generators import to_camel
+from pydantic import BaseModel, field_validator
+from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 
 class RobotModel(BaseModel):
@@ -32,25 +32,16 @@ class RobotModel(BaseModel):
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
     remark: Optional[str] = Field(default=None, description='备注')
 
-    @NotBlank(field_name='robot_name', message='机器人名称不能为空')
-    @Size(field_name='robot_name', min_length=0, max_length=10, message='机器人名称长度不能超过10个字符')
-    def get_robot_name(self):
-        return self.robot_name
+    validate_robot_name = field_validator('robot_name')(validate_string('robot_name', 10))
+    validate_robot_type = field_validator('robot_type')(validate_string('robot_type', 10))
+    validate_robot_webhook = field_validator('robot_webhook')(validate_string('robot_webhook', 255))
+    validate_robot_template = field_validator('robot_template')(validate_string('robot_template', 255))
 
-    @NotBlank(field_name='robot_webhook', message='机器人WebHook不能为空')
-    @Size(field_name='robot_webhook', min_length=0, max_length=255, message='机器人WebHook长度不能超过255个字符')
-    def get_robot_webhook(self):
-        return self.robot_webhook
-
-    @NotBlank(field_name='robot_type', message='类型不能为空')
-    @Size(field_name='robot_type', min_length=0, max_length=10, message='类型长度不能超过10个字符')
-    def get_robot_type(self):
-        return self.robot_type
-
-    def validate_fields(self):
-        self.get_robot_name()
-        self.get_robot_webhook()
-        self.get_robot_type()
+    @field_validator('robot_status')
+    def validate_status_priority(cls, value):
+        if value not in {'0', '1'}:
+            raise ValueError("robot_status必须是'1'或'0'")
+        return value
 
 
 class RobotQueryModel(RobotModel):
