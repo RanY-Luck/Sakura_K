@@ -34,6 +34,7 @@ from module_admin.controller.job_controller import jobController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.cache_controller import cacheController
 from module_admin.controller.project_controller import projectController
+from module_admin.controller.robot_controller import robotController
 
 
 # 生命周期事件
@@ -97,6 +98,7 @@ controller_list = [
     {'router': serverController, 'tags': ['系统监控-服务资源']},
     {'router': cacheController, 'tags': ['系统监控-缓存监控']},
     {'router': projectController, 'tags': ['项目管理']},
+    {'router': robotController, 'tags': ['机器人管理']},
 ]
 
 # 加载路由
