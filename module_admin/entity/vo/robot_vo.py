@@ -35,7 +35,6 @@ class RobotModel(BaseModel):
     validate_robot_name = field_validator('robot_name')(validate_string('robot_name', 10))
     validate_robot_type = field_validator('robot_type')(validate_string('robot_type', 10))
     validate_robot_webhook = field_validator('robot_webhook')(validate_string('robot_webhook', 255))
-    validate_robot_template = field_validator('robot_template')(validate_string('robot_template', 255))
 
     @field_validator('robot_status')
     def validate_status_priority(cls, value):
