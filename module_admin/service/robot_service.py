@@ -7,6 +7,7 @@
 # @desc           : 机器人模块服务层
 from module_admin.dao.robot_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
+from utils.bot_util import WxWebhookNotify
 from utils.common_util import CamelCaseUtil
 
 
@@ -118,4 +119,24 @@ class RobotService:
             return CrudResponseModel(is_success=False, message=f'机器人{robot_id}不存在')
         result = RobotModel(**CamelCaseUtil.transform_result(robot))
 
+        return result
+
+    @classmethod
+    async def robot_client_services(cls, query_db: AsyncSession, robot_id: int):
+        """
+        测试连接机器人service
+        :param query_db: orm对象
+        :param robot_id: 机器人id
+        :return: 机器人id对应的信息
+        """
+        robot = await RobotDao.get_robot_detail_by_id(query_db, robot_id=robot_id)
+        if robot is None:
+            return CrudResponseModel(is_success=False, message=f'机器人{robot_id}不存在')
+        try:
+            wn_webhook = WxWebhookNotify(webhook_url=robot.robot_webhook)
+            wn_webhook.send_msg_markdown(msg=robot.robot_template)
+        except Exception as e:
+            await query_db.rollback()
+            raise e
+        result = dict(is_success=True, message='机器人测试已发送')
         return result
