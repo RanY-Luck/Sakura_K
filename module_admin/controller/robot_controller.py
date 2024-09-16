@@ -114,7 +114,11 @@ async def query_detail_robot(request: Request, robot_id: int, query_db: AsyncSes
     return ResponseUtil.success(data=robot_detail_result)
 
 
-@robotController.post('/{robot_id}')
+@robotController.post(
+    '/{robot_id}',
+    response_model=RobotModel,
+    dependencies=[Depends(CheckUserInterfaceAuth('notify:robots:test'))]
+)
 async def robot_test_client(request: Request, robot_id: int, query_db: AsyncSession = Depends(get_db)):
     """
     测试连接机器人

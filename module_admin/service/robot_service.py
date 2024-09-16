@@ -5,6 +5,8 @@
 # @File           : robot_service.py
 # @Software       : PyCharm
 # @desc           : 机器人模块服务层
+import json
+from requests.exceptions import RequestException
 from module_admin.dao.robot_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from utils.bot_util import WxWebhookNotify
@@ -134,9 +136,24 @@ class RobotService:
             return CrudResponseModel(is_success=False, message=f'机器人{robot_id}不存在')
         try:
             wn_webhook = WxWebhookNotify(webhook_url=robot.robot_webhook)
-            wn_webhook.send_msg_markdown(msg=robot.robot_template)
+            response = wn_webhook.send_msg_markdown(msg=robot.robot_template)
+            print("response", response)
+
+            # 检查响应内容
+            if response.get('errcode') == 0:
+                return CrudResponseModel(is_success=True, message='机器人测试已成功发送')
+            else:
+                return CrudResponseModel(
+                    is_success=False,
+                    message=f'机器人测试发送失败。错误码: {response.get("errcode")}, 错误信息: {response.get("errmsg")}'
+                )
+        except RequestException as e:
+            # 处理网络相关错误
+            return CrudResponseModel(is_success=False, message=f'网络错误: {str(e)}')
+        except json.JSONDecodeError:
+            # 处理JSON解析错误
+            return CrudResponseModel(is_success=False, message='响应格式错误，无法解析JSON')
         except Exception as e:
+            # 处理其他未预料到的错误
             await query_db.rollback()
-            raise e
-        result = dict(is_success=True, message='机器人测试已发送')
-        return result
+            return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
