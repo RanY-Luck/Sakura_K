@@ -112,3 +112,12 @@ async def query_detail_robot(request: Request, robot_id: int, query_db: AsyncSes
     logger.info(f'获取robot_id为{robot_id}的信息成功')
 
     return ResponseUtil.success(data=robot_detail_result)
+
+
+@robotController.post('/{robot_id}')
+async def robot_test_client(request: Request, robot_id: int, query_db: AsyncSession = Depends(get_db)):
+    """
+    测试连接机器人
+    """
+    robot_detail_result = await RobotService.robot_client_services(query_db, robot_id)
+    return ResponseUtil.success(data=robot_detail_result)
