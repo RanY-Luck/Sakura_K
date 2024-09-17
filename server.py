@@ -35,6 +35,7 @@ from module_admin.controller.server_controller import serverController
 from module_admin.controller.cache_controller import cacheController
 from module_admin.controller.project_controller import projectController
 from module_admin.controller.robot_controller import robotController
+from module_admin.controller.datasource_controller import dataSourceController
 
 
 # 生命周期事件
@@ -99,6 +100,7 @@ controller_list = [
     {'router': cacheController, 'tags': ['系统监控-缓存监控']},
     {'router': projectController, 'tags': ['项目管理']},
     {'router': robotController, 'tags': ['机器人管理']},
+    {'router': dataSourceController, 'tags': ['数据源管理']},
 ]
 
 # 加载路由
