@@ -23,4 +23,4 @@ class DataSource(BaseModel):
     datasource_host = Column(String(255), nullable=False, default='', comment='数据源地址')
     datasource_port = Column(String(10), nullable=False, default='', comment='数据源端口')
     datasource_user = Column(String(64), nullable=False, default='', comment='数据源用户名')
-    datasource_psw = Column(String(255), nullable=False, default='', comment='数据源密码')
+    datasource_pwd = Column(String(255), nullable=False, default='', comment='数据源密码')
