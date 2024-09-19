@@ -27,7 +27,7 @@ class DataSourceModel(BaseModel):
     datasource_host: Optional[str] = Field(default=None, description='数据源地址')
     datasource_port: Optional[str] = Field(default=None, description='数据源端口')
     datasource_user: Optional[str] = Field(default=None, description='数据源用户名')
-    datasource_psw: Optional[str] = Field(default=None, description='数据源密码')
+    datasource_pwd: Optional[str] = Field(default=None, description='数据源密码')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
@@ -40,7 +40,7 @@ class DataSourceModel(BaseModel):
     validate_datasource_host = field_validator('datasource_host')(validate_string('datasource_host', 255))
     validate_datasource_port = field_validator('datasource_port')(validate_string('datasource_port', 10))
     validate_datasource_user = field_validator('datasource_user')(validate_string('datasource_user', 64))
-    validate_datasource_psw = field_validator('datasource_psw')(validate_string('datasource_psw', 255))
+    validate_datasource_pwd = field_validator('datasource_pwd')(validate_string('datasource_pwd', 255))
 
     @NotBlank(field_name='datasource_name', message='数据源名称不能为空')
     @Size(field_name='datasource_name', min_length=0, max_length=10, message='数据源名称字符串长度不能超过10个字符')
@@ -67,10 +67,10 @@ class DataSourceModel(BaseModel):
     def get_datasource_user(self):
         return self.datasource_user
 
-    @NotBlank(field_name='datasource_psw', message='数据源密码不能为空')
-    @Size(field_name='datasource_psw', min_length=0, max_length=255, message='数据源密码字符串长度不能超过255个字符')
-    def get_datasource_psw(self):
-        return self.datasource_psw
+    @NotBlank(field_name='datasource_pwd', message='数据源密码不能为空')
+    @Size(field_name='datasource_pwd', min_length=0, max_length=255, message='数据源密码字符串长度不能超过255个字符')
+    def get_datasource_pwd(self):
+        return self.datasource_pwd
 
     def validate_fields(self):
         self.get_datasource_name()
@@ -78,7 +78,7 @@ class DataSourceModel(BaseModel):
         self.get_datasource_host()
         self.get_datasource_port()
         self.get_datasource_user()
-        self.get_datasource_psw()
+        self.get_datasource_pwd()
 
 
 class DataSourceQueryModel(DataSourceModel):
