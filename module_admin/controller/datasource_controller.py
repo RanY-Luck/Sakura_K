@@ -123,3 +123,16 @@ async def query_detail_datasource(request: Request, datasource_id: int, query_db
     logger.info(f'获取datasource_id为{datasource_id}的信息成功')
 
     return ResponseUtil.success(data=datasource_detail_result)
+
+
+@dataSourceController.post(
+    '/{datasource_id}',
+    response_model=DataSourceModel,
+    dependencies=[Depends(CheckUserInterfaceAuth('commonConfig:dataSource:test'))]
+)
+async def datasource_test_client(request: Request, datasource_id: int, query_db: AsyncSession = Depends(get_db)):
+    """
+    测试连接数据源
+    """
+    datasource_detail_result = await DataSourceService.datasource_client_services(query_db, datasource_id)
+    return ResponseUtil.success(data=datasource_detail_result)

@@ -121,3 +121,21 @@ class DataSourceService:
         result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
 
         return result
+
+    @classmethod
+    async def datasource_client_services(cls, query_db: AsyncSession, datasource_id: int):
+        """
+        测试连接数据源service
+        :param query_db: orm对象
+        :param datasource_id: 数据源id
+        :return: 数据源id对应的信息
+        """
+        datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
+        if datasource is None:
+            return CrudResponseModel(is_success=False, message=f'数据源{datasource}不存在')
+        try:
+            pass
+        except Exception as e:
+            # 处理其他未预料到的错误
+            await query_db.rollback()
+            return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
