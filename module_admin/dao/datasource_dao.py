@@ -31,7 +31,6 @@ class DataSourceDao:
             select(DataSource)
                 .where(DataSource.datasource_id == datasource_id)
         )).scalars().first()
-
         return datasource_info
 
     @classmethod
@@ -67,7 +66,9 @@ class DataSourceDao:
             select(DataSource)
                 .where(
                 DataSource.datasource_id == query_object.datasource_id if query_object.datasource_id is not None else True,
-                DataSource.datasource_name.like(f'%{query_object.datasource_name}%') if query_object.datasource_name else True,
+                DataSource.datasource_name.like(
+                    f'%{query_object.datasource_name}%'
+                ) if query_object.datasource_name else True,
                 DataSource.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
                 DataSource.create_time.between(
                     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
