@@ -106,3 +106,11 @@ class DeleteDataSourceModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
 
     datasource_ids: str = Field(description='需要删除的数据源主键')
+
+
+# 数据源信息
+class SourceInfo(BaseModel):
+    datasource_host: str
+    datasource_port: int
+    datasource_user: str
+    datasource_pwd: str
