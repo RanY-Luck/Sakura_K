@@ -10,6 +10,7 @@ from module_admin.dao.datasource_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.datasource_vo import DataSourceModel
 from utils.common_util import CamelCaseUtil
+from utils.mysql_util import DatabaseHelper
 
 
 class DataSourceService:
@@ -132,10 +133,67 @@ class DataSourceService:
         """
         datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
         if datasource is None:
-            return CrudResponseModel(is_success=False, message=f'数据源{datasource}不存在')
+            return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
+        result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
         try:
-            pass
+            # 创建SourceInfo对象
+            source_info = SourceInfo(
+                datasource_host=result.datasource_host,
+                datasource_port=result.datasource_port,
+                datasource_user=result.datasource_user,
+                datasource_pwd=result.datasource_pwd
+            )
+            # 创建DatabaseHelper实例
+            db_helper = DatabaseHelper(source_info)
+            # 测试连接
+            connection_result = await db_helper.test_db_connection()
+            if "message" in connection_result and "失败" in connection_result["message"]:
+                return CrudResponseModel(is_success=False, message=connection_result["message"])
+            return connection_result
         except Exception as e:
             # 处理其他未预料到的错误
             await query_db.rollback()
             return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
+
+# @classmethod
+#  async def datasource_client_services(cls, query_db: AsyncSession, datasource_id: int):
+#      """
+#      测试连接数据源service
+#      :param query_db: orm对象
+#      :param datasource_id: 数据源id
+#      :return: 数据源id对应的信息
+#      """
+#      datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
+#      if datasource is None:
+#          return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
+#      result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
+#      try:
+#          # 创建SourceInfo对象
+#          source_info = SourceInfo(
+#              datasource_host=result.datasource_host,
+#              datasource_port=result.datasource_port,
+#              datasource_user=result.datasource_user,
+#              datasource_pwd=result.datasource_pwd
+#          )
+#          # 创建DatabaseHelper实例
+#          db_helper = DatabaseHelper(source_info)
+#          # 测试连接
+#          connection_result = await db_helper.test_db_connection()
+#          print(connection_result)
+#          if "message" in connection_result and "失败" in connection_result["message"]:
+#              return CrudResponseModel(is_success=False, message=connection_result["message"])
+#
+#          # 获取所有数据库和表信息
+#          all_info = await db_helper.get_all_databases_and_tables()
+#          return CrudResponseModel(
+#              is_success=True,
+#              message="成功获取数据源信息和数据库结构",
+#              data={
+#                  "datasource_info": datasource,
+#                  "database_structure": all_info
+#              }
+#          )
+#      except Exception as e:
+#          # 处理其他未预料到的错误
+#          await query_db.rollback()
+#          return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
