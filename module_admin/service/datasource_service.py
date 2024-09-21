@@ -11,6 +11,7 @@ from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.datasource_vo import DataSourceModel
 from utils.common_util import CamelCaseUtil
 from utils.mysql_util import DatabaseHelper
+from utils.pwd_util import PwdUtil
 
 
 class DataSourceService:
@@ -49,6 +50,9 @@ class DataSourceService:
             result = dict(is_success=False, message=f'数据源:{datasource.datasource_name} 已存在')
         else:
             try:
+                # 在这里对密码进行加密
+                if hasattr(page_object, 'datasource_pwd') and page_object.datasource_pwd:
+                    page_object.datasource_pwd = PwdUtil.get_password_hash(page_object.datasource_pwd)
                 await DataSourceDao.add_datasource_dao(query_db, page_object)
                 await query_db.commit()
                 result = dict(is_success=True, message=f'新增数据源成功')
@@ -75,6 +79,9 @@ class DataSourceService:
                     result = dict(is_success=False, message=f'数据源:{datasource.datasource_name} 已存在')
                     return CrudResponseModel(**result)
             try:
+                # 在这里对密码进行加密
+                if 'datasource_pwd' in edit_datasource and edit_datasource['datasource_pwd']:
+                    edit_datasource['datasource_pwd'] = PwdUtil.get_password_hash(edit_datasource['datasource_pwd'])
                 await DataSourceDao.edit_datasource_dao(query_db, edit_datasource)
                 await query_db.commit()
                 result = dict(is_success=True, message=f'数据源:{datasource_info.datasource_name} 更新成功')
@@ -134,20 +141,7 @@ class DataSourceService:
         datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
         if datasource is None:
             return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
-        result = SourceExcludePasswords(
-            datasourceId=datasource.datasource_id,
-            datasourceName=datasource.datasource_name,
-            datasourceType=datasource.datasource_type,
-            datasourceHost=datasource.datasource_host,
-            datasourcePort=datasource.datasource_port,
-            datasourceUser=datasource.datasource_user,
-            datasourcePwd="******",
-            createBy=datasource.create_by,
-            createTime=datasource.create_time,
-            updateBy=datasource.update_by,
-            updateTime=datasource.update_time,
-            remark=datasource.remark
-        )
+        result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
 
         return result
 
@@ -164,6 +158,8 @@ class DataSourceService:
             return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
         result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
         try:
+            # 解密密码
+            # todo: 解密方法实现
             # 创建SourceInfo对象
             source_info = SourceInfo(
                 datasource_host=result.datasource_host,
