@@ -35,7 +35,7 @@ class DataSourceModel(BaseModel):
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
     remark: Optional[str] = Field(default=None, description='备注')
     # 校验表单
-    validate_datasource_name = field_validator('datasource_name')(validate_string('datasource_name', 10))
+    validate_datasource_name = field_validator('datasource_name')(validate_string('datasource_name', 20))
     validate_datasource_type = field_validator('datasource_type')(validate_string('datasource_type', 10))
     validate_datasource_host = field_validator('datasource_host')(validate_string('datasource_host', 255))
     validate_datasource_port = field_validator('datasource_port')(validate_string('datasource_port', 10))
@@ -43,7 +43,7 @@ class DataSourceModel(BaseModel):
     validate_datasource_pwd = field_validator('datasource_pwd')(validate_string('datasource_pwd', 255))
 
     @NotBlank(field_name='datasource_name', message='数据源名称不能为空')
-    @Size(field_name='datasource_name', min_length=0, max_length=10, message='数据源名称字符串长度不能超过10个字符')
+    @Size(field_name='datasource_name', min_length=0, max_length=20, message='数据源名称字符串长度不能超过20个字符')
     def get_datasource_name(self):
         return self.datasource_name
 
