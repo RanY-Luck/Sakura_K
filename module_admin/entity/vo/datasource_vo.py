@@ -40,7 +40,6 @@ class DataSourceModel(BaseModel):
     validate_datasource_host = field_validator('datasource_host')(validate_string('datasource_host', 255))
     validate_datasource_port = field_validator('datasource_port')(validate_string('datasource_port', 10))
     validate_datasource_user = field_validator('datasource_user')(validate_string('datasource_user', 64))
-    validate_datasource_pwd = field_validator('datasource_pwd')(validate_string('datasource_pwd', 255))
 
     @NotBlank(field_name='datasource_name', message='数据源名称不能为空')
     @Size(field_name='datasource_name', min_length=0, max_length=20, message='数据源名称字符串长度不能超过20个字符')
@@ -67,18 +66,12 @@ class DataSourceModel(BaseModel):
     def get_datasource_user(self):
         return self.datasource_user
 
-    @NotBlank(field_name='datasource_pwd', message='数据源密码不能为空')
-    @Size(field_name='datasource_pwd', min_length=0, max_length=255, message='数据源密码字符串长度不能超过255个字符')
-    def get_datasource_pwd(self):
-        return self.datasource_pwd
-
     def validate_fields(self):
         self.get_datasource_name()
         self.get_datasource_type()
         self.get_datasource_host()
         self.get_datasource_port()
         self.get_datasource_user()
-        self.get_datasource_pwd()
 
 
 class DataSourceQueryModel(DataSourceModel):
