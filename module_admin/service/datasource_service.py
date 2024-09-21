@@ -119,7 +119,20 @@ class DataSourceService:
         datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
         if datasource is None:
             return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
-        result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
+        result = SourceExcludePasswords(
+            datasourceId=datasource.datasource_id,
+            datasourceName=datasource.datasource_name,
+            datasourceType=datasource.datasource_type,
+            datasourceHost=datasource.datasource_host,
+            datasourcePort=datasource.datasource_port,
+            datasourceUser=datasource.datasource_user,
+            datasourcePwd="******",
+            createBy=datasource.create_by,
+            createTime=datasource.create_time,
+            updateBy=datasource.update_by,
+            updateTime=datasource.update_time,
+            remark=datasource.remark
+        )
 
         return result
 

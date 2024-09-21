@@ -63,8 +63,7 @@ class DataSourceDao:
         :return: 数据源信息对象
         """
         query = (
-            select(DataSource)
-                .where(
+            select(DataSource).where(
                 DataSource.datasource_id == query_object.datasource_id if query_object.datasource_id is not None else True,
                 DataSource.datasource_name.like(
                     f'%{query_object.datasource_name}%'
@@ -74,13 +73,10 @@ class DataSourceDao:
                     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
                     datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
                 )
-                if query_object.begin_time and query_object.end_time
-                else True,
-            )
-                .distinct()
+                if query_object.begin_time and query_object.end_time else True
+            ).distinct()
         )
         datasource_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
-
         return datasource_list
 
     @classmethod
