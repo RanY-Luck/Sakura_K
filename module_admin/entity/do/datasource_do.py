@@ -18,7 +18,7 @@ class DataSource(BaseModel):
     __table_args__ = ({'comment': '数据源配置表'})
 
     datasource_id = Column(Integer, primary_key=True, autoincrement=True, comment='数据源ID')
-    datasource_name = Column(String(10), nullable=False, default='', comment='数据源名称', index=True)
+    datasource_name = Column(String(20), nullable=False, default='', comment='数据源名称', index=True)
     datasource_type = Column(String(10), nullable=False, default='', comment='数据源类型')
     datasource_host = Column(String(255), nullable=False, default='', comment='数据源地址')
     datasource_port = Column(String(10), nullable=False, default='', comment='数据源端口')
