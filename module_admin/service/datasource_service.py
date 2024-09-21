@@ -67,7 +67,7 @@ class DataSourceService:
         :return: 编辑数据源校验结果
         """
         edit_datasource = page_object.model_dump(exclude_unset=True)
-        datasource_info = await cls.datasource_detail_services(query_db, edit_datasource.get('datasource_id'))
+        datasource_info = await cls.datasource_detail(query_db, edit_datasource.get('datasource_id'))
         if datasource_info:
             if datasource_info.datasource_name != page_object.datasource_name:
                 datasource = await DataSourceDao.get_datasource_detail_by_info(query_db, page_object)
@@ -107,6 +107,21 @@ class DataSourceService:
         else:
             result = dict(is_success=False, message='传入数据源id为空')
         return CrudResponseModel(**result)
+
+    @classmethod
+    async def datasource_detail(cls, query_db: AsyncSession, datasource_id: int):
+        """
+        获取数据源详细信息service
+        :param query_db: orm对象
+        :param datasource_id: 数据源id
+        :return: 数据源id对应的信息
+        """
+        datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
+        if datasource is None:
+            return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
+        result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
+
+        return result
 
     @classmethod
     async def datasource_detail_services(cls, query_db: AsyncSession, datasource_id: int):
