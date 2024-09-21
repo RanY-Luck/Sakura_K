@@ -21,20 +21,48 @@ class DatabaseHelper:
             'password': source_info.datasource_pwd
         }
 
+    # async def test_db_connection(self):
+    #     """
+    #     测试连接
+    #     :return:
+    #     """
+    #     try:
+    #         # 连接MySQL服务器
+    #         conn = await aiomysql.connect(**self.db_config)
+    #         await conn.ensure_closed()
+    #         logger.info(f"连接成功: {self.db_config}")
+    #         return {"message": "MySQL服务器连接成功!"}
+    #     except aiomysql.Error as e:
+    #         logger.error(f"连接失败: {self.db_config}，报错：{e}")
+    #         return {"message": f"MySQL服务器连接失败!: {e}"}
+
     async def test_db_connection(self):
         """
-        测试连接
-        :return:
+        测试数据库连接并处理不同类型的错误
+        :return: dict 包含连接状态和消息
         """
         try:
-            # 连接MySQL服务器
             conn = await aiomysql.connect(**self.db_config)
             await conn.ensure_closed()
             logger.info(f"连接成功: {self.db_config}")
-            return {"message": "MySQL服务器连接成功!"}
-        except aiomysql.Error as e:
-            logger.error(f"连接失败: {self.db_config}，报错：{e}")
-            return {"message": f"MySQL服务器连接失败!: {e}"}
+            return {"status": "success", "message": "MySQL服务器连接成功!"}
+        except aiomysql.OperationalError as e:
+            error_code, error_message = e.args
+            if error_code == 1045:
+                logger.error(f"认证失败: {self.db_config}")
+                return {"status": "error", "message": "MySQL认证失败: 用户名或密码错误"}
+            elif error_code == 2003:
+                logger.error(f"无法连接到服务器: {self.db_config}")
+                return {"status": "error", "message": "无法连接到MySQL服务器: 请检查主机名和端口"}
+            else:
+                logger.error(f"操作错误: {self.db_config}, 错误: {e}")
+                return {"status": "error", "message": f"MySQL操作错误: {error_message}"}
+        except aiomysql.InterfaceError as e:
+            logger.error(f"接口错误: {self.db_config}, 错误: {e}")
+            return {"status": "error", "message": "MySQL接口错误: 可能是连接参数不正确"}
+        except Exception as e:
+            logger.error(f"未知错误: {self.db_config}, 错误: {e}")
+            return {"status": "error", "message": f"未知错误: {str(e)}"}
 
     async def get_database(self):
         """
