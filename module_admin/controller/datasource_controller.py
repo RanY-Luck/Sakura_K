@@ -152,8 +152,8 @@ async def datasource_get_databaseTable(request: Request, datasource_id: int, que
     return ResponseUtil.success(data=datasource_detail_result)
 
 
-@dataSourceController.get(
-    '/executingsql',
+@dataSourceController.post(
+    'ExecutingSql',
     response_model=DataSourceModel,
     dependencies=[Depends(CheckUserInterfaceAuth('commonConfig:dataSource:execute'))]
 )
