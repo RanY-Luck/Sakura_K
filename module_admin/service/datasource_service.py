@@ -263,9 +263,10 @@ class DataSourceService:
             execute_info = await db_helper.execute_query(database, sql)
             return CrudResponseModel(
                 is_success=True,
-                message="成功执行SQL查询",
-                result={"execute_info": execute_info}
+                message="执行SQL查询",
+                result=execute_info
             )
+
         except Exception as e:
             # 处理其他未预料到的错误
             await query_db.rollback()
