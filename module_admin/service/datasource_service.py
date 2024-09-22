@@ -209,15 +209,11 @@ class DataSourceService:
             )
             # 创建DatabaseHelper实例
             db_helper = DatabaseHelper(source_info)
-            # 测试连接
-            connection_result = await db_helper.test_db_connection()
-            if "message" in connection_result and "失败" in connection_result["message"]:
-                return CrudResponseModel(is_success=False, message=connection_result["message"])
             # 获取所有数据库和表信息
             all_info = await db_helper.get_all_databases_and_tables()
             return CrudResponseModel(
                 is_success=True,
-                message="成功获取数据源信息和数据库结构",
+                message="获取数据源信息和数据库结构",
                 result={
                     "database_structure": all_info
                 }
