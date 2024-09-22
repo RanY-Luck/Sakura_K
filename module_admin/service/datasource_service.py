@@ -52,7 +52,10 @@ class DataSourceService:
             try:
                 # 在这里对密码进行加密
                 if hasattr(page_object, 'datasource_pwd') and page_object.datasource_pwd:
-                    page_object.datasource_pwd = PwdUtil.encrypt(hash_key=hash_key, plain_password=page_object.datasource_pwd)
+                    page_object.datasource_pwd = PwdUtil.encrypt(
+                        hash_key=hash_key,
+                        plain_password=page_object.datasource_pwd
+                    )
                 await DataSourceDao.add_datasource_dao(query_db, page_object)
                 await query_db.commit()
                 result = dict(is_success=True, message=f'新增数据源成功')
@@ -81,7 +84,10 @@ class DataSourceService:
             try:
                 # 在这里对密码进行加密
                 if 'datasource_pwd' in edit_datasource and edit_datasource['datasource_pwd']:
-                    edit_datasource['datasource_pwd'] = PwdUtil.encrypt(hash_key=hash_key, plain_password=page_object.datasource_pwd)
+                    edit_datasource['datasource_pwd'] = PwdUtil.encrypt(
+                        hash_key=hash_key,
+                        plain_password=page_object.datasource_pwd
+                    )
                 await DataSourceDao.edit_datasource_dao(query_db, edit_datasource)
                 await query_db.commit()
                 result = dict(is_success=True, message=f'数据源:{datasource_info.datasource_name} 更新成功')
@@ -179,45 +185,88 @@ class DataSourceService:
             await query_db.rollback()
             return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
 
-# @classmethod
-#  async def datasource_client_services(cls, query_db: AsyncSession, datasource_id: int):
-#      """
-#      测试连接数据源service
-#      :param query_db: orm对象
-#      :param datasource_id: 数据源id
-#      :return: 数据源id对应的信息
-#      """
-#      datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
-#      if datasource is None:
-#          return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
-#      result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
-#      try:
-#          # 创建SourceInfo对象
-#          source_info = SourceInfo(
-#              datasource_host=result.datasource_host,
-#              datasource_port=result.datasource_port,
-#              datasource_user=result.datasource_user,
-#              datasource_pwd=result.datasource_pwd
-#          )
-#          # 创建DatabaseHelper实例
-#          db_helper = DatabaseHelper(source_info)
-#          # 测试连接
-#          connection_result = await db_helper.test_db_connection()
-#          print(connection_result)
-#          if "message" in connection_result and "失败" in connection_result["message"]:
-#              return CrudResponseModel(is_success=False, message=connection_result["message"])
-#
-#          # 获取所有数据库和表信息
-#          all_info = await db_helper.get_all_databases_and_tables()
-#          return CrudResponseModel(
-#              is_success=True,
-#              message="成功获取数据源信息和数据库结构",
-#              data={
-#                  "datasource_info": datasource,
-#                  "database_structure": all_info
-#              }
-#          )
-#      except Exception as e:
-#          # 处理其他未预料到的错误
-#          await query_db.rollback()
-#          return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
+    @classmethod
+    async def datasource_get_databaseTable_services(cls, query_db: AsyncSession, datasource_id: int):
+        """
+        连接数据源获取所有数据库和表信息service
+        :param query_db: orm对象
+        :param datasource_id: 数据源id
+        :return: 数据源id对应的所有数据库和表结构
+        """
+        datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
+        if datasource is None:
+            return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
+        result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
+        try:
+            # 解密密码
+            decrypt_password = PwdUtil.decrypt(hash_key=hash_key, hashed_password=result.datasource_pwd)
+            # 创建SourceInfo对象
+            source_info = SourceInfo(
+                datasource_host=result.datasource_host,
+                datasource_port=result.datasource_port,
+                datasource_user=result.datasource_user,
+                datasource_pwd=decrypt_password
+            )
+            # 创建DatabaseHelper实例
+            db_helper = DatabaseHelper(source_info)
+            # 测试连接
+            connection_result = await db_helper.test_db_connection()
+            if "message" in connection_result and "失败" in connection_result["message"]:
+                return CrudResponseModel(is_success=False, message=connection_result["message"])
+            # 获取所有数据库和表信息
+            all_info = await db_helper.get_all_databases_and_tables()
+            return CrudResponseModel(
+                is_success=True,
+                message="成功获取数据源信息和数据库结构",
+                result={
+                    "database_structure": all_info
+                }
+            )
+        except Exception as e:
+            # 处理其他未预料到的错误
+            await query_db.rollback()
+            return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
+
+    @classmethod
+    async def datasource_execute_sql_services(
+            cls,
+            query_db: AsyncSession,
+            datasource_id: int,
+            database: str,
+            sql: str,
+    ):
+        """
+        连接数据源查询 sql service
+        :param query_db: orm对象
+        :param datasource_id: 数据源id
+        :param database: 要操作的数据库名称
+        :param sql: SQL 查询语句
+        :return: 执行 sql 语句结果
+        """
+        datasource = await DataSourceDao.get_datasource_detail_by_id(query_db, datasource_id=datasource_id)
+        if datasource is None:
+            return CrudResponseModel(is_success=False, message=f'数据源{datasource_id}不存在')
+        result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
+        try:
+            # 解密密码
+            decrypt_password = PwdUtil.decrypt(hash_key=hash_key, hashed_password=result.datasource_pwd)
+            # 创建SourceInfo对象
+            source_info = SourceInfo(
+                datasource_host=result.datasource_host,
+                datasource_port=result.datasource_port,
+                datasource_user=result.datasource_user,
+                datasource_pwd=decrypt_password
+            )
+            # 创建DatabaseHelper实例
+            db_helper = DatabaseHelper(source_info)
+            # 执行 SQL 查询
+            execute_info = await db_helper.execute_query(database, sql)
+            return CrudResponseModel(
+                is_success=True,
+                message="成功执行SQL查询",
+                result={"execute_info": execute_info}
+            )
+        except Exception as e:
+            # 处理其他未预料到的错误
+            await query_db.rollback()
+            return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
