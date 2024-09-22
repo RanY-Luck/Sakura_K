@@ -11,7 +11,7 @@ from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.datasource_vo import DataSourceModel
 from utils.common_util import CamelCaseUtil
 from utils.mysql_util import DatabaseHelper
-from utils.pwd_util import PwdUtil
+from utils.pwd_util import PwdUtil, hash_key
 
 
 class DataSourceService:
@@ -52,7 +52,7 @@ class DataSourceService:
             try:
                 # 在这里对密码进行加密
                 if hasattr(page_object, 'datasource_pwd') and page_object.datasource_pwd:
-                    page_object.datasource_pwd = PwdUtil.get_password_hash(page_object.datasource_pwd)
+                    page_object.datasource_pwd = PwdUtil.encrypt(hash_key=hash_key, plain_password=page_object.datasource_pwd)
                 await DataSourceDao.add_datasource_dao(query_db, page_object)
                 await query_db.commit()
                 result = dict(is_success=True, message=f'新增数据源成功')
@@ -81,7 +81,7 @@ class DataSourceService:
             try:
                 # 在这里对密码进行加密
                 if 'datasource_pwd' in edit_datasource and edit_datasource['datasource_pwd']:
-                    edit_datasource['datasource_pwd'] = PwdUtil.get_password_hash(edit_datasource['datasource_pwd'])
+                    edit_datasource['datasource_pwd'] = PwdUtil.encrypt(hash_key=hash_key, plain_password=page_object.datasource_pwd)
                 await DataSourceDao.edit_datasource_dao(query_db, edit_datasource)
                 await query_db.commit()
                 result = dict(is_success=True, message=f'数据源:{datasource_info.datasource_name} 更新成功')
@@ -159,13 +159,13 @@ class DataSourceService:
         result = DataSourceModel(**CamelCaseUtil.transform_result(datasource))
         try:
             # 解密密码
-            # todo: 解密方法实现
+            decrypt_password = PwdUtil.decrypt(hash_key=hash_key, hashed_password=result.datasource_pwd)
             # 创建SourceInfo对象
             source_info = SourceInfo(
                 datasource_host=result.datasource_host,
                 datasource_port=result.datasource_port,
                 datasource_user=result.datasource_user,
-                datasource_pwd=result.datasource_pwd
+                datasource_pwd=decrypt_password
             )
             # 创建DatabaseHelper实例
             db_helper = DatabaseHelper(source_info)
