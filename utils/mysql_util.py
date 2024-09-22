@@ -21,21 +21,6 @@ class DatabaseHelper:
             'password': source_info.datasource_pwd
         }
 
-    # async def test_db_connection(self):
-    #     """
-    #     测试连接
-    #     :return:
-    #     """
-    #     try:
-    #         # 连接MySQL服务器
-    #         conn = await aiomysql.connect(**self.db_config)
-    #         await conn.ensure_closed()
-    #         logger.info(f"连接成功: {self.db_config}")
-    #         return {"message": "MySQL服务器连接成功!"}
-    #     except aiomysql.Error as e:
-    #         logger.error(f"连接失败: {self.db_config}，报错：{e}")
-    #         return {"message": f"MySQL服务器连接失败!: {e}"}
-
     async def test_db_connection(self):
         """
         测试数据库连接并处理不同类型的错误
@@ -155,7 +140,7 @@ class DatabaseHelper:
             # 提交更改(如果是写入操作)
             await conn.commit()
             await conn.ensure_closed()
-            return {"data": result}
+            return result
         except aiomysql.Error as e:
             # 如果发生错误,打印错误信息并回滚
             logger.error(f"操作数据库失败：{self.db_config}，报错：{e}")
@@ -174,11 +159,11 @@ async def main():
     db_helper = DatabaseHelper(source_info)
 
     # 测试连接
-    await db_helper.test_db_connection()
+    # await db_helper.test_db_connection()
     # 获取所有数据库
-    await db_helper.get_database()
+    # await db_helper.get_database()
     # 获取指定库的所有表
-    await db_helper.get_tables("skf")
+    # await db_helper.get_tables("skf")
     # 执行查询
     query = "SELECT * FROM data_source LIMIT 10;"
     await db_helper.execute_query('skf', query)
@@ -194,4 +179,4 @@ async def main():
     # print(result)
 
 
-# asyncio.run(main())
+asyncio.run(main())

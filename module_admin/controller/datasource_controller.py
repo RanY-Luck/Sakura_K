@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    : 数据源接口
 from datetime import datetime
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Query
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
@@ -135,4 +135,42 @@ async def datasource_test_client(request: Request, datasource_id: int, query_db:
     测试连接数据源
     """
     datasource_detail_result = await DataSourceService.datasource_client_services(query_db, datasource_id)
+
     return ResponseUtil.success(data=datasource_detail_result)
+
+
+@dataSourceController.get(
+    'databaseTable/{datasource_id}',
+    response_model=DataSourceModel,
+    dependencies=[Depends(CheckUserInterfaceAuth('commonConfig:dataSource:databaseTable'))]
+)
+async def datasource_get_databaseTable(request: Request, datasource_id: int, query_db: AsyncSession = Depends(get_db)):
+    """
+    连接数据源获取所有数据库和表信息
+    """
+    datasource_detail_result = await DataSourceService.datasource_get_databaseTable_services(query_db, datasource_id)
+    return ResponseUtil.success(data=datasource_detail_result)
+
+
+@dataSourceController.get(
+    'ExecutingSql',
+    response_model=DataSourceModel,
+    dependencies=[Depends(CheckUserInterfaceAuth('commonConfig:dataSource:execute'))]
+)
+async def datasource_execute_sql(
+        request: Request,
+        datasource_id: int,
+        database: str = Query(..., description="要操作的数据库名称"),
+        sql: str = Query(..., description="SQL 查询语句"),
+        query_db: AsyncSession = Depends(get_db)
+):
+    """
+    连接数据源并执行 SQL 查询
+    """
+    sql_result = await DataSourceService.datasource_execute_sql_services(
+        query_db,
+        datasource_id,
+        database,
+        sql
+    )
+    return ResponseUtil.success(data=sql_result)
