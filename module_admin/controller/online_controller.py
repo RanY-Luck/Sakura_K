@@ -6,16 +6,18 @@
 # @File    : online_controller.py
 # @Software: PyCharm
 # @desc    : 在线用户管理接口
-from fastapi import Depends, APIRouter
+from fastapi import APIRouter, Depends, Request
+from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
 from config.get_db import get_db
-from module_admin.service.login_service import LoginService
-from module_admin.service.online_service import *
-from utils.response_util import *
-from utils.log_util import logger
-from utils.page_util import *
-from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
 from module_admin.annotation.log_annotation import Log
+from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.entity.vo.online_vo import DeleteOnlineModel, OnlineQueryModel
+from module_admin.service.login_service import LoginService
+from module_admin.service.online_service import OnlineService
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.response_util import ResponseUtil
 
 onlineController = APIRouter(prefix='/monitor/online', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -41,9 +43,6 @@ async def get_monitor_online_list(
 @onlineController.delete('/{token_ids}', dependencies=[Depends(CheckUserInterfaceAuth('monitor:online:forceLogout'))])
 @Log(title='在线用户', business_type=BusinessType.FORCE)
 async def delete_monitor_online(request: Request, token_ids: str, query_db: AsyncSession = Depends(get_db)):
-    """
-    强退用户
-    """
     delete_online = DeleteOnlineModel(tokenIds=token_ids)
     delete_online_result = await OnlineService.delete_online_services(request, delete_online)
     logger.info(delete_online_result.message)
