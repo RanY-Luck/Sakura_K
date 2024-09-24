@@ -152,9 +152,9 @@ class RoleService:
         """
         add_role = RoleModel(**page_object.model_dump(by_alias=True))
         if not await cls.check_role_name_unique_services(query_db, page_object):
-            raise ServiceException(message=f'新增角色{page_object.post_name}失败，角色名称已存在')
+            raise ServiceException(message=f'新增角色{page_object.role_name}失败，角色名称已存在')
         elif not await cls.check_role_key_unique_services(query_db, page_object):
-            raise ServiceException(message=f'新增角色{page_object.post_name}失败，角色权限已存在')
+            raise ServiceException(message=f'新增角色{page_object.role_name}失败，角色权限已存在')
         else:
             try:
                 add_result = await RoleDao.add_role_dao(query_db, add_role)
