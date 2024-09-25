@@ -1,3 +1,30 @@
+<div align="center">
+<br/>
+<br/>
+<img src="assets/images/realm.svg" width="auto" style="margin-top:30px;"/>
+  <h1 align="center">
+    Skura_K
+  </h1>
+
+[预 览](http://beidoulab.club:62388/)    
+特别鸣谢: [vvandk](https://github.com/vvandk) 和 [insistence](https://github.com/insistence) 和 [zhanymkanov](https://github.com/zhanymkanov) 给予帮助
+</div>
+
+<div align="center">
+
+[![](https://img.shields.io/badge/Python-3.10-red.svg)](https://www.python.org/downloads)
+[![](https://img.shields.io/badge/FastAPI-0.111.1-yellowgreen.svg)](https://fastapi.tiangolo.com/)
+[![](https://img.shields.io/badge/Vue-3.4.15-green.svg)](https://cn.vuejs.org/index.html)
+[![](https://img.shields.io/badge/ElementUI-2.7.6-blue.svg)](https://element.eleme.io/#/zh-CN)
+
+> 后端基于`python3.10`和`Fastapi0.111.1`开发。
+
+</div>
+
+## 已完成功能
+- [x] 项目初始化创建
+
+
 ```shell
 # 安装项目依赖环境
 pip3 install -r requirements.txt
@@ -87,10 +114,10 @@ crontab -e
 
 ```
 
-
 # 其他操作
 
 - 提交代码模板
+
 ```text
 ✨ Feat(): 新增
 🐞 Fix(): 修复
@@ -100,6 +127,7 @@ crontab -e
 ```
 
 - 代码提交规范
+
 ```text
 第一步：
 git rm -r --cached .
