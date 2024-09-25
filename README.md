@@ -7,7 +7,7 @@
   </h1>
 
 [预 览](http://beidoulab.club:62388/)    
-特别鸣谢: [vvandk](https://github.com/vvandk) 和 [insistence](https://github.com/insistence) 和 [zhanymkanov](https://github.com/zhanymkanov) 给予帮助
+特别鸣谢: [vvandk](https://github.com/vvandk) 和 [insistence](https://github.com/insistence) 和 [wu-clan](https://github.com/wu-clan) 给予帮助
 </div>
 
 <div align="center">
