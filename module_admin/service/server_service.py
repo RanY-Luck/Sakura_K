@@ -128,9 +128,13 @@ class ServerService:
 
         # 主机信息
         # 获取主机名
-        hostname = socket.gethostname()
-        # 获取IP
-        computer_ip = socket.gethostbyname(hostname)
+        try:
+            hostname = socket.gethostname()
+            # 获取IP
+            computer_ip = socket.gethostbyname(hostname)
+        except socket.gaierror:
+            # 如果无法解析主机名，使用一个替代方法获取 IP
+            computer_ip = ServerService.get_ip()
         os_name = platform.platform()
         computer_name = platform.node()
         os_arch = platform.machine()
@@ -192,3 +196,16 @@ class ServerService:
 
         result = ServerMonitorModel(cpu=cpu, mem=mem, sys=sys, py=py, sysFiles=sys_files)
         return result
+
+    @staticmethod
+    def get_ip():
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # 不需要真正连接到这个地址
+            s.connect(('10.255.255.255', 1))
+            IP = s.getsockname()[0]
+        except Exception:
+            IP = '127.0.0.1'
+        finally:
+            s.close()
+        return IP
