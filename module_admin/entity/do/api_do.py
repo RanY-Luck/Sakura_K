@@ -8,8 +8,6 @@
 # @desc    : 接口表
 from config.db_base import BaseModel
 from sqlalchemy import Column, Integer, String, JSON
-from pydantic import BaseModel as PydanticBaseModel
-from typing import List, Optional, Dict
 
 
 class Api(BaseModel):

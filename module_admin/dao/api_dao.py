@@ -82,11 +82,14 @@ class ApiDao:
         :param api: 接口对象
         :return:
         """
-        db_api = Api(**api.model_dump())
-        db.add(db_api)
-        await db.flush()
-
-        return db_api
+        try:
+            db_api = Api(**api.model_dump())
+            db.add(db_api)
+            await db.flush()
+            return db_api
+        except Exception as e:
+            await db.rollback()
+            raise
 
     @classmethod
     async def edit_api_dao(cls, db: AsyncSession, api: dict):

@@ -9,7 +9,7 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 
@@ -26,16 +26,17 @@ class ApiModel(BaseModel):
     api_url: Optional[str] = Field(default=None, description='接口地址')
     api_status: Optional[int] = Field(default=None, description='接口状态')
     api_level: Optional[str] = Field(default=None, description='优先级')
-    api_tags: Optional[str] = Field(default=None, description='接口标签')
+    api_tags: Optional[List[str]] = Field(default=[], description='接口标签')
     request_data_type: Optional[str] = Field(default=None, description='数据类型')
-    request_data: Optional[str] = Field(default=None, description='请求体')
-    request_headers: Optional[str] = Field(default=None, description='请求头')
+    request_data: Optional[List] = Field(default=[], description='请求体')
+    request_headers: Optional[List] = Field(default=[], description='请求头')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
     update_by: Optional[str] = Field(default=None, description='更新者')
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
     remark: Optional[str] = Field(default=None, description='备注')
+
     # 校验表单
     validate_api_name = field_validator('api_name')(validate_string('api_name', 10))
     validate_api_method = field_validator('api_method')(validate_string('api_method', 10))
@@ -68,21 +69,3 @@ class DeleteApiModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
 
     api_ids: str = Field(description='需要删除的接口主键')
-
-# class Request(BaseModel):
-#     data_type: str
-#     data: List[Dict[str, Any]]
-#     headers: List[Dict[str, Any]]
-#     method: str
-#     url: str
-#
-#
-# class Model(BaseModel):
-#     api_id: int
-#     api_name: str
-#     module_id: int
-#     api_method: str
-#     api_url: str
-#     tags: List
-#     remarks: str
-#     request: Request
