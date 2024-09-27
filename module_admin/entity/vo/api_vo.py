@@ -9,7 +9,9 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Any
+from pydantic_validation_decorator import Xss, NotBlank, Size
+
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 
@@ -42,6 +44,54 @@ class ApiModel(BaseModel):
     validate_api_method = field_validator('api_method')(validate_string('api_method', 10))
     validate_api_url = field_validator('api_url')(validate_string('api_url', 512))
     validate_api_level = field_validator('api_level')(validate_string('api_level', 2))
+
+    @Xss(field_name='api_name', message='接口名称不能包含脚本字符')
+    @NotBlank(field_name='api_name', message='接口名称不能为空')
+    @Size(field_name='api_name', min_length=0, max_length=10, message='接口名称不能超过10个字符')
+    def get_api_name(self):
+        return self.get_api_name
+
+    @Xss(field_name='api_url', message='接口地址不能包含脚本字符')
+    @NotBlank(field_name='api_url', message='接口地址不能为空')
+    @Size(field_name='api_url', min_length=0, max_length=512, message='接口地址不能超过512个字符')
+    def get_api_url(self):
+        return self.get_api_url
+
+    @Xss(field_name='api_method', message='接口方法不能包含脚本字符')
+    @NotBlank(field_name='api_method', message='接口方法不能为空')
+    @Size(field_name='api_method', min_length=0, max_length=10, message='接口方法不能超过10个字符')
+    def get_api_method(self):
+        return self.get_api_method
+
+    @Xss(field_name='api_level', message='接口优先级不能包含脚本字符')
+    @NotBlank(field_name='api_level', message='接口优先级不能为空')
+    @Size(field_name='api_level', min_length=0, max_length=2, message='接口优先级不能超过2个字符')
+    def get_api_level(self):
+        return self.get_api_level
+
+    def validate_fields(self):
+        self.get_api_name()
+        self.get_api_url()
+        self.get_api_method()
+        self.get_api_level()
+
+    # @field_validator('api_status')
+    # def validate_api_status_priority(cls, value):
+    #     if value not in {0, 1}:
+    #         raise ValueError("api_status必须是0或1")
+    #     return value
+    #
+    # @field_validator('api_level')
+    # def validate_api_level_priority(cls, value):
+    #     if value not in {'P0', 'P1', 'P2', 'P3'}:
+    #         raise ValueError("api_method必须是'P0'或'P1'或'P2'或'P3'")
+    #     return value
+    #
+    # @field_validator('api_method')
+    # def validate_api_method_priority(cls, value):
+    #     if value not in {'GET', 'POST', 'DELETE', 'PUT'}:
+    #         raise ValueError("api_method必须是'GET'或'POST'或'DELETE'或'PUT'")
+    #     return value
 
 
 class ApiQueryModel(ApiModel):
