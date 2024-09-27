@@ -9,7 +9,7 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 
@@ -28,8 +28,8 @@ class ApiModel(BaseModel):
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[List[str]] = Field(default=[], description='接口标签')
     request_data_type: Optional[str] = Field(default=None, description='数据类型')
-    request_data: Optional[List] = Field(default=[], description='请求体')
-    request_headers: Optional[List] = Field(default=[], description='请求头')
+    request_data: Optional[Any] = Field(default={}, description='请求体')
+    request_headers: Optional[Any] = Field(default={}, description='请求头')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
