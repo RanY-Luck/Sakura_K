@@ -36,11 +36,11 @@ class RobotModel(BaseModel):
     validate_robot_type = field_validator('robot_type')(validate_string('robot_type', 10))
     validate_robot_webhook = field_validator('robot_webhook')(validate_string('robot_webhook', 255))
 
-    @field_validator('robot_status')
-    def validate_status_priority(cls, value):
-        if value not in {'0', '1'}:
-            raise ValueError("robot_status必须是'1'或'0'")
-        return value
+    # @field_validator('robot_status')
+    # def validate_status_priority(cls, value):
+    #     if value not in {'0', '1'}:
+    #         raise ValueError("robot_status必须是'1'或'0'")
+    #     return value
 
 
 class RobotQueryModel(RobotModel):

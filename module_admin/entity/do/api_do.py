@@ -22,7 +22,7 @@ class Api(BaseModel):
     project_id = Column(Integer, nullable=False, comment='项目ID')
     api_method = Column(String(10), nullable=False, comment='接口方法')
     api_url = Column(String(512), nullable=False, comment='接口地址')
-    api_status = Column(Integer, nullable=False, default='0', comment='状态（0正常 1停用）')
+    api_status = Column(Integer, nullable=False, default=0, comment='状态（0正常 1停用）')
     api_level = Column(String(2), nullable=False, default='P3', comment='优先级（P0、P1、P2、P3）')
     api_tags = Column(JSON, nullable=True, comment='标签')
     request_data_type = Column(String(25), nullable=True, comment='请求数据类型')
