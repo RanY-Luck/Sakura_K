@@ -15,6 +15,31 @@ from pydantic_validation_decorator import Xss, NotBlank, Size
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 
+class ApiQueryModel(BaseModel):
+    """
+    接口表对应pydantic模型
+    """
+    model_config = ConfigDict(alias_generator=to_camel, from_attributes=True)
+
+    api_id: Optional[int] = Field(default=None, description='接口ID')
+    api_name: Optional[str] = Field(default=None, description='接口名称')
+    project_id: Optional[int] = Field(default=None, description='项目所属')
+    api_method: Optional[str] = Field(default=None, description='接口方法')
+    api_url: Optional[str] = Field(default=None, description='接口地址')
+    api_status: Optional[int] = Field(default=None, description='接口状态')
+    api_level: Optional[str] = Field(default=None, description='优先级')
+    api_tags: Optional[str] = Field(default=None, description='接口标签')
+    request_data_type: Optional[str] = Field(default=None, description='数据类型')
+    request_data: Optional[Any] = Field(default=None, description='请求体')
+    request_headers: Optional[Any] = Field(default=None, description='请求头')
+
+    create_by: Optional[str] = Field(default=None, description='创建者')
+    create_time: Optional[datetime] = Field(default=None, description='创建时间')
+    update_by: Optional[str] = Field(default=None, description='更新者')
+    update_time: Optional[datetime] = Field(default=None, description='更新时间')
+    remark: Optional[str] = Field(default=None, description='备注')
+
+
 class ApiModel(BaseModel):
     """
     接口表对应pydantic模型
@@ -75,26 +100,26 @@ class ApiModel(BaseModel):
         self.get_api_method()
         self.get_api_level()
 
-    # @field_validator('api_status')
-    # def validate_api_status_priority(cls, value):
-    #     if value not in {0, 1}:
-    #         raise ValueError("api_status必须是0或1")
-    #     return value
-    #
-    # @field_validator('api_level')
-    # def validate_api_level_priority(cls, value):
-    #     if value not in {'P0', 'P1', 'P2', 'P3'}:
-    #         raise ValueError("api_method必须是'P0'或'P1'或'P2'或'P3'")
-    #     return value
-    #
-    # @field_validator('api_method')
-    # def validate_api_method_priority(cls, value):
-    #     if value not in {'GET', 'POST', 'DELETE', 'PUT'}:
-    #         raise ValueError("api_method必须是'GET'或'POST'或'DELETE'或'PUT'")
-    #     return value
+    @field_validator('api_status')
+    def validate_api_status_priority(cls, value):
+        if value not in {0, 1}:
+            raise ValueError("api_status必须是0或1")
+        return value
+
+    @field_validator('api_level')
+    def validate_api_level_priority(cls, value):
+        if value not in {'P0', 'P1', 'P2', 'P3'}:
+            raise ValueError("api_method必须是'P0'或'P1'或'P2'或'P3'")
+        return value
+
+    @field_validator('api_method')
+    def validate_api_method_priority(cls, value):
+        if value not in {'GET', 'POST', 'DELETE', 'PUT'}:
+            raise ValueError("api_method必须是'GET'或'POST'或'DELETE'或'PUT'")
+        return value
 
 
-class ApiQueryModel(ApiModel):
+class ApiQueryModel(ApiQueryModel):
     """
     接口管理不分页查询模型
     """
