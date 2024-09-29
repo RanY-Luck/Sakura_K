@@ -19,8 +19,8 @@ class Project(BaseModel):
 
     project_id = Column(Integer, primary_key=True, autoincrement=True, comment='项目ID')
     project_name = Column(String(10), nullable=False, default='', comment='项目名称', index=True)
-    responsible_name = Column(String(10), nullable=False, default='', comment='负责人')
-    test_user = Column(String(10), nullable=False, default='', comment='测试人员')
-    dev_user = Column(String(10), nullable=False, default='', comment='开发人员')
-    publish_app = Column(String(10), nullable=False, default='', comment='发布应用')
+    responsible_name = Column(String(10), nullable=False, default='', comment='项目负责人')
+    test_user = Column(String(10), nullable=False, default='', comment='项目测试人员')
+    dev_user = Column(String(10), nullable=False, default='', comment='项目开发人员')
+    publish_app = Column(String(10), nullable=False, default='', comment='项目发布应用')
     simple_desc = Column(String(100), nullable=True, default='', comment='简要描述')
