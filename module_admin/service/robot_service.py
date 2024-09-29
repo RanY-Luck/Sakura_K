@@ -137,8 +137,6 @@ class RobotService:
         try:
             wn_webhook = WxWebhookNotify(webhook_url=robot.robot_webhook)
             response = wn_webhook.send_msg_markdown(msg=robot.robot_template)
-            print("response", response)
-
             # 检查响应内容
             if response.get('errcode') == 0:
                 return CrudResponseModel(is_success=True, message='机器人测试已成功发送')
