@@ -26,7 +26,7 @@ class ApiQueryModel(BaseModel):
     project_id: Optional[int] = Field(default=None, description='项目所属')
     api_method: Optional[str] = Field(default=None, description='接口方法')
     api_url: Optional[str] = Field(default=None, description='接口地址')
-    api_status: Optional[int] = Field(default=None, description='接口状态')
+    api_status: Optional[str] = Field(default='0', description='接口状态(0正常 1停用)')
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[str] = Field(default=None, description='接口标签')
     request_data_type: Optional[str] = Field(default=None, description='数据类型')
@@ -51,7 +51,7 @@ class ApiModel(BaseModel):
     project_id: Optional[int] = Field(default=None, description='项目所属')
     api_method: Optional[str] = Field(default=None, description='接口方法')
     api_url: Optional[str] = Field(default=None, description='接口地址')
-    api_status: Optional[int] = Field(default=None, description='接口状态')
+    api_status: Optional[str] = Field(default='0', description='接口状态(0正常 1停用)')
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[List[str]] = Field(default=[], description='接口标签')
     request_data_type: Optional[str] = Field(default=None, description='数据类型')
@@ -68,6 +68,7 @@ class ApiModel(BaseModel):
     validate_api_name = field_validator('api_name')(validate_string('api_name', 10))
     validate_api_method = field_validator('api_method')(validate_string('api_method', 10))
     validate_api_url = field_validator('api_url')(validate_string('api_url', 512))
+    validate_api_status = field_validator('api_status')(validate_string('api_status', 1))
     validate_api_level = field_validator('api_level')(validate_string('api_level', 2))
 
     @Xss(field_name='api_name', message='接口名称不能包含脚本字符')
@@ -94,16 +95,23 @@ class ApiModel(BaseModel):
     def get_api_level(self):
         return self.get_api_level
 
+    @Xss(field_name='api_status', message='接口状态不能包含脚本字符')
+    @NotBlank(field_name='api_status', message='接口状态不能为空')
+    @Size(field_name='api_status', min_length=0, max_length=1, message='接口状态不能超过1个字符')
+    def get_api_status(self):
+        return self.get_api_status
+
     def validate_fields(self):
         self.get_api_name()
         self.get_api_url()
         self.get_api_method()
         self.get_api_level()
+        self.get_api_status()
 
     @field_validator('api_status')
     def validate_api_status_priority(cls, value):
-        if value not in {0, 1}:
-            raise ValueError("api_status必须是0或1")
+        if value not in {'0', '1'}:
+            raise ValueError("api_status必须是'0'或'1'")
         return value
 
     @field_validator('api_level')
