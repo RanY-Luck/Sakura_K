@@ -120,3 +120,37 @@ class ApiService:
         result = ApiModel(**CamelCaseUtil.transform_result(api))
 
         return result
+
+    @classmethod
+    async def api_debug_services(cls, query_db: AsyncSession, api_id: int):
+        """
+        Debug接口service
+        :param query_db: orm对象
+        :param api_id: 接口id
+        :return: 接口id对应的信息
+        """
+        api = await ApiDao.get_api_detail_by_id(query_db, api_id=api_id)
+        if api is None:
+            return CrudResponseModel(is_success=False, message=f'接口{api_id}不存在')
+        return api
+        # try:
+        #     wn_webhook = WxWebhookNotify(webhook_url=robot.robot_webhook)
+        #     response = wn_webhook.send_msg_markdown(msg=robot.robot_template)
+        #     # 检查响应内容
+        #     if response.get('errcode') == 0:
+        #         return CrudResponseModel(is_success=True, message='机器人测试已成功发送')
+        #     else:
+        #         return CrudResponseModel(
+        #             is_success=False,
+        #             message=f'机器人测试发送失败。错误码: {response.get("errcode")}, 错误信息: {response.get("errmsg")}'
+        #         )
+        # except RequestException as e:
+        #     # 处理网络相关错误
+        #     return CrudResponseModel(is_success=False, message=f'网络错误: {str(e)}')
+        # except json.JSONDecodeError:
+        #     # 处理JSON解析错误
+        #     return CrudResponseModel(is_success=False, message='响应格式错误，无法解析JSON')
+        # except Exception as e:
+        #     # 处理其他未预料到的错误
+        #     await query_db.rollback()
+        #     return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
