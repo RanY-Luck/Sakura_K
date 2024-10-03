@@ -6,8 +6,6 @@
 # @File    : http_util.py
 # @Software: PyCharm
 # @desc    : http发起请求工具
-
-
 import json
 import time
 import asyncio
@@ -26,8 +24,9 @@ class BodyType(IntEnum):
 
 
 class AsyncRequest(object):
-    def __init__(self, url: str, timeout=15, **kwargs):
+    def __init__(self, url: str, token: str = None, timeout=15, **kwargs):
         self.url = url
+        self.token = token
         self.kwargs = kwargs
         self.timeout = aiohttp.ClientTimeout(total=timeout)
 
@@ -42,6 +41,10 @@ class AsyncRequest(object):
 
     async def invoke(self, method: str):
         start = time.time()
+        headers = self.kwargs.get('headers', {})
+        headers['Authorization'] = f'Bearer {self.token}'
+        self.kwargs['headers'] = headers
+
         async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) as session:
             async with session.request(
                     method, self.url, timeout=self.timeout,
@@ -66,19 +69,15 @@ class AsyncRequest(object):
             return data, False
 
     @staticmethod
-    async def client(url: str, body_type: BodyType = BodyType.json, timeout=15, **kwargs):
+    async def client(url: str, token: str = None, body_type: BodyType = BodyType.json, timeout=15, **kwargs):
         if not url.startswith(("http://", "https://")):
             raise Exception("请输入正确的url,带上http")
 
         headers = kwargs.get("headers", {})
         body = kwargs.get("body", {})
 
-        # Extract authorization token from body if present
-        if isinstance(body, dict) and "requestHeaders" in body:
-            for header in body["requestHeaders"]:
-                if header["key"].lower() == "authorization":
-                    headers["Authorization"] = header["value"]
-                    break
+        # Add token to headers
+        headers['Authorization'] = f'Bearer {token}'
 
         if body_type == BodyType.json:
             if "Content-Type" not in headers:
@@ -88,7 +87,7 @@ class AsyncRequest(object):
                     body = json.loads(body)
             except Exception as e:
                 raise Exception(f"json格式不正确:{e}") from e
-            r = AsyncRequest(url, headers=headers, timeout=timeout, json=body)
+            r = AsyncRequest(url, token, headers=headers, timeout=timeout, json=body)
         elif body_type == BodyType.form:
             try:
                 form_data = FormData()
@@ -109,16 +108,16 @@ class AsyncRequest(object):
                             raise Exception("error creating form")
                 else:
                     raise Exception("Body must be a dict or a JSON string for form data")
-                r = AsyncRequest(url, headers=headers, data=form_data, timeout=timeout)
+                r = AsyncRequest(url, token, headers=headers, data=form_data, timeout=timeout)
             except Exception as e:
                 raise Exception(f"解析form-data失败: {str(e)}")
         elif body_type == BodyType.x_form:
             headers['Content-Type'] = "application/x-www-form-urlencoded"
             if isinstance(body, str):
                 body = json.loads(body)
-            r = AsyncRequest(url, headers=headers, data=body, timeout=timeout)
+            r = AsyncRequest(url, token, headers=headers, data=body, timeout=timeout)
         else:
-            r = AsyncRequest(url, headers=headers, timeout=timeout, data=body)
+            r = AsyncRequest(url, token, headers=headers, timeout=timeout, data=body)
         return r
 
     def get_request_data(self):
@@ -165,9 +164,28 @@ class AsyncRequest(object):
 
 
 async def main():
-    pass
-    # 发送 get 请求
-    # r = await AsyncRequest.client(url='http://127.0.0.1:9099/dev-api/openapi.json', body_type=BodyType.none)
+    # 获取 token
+    r = await AsyncRequest.client(
+        url='http://127.0.0.1:9099/dev-api/login',
+        body_type=BodyType.form,
+        body={
+            "username": "admin",
+            "password": "admin123",
+            "code": "0",
+            "uuid": "ranyong"
+        }
+    )
+    # todo: 会重复请求 token，需要判断过期才请求
+    raw_response = await r.invoke(method='post')
+    response_str = raw_response['response']
+    response_json = json.loads(response_str)
+    token = response_json['token']
+
+    # # 发送 get 请求
+    # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/list'
+    # token = f"Bearer {token}"
+    # data = {"pageNum": "1", "pageSize": "10"}
+    # r = await AsyncRequest.client(url, token, data=data, body_type=BodyType.form)
     # raw_response = await r.invoke(method='get')
     # # 使用 collect 方法整理响应数据
     # formatted_response = await AsyncRequest.collect(
@@ -184,15 +202,51 @@ async def main():
     # print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
     # 发送 post 请求
-    # r = await AsyncRequest.client(
-    #     url='http://127.0.0.1:9099/dev-api/login',
-    #     body_type=BodyType.form,
-    #     body={
-    #         "username": "admin",
-    #         "password": "admin123",
-    #         "code": "0",
-    #         "uuid": "ranyong"
+    # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo'
+    # body = {
+    #   "apiId": 99,
+    #   "apiName": "99",
+    #   "projectId": 1,
+    #   "apiMethod": "GET",
+    #   "apiUrl": "/login",
+    #   "apiStatus": "0",
+    #   "apiLevel": "P1",
+    #   "apiTags": [],
+    #   "requestDataType": "",
+    #   "requestData": [],
+    #   "requestHeaders": [
+    #     {
+    #       "key": "Authorization",
+    #       "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU",
+    #       "remarks": "这是一个请求头"
+    #     },
+    #     {
+    #       "key": "Accept",
+    #       "value": "application/json, text/plain, */*",
+    #       "remarks": ""
+    #     },
+    #     {
+    #       "key": "Content-Type",
+    #       "value": "application/json",
+    #       "remarks": ""
+    #     },
+    #     {
+    #       "key": "User-Agent",
+    #       "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    #       "remarks": ""
     #     }
+    #   ],
+    #   "createBy": "string",
+    #   "createTime": "2024-09-27T09:25:35.690Z",
+    #   "updateBy": "string",
+    #   "updateTime": "2024-09-27T09:25:35.690Z",
+    #   "remark": "string"
+    # }
+    # r = await AsyncRequest.client(
+    #     url,
+    #     token,
+    #     body_type=BodyType.json,
+    #     body=body
     # )
     # raw_response = await r.invoke(method='post')
     # # 使用 collect 方法整理响应数据
@@ -210,26 +264,10 @@ async def main():
     # print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
     # PUT请求with form data
-    # r = await AsyncRequest.client(
-    #     url='http://127.0.0.1:9099/dev-api/login',
-    #     body_type=BodyType.form,
-    #     body={
-    #         "username": "admin",
-    #         "password": "admin123",
-    #         "code": "0",
-    #         "uuid": "ranyong"
-    #     }
-    # )
-    # raw_response = await r.invoke(method='post')
-    # response_str = raw_response['response']
-    # response_json = json.loads(response_str)
-    # token = response_json['token']
-    # headers = {
-    #     'Authorization': f'Bearer {token}',
-    # }
+    # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo'
     # body = {
     #     "apiId": 4,
-    #     "apiName": "游123戏",
+    #     "apiName": "游戏",
     #     "projectId": 1,
     #     "apiMethod": "POST",
     #     "apiUrl": "/login",
@@ -260,44 +298,47 @@ async def main():
     #     "updateTime": "2024-09-27T17:43:19",
     #     "remark": "这是一个编辑功能"
     # }
-    # try:
-    #     r = await AsyncRequest.client(
-    #         url='http://127.0.0.1:9099/dev-api/apitest/apiInfo',
-    #         body_type=BodyType.form,
-    #         headers=headers,
-    #         body=body
-    #     )
-    #     response = await r.invoke(method='PUT')
-    #     print(response)
-    # except Exception as e:
-    #     print(f"An error occurred: {e}")
-
-    # 发送 delete 请求
     # r = await AsyncRequest.client(
-    #     url='http://127.0.0.1:9099/dev-api/apitest/apiInfo/',
-    #     body_type=BodyType.json,  # 使用 JSON 格式的请求体
-    #     headers={
-    #         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6Ijk1MTNjYzkzLTM0MDUtNDAyZC05MGU3LWRjYzFlY2ViZWViNiIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjpudWxsLCJsb2dpbkxvY2F0aW9uIjoiXHU1MTg1XHU3ZjUxSVAiLCJicm93c2VyIjoiT3RoZXIiLCJvcyI6Ik90aGVyIiwibG9naW5UaW1lIjoiMjAyNC0wOS0yOCAwMDo0NzoxMiJ9LCJleHAiOjE3Mjc1NDIwMzJ9.xLSEcInHMRNmnfW4ONwCIZjHSDtMv_zLicqw2K-ThCU'
-    #     },
-    #     body={
-    #         "api_ids": "5",
-    #         "action": "delete"  # 指定删除操作
-    #     }
+    #     url,
+    #     token,
+    #     body_type=BodyType.json,
+    #     body=body
     # )
-    # raw_response = await r.invoke(method='POST')
-    # # 使用 collect 方法整理响应数据
+    # raw_response = await r.invoke(method='PUT')
     # formatted_response = await AsyncRequest.collect(
-    #     status=raw_response['status_code'] == 200,
-    #     request_data=r.get_data(r.kwargs),
+    #     status=True,
+    #     request_data=None,  # 或者你的请求数据
     #     status_code=raw_response.get('status_code', 200),
     #     response=raw_response.get('response'),
     #     response_headers=raw_response.get('response_headers'),
     #     request_headers=raw_response.get('request_headers'),
     #     cookies=raw_response.get('cookies'),
     #     elapsed=raw_response.get('cost'),
-    #     msg="请求成功" if raw_response['status_code'] == 200 else f"请求失败，状态码：{raw_response['status_code']}"
+    #     msg="请求成功"  # 或者根据实际情况设置消息
     # )
     # print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
+
+    # 发送 delete 请求
+    url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/86'
+    r = await AsyncRequest.client(
+        url,
+        token,
+        body_type=BodyType.none,
+    )
+    raw_response = await r.invoke(method='DELETE')
+    # 使用 collect 方法整理响应数据
+    formatted_response = await AsyncRequest.collect(
+        status=raw_response['status_code'] == 200,
+        request_data=r.get_data(r.kwargs),
+        status_code=raw_response.get('status_code', 200),
+        response=raw_response.get('response'),
+        response_headers=raw_response.get('response_headers'),
+        request_headers=raw_response.get('request_headers'),
+        cookies=raw_response.get('cookies'),
+        elapsed=raw_response.get('cost'),
+        msg="请求成功" if raw_response['status_code'] == 200 else f"请求失败，状态码：{raw_response['status_code']}"
+    )
+    print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

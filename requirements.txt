@@ -23,3 +23,5 @@ rich~=13.7.1
 uvicorn~=0.25.0
 python-dotenv~=1.0.0
 starlette~=0.37.2
+cryptography~=41.0.5
+aiohttp~=3.9.1
