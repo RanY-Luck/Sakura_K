@@ -9,6 +9,7 @@
 from module_admin.dao.api_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from utils.common_util import CamelCaseUtil
+from utils.http_util import AsyncRequest, BodyType
 
 
 class ApiService:
@@ -132,25 +133,15 @@ class ApiService:
         api = await ApiDao.get_api_detail_by_id(query_db, api_id=api_id)
         if api is None:
             return CrudResponseModel(is_success=False, message=f'接口{api_id}不存在')
-        return api
-        # try:
-        #     wn_webhook = WxWebhookNotify(webhook_url=robot.robot_webhook)
-        #     response = wn_webhook.send_msg_markdown(msg=robot.robot_template)
-        #     # 检查响应内容
-        #     if response.get('errcode') == 0:
-        #         return CrudResponseModel(is_success=True, message='机器人测试已成功发送')
-        #     else:
-        #         return CrudResponseModel(
-        #             is_success=False,
-        #             message=f'机器人测试发送失败。错误码: {response.get("errcode")}, 错误信息: {response.get("errmsg")}'
-        #         )
-        # except RequestException as e:
-        #     # 处理网络相关错误
-        #     return CrudResponseModel(is_success=False, message=f'网络错误: {str(e)}')
-        # except json.JSONDecodeError:
-        #     # 处理JSON解析错误
-        #     return CrudResponseModel(is_success=False, message='响应格式错误，无法解析JSON')
-        # except Exception as e:
-        #     # 处理其他未预料到的错误
-        #     await query_db.rollback()
-        #     return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
+        try:
+            api_info = await AsyncRequest.client(
+                url=api.api_url,
+                body=api.request_data,
+                body_type=api.request_data_type
+            )
+            response = await api_info.invoke(method=api.api_method)
+            return response
+        except Exception as e:
+            # 处理其他未预料到的错误
+            await query_db.rollback()
+            return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
