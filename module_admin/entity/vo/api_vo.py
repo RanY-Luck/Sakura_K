@@ -29,7 +29,7 @@ class ApiQueryModel(BaseModel):
     api_status: Optional[str] = Field(default='0', description='接口状态(0正常 1停用)')
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[str] = Field(default=None, description='接口标签')
-    request_data_type: Optional[str] = Field(default=None, description='数据类型')
+    request_data_type: Optional[int] = Field(default=0, description='数据类型(0none 1json 2form 3x_form 4raw)')
     request_data: Optional[Any] = Field(default=None, description='请求体')
     request_headers: Optional[Any] = Field(default=None, description='请求头')
 
@@ -54,7 +54,7 @@ class ApiModel(BaseModel):
     api_status: Optional[str] = Field(default='0', description='接口状态(0正常 1停用)')
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[List[str]] = Field(default=[], description='接口标签')
-    request_data_type: Optional[str] = Field(default=None, description='数据类型')
+    request_data_type: Optional[int] = Field(default=0, description='数据类型(0none 1json 2form 3x_form 4raw)')
     request_data: Optional[Any] = Field(default=[], description='请求体')
     request_headers: Optional[Any] = Field(default=[], description='请求头')
 
@@ -124,6 +124,12 @@ class ApiModel(BaseModel):
     def validate_api_method_priority(cls, value):
         if value not in {'GET', 'POST', 'DELETE', 'PUT'}:
             raise ValueError("api_method必须是'GET'或'POST'或'DELETE'或'PUT'")
+        return value
+
+    @field_validator('request_data_type')
+    def validate_request_data_type_priority(cls, value):
+        if value not in {0, 1, 2, 3, 4}:
+            raise ValueError("request_data_type必须是'0'或'1'或'2'或'3'或'4'")
         return value
 
 

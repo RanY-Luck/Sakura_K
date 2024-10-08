@@ -25,6 +25,6 @@ class Api(BaseModel):
     api_status = Column(String(1), nullable=False, default='0', comment='状态（0正常 1停用）')
     api_level = Column(String(2), nullable=False, default='P3', comment='优先级（P0、P1、P2、P3）')
     api_tags = Column(JSON, nullable=True, comment='标签')
-    request_data_type = Column(String(25), nullable=True, comment='请求数据类型')
+    request_data_type = Column(Integer, nullable=True, comment='请求数据类型')
     request_data = Column(JSON, nullable=True, comment='请求数据')
     request_headers = Column(JSON, nullable=True, comment='请求头')
