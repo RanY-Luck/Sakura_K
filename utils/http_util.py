@@ -181,7 +181,7 @@ async def main():
     response_json = json.loads(response_str)
     token = response_json['token']
 
-    # # 发送 get 请求
+    # 发送 get 请求
     url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/list'
     token = f"Bearer {token}"
     data = {"pageNum": "1", "pageSize": "10"}
