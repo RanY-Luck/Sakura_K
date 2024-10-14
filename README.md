@@ -74,6 +74,10 @@ python3 app.py --env=prod
 
 # Docker运行
 
+## 根目录复制 docker-compose.yaml.example -> docker-compose.yaml
+
+## 根目录复制 .env.docker.example -> .env.docker
+
 ## 启动并创建所有容器
 docker-compose up --build -d
 
