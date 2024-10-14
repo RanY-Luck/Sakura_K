@@ -74,20 +74,24 @@ python3 app.py --env=prod
 
 # Docker运行
 
+## 根目录复制 docker-compose.yaml.example -> docker-compose.yaml
+
+## 根目录复制 .env.docker.example -> .env.docker
+
 ## 启动并创建所有容器
-docker-compose up --build -d
+docker-compose.yaml up --build -d
 
 ## 初始化数据
 找到 sql/skf.sql 文件，导入到mysql数据库中
 
 ## 重启所有容器
-docker-compose restart
+docker-compose.yaml restart
 
 ## 停止所有容器
-docker-compose down
+docker-compose.yaml down
 
 ## 查看所有容器状态
-docker-compose ps -a
+docker-compose.yaml ps -a
 
 ## 查看容器日志
 docker logs sakura_k
