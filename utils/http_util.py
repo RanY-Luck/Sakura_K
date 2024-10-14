@@ -154,12 +154,15 @@ class AsyncRequest(object):
             cookies = json.dumps(cookies, ensure_ascii=False)
         elif cookies is None:
             cookies = json.dumps({}, ensure_ascii=False)
-
         return {
             "status": status, "response": response, "status_code": status_code,
             "request_data": AsyncRequest.get_request_data(request_data),
-            "response_headers": response_headers, "request_headers": request_headers,
-            "msg": "success" if status else f"http状态码为{status_code}", "cost": elapsed, "cookies": cookies, **kwargs,
+            "response_headers": response_headers,
+            "request_headers": request_headers,
+            "msg": "success" if status else f"http状态码为{status_code}",
+            "cost": elapsed,
+            "cookies": cookies,
+            **kwargs,
         }
 
 
@@ -182,64 +185,56 @@ async def main():
     token = response_json['token']
 
     # 发送 get 请求
-    url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/list'
-    token = f"Bearer {token}"
-    data = {"pageNum": "1", "pageSize": "10"}
-    r = await AsyncRequest.client(url, token, data=data, body_type=BodyType.form)
-    raw_response = await r.invoke(method='get')
-    # 使用 collect 方法整理响应数据
-    formatted_response = await AsyncRequest.collect(
-        status=True,
-        request_data=None,  # 或者你的请求数据
-        status_code=raw_response.get('status_code', 200),
-        response=raw_response.get('response'),
-        response_headers=raw_response.get('response_headers'),
-        request_headers=raw_response.get('request_headers'),
-        cookies=raw_response.get('cookies'),
-        elapsed=raw_response.get('cost'),
-        msg="请求成功"  # 或者根据实际情况设置消息
-    )
-    print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
+    # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/list'
+    # token = f"Bearer {token}"
+    # data = {"pageNum": "1", "pageSize": "10"}
+    # r = await AsyncRequest.client(url, token, data=data, body_type=BodyType.form)
+    # raw_response = await r.invoke(method='get')
+    # # 使用 collect 方法整理响应数据
+    # formatted_response = await AsyncRequest.collect(
+    #     status=True,
+    #     request_data=None,  # 或者你的请求数据
+    #     status_code=raw_response.get('status_code', 200),
+    #     response=raw_response.get('response'),
+    #     response_headers=raw_response.get('response_headers'),
+    #     request_headers=raw_response.get('request_headers'),
+    #     cookies=raw_response.get('cookies'),
+    #     elapsed=raw_response.get('cost'),
+    #     msg="请求成功"  # 或者根据实际情况设置消息
+    # )
+    # print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
     # 发送 post 请求
     url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo'
     body = {
-        "apiId": 99,
-        "apiName": "99",
+        "apiId": 90,
+        "apiName": "90",
         "projectId": 1,
         "apiMethod": "GET",
         "apiUrl": "/login",
         "apiStatus": "0",
         "apiLevel": "P1",
-        "apiTags": [],
-        "requestDataType": "",
-        "requestData": [],
+        "apiTags": [
+            "登录",
+            "注册"
+        ],
+        "requestDataType": 1,
+        "requestData": [
+            {
+                "name": "ranyong"
+            }
+        ],
         "requestHeaders": [
             {
                 "key": "Authorization",
                 "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU",
                 "remarks": "这是一个请求头"
-            },
-            {
-                "key": "Accept",
-                "value": "application/json, text/plain, */*",
-                "remarks": ""
-            },
-            {
-                "key": "Content-Type",
-                "value": "application/json",
-                "remarks": ""
-            },
-            {
-                "key": "User-Agent",
-                "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
-                "remarks": ""
             }
         ],
-        "createBy": "string",
-        "createTime": "2024-09-27T09:25:35.690Z",
-        "updateBy": "string",
-        "updateTime": "2024-09-27T09:25:35.690Z",
+        "createBy": "admin",
+        "createTime": "2024-10-08T21:30:43",
+        "updateBy": "admin",
+        "updateTime": "2024-10-08T21:30:43",
         "remark": "string"
     }
     r = await AsyncRequest.client(
@@ -249,6 +244,8 @@ async def main():
         body=body
     )
     raw_response = await r.invoke(method='post')
+    print("raw_response--->", raw_response)
+
     # 使用 collect 方法整理响应数据
     formatted_response = await AsyncRequest.collect(
         status=True,
@@ -264,81 +261,81 @@ async def main():
     print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
     # PUT请求with form data
-    url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo'
-    body = {
-        "apiId": 4,
-        "apiName": "游戏",
-        "projectId": 1,
-        "apiMethod": "POST",
-        "apiUrl": "/login",
-        "apiStatus": "0",
-        "apiLevel": "P1",
-        "apiTags": [
-            "123",
-            "注册"
-        ],
-        "requestDataType": "x_www_form_urlencoded",
-        "requestData": [
-            {
-                "key": "ranyong",
-                "value": "yong",
-                "remarks": "这是 x_www_form_urlencoded"
-            }
-        ],
-        "requestHeaders": [
-            {
-                "key": "Authorization",
-                "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU",
-                "remarks": "这是一个请求头"
-            }
-        ],
-        "createBy": "admin",
-        "createTime": "2024-09-27T17:43:19",
-        "updateBy": "admin",
-        "updateTime": "2024-09-27T17:43:19",
-        "remark": "这是一个编辑功能"
-    }
-    r = await AsyncRequest.client(
-        url,
-        token,
-        body_type=BodyType.json,
-        body=body
-    )
-    raw_response = await r.invoke(method='PUT')
-    formatted_response = await AsyncRequest.collect(
-        status=True,
-        request_data=None,  # 或者你的请求数据
-        status_code=raw_response.get('status_code', 200),
-        response=raw_response.get('response'),
-        response_headers=raw_response.get('response_headers'),
-        request_headers=raw_response.get('request_headers'),
-        cookies=raw_response.get('cookies'),
-        elapsed=raw_response.get('cost'),
-        msg="请求成功"  # 或者根据实际情况设置消息
-    )
-    print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
+    # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo'
+    # body = {
+    #     "apiId": 4,
+    #     "apiName": "游戏",
+    #     "projectId": 1,
+    #     "apiMethod": "POST",
+    #     "apiUrl": "/login",
+    #     "apiStatus": "0",
+    #     "apiLevel": "P1",
+    #     "apiTags": [
+    #         "123",
+    #         "注册"
+    #     ],
+    #     "requestDataType": "x_www_form_urlencoded",
+    #     "requestData": [
+    #         {
+    #             "key": "ranyong",
+    #             "value": "yong",
+    #             "remarks": "这是 x_www_form_urlencoded"
+    #         }
+    #     ],
+    #     "requestHeaders": [
+    #         {
+    #             "key": "Authorization",
+    #             "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU",
+    #             "remarks": "这是一个请求头"
+    #         }
+    #     ],
+    #     "createBy": "admin",
+    #     "createTime": "2024-09-27T17:43:19",
+    #     "updateBy": "admin",
+    #     "updateTime": "2024-09-27T17:43:19",
+    #     "remark": "这是一个编辑功能"
+    # }
+    # r = await AsyncRequest.client(
+    #     url,
+    #     token,
+    #     body_type=BodyType.json,
+    #     body=body
+    # )
+    # raw_response = await r.invoke(method='PUT')
+    # formatted_response = await AsyncRequest.collect(
+    #     status=True,
+    #     request_data=None,  # 或者你的请求数据
+    #     status_code=raw_response.get('status_code', 200),
+    #     response=raw_response.get('response'),
+    #     response_headers=raw_response.get('response_headers'),
+    #     request_headers=raw_response.get('request_headers'),
+    #     cookies=raw_response.get('cookies'),
+    #     elapsed=raw_response.get('cost'),
+    #     msg="请求成功"  # 或者根据实际情况设置消息
+    # )
+    # print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
     # 发送 delete 请求
-    url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/86'
-    r = await AsyncRequest.client(
-        url,
-        token,
-        body_type=BodyType.none,
-    )
-    raw_response = await r.invoke(method='DELETE')
-    # 使用 collect 方法整理响应数据
-    formatted_response = await AsyncRequest.collect(
-        status=raw_response['status_code'] == 200,
-        request_data=r.get_data(r.kwargs),
-        status_code=raw_response.get('status_code', 200),
-        response=raw_response.get('response'),
-        response_headers=raw_response.get('response_headers'),
-        request_headers=raw_response.get('request_headers'),
-        cookies=raw_response.get('cookies'),
-        elapsed=raw_response.get('cost'),
-        msg="请求成功" if raw_response['status_code'] == 200 else f"请求失败，状态码：{raw_response['status_code']}"
-    )
-    print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
+    # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/86'
+    # r = await AsyncRequest.client(
+    #     url,
+    #     token,
+    #     body_type=BodyType.none,
+    # )
+    # raw_response = await r.invoke(method='DELETE')
+    # # 使用 collect 方法整理响应数据
+    # formatted_response = await AsyncRequest.collect(
+    #     status=raw_response['status_code'] == 200,
+    #     request_data=r.get_data(r.kwargs),
+    #     status_code=raw_response.get('status_code', 200),
+    #     response=raw_response.get('response'),
+    #     response_headers=raw_response.get('response_headers'),
+    #     request_headers=raw_response.get('request_headers'),
+    #     cookies=raw_response.get('cookies'),
+    #     elapsed=raw_response.get('cost'),
+    #     msg="请求成功" if raw_response['status_code'] == 200 else f"请求失败，状态码：{raw_response['status_code']}"
+    # )
+    # print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
