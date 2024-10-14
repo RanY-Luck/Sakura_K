@@ -7,10 +7,10 @@
 # @Software: PyCharm
 # @desc    : 项目表类型-pydantic模型
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, field_validator
-from pydantic.alias_generators import to_camel
 from typing import Optional
 
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic.alias_generators import to_camel
 from pydantic_validation_decorator import Xss, NotBlank, Size
 
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
@@ -73,7 +73,7 @@ class ProjectModel(BaseModel):
         return self.get_publish_app
 
     def validate_fields(self):
-        self.get_robot_name()
+        self.get_project_name()
         self.get_responsible_name()
         self.get_test_user()
         self.get_dev_user()
