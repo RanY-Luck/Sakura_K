@@ -6,12 +6,14 @@
 # @File    : api_dao.py
 # @Software: PyCharm
 # @desc    : 接口配置模块数据库操作层
+from datetime import datetime, time
+
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from module_admin.entity.do.api_do import Api
 from module_admin.entity.vo.api_vo import *
 from utils.page_util import PageUtil
-from datetime import datetime, time
 
 
 class ApiDao:
@@ -61,14 +63,13 @@ class ApiDao:
             select(Api).where(
                 Api.api_id == query_object.api_id if query_object.api_id is not None else True,
                 Api.api_name.like(f'%{query_object.api_name}%') if query_object.api_name else True,
-                Api.api_tags.like(f'%{query_object.api_tags}%') if query_object.api_tags else True,
+                Api.api_status == query_object.api_status if query_object.api_status else True,
                 Api.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
                 Api.create_time.between(
                     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
                     datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
                 )
-                if query_object.begin_time and query_object.end_time
-                else True,
+                if query_object.begin_time and query_object.end_time else True,
             ).distinct()
         )
         api_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)

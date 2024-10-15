@@ -7,9 +7,10 @@
 # @Software: PyCharm
 # @desc    : 接口表类型-pydantic模型
 from datetime import datetime
+from typing import List, Optional, Any
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
-from typing import List, Optional, Any
 from pydantic_validation_decorator import Xss, NotBlank, Size
 
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
@@ -26,10 +27,10 @@ class ApiQueryModel(BaseModel):
     project_id: Optional[int] = Field(default=None, description='项目所属')
     api_method: Optional[str] = Field(default=None, description='接口方法')
     api_url: Optional[str] = Field(default=None, description='接口地址')
-    api_status: Optional[str] = Field(default='0', description='接口状态(0正常 1停用)')
+    api_status: Optional[str] = Field(default=None, description='接口状态(0正常 1停用)')
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[str] = Field(default=None, description='接口标签')
-    request_data_type: Optional[int] = Field(default=0, description='数据类型(0none 1json 2form 3x_form 4raw)')
+    request_data_type: Optional[int] = Field(default=1, description='数据类型(0none 1json 2form 3x_form 4raw)')
     request_data: Optional[Any] = Field(default=None, description='请求体')
     request_headers: Optional[Any] = Field(default=None, description='请求头')
 
