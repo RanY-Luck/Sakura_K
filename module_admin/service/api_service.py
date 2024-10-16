@@ -9,7 +9,8 @@
 from module_admin.dao.api_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from utils.common_util import CamelCaseUtil
-from utils.http_util import AsyncRequest, BodyType
+from utils.http_util import AsyncRequest
+from utils.page_util import PageResponseModel
 
 
 class ApiService:
@@ -31,7 +32,18 @@ class ApiService:
         :param is_page: 是否开启分页
         :return: 接口列表信息对象
         """
-        api_list_result = await ApiDao.get_api_list(query_db, query_object, is_page)
+        query_result = await ApiDao.get_api_list(query_db, query_object, is_page)
+        if is_page:
+            api_list_result = PageResponseModel(
+                **{
+                    **query_result.model_dump(by_alias=True),
+                    'rows': [{**row[0], 'project': row[1]} for row in query_result.rows]
+                }
+            )
+        else:
+            api_list_result = []
+            if query_result:
+                api_list_result = [{**row[0], 'project': row[1]} for row in query_result]
 
         return api_list_result
 
