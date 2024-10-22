@@ -12,6 +12,7 @@ import argparse
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 from dotenv import load_dotenv
+from typing import Literal
 
 
 class AppSettings(BaseSettings):
@@ -43,6 +44,7 @@ class DataBaseSettings(BaseSettings):
     """
     数据库配置
     """
+    db_type: Literal['mysql', 'postgresql'] = 'mysql'
     db_host: str = '127.0.0.1'
     db_port: int = 3306
     db_username: str = 'root'
