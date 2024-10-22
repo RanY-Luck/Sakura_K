@@ -63,7 +63,7 @@ async def get_system_menu_list(
         request: Request,
         menu_query: MenuQueryModel = Depends(MenuQueryModel.as_query),
         query_db: AsyncSession = Depends(get_db),
-        current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
 ):
     """
     获取系统菜单列表

@@ -33,7 +33,7 @@ class BaseModel(Base):
     create_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='创建时间')
     update_by = Column(String(64), nullable=True, default='', comment='更新者')
     update_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='更新时间')
-    remark = Column(String(100), nullable=True, default='', comment='备注')
+    remark = Column(String(100), nullable=True, default=None, comment='备注')
 
     @staticmethod
     def get_current_time():

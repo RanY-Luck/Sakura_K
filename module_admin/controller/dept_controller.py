@@ -29,13 +29,13 @@ deptController = APIRouter(prefix='/system/dept', dependencies=[Depends(LoginSer
 @deptController.get(
     '/list/exclude/{dept_id}',
     response_model=List[DeptModel],
-    dependencies=[Depends(CheckUserInterfaceAuth('system:dept:list'))],
+    dependencies=[Depends(CheckUserInterfaceAuth('system:dept:list'))]
 )
 async def get_system_dept_tree_for_edit_option(
         request: Request,
         dept_id: int,
         query_db: AsyncSession = Depends(get_db),
-        data_scope_sql: str = Depends(GetDataScope('SysDept')),
+        data_scope_sql: str = Depends(GetDataScope('SysDept'))
 ):
     """
     获取系统部门树的编辑选项
@@ -54,7 +54,7 @@ async def get_system_dept_list(
         request: Request,
         dept_query: DeptQueryModel = Depends(DeptQueryModel.as_query),
         query_db: AsyncSession = Depends(get_db),
-        data_scope_sql: str = Depends(GetDataScope('SysDept')),
+        data_scope_sql: str = Depends(GetDataScope('SysDept'))
 ):
     """
     获取系统部门列表
@@ -117,7 +117,7 @@ async def delete_system_dept(
         dept_ids: str,
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
-        data_scope_sql: str = Depends(GetDataScope('SysDept')),
+        data_scope_sql: str = Depends(GetDataScope('SysDept'))
 ):
     """
     删除部门

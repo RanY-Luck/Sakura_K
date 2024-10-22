@@ -62,13 +62,16 @@ class JobDao:
         :param is_page: 是否开启分页
         :return: 定时任务列表信息对象
         """
-        query = select(SysJob) \
-            .where(
-            SysJob.job_name.like(f'%{query_object.job_name}%') if query_object.job_name else True,
-            SysJob.job_group == query_object.job_group if query_object.job_group else True,
-            SysJob.status == query_object.status if query_object.status else True
-        ) \
-            .distinct()
+        query = (
+            select(SysJob)
+                .where(
+                SysJob.job_name.like(f'%{query_object.job_name}%') if query_object.job_name else True,
+                SysJob.job_group == query_object.job_group if query_object.job_group else True,
+                SysJob.status == query_object.status if query_object.status else True,
+            )
+                .order_by(SysJob.job_id)
+                .distinct()
+        )
         job_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
         return job_list

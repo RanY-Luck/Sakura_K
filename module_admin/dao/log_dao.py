@@ -40,7 +40,7 @@ class OperationLogDao:
             order_by_column = desc(SysOperLog.oper_time)
         query = (
             select(SysOperLog)
-                .where(
+            .where(
                 SysOperLog.title.like(f'%{query_object.title}%') if query_object.title else True,
                 SysOperLog.oper_name.like(f'%{query_object.oper_name}%') if query_object.oper_name else True,
                 SysOperLog.business_type == query_object.business_type if query_object.business_type else True,
@@ -52,8 +52,8 @@ class OperationLogDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-                .distinct()
-                .order_by(order_by_column)
+            .distinct()
+            .order_by(order_by_column)
         )
         operation_log_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
