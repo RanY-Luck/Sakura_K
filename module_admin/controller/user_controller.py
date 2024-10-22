@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, Union
 from pydantic_validation_decorator import ValidateFields
 from config.get_db import get_db
+from config.enums import BusinessType
 from config.env import UploadConfig
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.data_scope import GetDataScope
@@ -38,13 +39,13 @@ from module_admin.service.login_service import LoginService
 from module_admin.service.user_service import UserService
 from module_admin.service.role_service import RoleService
 from module_admin.service.dept_service import DeptService
-from config.enums import BusinessType
 from utils.common_util import bytes2file_response
 from utils.log_util import logger
 from utils.page_util import PageResponseModel
 from utils.pwd_util import PwdUtil
 from utils.response_util import ResponseUtil
 from utils.upload_util import UploadUtil
+
 
 userController = APIRouter(prefix='/system/user', dependencies=[Depends(LoginService.get_current_user)])
 
