@@ -5,12 +5,14 @@
 # @File           : robot_dao.py
 # @Software       : PyCharm
 # @desc           : 机器人配置模块数据库操作层
+from datetime import datetime, time
+
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from module_admin.entity.do.robot_do import Robot
 from module_admin.entity.vo.robot_vo import *
 from utils.page_util import PageUtil
-from datetime import datetime, time
 
 
 class RobotDao:
@@ -76,6 +78,7 @@ class RobotDao:
                 else True,
             )
                 .distinct()
+                .order_by(Robot.create_time.desc())
         )
         robot_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
