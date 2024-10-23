@@ -12,10 +12,12 @@ from fastapi import APIRouter, Request
 from config.enums import RedisInitKeyConfig
 from module_admin.entity.vo.login_vo import CaptchaCode
 from module_admin.service.captcha_service import CaptchaService
+from utils.http_util import LoginManager
 from utils.response_util import ResponseUtil
 from utils.log_util import logger
 
 captchaController = APIRouter()
+login_manager = LoginManager()
 
 
 @captchaController.get('/captchaImage')
@@ -49,3 +51,14 @@ async def get_captcha_image(request: Request):
             uuid=session_id
         )
     )
+
+
+@captchaController.post("/testLogin")
+async def login_route(request: Request, username: str, password: str):
+    baseurl = "https://www.convercomm.com"
+    result = await login_manager.login(
+        baseurl=baseurl,
+        username=username,
+        password=password
+    )
+    return result
