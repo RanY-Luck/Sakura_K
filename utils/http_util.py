@@ -9,10 +9,17 @@
 import asyncio
 import json
 import time
-from enum import IntEnum
+from typing import Dict, Any
 
 import aiohttp
+import uuid
+from datetime import timedelta
+from enum import IntEnum
 from aiohttp import FormData
+from config.enums import RedisInitKeyConfig
+from fastapi import Request
+
+from module_admin.entity.vo.login_vo import UserLogin
 
 
 class BodyType(IntEnum):
@@ -167,23 +174,172 @@ class AsyncRequest(object):
         }
 
 
+class LoginManager:
+    def __init__(self):
+        pass
+
+    async def verify_token(self, baseurl: str, token: str) -> bool:
+        """
+        验证token是否有效
+        :param baseurl: 基础URL
+        :param token: token字符串
+        :return: token是否有效
+        """
+        try:
+            r = await AsyncRequest.client(
+                url=f'{baseurl}/api/admin/user/v2/front/info',
+                token=token,
+                body_type=BodyType.none
+            )
+            response = await r.invoke(method='get')
+            return response['status'] == 200
+        except Exception:
+            return False
+
+    async def login(
+            self,
+            baseurl: str,
+            username: str,
+            password: str,
+    ) -> Dict[str, Any]:
+        """
+        执行登录操作并将token存储到Redis
+        :param baseurl: 基础URL
+        :param username: 用户名
+        :param password: 密码
+        :param uuid: uuid(可修改)
+        :param code: code(可修改)
+        :return: 登录响应信息
+        """
+        try:
+            # 首先尝试从Redis获取现有token
+            redis_key = f'{RedisInitKeyConfig.TOKEN.key}:{username}'
+            existing_token = await self.app.state.redis.get(redis_key)
+            # if self.redis_client:
+            #     existing_token = await self.redis_client.get(
+            #         f'{RedisInitKeyConfig.TOKEN.key}:{username}'
+            #     )
+            if existing_token:
+                if await self.verify_token(baseurl, existing_token):
+                    return {"status": True, "token": existing_token, "msg": "Using cached token"}
+
+            # 执行新的登录请求
+            r = await AsyncRequest.client(
+                url=f'{baseurl}/api/auth/jwt/miniLogin',
+                body_type=BodyType.json,
+                body={
+                    "username": username,
+                    "password": password
+                }
+            )
+            raw_response = await r.invoke(method='post')
+            response_str = raw_response['response']
+            response_json = json.loads(response_str)
+
+            if raw_response['status']:
+                token = response_json['data']['accessToken']
+                full_token = f"Bearer {token}"
+                # 存储token到Redis
+                if self.redis_client:
+                    await self.redis_client.set(
+                        f'{RedisInitKeyConfig.TOKEN.key}:{username}',
+                        full_token,
+                        ex=timedelta(minutes=10)
+                    )
+                return {
+                    "status": True,
+                    "token": full_token,
+                    "msg": "Login successful",
+                    "data": response_json['data']
+                }
+            return {
+                "status": False,
+                "msg": "Login failed",
+                "data": response_json
+            }
+        except Exception as e:
+            return {
+                "status": False,
+                "msg": f"Token refresh error: {str(e)}",
+                "data": None
+            }
+
+
+async def example_usage():
+    login_manager = LoginManager()  # 首先创建实例
+    try:
+        baseurl = "https://www.convercomm.com"
+        username = "ran_001"
+        password = "3H/5JXwqnCGKh+s="
+
+        # 登录并获取token
+        login_result = await login_manager.login(
+            baseurl=baseurl,
+            username=username,
+            password=password
+        )
+
+        if login_result["status"]:
+            # 使用token进行其他操作
+            token = login_result["token"]
+            print(f"Login successful, token: {token}")
+
+            # 验证token
+            is_valid = await login_manager.verify_token(baseurl, token)
+            print(f"Token is valid: {is_valid}")
+
+            # # 如果需要，刷新token
+            # refresh_result = await AsyncRequest.refresh_token(baseurl, username, token)
+            # if refresh_result["status"]:
+            #     print(f"Token refreshed: {refresh_result['token']}")
+    except Exception as e:
+        print(f"Error during login: {str(e)}")
+
+
 async def main():
     # 获取 token
+    baseurl = "https://www.convercomm.com"
     r = await AsyncRequest.client(
-        url='http://127.0.0.1:9099/dev-api/login',
-        body_type=BodyType.form,
+        url=f'{baseurl}/api/auth/jwt/miniLogin',
+        body_type=BodyType.json,
         body={
-            "username": "admin",
-            "password": "admin123",
-            "code": "0",
-            "uuid": "ranyong"
+            "username": "ran_001",
+            "password": "3H/5JXwqnCGKh+s="
         }
     )
-    # todo: 会重复请求 token，需要判断过期才请求
     raw_response = await r.invoke(method='post')
     response_str = raw_response['response']
     response_json = json.loads(response_str)
-    token = response_json['token']
+    token = f"Bearer {response_json['data']['accessToken']}"
+
+    # 查询倾角图表
+    url = f'{baseurl}/api/admin/packetInfo/getDevicePacketChart'
+    body = {
+        "imei": "BD012307272000FB",
+        "startTime": "2024-04-01 00:00:00",
+        "endTime": "2024-04-08 23:59:59"
+    }
+    r = await AsyncRequest.client(
+        url,
+        token,
+        body_type=BodyType.json,
+        body=body
+    )
+    raw_response = await r.invoke(method='post')
+
+    # 使用 collect 方法整理响应数据
+    formatted_response = await AsyncRequest.collect(
+        status=True,
+        request_data=None,  # 或者你的请求数据
+        status_code=raw_response.get('status_code', 200),
+        response=raw_response.get('response'),
+        response_headers=raw_response.get('response_headers'),
+        request_headers=raw_response.get('request_headers'),
+        cookies=raw_response.get('cookies'),
+        elapsed=raw_response.get('cost'),
+        msg="请求成功"  # 或者根据实际情况设置消息
+    )
+    print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
     # 发送 get 请求
     # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/list'
@@ -339,4 +495,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # asyncio.run(main())
+    asyncio.run(example_usage())
