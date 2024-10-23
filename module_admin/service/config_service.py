@@ -6,9 +6,11 @@
 # @File    : config_service.py
 # @Software: PyCharm
 # @desc    : 参数配置管理模块服务层
+from typing import List
+
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+
 from config.constant import CommonConstant
 from config.enums import RedisInitKeyConfig
 from exceptions.exception import ServiceException
@@ -57,7 +59,7 @@ class ConfigService:
         for config_obj in config_all:
             await redis.set(
                 f"{RedisInitKeyConfig.SYS_CONFIG.key}:{config_obj.get('configKey')}",
-                config_obj.get('configValue'),
+                config_obj.get('configValue')
             )
 
     @classmethod

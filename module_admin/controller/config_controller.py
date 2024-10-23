@@ -7,9 +7,11 @@
 # @Software: PyCharm
 # @desc    : 参数管理相关接口
 from datetime import datetime
-from fastapi import APIRouter, Depends, Request
+
+from fastapi import APIRouter, Depends, Form, Request
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
@@ -23,7 +25,6 @@ from utils.log_util import logger
 from utils.page_util import PageResponseModel
 from utils.response_util import ResponseUtil
 
-
 configController = APIRouter(prefix='/system/config', dependencies=[Depends(LoginService.get_current_user)])
 
 
@@ -33,7 +34,7 @@ configController = APIRouter(prefix='/system/config', dependencies=[Depends(Logi
 async def get_system_config_list(
         request: Request,
         config_page_query: ConfigPageQueryModel = Depends(ConfigPageQueryModel.as_query),
-        query_db: AsyncSession = Depends(get_db),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     获取系统配置列表
@@ -141,7 +142,7 @@ async def query_system_config(request: Request, config_key: str):
 @Log(title='参数管理', business_type=BusinessType.EXPORT)
 async def export_system_config_list(
         request: Request,
-        config_page_query: ConfigPageQueryModel = Depends(ConfigPageQueryModel.as_form),
+        config_page_query: ConfigPageQueryModel = Form(),
         query_db: AsyncSession = Depends(get_db)
 ):
     """

@@ -8,13 +8,15 @@
 # @desc    : 用户管理相关接口
 import os
 from datetime import datetime
-from fastapi import APIRouter, Depends, File, Query, Request, UploadFile
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional, Union
+from typing import Literal, Optional, Union
+
+from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile
 from pydantic_validation_decorator import ValidateFields
-from config.get_db import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from config.enums import BusinessType
 from config.env import UploadConfig
+from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.data_scope import GetDataScope
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
@@ -35,17 +37,16 @@ from module_admin.entity.vo.user_vo import (
     UserRoleQueryModel,
     UserRoleResponseModel,
 )
-from module_admin.service.login_service import LoginService
-from module_admin.service.user_service import UserService
-from module_admin.service.role_service import RoleService
 from module_admin.service.dept_service import DeptService
+from module_admin.service.login_service import LoginService
+from module_admin.service.role_service import RoleService
+from module_admin.service.user_service import UserService
 from utils.common_util import bytes2file_response
 from utils.log_util import logger
 from utils.page_util import PageResponseModel
 from utils.pwd_util import PwdUtil
 from utils.response_util import ResponseUtil
 from utils.upload_util import UploadUtil
-
 
 userController = APIRouter(prefix='/system/user', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -258,7 +259,7 @@ async def query_detail_system_user_profile(
 )
 async def query_detail_system_user(
         request: Request,
-        user_id: Optional[Union[int, str]] = '',
+        user_id: Optional[Union[int, Literal['']]] = '',
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
         data_scope_sql: str = Depends(GetDataScope('SysUser')),
@@ -399,9 +400,9 @@ async def export_system_user_template(request: Request, query_db: AsyncSession =
 @Log(title='用户管理', business_type=BusinessType.EXPORT)
 async def export_system_user_list(
         request: Request,
-        user_page_query: UserPageQueryModel = Depends(UserPageQueryModel.as_form),
+        user_page_query: UserPageQueryModel = Form(),
         query_db: AsyncSession = Depends(get_db),
-        data_scope_sql: str = Depends(GetDataScope('SysUser')),
+        data_scope_sql: str = Depends(GetDataScope('SysUser'))
 ):
     """
     导出系统用户列表

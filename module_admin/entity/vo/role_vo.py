@@ -7,11 +7,13 @@
 # @Software: PyCharm
 # @desc    : 角色-pydantic模型
 from datetime import datetime
+from typing import List, Literal, Optional, Union
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic.alias_generators import to_camel
 from pydantic_validation_decorator import NotBlank, Size
-from typing import List, Literal, Optional, Union
-from module_admin.annotation.pydantic_annotation import as_form, as_query
+
+from module_admin.annotation.pydantic_annotation import as_query
 
 
 class RoleModel(BaseModel):
@@ -109,7 +111,6 @@ class RoleQueryModel(RoleModel):
 
 
 @as_query
-@as_form
 class RolePageQueryModel(RoleQueryModel):
     """
     角色管理分页查询模型

@@ -8,12 +8,14 @@
 # @desc    : 用户-pydantic模型
 import re
 from datetime import datetime
+from typing import List, Literal, Optional, Union
+
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic.alias_generators import to_camel
 from pydantic_validation_decorator import Network, NotBlank, Size, Xss
-from typing import List, Literal, Optional, Union
+
 from exceptions.exception import ModelValidatorException
-from module_admin.annotation.pydantic_annotation import as_form, as_query
+from module_admin.annotation.pydantic_annotation import as_query
 from module_admin.entity.vo.dept_vo import DeptModel
 from module_admin.entity.vo.post_vo import PostModel
 from module_admin.entity.vo.role_vo import RoleModel
@@ -164,7 +166,6 @@ class UserQueryModel(UserModel):
 
 
 @as_query
-@as_form
 class UserPageQueryModel(UserQueryModel):
     """
     用户管理分页查询模型

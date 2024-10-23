@@ -6,12 +6,14 @@
 # @File    : config_dao.py
 # @Software: PyCharm
 # @desc    : 参数配置管理模块
-from sqlalchemy import select, update, delete
-from sqlalchemy.ext.asyncio import AsyncSession
-from module_admin.entity.do.config_do import SysConfig
-from module_admin.entity.vo.config_vo import *
-from utils.page_util import PageUtil
 from datetime import datetime, time
+
+from sqlalchemy import delete, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from module_admin.entity.do.config_do import SysConfig
+from module_admin.entity.vo.config_vo import ConfigModel, ConfigPageQueryModel
+from utils.page_util import PageUtil
 
 
 class ConfigDao:
@@ -48,8 +50,8 @@ class ConfigDao:
                     )
                 )
             )
-                .scalars()
-                .first()
+            .scalars()
+            .first()
         )
 
         return config_info
@@ -65,7 +67,7 @@ class ConfigDao:
         """
         query = (
             select(SysConfig)
-                .where(
+            .where(
                 SysConfig.config_name.like(f'%{query_object.config_name}%') if query_object.config_name else True,
                 SysConfig.config_key.like(f'%{query_object.config_key}%') if query_object.config_key else True,
                 SysConfig.config_type == query_object.config_type if query_object.config_type else True,
@@ -76,8 +78,8 @@ class ConfigDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-                .order_by(SysConfig.config_id)
-                .distinct()
+            .order_by(SysConfig.config_id)
+            .distinct()
         )
         config_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 

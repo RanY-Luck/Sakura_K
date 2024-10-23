@@ -7,9 +7,11 @@
 # @Software: PyCharm
 # @desc    : 角色相关接口
 from datetime import datetime
-from fastapi import APIRouter, Depends, Request
+
+from fastapi import APIRouter, Depends, Form, Request
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
@@ -193,7 +195,7 @@ async def query_detail_system_role(
 @Log(title='角色管理', business_type=BusinessType.EXPORT)
 async def export_system_role_list(
         request: Request,
-        role_page_query: RolePageQueryModel = Depends(RolePageQueryModel.as_form),
+        role_page_query: RolePageQueryModel = Form(),
         query_db: AsyncSession = Depends(get_db),
         data_scope_sql: str = Depends(GetDataScope('SysDept'))
 ):
