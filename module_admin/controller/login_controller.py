@@ -6,12 +6,14 @@
 # @File    : login_controller.py
 # @Software: PyCharm
 # @desc    : 登录相关接口
-import jwt
 import uuid
 from datetime import datetime, timedelta
+from typing import Optional
+
+import jwt
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
+
 from config.enums import BusinessType, RedisInitKeyConfig
 from config.env import AppConfig, JwtConfig
 from config.get_db import get_db
@@ -57,7 +59,7 @@ async def login(
             'user_name': result[0].user_name,
             'dept_name': result[1].dept_name if result[1] else None,
             'session_id': session_id,
-            'login_info': user.login_info,
+            'login_info': user.login_info
         },
         expires_delta=access_token_expires,
     )
@@ -102,7 +104,7 @@ async def get_login_user_info(
 async def get_login_user_routers(
         request: Request,
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
-        query_db: AsyncSession = Depends(get_db),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     获取登录者

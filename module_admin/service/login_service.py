@@ -6,15 +6,17 @@
 # @File    : login_service.py
 # @Software: PyCharm
 # @desc    : 登录管理模块服务层
-import jwt
 import random
 import uuid
 from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, Union
+
+import jwt
 from fastapi import Depends, Form, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Dict, List, Optional, Union
+
 from config.constant import CommonConstant, MenuConstant
 from config.enums import RedisInitKeyConfig
 from config.env import AppConfig, JwtConfig
@@ -32,7 +34,7 @@ from utils.log_util import logger
 from utils.message_util import message_service
 from utils.pwd_util import PwdUtil
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/login')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
 
 class CustomOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
@@ -43,14 +45,14 @@ class CustomOAuth2PasswordRequestForm(OAuth2PasswordRequestForm):
     def __init__(
             self,
             grant_type: str = Form(default=None, regex='password'),
-            username: str = Form(default=''),
-            password: str = Form(default='',),
+            username: str = Form(),
+            password: str = Form(),
             scope: str = Form(default=''),
-            client_id: Optional[str] = Form(default=''),
-            client_secret: Optional[str] = Form(default=''),
+            client_id: Optional[str] = Form(default=None),
+            client_secret: Optional[str] = Form(default=None),
             code: Optional[str] = Form(default=''),
             uuid: Optional[str] = Form(default=''),
-            login_info: Optional[Dict[str, str]] = Form(default='')
+            login_info: Optional[Dict[str, str]] = Form(default=None),
     ):
         super().__init__(
             grant_type=grant_type,
@@ -190,8 +192,7 @@ class LoginService:
 
     @classmethod
     async def get_current_user(
-            cls,
-            request: Request = Request,
+            cls, request: Request = Request,
             token: str = Depends(oauth2_scheme),
             query_db: AsyncSession = Depends(get_db)
     ):
@@ -204,9 +205,6 @@ class LoginService:
         :return: 当前用户信息对象
         :raise: 令牌异常AuthException
         """
-        # if token[:6] != 'Bearer':
-        #     logger.warning("用户token不合法")
-        #     raise AuthException(data="", message="用户token不合法")
         try:
             if token.startswith('Bearer'):
                 token = token.split(' ')[1]
