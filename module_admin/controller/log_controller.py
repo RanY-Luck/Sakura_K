@@ -6,8 +6,9 @@
 # @File    : log_controller.py
 # @Software: PyCharm
 # @desc    : 日志管理相关接口
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Form, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
@@ -17,7 +18,7 @@ from module_admin.entity.vo.log_vo import (
     DeleteOperLogModel,
     LoginLogPageQueryModel,
     OperLogPageQueryModel,
-    UnlockUser
+    UnlockUser,
 )
 from module_admin.service.log_service import LoginLogService, OperationLogService
 from module_admin.service.login_service import LoginService
@@ -81,8 +82,8 @@ async def delete_system_operation_log(request: Request, oper_ids: str, query_db:
 @Log(title='操作日志', business_type=BusinessType.EXPORT)
 async def export_system_operation_log_list(
         request: Request,
-        operation_log_page_query: OperLogPageQueryModel = Depends(OperLogPageQueryModel.as_form),
-        query_db: AsyncSession = Depends(get_db),
+        operation_log_page_query: OperLogPageQueryModel = Form(),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     导出日志
@@ -167,8 +168,8 @@ async def unlock_system_user(request: Request, user_name: str, query_db: AsyncSe
 @Log(title='登录日志', business_type=BusinessType.EXPORT)
 async def export_system_login_log_list(
         request: Request,
-        login_log_page_query: LoginLogPageQueryModel = Depends(LoginLogPageQueryModel.as_form),
-        query_db: AsyncSession = Depends(get_db),
+        login_log_page_query: LoginLogPageQueryModel = Form(),
+        query_db: AsyncSession = Depends(get_db)
 ):
     # 获取全量数据
     login_log_query_result = await LoginLogService.get_login_log_list_services(
