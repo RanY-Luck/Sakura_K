@@ -6,37 +6,40 @@
 # @File    : server.py
 # @Software: PyCharm
 # @desc    :
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from sub_applications.handle import handle_sub_applications
-from middlewares.handle import handle_middleware
-from exceptions.handle import handle_exception
+from time import sleep
+
+from fastapi import FastAPI
+
 from config.env import AppConfig, PROJECT_DESCRIPTION
-from config.get_redis import RedisUtil
 from config.get_db import init_create_table
+from config.get_redis import RedisUtil
 from config.get_scheduler import SchedulerUtil
-from utils.log_util import logger
-from utils.common_util import worship, panel
+from exceptions.handle import handle_exception
+from middlewares.handle import handle_middleware
+from module_admin.controller.api_controller import apiController
+from module_admin.controller.cache_controller import cacheController
+from module_admin.controller.captcha_controller import captchaController
+from module_admin.controller.config_controller import configController
+from module_admin.controller.datasource_controller import dataSourceController
+from module_admin.controller.dept_controller import deptController
+from module_admin.controller.dict_controller import dictController
+from module_admin.controller.job_controller import jobController
+from module_admin.controller.log_controller import logController
 # 路由列表
 from module_admin.controller.login_controller import loginController
-from module_admin.controller.captcha_controller import captchaController
-from module_admin.controller.user_controller import userController
-from module_admin.controller.role_controller import roleController
 from module_admin.controller.menu_controller import menuController
-from module_admin.controller.dept_controller import deptController
-from module_admin.controller.post_controler import postController
-from module_admin.controller.dict_controller import dictController
-from module_admin.controller.config_controller import configController
 from module_admin.controller.notice_controller import noticeController
-from module_admin.controller.log_controller import logController
 from module_admin.controller.online_controller import onlineController
-from module_admin.controller.job_controller import jobController
-from module_admin.controller.server_controller import serverController
-from module_admin.controller.cache_controller import cacheController
+from module_admin.controller.post_controler import postController
 from module_admin.controller.project_controller import projectController
 from module_admin.controller.robot_controller import robotController
-from module_admin.controller.datasource_controller import dataSourceController
-from module_admin.controller.api_controller import apiController
+from module_admin.controller.role_controller import roleController
+from module_admin.controller.server_controller import serverController
+from module_admin.controller.user_controller import userController
+from sub_applications.handle import handle_sub_applications
+from utils.common_util import worship, panel
+from utils.log_util import logger
 
 
 # 生命周期事件
@@ -58,6 +61,7 @@ async def lifespan(app: FastAPI):
         # 初始化定时任务
         await SchedulerUtil.init_system_scheduler()
         logger.info(f"{AppConfig.app_name}启动成功")
+        sleep(0.1)
         await panel()
         yield
     except Exception as e:
