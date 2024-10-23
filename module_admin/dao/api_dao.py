@@ -63,7 +63,9 @@ class ApiDao:
         :return: 接口信息对象
         """
         query = (
-            select(Api, Project).join(Project, Api.project_id == Project.project_id).where(
+            select(Api, Project)
+            .join(Project, Api.project_id == Project.project_id)
+            .where(
                 Api.api_id == query_object.api_id if query_object.api_id is not None else True,
                 Api.api_name.like(f'%{query_object.api_name}%') if query_object.api_name else True,
                 Api.api_status == query_object.api_status if query_object.api_status else True,
@@ -73,7 +75,9 @@ class ApiDao:
                     datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
                 )
                 if query_object.begin_time and query_object.end_time else True
-            ).distinct()
+            )
+            .distinct()
+            .order_by(Api.create_time.desc())
         )
         api_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
         return api_list
