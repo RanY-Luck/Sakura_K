@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : apitest_vo.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 接口自动化共用 pydantic 模型
 from pydantic import BaseModel
 
 
