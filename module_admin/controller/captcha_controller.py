@@ -8,13 +8,12 @@
 # @desc    : 验证码相关接口
 import uuid
 from datetime import timedelta
-
 from fastapi import APIRouter, Request
-
 from config.enums import RedisInitKeyConfig
+from module_admin.entity.vo.apitest_vo import LoginRequest
 from module_admin.entity.vo.login_vo import CaptchaCode
 from module_admin.service.captcha_service import CaptchaService
-from utils.http_util import LoginManager
+from utils.ApiTestLogin_util import LoginManager
 from utils.log_util import logger
 from utils.response_util import ResponseUtil
 
@@ -56,12 +55,11 @@ async def get_captcha_image(request: Request):
 
 
 @captchaController.post("/testLogin")
-async def login_route(request: Request, username: str, password: str):
-    baseurl = "https://www.convercomm.com"
+async def login_route(request: Request, login_data: LoginRequest):
     result = await login_manager.login(
         request=request,
-        baseurl=baseurl,
-        username=username,
-        password=password
+        baseurl=login_data.baseurl,
+        username=login_data.username,
+        password=login_data.password
     )
     return result
