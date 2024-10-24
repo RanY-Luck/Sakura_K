@@ -8,12 +8,11 @@
 # @desc    : http发起请求工具
 import asyncio
 import json
+import aiohttp
 import time
 from datetime import timedelta
 from enum import IntEnum
 from typing import Dict, Any
-
-import aiohttp
 from aiohttp import FormData
 from fastapi import Request
 
@@ -168,121 +167,8 @@ class AsyncRequest(object):
             "msg": "success" if status else f"http状态码为{status_code}",
             "cost": elapsed,
             "cookies": cookies,
-            **kwargs,
+            **kwargs
         }
-
-
-class LoginManager:
-
-    async def verify_token(self, baseurl: str, token: str) -> bool:
-        """
-        验证token是否有效
-        :param baseurl: 基础URL
-        :param token: token字符串
-        :return: token是否有效
-        """
-        try:
-            r = await AsyncRequest.client(
-                url=f'{baseurl}/api/admin/user/v2/front/info',
-                token=token,
-                body_type=BodyType.none
-            )
-            response = await r.invoke(method='get')
-            return response['status'] == 200
-        except Exception:
-            return False
-
-    async def login(
-            self,
-            request: Request,
-            baseurl: str,
-            username: str,
-            password: str
-    ) -> Dict[str, Any]:
-        """
-        执行登录操作并将token存储到Redis
-        :param baseurl: 基础URL
-        :param username: 用户名
-        :param password: 密码
-        :return: 登录响应信息
-        """
-        existing_token = await request.app.state.redis.get(
-            f'{RedisInitKeyConfig.TOKEN.key}:{username}'
-        )
-        if existing_token:
-            if await self.verify_token(baseurl, existing_token):
-                return {"status": True, "token": existing_token, "msg": "Using cached token"}
-
-        # 执行新的登录请求
-        r = await AsyncRequest.client(
-            url=f'{baseurl}/api/auth/jwt/miniLogin',
-            body_type=BodyType.json,
-            body={
-                "username": username,
-                "password": password
-            }
-        )
-        raw_response = await r.invoke(method='post')
-        response_str = raw_response['response']
-        response_json = json.loads(response_str)
-        if raw_response['status']:
-            token = response_json['data']['accessToken']
-            full_token = f"Bearer {token}"
-            # 存储token到Redis
-            await request.app.state.redis.set(
-                f'{RedisInitKeyConfig.TOKEN.key}:{username}',
-                full_token,
-                ex=timedelta(minutes=10)
-            )
-            return {
-                "status": True,
-                "token": full_token,
-                "msg": "Login successful",
-                "data": response_json['data']
-            }
-        return {
-            "status": False,
-            "msg": "Login failed",
-            "data": response_json
-        }
-
-
-# async def example_usage():
-#     try:
-#         # 可选：创建 Redis 连接
-#         redis = await aioredis.from_url(
-#             "redis://:123456@127.0.0.1:6379/13",
-#             encoding="utf-8",
-#             decode_responses=True
-#         )
-#         login_manager = LoginManager(redis)  # 首先创建实例
-#
-#         baseurl = "https://www.convercomm.com"
-#         username = "ran_001"
-#         password = "3H/5JXwqnCGKh+s="
-#
-#         # 登录并获取token
-#         login_result = await login_manager.login(
-#             baseurl=baseurl,
-#             username=username,
-#             password=password
-#         )
-#
-#         if login_result["status"]:
-#             # 使用token进行其他操作
-#             token = login_result["token"]
-#             print(f"Login successful, token: {token}")
-#
-#             # 验证token
-#             is_valid = await login_manager.verify_token(baseurl, token)
-#             print(f"Token is valid: {is_valid}")
-#
-#             # # 如果需要，刷新token
-#             # refresh_result = await AsyncRequest.refresh_token(baseurl, username, token)
-#             # if refresh_result["status"]:
-#             #     print(f"Token refreshed: {refresh_result['token']}")
-#     except Exception as e:
-#         print(f"Error during login: {str(e)}")
 
 
 async def main():
