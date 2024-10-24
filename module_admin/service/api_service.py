@@ -146,6 +146,7 @@ class ApiService:
         if api is None:
             return CrudResponseModel(is_success=False, message=f'接口{api_id}不存在')
         try:
+            # 需要每次每次去redis 里面取
             api_info = await AsyncRequest.client(
                 url=api.api_url,
                 body=api.request_data,
