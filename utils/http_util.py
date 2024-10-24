@@ -14,8 +14,8 @@ from enum import IntEnum
 from typing import Dict, Any
 
 import aiohttp
-import aioredis
 from aiohttp import FormData
+from fastapi import Request
 
 from config.enums import RedisInitKeyConfig
 
@@ -173,8 +173,6 @@ class AsyncRequest(object):
 
 
 class LoginManager:
-    def __init__(self, redis_client=None):
-        self.redis_client = redis_client
 
     async def verify_token(self, baseurl: str, token: str) -> bool:
         """
@@ -196,6 +194,7 @@ class LoginManager:
 
     async def login(
             self,
+            request: Request,
             baseurl: str,
             username: str,
             password: str
@@ -205,98 +204,85 @@ class LoginManager:
         :param baseurl: 基础URL
         :param username: 用户名
         :param password: 密码
-        :param uuid: uuid(可修改)
-        :param code: code(可修改)
         :return: 登录响应信息
         """
-        try:
-            # 如果有 redis client，尝试获取现有 token
-            if self.redis_client:
-                existing_token = await self.redis_client.get(
-                    f'{RedisInitKeyConfig.TOKEN.key}:{username}'
-                )
-                if existing_token:
-                    if await self.verify_token(baseurl, existing_token):
-                        return {"status": True, "token": existing_token, "msg": "Using cached token"}
+        existing_token = await request.app.state.redis.get(
+            f'{RedisInitKeyConfig.TOKEN.key}:{username}'
+        )
+        if existing_token:
+            if await self.verify_token(baseurl, existing_token):
+                return {"status": True, "token": existing_token, "msg": "Using cached token"}
 
-            # 执行新的登录请求
-            r = await AsyncRequest.client(
-                url=f'{baseurl}/api/auth/jwt/miniLogin',
-                body_type=BodyType.json,
-                body={
-                    "username": username,
-                    "password": password
-                }
+        # 执行新的登录请求
+        r = await AsyncRequest.client(
+            url=f'{baseurl}/api/auth/jwt/miniLogin',
+            body_type=BodyType.json,
+            body={
+                "username": username,
+                "password": password
+            }
+        )
+        raw_response = await r.invoke(method='post')
+        response_str = raw_response['response']
+        response_json = json.loads(response_str)
+        if raw_response['status']:
+            token = response_json['data']['accessToken']
+            full_token = f"Bearer {token}"
+            # 存储token到Redis
+            await request.app.state.redis.set(
+                f'{RedisInitKeyConfig.TOKEN.key}:{username}',
+                full_token,
+                ex=timedelta(minutes=10)
             )
-            raw_response = await r.invoke(method='post')
-            response_str = raw_response['response']
-            response_json = json.loads(response_str)
-
-            if raw_response['status']:
-                token = response_json['data']['accessToken']
-                full_token = f"Bearer {token}"
-                # 存储token到Redis
-                if self.redis_client:
-                    await self.redis_client.set(
-                        f'{RedisInitKeyConfig.TOKEN.key}:{username}',
-                        full_token,
-                        ex=timedelta(minutes=10)
-                    )
-                return {
-                    "status": True,
-                    "token": full_token,
-                    "msg": "Login successful",
-                    "data": response_json['data']
-                }
             return {
-                "status": False,
-                "msg": "Login failed",
-                "data": response_json
+                "status": True,
+                "token": full_token,
+                "msg": "Login successful",
+                "data": response_json['data']
             }
-        except Exception as e:
-            return {
-                "status": False,
-                "msg": f"Token refresh error: {str(e)}",
-                "data": None
-            }
+        return {
+            "status": False,
+            "msg": "Login failed",
+            "data": response_json
+        }
 
 
-async def example_usage():
-    try:
-        # 可选：创建 Redis 连接
-        redis = await aioredis.from_url(
-            "redis://:123456@127.0.0.1:6379/13",
-            encoding="utf-8",
-            decode_responses=True
-        )
-        login_manager = LoginManager(redis)  # 首先创建实例
-
-        baseurl = "https://www.convercomm.com"
-        username = "ran_001"
-        password = "3H/5JXwqnCGKh+s="
-
-        # 登录并获取token
-        login_result = await login_manager.login(
-            baseurl=baseurl,
-            username=username,
-            password=password
-        )
-
-        if login_result["status"]:
-            # 使用token进行其他操作
-            token = login_result["token"]
-            print(f"Login successful, token: {token}")
-
-            # 验证token
-            is_valid = await login_manager.verify_token(baseurl, token)
-            print(f"Token is valid: {is_valid}")
-
-            # # 如果需要，刷新token
-            # refresh_result = await AsyncRequest.refresh_token(baseurl, username, token)
-            # if refresh_result["status"]:
-            #     print(f"Token refreshed: {refresh_result['token']}")
-    except Exception as e:
-        print(f"Error during login: {str(e)}")
+# async def example_usage():
+#     try:
+#         # 可选：创建 Redis 连接
+#         redis = await aioredis.from_url(
+#             "redis://:123456@127.0.0.1:6379/13",
+#             encoding="utf-8",
+#             decode_responses=True
+#         )
+#         login_manager = LoginManager(redis)  # 首先创建实例
+#
+#         baseurl = "https://www.convercomm.com"
+#         username = "ran_001"
+#         password = "3H/5JXwqnCGKh+s="
+#
+#         # 登录并获取token
+#         login_result = await login_manager.login(
+#             baseurl=baseurl,
+#             username=username,
+#             password=password
+#         )
+#
+#         if login_result["status"]:
+#             # 使用token进行其他操作
+#             token = login_result["token"]
+#             print(f"Login successful, token: {token}")
+#
+#             # 验证token
+#             is_valid = await login_manager.verify_token(baseurl, token)
+#             print(f"Token is valid: {is_valid}")
+#
+#             # # 如果需要，刷新token
+#             # refresh_result = await AsyncRequest.refresh_token(baseurl, username, token)
+#             # if refresh_result["status"]:
+#             #     print(f"Token refreshed: {refresh_result['token']}")
+#     except Exception as e:
+#         print(f"Error during login: {str(e)}")
 
 
 async def main():
@@ -306,7 +292,7 @@ async def main():
         url=f'{baseurl}/api/auth/jwt/miniLogin',
         body_type=BodyType.json,
         body={
-            "username": "ran_001",
+            "username": "ran_dev",
             "password": "3H/5JXwqnCGKh+s="
         }
     )
@@ -314,7 +300,7 @@ async def main():
     response_str = raw_response['response']
     response_json = json.loads(response_str)
     token = f"Bearer {response_json['data']['accessToken']}"
-
+    print(json.dumps(response_json, ensure_ascii=False, indent=2))
     # 查询倾角图表
     url = f'{baseurl}/api/admin/packetInfo/getDevicePacketChart'
     body = {
@@ -342,7 +328,7 @@ async def main():
         elapsed=raw_response.get('cost'),
         msg="请求成功"  # 或者根据实际情况设置消息
     )
-    print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
+    # print(json.dumps(formatted_response, ensure_ascii=False, indent=2))
 
     # 发送 get 请求
     # url = 'http://127.0.0.1:9099/dev-api/apitest/apiInfo/list'
@@ -498,5 +484,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    # asyncio.run(main())
-    asyncio.run(example_usage())
+    asyncio.run(main())
+    # asyncio.run(example_usage())
