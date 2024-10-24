@@ -9,17 +9,15 @@
 import asyncio
 import json
 import time
+from datetime import timedelta
+from enum import IntEnum
 from typing import Dict, Any
 
 import aiohttp
-import uuid
-from datetime import timedelta
-from enum import IntEnum
+import aioredis
 from aiohttp import FormData
-from config.enums import RedisInitKeyConfig
-from fastapi import Request
 
-from module_admin.entity.vo.login_vo import UserLogin
+from config.enums import RedisInitKeyConfig
 
 
 class BodyType(IntEnum):
@@ -175,8 +173,8 @@ class AsyncRequest(object):
 
 
 class LoginManager:
-    def __init__(self):
-        pass
+    def __init__(self, redis_client=None):
+        self.redis_client = redis_client
 
     async def verify_token(self, baseurl: str, token: str) -> bool:
         """
@@ -200,7 +198,7 @@ class LoginManager:
             self,
             baseurl: str,
             username: str,
-            password: str,
+            password: str
     ) -> Dict[str, Any]:
         """
         执行登录操作并将token存储到Redis
@@ -212,16 +210,14 @@ class LoginManager:
         :return: 登录响应信息
         """
         try:
-            # 首先尝试从Redis获取现有token
-            redis_key = f'{RedisInitKeyConfig.TOKEN.key}:{username}'
-            existing_token = await self.app.state.redis.get(redis_key)
-            # if self.redis_client:
-            #     existing_token = await self.redis_client.get(
-            #         f'{RedisInitKeyConfig.TOKEN.key}:{username}'
-            #     )
-            if existing_token:
-                if await self.verify_token(baseurl, existing_token):
-                    return {"status": True, "token": existing_token, "msg": "Using cached token"}
+            # 如果有 redis client，尝试获取现有 token
+            if self.redis_client:
+                existing_token = await self.redis_client.get(
+                    f'{RedisInitKeyConfig.TOKEN.key}:{username}'
+                )
+                if existing_token:
+                    if await self.verify_token(baseurl, existing_token):
+                        return {"status": True, "token": existing_token, "msg": "Using cached token"}
 
             # 执行新的登录请求
             r = await AsyncRequest.client(
@@ -266,8 +262,15 @@ class LoginManager:
 
 
 async def example_usage():
-    login_manager = LoginManager()  # 首先创建实例
     try:
+        # 可选：创建 Redis 连接
+        redis = await aioredis.from_url(
+            "redis://:123456@127.0.0.1:6379/13",
+            encoding="utf-8",
+            decode_responses=True
+        )
+        login_manager = LoginManager(redis)  # 首先创建实例
+
         baseurl = "https://www.convercomm.com"
         username = "ran_001"
         password = "3H/5JXwqnCGKh+s="
