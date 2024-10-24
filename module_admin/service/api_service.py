@@ -146,11 +146,12 @@ class ApiService:
         if api is None:
             return CrudResponseModel(is_success=False, message=f'接口{api_id}不存在')
         try:
-            # 需要每次每次去redis 里面取
+            # 从请求头中获取认证信息
             api_info = await AsyncRequest.client(
                 url=api.api_url,
                 body=api.request_data,
-                body_type=api.request_data_type
+                body_type=api.request_data_type,
+                headers=api.request_headers
             )
             response = await api_info.invoke(method=api.api_method)
             return response
