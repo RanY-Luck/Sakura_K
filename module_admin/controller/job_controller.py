@@ -156,7 +156,6 @@ async def query_detail_system_job(request: Request, job_id: int, query_db: Async
 
 
 @jobController.post('/job/export', dependencies=[Depends(CheckUserInterfaceAuth('monitor:job:export'))])
-@jobController.post('/job/export', dependencies=[Depends(CheckUserInterfaceAuth('monitor:job:export'))])
 @Log(title='定时任务', business_type=BusinessType.EXPORT)
 async def export_system_job_list(
         request: Request,
