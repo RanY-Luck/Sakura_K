@@ -77,7 +77,7 @@ class AsyncRequest(object):
     async def client(url: str, token: str = None, body_type: BodyType = BodyType.json, timeout=15, **kwargs):
         if not url.startswith(("http://", "https://")):
             raise Exception("请输入正确的url,带上http")
-
+        # todo: 需要重构，不能获取 token 值，需要携带 header 里面解析
         headers = kwargs.get("headers", {})
         body = kwargs.get("body", {})
 
@@ -186,7 +186,7 @@ async def main():
     response_str = raw_response['response']
     response_json = json.loads(response_str)
     token = f"Bearer {response_json['data']['accessToken']}"
-    print(json.dumps(response_json, ensure_ascii=False, indent=2))
+    # print(json.dumps(response_json, ensure_ascii=False, indent=2))
     # 查询倾角图表
     url = f'{baseurl}/api/admin/packetInfo/getDevicePacketChart'
     body = {
@@ -201,6 +201,7 @@ async def main():
         body=body
     )
     raw_response = await r.invoke(method='post')
+    print("r-->",r.token)
 
     # 使用 collect 方法整理响应数据
     formatted_response = await AsyncRequest.collect(
