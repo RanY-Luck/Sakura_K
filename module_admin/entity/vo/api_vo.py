@@ -56,8 +56,8 @@ class ApiModel(BaseModel):
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[List[str]] = Field(default=[], description='接口标签')
     request_data_type: Optional[int] = Field(default=0, description='数据类型(0none 1json 2form 3x_form 4raw)')
-    request_data: Optional[Any] = Field(default=[], description='请求体')
-    request_headers: Optional[Any] = Field(default=[], description='请求头')
+    request_data: Optional[Any] = Field(default={}, description='请求体')
+    request_headers: Optional[Any] = Field(default={}, description='请求头')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
