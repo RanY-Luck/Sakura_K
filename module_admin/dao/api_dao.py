@@ -69,6 +69,7 @@ class ApiDao:
                 Api.api_id == query_object.api_id if query_object.api_id is not None else True,
                 Api.api_name.like(f'%{query_object.api_name}%') if query_object.api_name else True,
                 Api.api_status == query_object.api_status if query_object.api_status else True,
+                Api.request_data_type == query_object.request_data_type if query_object.request_data_type is not None else True,
                 Api.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
                 Api.create_time.between(
                     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
