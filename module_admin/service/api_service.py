@@ -151,28 +151,36 @@ class ApiService:
             # 处理请求头格式
             headers = {}
             if api.request_headers:
-                # 假设 request_headers 是一个字典，包含 key 和 value
-                if isinstance(
-                        api.request_headers, dict
-                ) and 'key' in api.request_headers and 'value' in api.request_headers:
-                    headers[api.request_headers['key']] = api.request_headers['value']
-                # 如果是字符串，尝试解析 JSON
-                elif isinstance(api.request_headers, str):
-                    try:
+                try:
+                    if isinstance(api.request_headers, str):
                         header_data = json.loads(api.request_headers)
-                        if isinstance(header_data, dict) and 'key' in header_data and 'value' in header_data:
+                    else:
+                        header_data = api.request_headers
+                    # 支持多个请求头
+                    if isinstance(header_data, list):
+                        for item in header_data:
+                            if isinstance(item, dict) and 'key' in item and 'value' in item:
+                                headers[item['key']] = item['value']
+                    elif isinstance(header_data, dict):
+                        if 'key' in header_data and 'value' in header_data:
                             headers[header_data['key']] = header_data['value']
-                    except json.JSONDecodeError:
-                        pass
-            # 发起请求
-            api_info = await AsyncRequest.client(
-                url=api.api_url,
-                body=api.request_data,
-                body_type=api.request_data_type,
-                headers=headers  # 使用处理后的headers
-            )
-            response = await api_info.invoke(method=api.api_method)
-            return response
+                        else:
+                            # 如果是普通的键值对字典，直接使用
+                            headers.update(header_data)
+                except json.JSONDecodeError:
+                    pass
+                # 添加一些常用的默认请求头
+                if 'Content-Type' not in headers:
+                    headers['Content-Type'] = 'application/json'
+                # 发起请求
+                api_info = await AsyncRequest.client(
+                    url=api.api_url,
+                    body=api.request_data,
+                    body_type=api.request_data_type,
+                    headers=headers  # 使用处理后的headers
+                )
+                response = await api_info.invoke(method=api.api_method)
+                return response
         except Exception as e:
             # 处理其他未预料到的错误
             await query_db.rollback()

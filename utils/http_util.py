@@ -9,6 +9,7 @@
 import asyncio
 import json
 import time
+import urllib
 from enum import IntEnum
 
 import aiohttp
@@ -69,22 +70,47 @@ class AsyncRequest(object):
         """
         start = time.time()
         headers = self.kwargs.get('headers', {})
-        if self.token:  # 只在有token时添加Authorization头
+        if self.token:
             headers['Authorization'] = f'Bearer {self.token}'
         self.kwargs['headers'] = headers
 
+        # 确保我们使用的是 json 参数
+        if 'data' in self.kwargs and 'json' not in self.kwargs:
+            self.kwargs['json'] = self.kwargs.pop('data')
+
         async with aiohttp.ClientSession(cookie_jar=aiohttp.CookieJar(unsafe=True)) as session:
-            async with session.request(
-                    method, self.url, timeout=self.timeout,
-                    ssl=False, **self.kwargs
-            ) as resp:
+            try:
+                async with session.request(
+                        method, self.url, timeout=self.timeout,
+                        ssl=False, **self.kwargs
+                ) as resp:
+                    cost = "%.0fms" % ((time.time() - start) * 1000)
+                    response, json_format = await self.get_resp(resp)
+                    cookie = self.get_cookie(session)
+
+                    return await self.collect(
+                        resp.status == 200,
+                        self.get_data(self.kwargs),
+                        resp.status,
+                        response,
+                        resp.headers,
+                        resp.request_info.headers,
+                        elapsed=cost,
+                        cookies=cookie,
+                        json_format=json_format
+                    )
+            except Exception as e:
                 cost = "%.0fms" % ((time.time() - start) * 1000)
-                response, json_format = await self.get_resp(resp)
-                cookie = self.get_cookie(session)
                 return await self.collect(
-                    resp.status == 200, self.get_data(self.kwargs), resp.status, response,
-                    resp.headers, resp.request_info.headers, elapsed=cost,
-                    cookies=cookie, json_format=json_format
+                    False,
+                    self.get_data(self.kwargs),
+                    500,
+                    str(e),
+                    None,
+                    headers,
+                    elapsed=cost,
+                    cookies=None,
+                    json_format=False
                 )
 
     @staticmethod
@@ -110,19 +136,22 @@ class AsyncRequest(object):
         """
         if not url.startswith(("http://", "https://")):
             raise Exception("请输入正确的url,带上http")
-
         headers = kwargs.get("headers", {})
         token = kwargs.get("token")  # 从kwargs中获取token
         body = body or kwargs.get("body", {})
 
-        if body_type == BodyType.json:
-            return await AsyncRequest._handle_json_request(url, headers, body, timeout, token)
-        elif body_type == BodyType.form:
-            return await AsyncRequest._handle_form_request(url, headers, body, timeout, token)
-        elif body_type == BodyType.x_form:
-            return await AsyncRequest._handle_x_form_request(url, headers, body, timeout, token)
-        else:
-            return AsyncRequest(url, token=token, headers=headers, timeout=timeout, data=body)
+        try:
+            if body_type == "json":
+                return await AsyncRequest._handle_json_request(url, headers, body, timeout, token)
+            elif body_type == "form":
+                return await AsyncRequest._handle_form_request(url, headers, body, timeout, token)
+            elif body_type == "x_form":
+                return await AsyncRequest._handle_x_form_request(url, headers, body, timeout, token)
+            else:
+                return AsyncRequest(url, token=token, headers=headers, timeout=timeout, data=body)
+        except Exception as e:
+            print(f"请求预处理错误: {str(e)}")
+            raise
 
     @staticmethod
     async def _handle_json_request(url: str, headers: dict, body: dict, timeout: int, token: str = None):
@@ -139,80 +168,142 @@ class AsyncRequest(object):
         return AsyncRequest(url, token=token, headers=headers, timeout=timeout, json=body)
 
     @staticmethod
-    async def _handle_form_request(url: str, headers: dict, body: dict, timeout: int, token: str = None):
-        """处理 form-data 类型请求"""
-        try:
-            form_data = FormData()
+    async def _handle_json_request(url, headers, body, timeout, token):
+        """处理 JSON 格式的请求"""
+        headers['Content-Type'] = 'application/json'
 
-            if isinstance(body, dict):
-                for key, value in body.items():
-                    if isinstance(value, (str, int, float, bool)):
-                        form_data.add_field(key, str(value))
-                    elif isinstance(value, list):
-                        form_data.add_field(key, json.dumps(value))
-                    else:
-                        form_data.add_field(key, str(value))
-            elif isinstance(body, str):
-                items = json.loads(body)
-                for item in items:
-                    if item.get("type") == "TEXT":
-                        form_data.add_field(item.get("key"), item.get("value", ''))
-                    else:
-                        raise Exception("error creating form")
-            else:
-                raise Exception("Body must be a dict or a JSON string for form data")
+        # 确保 body 是正确的 JSON 格式
+        if isinstance(body, str):
+            try:
+                body = json.loads(body)
+            except json.JSONDecodeError:
+                body = {"data": body}
 
-            return AsyncRequest(url, token=token, headers=headers, data=form_data, timeout=timeout)
-        except Exception as e:
-            raise Exception(f"解析form-data失败: {str(e)}")
+        # 确保 body 是字典类型
+        if not isinstance(body, dict):
+            body = {"data": body}
+
+        # 使用 json 参数而不是 data 参数
+        return AsyncRequest(
+            url,
+            token=token,
+            headers=headers,
+            timeout=timeout,
+            json=body  # 使用 json 参数让 aiohttp 自动处理 JSON 序列化
+        )
 
     @staticmethod
-    async def _handle_x_form_request(url: str, headers: dict, body: dict, timeout: int, token: str = None):
-        """处理 x-www-form-urlencoded 类型请求"""
-        headers['Content-Type'] = "application/x-www-form-urlencoded"
+    async def _handle_form_request(url, headers, body, timeout, token):
+        """处理 form 格式的请求"""
+        if not headers.get('Content-Type'):
+            headers['Content-Type'] = 'application/x-www-form-urlencoded'
+
+        # 确保 body 是字典类型
+        if isinstance(body, str):
+            try:
+                body = json.loads(body)
+            except json.JSONDecodeError:
+                # 如果不是有效的 JSON 字符串，尝试解析为表单数据
+                try:
+                    body = dict(urllib.parse.parse_qsl(body))
+                except:
+                    body = {"data": body}
+
+        return AsyncRequest(
+            url,
+            token=token,
+            headers=headers,
+            timeout=timeout,
+            data=body
+        )
+
+    @staticmethod
+    async def _handle_x_form_request(url, headers, body, timeout, token):
+        """处理 x-form 格式的请求"""
+        if not headers.get('Content-Type'):
+            headers['Content-Type'] = 'multipart/form-data'
+
+        # 处理 multipart/form-data 格式
+        form_data = aiohttp.FormData()
 
         if isinstance(body, str):
-            body = json.loads(body)
+            try:
+                body = json.loads(body)
+            except json.JSONDecodeError:
+                body = {"data": body}
 
-        return AsyncRequest(url, token=token, headers=headers, data=body, timeout=timeout)
+        if isinstance(body, dict):
+            for key, value in body.items():
+                form_data.add_field(key, str(value))
+
+        return AsyncRequest(
+            url,
+            token=token,
+            headers=headers,
+            timeout=timeout,
+            data=form_data
+        )
 
     @staticmethod
     async def collect(
             status, request_data, status_code=200, response=None, response_headers=None,
-            request_headers=None, cookies=None, elapsed=None, msg="success", **kwargs
+            request_headers=None, cookies=None, elapsed=None, msg="success", json_format=True, **kwargs
     ):
         """收集并格式化响应数据"""
 
-        def ensure_json_string(data):
-            if isinstance(data, str):
-                try:
-                    json.loads(data)
-                    return data
-                except json.JSONDecodeError:
-                    return json.dumps({"data": data}, ensure_ascii=False)
-            elif isinstance(data, dict):
-                return json.dumps(data, ensure_ascii=False)
+        def format_headers(headers):
+            """格式化 headers"""
+            if headers is None:
+                return "{}"
+
+            # 如果是 aiohttp 的 CIMultiDictProxy，转换为普通字典
+            if hasattr(headers, 'items'):
+                headers_dict = dict(headers.items())
+            elif isinstance(headers, dict):
+                headers_dict = headers
             else:
-                return json.dumps({}, ensure_ascii=False)
+                headers_dict = {}
 
-        request_headers = ensure_json_string(request_headers)
-        response_headers = ensure_json_string(response_headers)
+            # 确保所有值都是字符串
+            formatted_dict = {
+                str(k): str(v) for k, v in headers_dict.items()
+            }
 
+            return json.dumps(formatted_dict, ensure_ascii=False)
+
+        # 格式化请求和响应头
+        formatted_request_headers = format_headers(request_headers)
+        formatted_response_headers = format_headers(response_headers)
+
+        # 处理 cookies
         if cookies is not None and not isinstance(cookies, str):
             cookies = json.dumps(cookies, ensure_ascii=False)
         elif cookies is None:
             cookies = json.dumps({}, ensure_ascii=False)
 
+        # 处理请求数据
+        if isinstance(request_data, (dict, list)):
+            request_data = json.dumps(request_data, ensure_ascii=False)
+        elif request_data is None:
+            request_data = "{}"
+
+        # 处理响应数据
+        if response is None:
+            response = "{}"
+        elif not isinstance(response, str):
+            response = json.dumps(response, ensure_ascii=False)
+
         return {
             "status": status,
             "response": response,
             "status_code": status_code,
-            "request_data": AsyncRequest.get_request_data(request_data),
-            "response_headers": response_headers,
-            "request_headers": request_headers,
+            "request_data": request_data,
+            "response_headers": formatted_response_headers,
+            "request_headers": formatted_request_headers,
             "msg": "success" if status else f"http状态码为{status_code}",
             "cost": elapsed,
             "cookies": cookies,
+            "json_format": json_format,
             **kwargs
         }
 
