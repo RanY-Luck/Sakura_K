@@ -30,7 +30,9 @@ class ApiQueryModel(BaseModel):
     api_status: Optional[str] = Field(default=None, description='接口状态(0正常 1停用)')
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[str] = Field(default=None, description='接口标签')
-    request_data_type: Optional[int] = Field(default=1, description='数据类型(0none 1json 2form 3x_form 4raw)')
+    request_data_type: Optional[int] = Field(
+        default=0, description='数据类型:0[none] 1[json] 2[form] 3[x_form] 4[raw]'
+    )
     request_data: Optional[Any] = Field(default=None, description='请求体')
     request_headers: Optional[Any] = Field(default=None, description='请求头')
 
@@ -55,7 +57,9 @@ class ApiModel(BaseModel):
     api_status: Optional[str] = Field(default='0', description='接口状态(0正常 1停用)')
     api_level: Optional[str] = Field(default=None, description='优先级')
     api_tags: Optional[List[str]] = Field(default=[], description='接口标签')
-    request_data_type: Optional[int] = Field(default=0, description='数据类型(0none 1json 2form 3x_form 4raw)')
+    request_data_type: Optional[int] = Field(
+        default=0, description='数据类型:0[none] 1[json] 2[form] 3[x_form] 4[raw]'
+    )
     request_data: Optional[Any] = Field(default={}, description='请求体')
     request_headers: Optional[Any] = Field(default={}, description='请求头')
 
