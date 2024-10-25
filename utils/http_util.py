@@ -8,15 +8,11 @@
 # @desc    : http发起请求工具
 import asyncio
 import json
-import aiohttp
 import time
-from datetime import timedelta
 from enum import IntEnum
-from typing import Dict, Any
-from aiohttp import FormData
-from fastapi import Request
 
-from config.enums import RedisInitKeyConfig
+import aiohttp
+from aiohttp import FormData
 
 
 class BodyType(IntEnum):
@@ -251,7 +247,7 @@ async def main():
         body_type=BodyType.json,
         token=token,  # 直接传入token，不需要添加"Bearer"前缀
         headers={
-            "Authorization":"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU"
+            "Authorization": "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU"
         }
     )
     chart_response = await chart_request.invoke(method='post')

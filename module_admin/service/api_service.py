@@ -6,6 +6,8 @@
 # @File    : api_service.py
 # @Software: PyCharm
 # @desc    : 接口模块服务层
+import json
+
 from module_admin.dao.api_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from utils.common_util import CamelCaseUtil
@@ -146,12 +148,28 @@ class ApiService:
         if api is None:
             return CrudResponseModel(is_success=False, message=f'接口{api_id}不存在')
         try:
-            # 从请求头中获取认证信息
+            # 处理请求头格式
+            headers = {}
+            if api.request_headers:
+                # 假设 request_headers 是一个字典，包含 key 和 value
+                if isinstance(
+                        api.request_headers, dict
+                ) and 'key' in api.request_headers and 'value' in api.request_headers:
+                    headers[api.request_headers['key']] = api.request_headers['value']
+                # 如果是字符串，尝试解析 JSON
+                elif isinstance(api.request_headers, str):
+                    try:
+                        header_data = json.loads(api.request_headers)
+                        if isinstance(header_data, dict) and 'key' in header_data and 'value' in header_data:
+                            headers[header_data['key']] = header_data['value']
+                    except json.JSONDecodeError:
+                        pass
+            # 发起请求
             api_info = await AsyncRequest.client(
                 url=api.api_url,
                 body=api.request_data,
                 body_type=api.request_data_type,
-                headers=api.request_headers
+                headers=headers  # 使用处理后的headers
             )
             response = await api_info.invoke(method=api.api_method)
             return response
