@@ -142,7 +142,7 @@ class ApiService:
         Debug接口service
         :param query_db: orm对象
         :param api_id: 接口id
-        :return: 接口原始响应
+        :return: 格式化后的接口响应
         """
         api = await ApiDao.get_api_detail_by_id(query_db, api_id=api_id)
         if api is None:
@@ -165,7 +165,6 @@ class ApiService:
                         if 'key' in header_data and 'value' in header_data:
                             headers[header_data['key']] = header_data['value']
                         else:
-                            # 如果是普通的键值对字典，直接使用
                             headers.update(header_data)
                 except json.JSONDecodeError:
                     pass
@@ -179,15 +178,31 @@ class ApiService:
             )
             response = await api_info.invoke(method=api.api_method)
 
-            # 如果返回的是 JSON 字符串，转换成 dict
-            if isinstance(response, str):
-                try:
-                    return json.loads(response)
-                except json.JSONDecodeError:
-                    return response
-            return response
+            # 格式化响应数据
+            def format_response(response_data):
+                if isinstance(response_data, str):
+                    try:
+                        # 尝试解析JSON字符串
+                        parsed_data = json.loads(response_data)
+                        # 返回格式化的JSON，设置缩进为2个空格
+                        return {
+                            "data": parsed_data,
+                            "request_data": api.request_data,
+                            "request_headers": headers,
+                            "response_headers": dict(api_info.response.headers),
+                            "status_code": api_info.response.status,
+                            "cost": f"{api_info.response.elapsed.total_seconds() * 1000:.0f}ms"
+                        }
+                    except json.JSONDecodeError:
+                        return response_data
+                return response_data
+
+            formatted_response = format_response(response)
+            if isinstance(formatted_response, dict):
+                # 如果是字典类型，进行JSON格式化输出
+                return json.dumps(formatted_response, ensure_ascii=False, indent=2)
+            return formatted_response
 
         except Exception as e:
-            # 处理其他未预料到的错误
             await query_db.rollback()
             return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
