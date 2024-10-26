@@ -550,5 +550,5 @@ async def debug_token_request():
 
 if __name__ == "__main__":
     # asyncio.run(main())
-    # asyncio.run(debug_request())
-    asyncio.run(debug_token_request())
+    asyncio.run(debug_request())
+    # asyncio.run(debug_token_request())
