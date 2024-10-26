@@ -142,7 +142,7 @@ class ApiService:
         Debug接口service
         :param query_db: orm对象
         :param api_id: 接口id
-        :return: 接口id对应的信息
+        :return: 接口原始响应
         """
         api = await ApiDao.get_api_detail_by_id(query_db, api_id=api_id)
         if api is None:
@@ -169,15 +169,24 @@ class ApiService:
                             headers.update(header_data)
                 except json.JSONDecodeError:
                     pass
-                # 发起请求
-                api_info = await AsyncRequest.client(
-                    url=api.api_url,
-                    body=api.request_data,
-                    body_type=api.request_data_type,
-                    headers=headers
-                )
-                response = await api_info.invoke(method=api.api_method)
-                return response
+
+            # 发起请求
+            api_info = await AsyncRequest.client(
+                url=api.api_url,
+                body=api.request_data,
+                body_type=api.request_data_type,
+                headers=headers
+            )
+            response = await api_info.invoke(method=api.api_method)
+
+            # 如果返回的是 JSON 字符串，转换成 dict
+            if isinstance(response, str):
+                try:
+                    return json.loads(response)
+                except json.JSONDecodeError:
+                    return response
+            return response
+
         except Exception as e:
             # 处理其他未预料到的错误
             await query_db.rollback()
