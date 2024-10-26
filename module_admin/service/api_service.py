@@ -169,15 +169,12 @@ class ApiService:
                             headers.update(header_data)
                 except json.JSONDecodeError:
                     pass
-                # 添加一些常用的默认请求头
-                if 'Content-Type' not in headers:
-                    headers['Content-Type'] = 'application/json'
                 # 发起请求
                 api_info = await AsyncRequest.client(
                     url=api.api_url,
                     body=api.request_data,
                     body_type=api.request_data_type,
-                    headers=headers  # 使用处理后的headers
+                    headers=headers
                 )
                 response = await api_info.invoke(method=api.api_method)
                 return response
