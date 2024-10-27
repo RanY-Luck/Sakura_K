@@ -177,6 +177,45 @@ class ApiService:
                 headers=headers
             )
             response = await api_info.invoke(method=api.api_method)
+
+            # 对响应进行去转义处理
+            def clean_and_unescape(text):
+                if not isinstance(text, str):
+                    return text
+                # 移除无效的控制字符
+                text = ''.join(char for char in text if ord(char) >= 32 or char in '\n\r\t')
+                try:
+                    # 尝试去转义
+                    return text.encode('raw_unicode_escape').decode('unicode_escape')
+                except:
+                    return text
+
+            if isinstance(response, str):
+                response = clean_and_unescape(response)
+            elif isinstance(response, dict):
+                try:
+                    # 递归处理字典中的所有字符串值
+                    def process_dict(d):
+                        if not isinstance(d, dict):
+                            return d
+                        return {k: clean_and_unescape(v) if isinstance(v, str) else process_dict(v) if isinstance(
+                            v,
+                            (dict, list)
+                        ) else v
+                                for k, v in d.items()}
+
+                    def process_list(l):
+                        return [clean_and_unescape(item) if isinstance(item, str) else process_dict(item) if isinstance(
+                            item,
+                            dict
+                        )
+                        else process_list(item) if isinstance(item, list) else item for item in l]
+
+                    response = process_dict(response)
+                except Exception as e:
+                    # 如果处理失败，返回原始响应
+                    pass
+
             return response
 
         except Exception as e:
