@@ -39,10 +39,6 @@ class AsyncRequest(object):
         self.kwargs = kwargs
         self.timeout = aiohttp.ClientTimeout(total=timeout)
 
-    def get_cookie(self, session):
-        """获取会话cookie"""
-        cookies = session.cookie_jar.filter_cookies(self.url)
-        return {k: v.value for k, v in cookies.items()}
 
     def get_data(self, kwargs):
         """获取请求数据"""
@@ -86,7 +82,6 @@ class AsyncRequest(object):
                 ) as resp:
                     cost = "%.0fms" % ((time.time() - start) * 1000)
                     response, json_format = await self.get_resp(resp)
-                    cookie = self.get_cookie(session)
 
                     return await self.collect(
                         resp.status == 200,
@@ -96,7 +91,6 @@ class AsyncRequest(object):
                         resp.headers,
                         resp.request_info.headers,
                         elapsed=cost,
-                        cookies=cookie,
                         json_format=json_format
                     )
             except Exception as e:
@@ -109,7 +103,6 @@ class AsyncRequest(object):
                     None,
                     headers,
                     elapsed=cost,
-                    cookies=None,
                     json_format=False
                 )
 
@@ -247,7 +240,7 @@ class AsyncRequest(object):
     @staticmethod
     async def collect(
             status, request_data, status_code=200, response=None, response_headers=None,
-            request_headers=None, cookies=None, elapsed=None, msg="success", json_format=True, **kwargs
+            request_headers=None, elapsed=None, msg="success", json_format=True, **kwargs
     ):
         """收集并格式化响应数据"""
 
@@ -275,11 +268,6 @@ class AsyncRequest(object):
         formatted_request_headers = format_headers(request_headers)
         formatted_response_headers = format_headers(response_headers)
 
-        # 处理 cookies
-        if cookies is not None and not isinstance(cookies, str):
-            cookies = json.dumps(cookies, ensure_ascii=False)
-        elif cookies is None:
-            cookies = json.dumps({}, ensure_ascii=False)
 
         # 处理请求数据
         if isinstance(request_data, (dict, list)):
@@ -302,7 +290,6 @@ class AsyncRequest(object):
             "request_headers": formatted_request_headers,
             "msg": "success" if status else f"http状态码为{status_code}",
             "cost": elapsed,
-            "cookies": cookies,
             "json_format": json_format,
             **kwargs
         }
@@ -368,7 +355,6 @@ async def debug_request():
         response=raw_response.get('response'),
         response_headers=raw_response.get('response_headers'),
         request_headers=raw_response.get('request_headers'),
-        cookies=raw_response.get('cookies'),
         elapsed=raw_response.get('cost'),
         msg="认证请求成功"
     )
@@ -409,7 +395,6 @@ async def debug_token_request():
     #     response=raw_response.get('response'),
     #     response_headers=raw_response.get('response_headers'),
     #     request_headers=raw_response.get('request_headers'),
-    #     cookies=raw_response.get('cookies'),
     #     elapsed=raw_response.get('cost'),
     #     msg="请求成功"  # 或者根据实际情况设置消息
     # )
@@ -464,7 +449,6 @@ async def debug_token_request():
     #     response=raw_response.get('response'),
     #     response_headers=raw_response.get('response_headers'),
     #     request_headers=raw_response.get('request_headers'),
-    #     cookies=raw_response.get('cookies'),
     #     elapsed=raw_response.get('cost'),
     #     msg="请求成功"  # 或者根据实际情况设置消息
     # )
@@ -519,7 +503,6 @@ async def debug_token_request():
     #     response=raw_response.get('response'),
     #     response_headers=raw_response.get('response_headers'),
     #     request_headers=raw_response.get('request_headers'),
-    #     cookies=raw_response.get('cookies'),
     #     elapsed=raw_response.get('cost'),
     #     msg="请求成功"  # 或者根据实际情况设置消息
     # )
@@ -541,7 +524,6 @@ async def debug_token_request():
     #     response=raw_response.get('response'),
     #     response_headers=raw_response.get('response_headers'),
     #     request_headers=raw_response.get('request_headers'),
-    #     cookies=raw_response.get('cookies'),
     #     elapsed=raw_response.get('cost'),
     #     msg="请求成功" if raw_response['status_code'] == 200 else f"请求失败，状态码：{raw_response['status_code']}"
     # )
