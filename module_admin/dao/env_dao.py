@@ -42,7 +42,7 @@ class EnvDao:
         """
         env_info = ((await db.execute(
             select(Env).where(
-                Env.env_name == env.env_name if api.env_name else True
+                Env.env_name == env.env_name if env.env_name else True
             )
         )).scalars().first())
 

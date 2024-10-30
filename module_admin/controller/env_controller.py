@@ -27,7 +27,7 @@ envController = APIRouter(prefix='/env/envInfo', dependencies=[Depends(LoginServ
 @envController.get(
     '/list', response_model=PageResponseModel, dependencies=[Depends(CheckUserInterfaceAuth('env:envInfo:list'))]
 )
-async def get_api_list(
+async def get_env_list(
         request: Request,
         env_page_query: EnvPageQueryModel = Depends(EnvPageQueryModel.as_query),
         query_db: AsyncSession = Depends(get_db)
