@@ -7,7 +7,6 @@
 # @Software: PyCharm
 # @desc    : 全局中间件
 from fastapi import FastAPI
-from middlewares.auto_import_routes import auto_import_routes
 from middlewares.cors_middleware import add_cors_middleware, register_request_log_middleware
 from middlewares.gzip_middleware import add_gzip_middleware
 
@@ -22,5 +21,3 @@ def handle_middleware(app: FastAPI):
     register_request_log_middleware(app)
     # 加载gzip压缩中间件
     add_gzip_middleware(app)
-    # 自动加载路由
-    auto_import_routes("module_admin/controller")
