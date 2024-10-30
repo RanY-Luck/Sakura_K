@@ -8,15 +8,16 @@
 # @desc    :
 from contextlib import asynccontextmanager
 from time import sleep
-
 from fastapi import FastAPI
-
 from config.env import AppConfig, PROJECT_DESCRIPTION
 from config.get_db import init_create_table
 from config.get_redis import RedisUtil
 from config.get_scheduler import SchedulerUtil
 from exceptions.handle import handle_exception
 from middlewares.handle import handle_middleware
+from sub_applications.handle import handle_sub_applications
+from utils.common_util import worship, panel
+from utils.log_util import logger
 from module_admin.controller.api_controller import apiController
 from module_admin.controller.cache_controller import cacheController
 from module_admin.controller.captcha_controller import captchaController
@@ -37,9 +38,7 @@ from module_admin.controller.robot_controller import robotController
 from module_admin.controller.role_controller import roleController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.user_controller import userController
-from sub_applications.handle import handle_sub_applications
-from utils.common_util import worship, panel
-from utils.log_util import logger
+from module_admin.controller.env_controller import envController
 
 
 # 生命周期事件
@@ -107,8 +106,5 @@ controller_list = [
     {'router': robotController, 'tags': ['机器人管理']},
     {'router': dataSourceController, 'tags': ['数据源管理']},
     {'router': apiController, 'tags': ['接口管理']},
+    {'router': envController, 'tags': ['环境管理']},
 ]
-
-# 加载路由
-for controller in controller_list:
-    app.include_router(router=controller.get('router'), tags=controller.get('tags'))
