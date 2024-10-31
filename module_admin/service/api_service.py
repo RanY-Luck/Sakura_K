@@ -155,8 +155,9 @@ class ApiService:
         try:
             # 处理请求头格式
             headers = {}
-            # 首先添加环境的通用请求头
-            if env.env_headers:
+
+            # 处理环境的通用请求头
+            if hasattr(env, 'env_headers') and env.env_headers:
                 try:
                     env_headers = env.env_headers
                     if isinstance(env_headers, str):
@@ -165,16 +166,17 @@ class ApiService:
                         headers[env_headers['key']] = env_headers['value']
                     elif isinstance(env_headers, dict):
                         headers.update(env_headers)
-                except json.JSONDecodeError:
-                    pass
-            # 然后添加接口的请求头，如果有相同的键则覆盖环境请求头
+                except json.JSONDecodeError as e:
+                    await query_db.rollback()
+                    raise f"解析环境请求头失败: {str(e)}"
+
+            # 处理接口的请求头
             if api.request_headers:
                 try:
                     if isinstance(api.request_headers, str):
                         header_data = json.loads(api.request_headers)
                     else:
                         header_data = api.request_headers
-                    # 支持多个请求头
                     if isinstance(header_data, list):
                         for item in header_data:
                             if isinstance(item, dict) and 'key' in item and 'value' in item:
@@ -184,57 +186,66 @@ class ApiService:
                             headers[header_data['key']] = header_data['value']
                         else:
                             headers.update(header_data)
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    print(f"解析接口请求头失败: {str(e)}")
 
-            # 处理环境变量
+            # 处理请求数据和环境变量
             request_data = api.request_data
-            if env.env_variables:
+            # print(f"Original request_data: {request_data}")  # 调试日志
+
+            # 确保request_data是字典类型
+            if isinstance(request_data, str):
+                try:
+                    request_data = json.loads(request_data)
+                except json.JSONDecodeError:
+                    request_data = {}
+            elif request_data is None:
+                request_data = {}
+
+            # 处理环境变量并合并到请求数据中
+            if hasattr(env, 'env_variables') and env.env_variables:
                 try:
                     env_vars = env.env_variables
+                    # print(f"Original env_vars: {env_vars}")  # 调试日志
+
+                    # 确保env_vars是字典格式
                     if isinstance(env_vars, str):
                         env_vars = json.loads(env_vars)
 
-                    # 替换请求数据中的环境变量
-                    if isinstance(request_data, str):
-                        # 如果请求数据是字符串，直接替换
-                        if isinstance(env_vars, dict):
-                            if 'key' in env_vars and 'value' in env_vars:
-                                request_data = request_data.replace(f"${{{env_vars['key']}}}", env_vars['value'])
-                            else:
-                                for key, value in env_vars.items():
-                                    request_data = request_data.replace(f"${{{key}}}", str(value))
-                    elif isinstance(request_data, dict):
-                        # 如果请求数据是字典，递归替换
-                        def replace_vars(data):
-                            if isinstance(data, str):
-                                result = data
-                                if isinstance(env_vars, dict):
-                                    if 'key' in env_vars and 'value' in env_vars:
-                                        result = result.replace(f"${{{env_vars['key']}}}", env_vars['value'])
-                                    else:
-                                        for key, value in env_vars.items():
-                                            result = result.replace(f"${{{key}}}", str(value))
-                                return result
-                            elif isinstance(data, dict):
-                                return {k: replace_vars(v) for k, v in data.items()}
-                            elif isinstance(data, list):
-                                return [replace_vars(item) for item in data]
-                            return data
+                    # 处理环境变量
+                    if isinstance(env_vars, dict):
+                        if 'key' in env_vars and 'value' in env_vars:
+                            # 单个键值对格式
+                            request_data[env_vars['key']] = env_vars['value']
+                        else:
+                            # 多个键值对格式
+                            request_data.update(env_vars)
 
-                        request_data = replace_vars(request_data)
-                except json.JSONDecodeError:
-                    pass
+                    # print(f"Merged request_data: {request_data}")  # 调试日志
+
+                except Exception as e:
+                    # print(f"处理环境变量时发生错误: {str(e)}")  # 调试日志
+                    raise f"处理环境变量时发生错误: {str(e)}"
+
+            # 如果原始数据是字符串类型，将合并后的数据转回字符串
+            if isinstance(api.request_data, str):
+                try:
+                    request_data = json.dumps(request_data)
+                except Exception as e:
+                    # print(f"转换请求数据为字符串时发生错误: {str(e)}")
+                    raise f"转换请求数据为字符串时发生错误: {str(e)}"
 
             # 拼接环境URL和API URL
-            base_url = env.env_url.rstrip('/')  # 移除末尾的斜杠
-            api_path = api.api_url.lstrip('/')  # 移除开头的斜杠
+            base_url = env.env_url.rstrip('/')
+            api_path = api.api_url.lstrip('/')
             full_url = f"{base_url}/{api_path}"
+            # print(f"Final request data: {request_data}")  # 调试日志
+            # print(f"Final headers: {headers}")  # 调试日志
 
             # 发起请求
             api_info = await AsyncRequest.client(
                 url=full_url,
-                body=api.request_data,
+                body=request_data,
                 body_type=api.request_data_type,
                 headers=headers
             )
@@ -244,10 +255,8 @@ class ApiService:
             def clean_and_unescape(text):
                 if not isinstance(text, str):
                     return text
-                # 移除无效的控制字符
                 text = ''.join(char for char in text if ord(char) >= 32 or char in '\n\r\t')
                 try:
-                    # 尝试去转义
                     return text.encode('raw_unicode_escape').decode('unicode_escape')
                 except:
                     return text
@@ -256,7 +265,6 @@ class ApiService:
                 response = clean_and_unescape(response)
             elif isinstance(response, dict):
                 try:
-                    # 递归处理字典中的所有字符串值
                     def process_dict(d):
                         if not isinstance(d, dict):
                             return d
@@ -275,8 +283,7 @@ class ApiService:
 
                     response = process_dict(response)
                 except Exception as e:
-                    # 如果处理失败，返回原始响应
-                    pass
+                    raise f"处理响应时发生错误: {str(e)}"
 
             return response
 

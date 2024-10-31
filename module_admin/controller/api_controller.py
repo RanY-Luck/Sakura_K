@@ -118,7 +118,7 @@ async def query_detail_api(request: Request, api_id: int, query_db: AsyncSession
 
 
 @apiController.post(
-    '/debug',
+    '/debugApi',
     response_model=ApiModel,
     dependencies=[Depends(CheckUserInterfaceAuth('apitest:apiInfo:debug'))]
 )
