@@ -6,21 +6,23 @@
 # @File    : api_controller.py
 # @Software: PyCharm
 # @desc    : 接口配置相关接口
-from module_admin.service.api_service import ApiService
-from module_admin.entity.vo.api_vo import ApiPageQueryModel, DeleteApiModel, ApiModel
-from utils.response_util import ResponseUtil
-from module_admin.annotation.log_annotation import Log
-from utils.page_util import PageResponseModel
-from module_admin.service.login_service import LoginService
-from fastapi import Depends, APIRouter, Request
-from config.enums import BusinessType
-from utils.log_util import logger
-from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
-from pydantic_validation_decorator import ValidateFields
 from datetime import datetime
-from module_admin.entity.vo.user_vo import CurrentUserModel
-from config.get_db import get_db
+
+from fastapi import Depends, APIRouter, Request, Query
+from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from config.enums import BusinessType
+from config.get_db import get_db
+from module_admin.annotation.log_annotation import Log
+from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.entity.vo.api_vo import ApiPageQueryModel, DeleteApiModel, ApiModel
+from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.service.api_service import ApiService
+from module_admin.service.login_service import LoginService
+from utils.log_util import logger
+from utils.page_util import PageResponseModel
+from utils.response_util import ResponseUtil
 
 apiController = APIRouter(prefix='/apitest/apiInfo', dependencies=[Depends(LoginService.get_current_user)])
 
@@ -116,13 +118,18 @@ async def query_detail_api(request: Request, api_id: int, query_db: AsyncSession
 
 
 @apiController.post(
-    '/{api_id}',
+    '/debug',
     response_model=ApiModel,
     dependencies=[Depends(CheckUserInterfaceAuth('apitest:apiInfo:debug'))]
 )
-async def api_test_client(request: Request, api_id: int, query_db: AsyncSession = Depends(get_db)):
+async def api_test_client(
+        request: Request,
+        api_id: int = Query(..., description='接口ID'),
+        env_id: int = Query(..., description='环境ID'),
+        query_db: AsyncSession = Depends(get_db)
+):
     """
     调试接口
     """
-    robot_detail_result = await ApiService.api_debug_services(query_db, api_id)
-    return ResponseUtil.success(data=robot_detail_result)
+    api_debug_result = await ApiService.api_debug_services(query_db, api_id, env_id)
+    return ResponseUtil.success(data=api_debug_result)

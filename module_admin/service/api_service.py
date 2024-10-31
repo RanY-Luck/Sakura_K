@@ -9,6 +9,7 @@
 import json
 
 from module_admin.dao.api_dao import *
+from module_admin.dao.env_dao import EnvDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from utils.common_util import CamelCaseUtil
 from utils.http_util import AsyncRequest
@@ -137,16 +138,20 @@ class ApiService:
         return result
 
     @classmethod
-    async def api_debug_services(cls, query_db: AsyncSession, api_id: int):
+    async def api_debug_services(cls, query_db: AsyncSession, api_id: int, env_id: int):
         """
         Debug接口service
         :param query_db: orm对象
         :param api_id: 接口id
+        :param env_id: 环境id
         :return: 格式化后的接口响应
         """
         api = await ApiDao.get_api_detail_by_id(query_db, api_id=api_id)
         if api is None:
             return CrudResponseModel(is_success=False, message=f'接口{api_id}不存在')
+        env = await EnvDao.get_env_detail_by_id(query_db, env_id=env_id)
+        if env is None:
+            return CrudResponseModel(is_success=False, message=f'环境{env_id}不存在')
         try:
             # 处理请求头格式
             headers = {}
@@ -169,9 +174,14 @@ class ApiService:
                 except json.JSONDecodeError:
                     pass
 
+            # 拼接环境URL和API URL
+            base_url = env.env_url.rstrip('/')  # 移除末尾的斜杠
+            api_path = api.api_url.lstrip('/')  # 移除开头的斜杠
+            full_url = f"{base_url}/{api_path}"
+
             # 发起请求
             api_info = await AsyncRequest.client(
-                url=api.api_url,
+                url=full_url,
                 body=api.request_data,
                 body_type=api.request_data_type,
                 headers=headers
