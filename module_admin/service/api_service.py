@@ -155,6 +155,19 @@ class ApiService:
         try:
             # 处理请求头格式
             headers = {}
+            # 首先添加环境的通用请求头
+            if env.env_headers:
+                try:
+                    env_headers = env.env_headers
+                    if isinstance(env_headers, str):
+                        env_headers = json.loads(env_headers)
+                    if isinstance(env_headers, dict) and 'key' in env_headers and 'value' in env_headers:
+                        headers[env_headers['key']] = env_headers['value']
+                    elif isinstance(env_headers, dict):
+                        headers.update(env_headers)
+                except json.JSONDecodeError:
+                    pass
+            # 然后添加接口的请求头，如果有相同的键则覆盖环境请求头
             if api.request_headers:
                 try:
                     if isinstance(api.request_headers, str):
@@ -171,6 +184,45 @@ class ApiService:
                             headers[header_data['key']] = header_data['value']
                         else:
                             headers.update(header_data)
+                except json.JSONDecodeError:
+                    pass
+
+            # 处理环境变量
+            request_data = api.request_data
+            if env.env_variables:
+                try:
+                    env_vars = env.env_variables
+                    if isinstance(env_vars, str):
+                        env_vars = json.loads(env_vars)
+
+                    # 替换请求数据中的环境变量
+                    if isinstance(request_data, str):
+                        # 如果请求数据是字符串，直接替换
+                        if isinstance(env_vars, dict):
+                            if 'key' in env_vars and 'value' in env_vars:
+                                request_data = request_data.replace(f"${{{env_vars['key']}}}", env_vars['value'])
+                            else:
+                                for key, value in env_vars.items():
+                                    request_data = request_data.replace(f"${{{key}}}", str(value))
+                    elif isinstance(request_data, dict):
+                        # 如果请求数据是字典，递归替换
+                        def replace_vars(data):
+                            if isinstance(data, str):
+                                result = data
+                                if isinstance(env_vars, dict):
+                                    if 'key' in env_vars and 'value' in env_vars:
+                                        result = result.replace(f"${{{env_vars['key']}}}", env_vars['value'])
+                                    else:
+                                        for key, value in env_vars.items():
+                                            result = result.replace(f"${{{key}}}", str(value))
+                                return result
+                            elif isinstance(data, dict):
+                                return {k: replace_vars(v) for k, v in data.items()}
+                            elif isinstance(data, list):
+                                return [replace_vars(item) for item in data]
+                            return data
+
+                        request_data = replace_vars(request_data)
                 except json.JSONDecodeError:
                     pass
 
