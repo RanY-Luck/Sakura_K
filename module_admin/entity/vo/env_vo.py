@@ -24,8 +24,8 @@ class EnvModel(BaseModel):
     env_id: Optional[int] = Field(default=None, description='环境ID')
     env_name: Optional[str] = Field(default=None, description='环境名称')
     env_url: Optional[str] = Field(default=None, description='环境地址')
-    env_variables: Optional[Any] = Field(default={}, description='环境变量')
-    env_headers: Optional[Any] = Field(default={}, description='环境请求头')
+    env_variables: Optional[Any] = Field(default=None, description='环境变量')
+    env_headers: Optional[Any] = Field(default=None, description='环境请求头')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
