@@ -9,5 +9,5 @@
 from utils.log_util import archive_and_delete_yesterdays_logs
 
 
-def log():
+async def log():
     archive_and_delete_yesterdays_logs()
