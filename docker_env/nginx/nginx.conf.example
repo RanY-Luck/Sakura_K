@@ -1,0 +1,45 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    server {
+        listen 9088;
+        # 需要把这里改成自己的服务器
+        server_name 127.0.0.1;
+        # 配置 ssl 证书
+
+
+        # 定义静态文件路径
+        root /usr/local/web; # 服务器上的 web 目录
+        index index.html; # 默认首页
+
+        # 处理静态文件
+        location / {
+            try_files $uri $uri/ /index.html; # 用于 history 模式
+        }
+
+        # 代理 API 请求
+        location /docker-api/ {
+            proxy_pass http://sakura_k:9099/docker-api/; # 使用 Docker 服务名称
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme; # 保持请求协议
+        }
+
+        # 处理 50x 错误页面
+        error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+            root /usr/local/web;
+        }
+
+        # 禁止访问的路径
+        location ~* /actuator/ {
+            return 403;
+        }
+    }
+}
