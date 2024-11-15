@@ -16,9 +16,7 @@ bin-release/
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
-docker_env/mysql/data/
-docker_env/redis/data/
-docker_env/mongo/data/
+docker_env/nginx/nginx.conf
 */.idea
 dvadmin-doc/docs/.vuepress/dist
 application/config/development.py
