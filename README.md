@@ -93,6 +93,9 @@ docker-compose down
 ## 查看所有容器状态
 docker-compose ps -a
 
+## 进入容器内部
+docker exec -it sakura_k /bin/bash
+
 ## 查看容器日志
 docker logs sakura_k
 ```
