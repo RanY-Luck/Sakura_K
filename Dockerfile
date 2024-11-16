@@ -6,11 +6,11 @@ WORKDIR /Sakura_k
 
 COPY pyproject.toml poetry.lock /Sakura_k/
 
-RUN pip3 install --no-cache-dir --upgrade pip
+RUN pip3 install --no-cache-dir  --upgrade pip
 
 RUN pip3 install --no-cache-dir poetry
 
-RUN poetry install --no-dev
+RUN poetry install
 
 COPY . /Sakura_k
 

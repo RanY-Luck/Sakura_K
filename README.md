@@ -82,7 +82,7 @@ python3 app.py --env=prod
 docker-compose up --build -d
 
 ## 初始化数据
-找到 sql/skf.sql 文件，导入到mysql数据库中
+找到 sql/skf.sql 文件,导入到mysql数据库中
 
 ## 重启所有容器
 docker-compose restart
