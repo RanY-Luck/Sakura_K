@@ -24,7 +24,7 @@ http {
 
         # 代理 API 请求
         location /docker-api/ {
-            proxy_pass http://sakura_k:9099/docker-api/; # 使用 Docker 服务名称
+            proxy_pass http://192.168.1.50:9099/; # 使用 Docker IP:端口
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
