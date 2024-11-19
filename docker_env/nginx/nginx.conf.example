@@ -5,15 +5,29 @@ events {
 http {
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
+    # 添加这些基础设置
+    sendfile        on;
+    keepalive_timeout  65;
 
     server {
+        # 配置 HTTP
         listen 9088;
-        # 需要把这里改成自己的服务器
-        server_name 127.0.0.1;
-        # 配置 ssl 证书
-
-
-        # 定义静态文件路径
+        # 配置 HTTPS
+        listen 443 ssl;  # 添加这行，启用 SSL
+        # 需要把这里改成自己的域名
+        server_name www.ranyong.top ranyong.top;
+        # 配置 ssl 证书(将证书放到/etc/nginx/ssl目录下)
+        ssl_certificate /etc/nginx/ssl/1.crt;
+        ssl_certificate_key /etc/nginx/ssl/1.key;
+        # 添加 SSL 安全配置
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
+        ssl_prefer_server_ciphers on;
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_timeout 10m;
+        # 启用 HSTS
+        add_header Strict-Transport-Security "max-age=31536000" always;
+        # 定义静态文件路径(将前端产物放到/usr/local/web目录下)
         root /usr/local/web; # 服务器上的 web 目录
         index index.html; # 默认首页
 
@@ -24,7 +38,7 @@ http {
 
         # 代理 API 请求
         location /docker-api/ {
-            proxy_pass http://192.168.1.50:9099/; # 使用 Docker IP:端口
+            proxy_pass http://192.168.1.50:9099/; # 使用服务器IP
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
