@@ -6,8 +6,10 @@
 # @File    : api_service.py
 # @Software: PyCharm
 # @desc    : 接口模块服务层
+import datetime
 import json
-
+import asyncio
+import time
 from module_admin.dao.api_dao import *
 from module_admin.dao.env_dao import EnvDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
@@ -290,3 +292,36 @@ class ApiService:
         except Exception as e:
             await query_db.rollback()
             return CrudResponseModel(is_success=False, message=f'发生未知错误: {str(e)}')
+
+    @classmethod
+    async def api_batch_services(cls, query_db: AsyncSession, api_ids: List[int], env_id: int):
+        """
+        批量Debug接口service
+        :param query_db: orm对象
+        :param api_ids: 接口id列表
+        :param env_id: 环境id
+        :return: 批量接口响应结果
+        """
+
+        # 并发执行多个接口的调试
+        async def debug_single_api(api_id: int):
+            try:
+                result = await cls.api_debug_services(query_db, api_id, env_id)
+                return {
+                    'api_id': api_id,
+                    'is_success': True,
+                    'response': result
+                }
+            except Exception as e:
+                return {
+                    'api_id': api_id,
+                    'is_success': False,
+                    'error': str(e)
+                }
+
+        # 使用asyncio.gather并发执行所有接口调试
+        results = await asyncio.gather(
+            *[debug_single_api(api_id) for api_id in api_ids]
+        )
+
+        return results
