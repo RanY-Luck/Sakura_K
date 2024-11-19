@@ -144,7 +144,7 @@ async def api_test_client(
 )
 async def api_batch_run(
         request: Request,
-        api_id_list: List[int] = Query(..., description='需要批量运行的API_ID列表'),
+        api_id_list: List[int],
         env_id: int = Query(..., description='环境ID'),
         query_db: AsyncSession = Depends(get_db)
 ):
@@ -166,6 +166,9 @@ async def api_batch_run(
                 status='failed',
                 error_message=str(id_error)
             )
+        except asyncio.TimeoutError:
+            logger.warning(f"批量运行超时，已处理 {len(results)} 个 API")
+            return results
 
     # 使用asyncio.gather进行并发处理
     results = await asyncio.gather(

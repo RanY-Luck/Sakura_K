@@ -6,10 +6,9 @@
 # @File    : api_service.py
 # @Software: PyCharm
 # @desc    : 接口模块服务层
-import datetime
+from datetime import datetime
 import json
 import asyncio
-import time
 from module_admin.dao.api_dao import *
 from module_admin.dao.env_dao import EnvDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
@@ -305,12 +304,15 @@ class ApiService:
 
         # 并发执行多个接口的调试
         async def debug_single_api(api_id: int):
+            start_time = round(datetime.now().timestamp(), 3)
             try:
                 result = await cls.api_debug_services(query_db, api_id, env_id)
+                end_time = round(datetime.now().timestamp(), 3)
                 return {
                     'api_id': api_id,
                     'is_success': True,
-                    'response': result
+                    'response': result,
+                    'duration': end_time - start_time
                 }
             except Exception as e:
                 return {
