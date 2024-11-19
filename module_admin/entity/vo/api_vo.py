@@ -16,6 +16,12 @@ from pydantic_validation_decorator import Xss, NotBlank, Size
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 
+class BatchApi(BaseModel):
+    id: Optional[int] = None
+    status: Optional[str] = None
+    response: Optional[dict] = None
+
+
 class ApiQueryModel(BaseModel):
     """
     接口表对应pydantic模型

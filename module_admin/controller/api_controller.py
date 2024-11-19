@@ -6,7 +6,9 @@
 # @File    : api_controller.py
 # @Software: PyCharm
 # @desc    : 接口配置相关接口
+import asyncio
 from datetime import datetime
+from typing import List
 
 from fastapi import Depends, APIRouter, Request, Query
 from pydantic_validation_decorator import ValidateFields
@@ -16,7 +18,7 @@ from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
-from module_admin.entity.vo.api_vo import ApiPageQueryModel, DeleteApiModel, ApiModel
+from module_admin.entity.vo.api_vo import ApiPageQueryModel, DeleteApiModel, ApiModel, BatchApi
 from module_admin.entity.vo.user_vo import CurrentUserModel
 from module_admin.service.api_service import ApiService
 from module_admin.service.login_service import LoginService
@@ -133,3 +135,41 @@ async def api_test_client(
     """
     api_debug_result = await ApiService.api_debug_services(query_db, api_id, env_id)
     return ResponseUtil.success(data=api_debug_result)
+
+
+@apiController.post(
+    '/batchApi',
+    response_model=List[BatchApi],  # 注意返回类型应为列表
+    dependencies=[Depends(CheckUserInterfaceAuth('apitest:apiInfo:batchapi'))]
+)
+async def api_batch_run(
+        request: Request,
+        api_id_list: List[int] = Query(..., description='需要批量运行的API_ID列表'),
+        env_id: int = Query(..., description='环境ID'),
+        query_db: AsyncSession = Depends(get_db)
+):
+    """
+    批量运行接口
+    """
+    # 使用异步并发执行
+    async def run_single_api(api_id: int):
+        try:
+            result = await ApiService.api_batch_services(query_db, [api_id], env_id=env_id)
+            return BatchApi(
+                id=api_id,
+                status='success',
+                response=result[0]  # 假设返回的是列表
+            )
+        except Exception as id_error:
+            return BatchApi(
+                id=api_id,
+                status='failed',
+                error_message=str(id_error)
+            )
+
+    # 使用asyncio.gather进行并发处理
+    results = await asyncio.gather(
+        *[run_single_api(api_id) for api_id in api_id_list]
+    )
+
+    return results
