@@ -21,17 +21,19 @@ class BatchApi(BaseModel):
     status: Optional[str] = None
     response: Optional[dict] = None
     error_message: Optional[str] = None
-    execution_time: float = 0
+    execution_time: Optional[float] = 0
+    api_status: Optional[bool] = False  # API响应状态
 
 
 class BatchApiStats(BaseModel):
     """批量执行统计信息"""
-    total: int
-    success_count: int
-    failure_count: int
-    success_rate: float
-    total_time: float
+    total: Optional[int]
+    api_success_count: Optional[int]  # API实际成功数
+    api_failure_count: Optional[int]  # API实际失败数
+    api_success_rate: Optional[float]  # API实际成功率
+    total_time: Optional[float]
     results: List[BatchApi]
+
 
 class ApiQueryModel(BaseModel):
     """
