@@ -182,7 +182,7 @@ async def api_batch_run(
             )
         except Exception as e:
             execution_time = time.time() - api_start
-            logger.error(f"API {api_id} execution failed: {str(e)}")
+            logger.error(f"API编号为: {api_id} 执行失败: {str(e)}")
             return BatchApi(
                 id=api_id,
                 status='failed',
@@ -241,10 +241,10 @@ async def api_batch_run(
 
         # 记录执行统计日志
         logger.info(
-            f"批量执行API: "
-            f"总计={stats.total}, "
-            f"成功={stats.api_success_count}, "
-            f"失败={stats.api_failure_count}, "
+            f"批量执行API完成: "
+            f"总计={stats.total}个, "
+            f"成功={stats.api_success_count}个, "
+            f"失败={stats.api_failure_count}个, "
             f"成功率={stats.api_success_rate}%, "
             f"耗时={stats.total_time}s"
         )
