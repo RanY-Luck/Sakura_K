@@ -241,12 +241,12 @@ async def api_batch_run(
 
         # 记录执行统计日志
         logger.info(
-            f"Batch API execution completed: "
-            f"total={stats.total}, "
-            f"api_success={stats.api_success_count}, "
-            f"api_failure={stats.api_failure_count}, "
-            f"api_success_rate={stats.api_success_rate}%, "
-            f"time={stats.total_time}s"
+            f"批量执行API: "
+            f"总计={stats.total}, "
+            f"成功={stats.api_success_count}, "
+            f"失败={stats.api_failure_count}, "
+            f"成功率={stats.api_success_rate}%, "
+            f"耗时={stats.total_time}s"
         )
 
         return stats
