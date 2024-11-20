@@ -150,7 +150,7 @@ async def api_batch_run(
         query_db: AsyncSession = Depends(get_db)
 ):
     """
-    批量运行接口
+    批量运行接口，返回执行统计信息
     """
     start_time = time.time()
     # 使用异步并发执行
@@ -158,11 +158,17 @@ async def api_batch_run(
         api_start = time.time()
         try:
             result = await ApiService.api_batch_services(query_db, [api_id], env_id=env_id)
+            # 提取API响应中的status
+            api_status = result[0].get('response', {}).get('status', False)
+            if isinstance(api_status, str):
+                api_status = api_status.lower() == 'true'
+
             return BatchApi(
                 id=api_id,
                 status='success',
-                response=result[0],  # 假设返回的是列表
-                execution_time=time.time() - api_start
+                response=result[0],
+                execution_time=time.time() - api_start,
+                api_status=api_status  # 添加API响应状态
             )
         except asyncio.TimeoutError:
             execution_time = time.time() - api_start
@@ -171,7 +177,8 @@ async def api_batch_run(
                 id=api_id,
                 status='failed',
                 error_message="Execution timed out",
-                execution_time=execution_time
+                execution_time=execution_time,
+                api_status=False
             )
         except Exception as e:
             execution_time = time.time() - api_start
@@ -180,13 +187,10 @@ async def api_batch_run(
                 id=api_id,
                 status='failed',
                 error_message=str(e),
-                execution_time=execution_time
+                execution_time=execution_time,
+                api_status=False
             )
-        except asyncio.TimeoutError:
-            logger.warning(f"批量运行超时，已处理 {len(results)} 个 API")
-            return results
 
-    # 使用asyncio.gather进行并发处理
     try:
         # 使用asyncio.gather进行并发处理
         results = await asyncio.gather(
@@ -195,39 +199,43 @@ async def api_batch_run(
         )
         # 处理结果和统计
         processed_results = []
-        success_count = 0
-        failure_count = 0
+        api_success_count = 0      # API实际成功计数
+        api_failure_count = 0      # API实际失败计数
 
         for result in results:
             if isinstance(result, Exception):
-                # 处理gather中的异常
-                failure_count += 1
+                api_failure_count += 1
                 processed_results.append(
                     BatchApi(
                         id=-1,
                         status='failed',
                         error_message=str(result),
-                        execution_time=0
+                        execution_time=0,
+                        api_status=False
                     )
                 )
             else:
                 processed_results.append(result)
                 if result.status == 'success':
-                    success_count += 1
+                    # 根据API响应状态统计
+                    if result.api_status:
+                        api_success_count += 1
+                    else:
+                        api_failure_count += 1
                 else:
-                    failure_count += 1
+                    api_failure_count += 1
 
         total_time = time.time() - start_time
         total_count = len(api_id_list)
-        success_rate = (success_count / total_count * 100) if total_count > 0 else 0
+        api_success_rate = (api_success_count / total_count * 100) if total_count > 0 else 0
 
         # 构建统计响应
         stats = BatchApiStats(
             total=total_count,
-            success_count=success_count,
-            failure_count=failure_count,
-            success_rate=round(success_rate, 2),  # 保留两位小数
-            total_time=round(total_time, 3),  # 保留三位小数
+            api_success_count=api_success_count,
+            api_failure_count=api_failure_count,
+            api_success_rate=round(api_success_rate, 2),
+            total_time=round(total_time, 3),
             results=processed_results
         )
 
@@ -235,12 +243,14 @@ async def api_batch_run(
         logger.info(
             f"Batch API execution completed: "
             f"total={stats.total}, "
-            f"success={stats.success_count}, "
-            f"failure={stats.failure_count}, "
-            f"success_rate={stats.success_rate}%, "
+            f"api_success={stats.api_success_count}, "
+            f"api_failure={stats.api_failure_count}, "
+            f"api_success_rate={stats.api_success_rate}%, "
             f"time={stats.total_time}s"
         )
+
         return stats
+
     except Exception as e:
         logger.error(f"Batch execution failed: {str(e)}")
         raise HTTPException(
