@@ -32,6 +32,7 @@ pillow = "10.4.0"
 pandas = "2.2.2"
 user-agents = "2.2.0"
 fastapi = {version = "0.115.0", extras = ["all"]}
+atomic-bomb-engine = "^0.41.3"
 
 
 [build-system]
