@@ -129,6 +129,24 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
+name = "aiosqlite"
+version = "0.20.0"
+description = "asyncio bridge to the standard sqlite3 module"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "aiosqlite-0.20.0-py3-none-any.whl", hash = "sha256:36a1deaca0cac40ebe32aac9977a6e2bbc7f5189f23f4a54d5908986729e5bd6"},
+    {file = "aiosqlite-0.20.0.tar.gz", hash = "sha256:6d35c8c256637f4672f843c31021464090805bf925385ac39473fb16eaaca3d7"},
+]
+
+[package.dependencies]
+typing_extensions = ">=4.0"
+
+[package.extras]
+dev = ["attribution (==1.7.0)", "black (==24.2.0)", "coverage[toml] (==7.4.1)", "flake8 (==7.0.0)", "flake8-bugbear (==24.2.6)", "flit (==3.9.0)", "mypy (==1.8.0)", "ufmt (==2.3.0)", "usort (==1.0.8.post1)"]
+docs = ["sphinx (==7.2.6)", "sphinx-mdinclude (==0.5.3)"]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
@@ -265,6 +283,44 @@ files = [
     {file = "asyncmy-0.2.9-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:ad06f3c02d455947e95087d29f7122411208f0eadaf8671772fe5bad97d9873a"},
     {file = "asyncmy-0.2.9.tar.gz", hash = "sha256:da188be013291d1f831d63cdd3614567f4c63bfdcde73631ddff8df00c56d614"},
 ]
+
+[[package]]
+name = "atomic-bomb-engine"
+version = "0.41.3"
+description = "使用rust开发的高性能python压测工具"
+optional = false
+python-versions = "*"
+files = [
+    {file = "atomic_bomb_engine-0.41.3-cp310-cp310-macosx_10_12_x86_64.whl", hash = "sha256:99c61130ae84da4f4cfc7748a338b729f2289cd8f6905369335cd01965b8bdb9"},
+    {file = "atomic_bomb_engine-0.41.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9206804a1a93361293271022f193e1c012169f91c406567b7d41e06769aa7aca"},
+    {file = "atomic_bomb_engine-0.41.3-cp310-cp310-manylinux_2_34_x86_64.whl", hash = "sha256:9d3d7a0fbd1a7628c1552ef2cac3642c21306c84acbba7d3bc10f9d4f3405fc3"},
+    {file = "atomic_bomb_engine-0.41.3-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:23531fcbce6117fb13711077944b0f6e3485d66e1564db03812c69efe4616b58"},
+    {file = "atomic_bomb_engine-0.41.3-cp310-none-win_amd64.whl", hash = "sha256:52c31b671ebda64f9eec0ab2a78f185b505a0818d2793004211da33431685374"},
+    {file = "atomic_bomb_engine-0.41.3-cp311-cp311-macosx_10_12_x86_64.whl", hash = "sha256:ac35c1b537b04944a64462f16012248b2ed9254aba464176c69019e1f32f3a11"},
+    {file = "atomic_bomb_engine-0.41.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:42390f7db3d7d9705d4b529b283d92fb4919be3388be758486934ae213f1571d"},
+    {file = "atomic_bomb_engine-0.41.3-cp311-cp311-manylinux_2_34_x86_64.whl", hash = "sha256:e4c3b8bab3e49eb7e2efae18c7f445d3d1791170486b0b76c0ed2d37cc3fac63"},
+    {file = "atomic_bomb_engine-0.41.3-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:9cc6a690f1a6ca08577b9e91ae6fae69a959093620ad49d6123169d64edcb2de"},
+    {file = "atomic_bomb_engine-0.41.3-cp311-none-win_amd64.whl", hash = "sha256:d4a6098e4979202b38b6a9f4d88bcfd6e2574a332059f9e4229a8aecdf9fc647"},
+    {file = "atomic_bomb_engine-0.41.3-cp312-cp312-macosx_10_12_x86_64.whl", hash = "sha256:6af17b6562294b0f88b903dcfed3bfedaaae8a478dc2020bfb71fa7ec17031e9"},
+    {file = "atomic_bomb_engine-0.41.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:491e967f8ee63e45ff1b54a2bb3ca01a2895f7a58dfa7b63df5102e1f5ac39f0"},
+    {file = "atomic_bomb_engine-0.41.3-cp312-cp312-manylinux_2_34_x86_64.whl", hash = "sha256:cfc9bb62938967bee45be591bcd02069f19a24378ddd44b2bbf35d4c014d056a"},
+    {file = "atomic_bomb_engine-0.41.3-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:27b3d26ffdd03447120762541728b46a9f2887232f544cac6e2cb43ebb1629b1"},
+    {file = "atomic_bomb_engine-0.41.3-cp312-none-win_amd64.whl", hash = "sha256:bbd55801d1c4cbb47795b60aeddb99393c63514189de4a23de9b452e2e253148"},
+    {file = "atomic_bomb_engine-0.41.3-cp38-cp38-macosx_10_12_x86_64.whl", hash = "sha256:36593362ea9ffe834709c76d3edd2eccd5ce2cb13e694ab9d15c2de23b906790"},
+    {file = "atomic_bomb_engine-0.41.3-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:0631ac243d69e520358adca0ab4751f67f38fc652c9e477f8a4aa76c4c46a0a2"},
+    {file = "atomic_bomb_engine-0.41.3-cp38-cp38-manylinux_2_34_x86_64.whl", hash = "sha256:08166ad66e6b26e527a14cce8a241e274988b858fad08866d6f77538bd801ebf"},
+    {file = "atomic_bomb_engine-0.41.3-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:3b64c93d570005c971e82b02b24b9554acd509e1bd18cc04b542c39329248016"},
+    {file = "atomic_bomb_engine-0.41.3-cp38-none-win_amd64.whl", hash = "sha256:f47870f27df8012d1e59e143f59616497b695fdd39a77334fe0a562e6d8ff4b1"},
+    {file = "atomic_bomb_engine-0.41.3-cp39-cp39-macosx_10_12_x86_64.whl", hash = "sha256:8bc7ed17342e1b197dfabc0a24db1a1215a2f66c6fea752bda8590030ff5f6f8"},
+    {file = "atomic_bomb_engine-0.41.3-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:d82a76e5fc4319ec9ee72bacaa8f7e2f7965af2500ccd094e46385412bf173dd"},
+    {file = "atomic_bomb_engine-0.41.3-cp39-cp39-manylinux_2_34_x86_64.whl", hash = "sha256:914f1b1641f40aa44d2a488045e054595fce69d081c650df63024fb1622aecc5"},
+    {file = "atomic_bomb_engine-0.41.3-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:41ab10fbcdd811030c3199814b5d5f282e91e39c39afee044699daa7bfaf0821"},
+    {file = "atomic_bomb_engine-0.41.3-cp39-none-win_amd64.whl", hash = "sha256:4adc3bfb2cbbd484037725300345ff05fae364656cc6cd880bbcd301cf401d80"},
+]
+
+[package.dependencies]
+aiohttp = "*"
+aiosqlite = "*"
 
 [[package]]
 name = "attrs"
@@ -3034,4 +3090,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "feae75adb3e7c29b6028fdfef885ec9d1eaa0e24e4d9ca7ccfc3fbddff842315"
+content-hash = "c6cc3b801f7f59ee20f823b62dcc6b23ee7d7ada75cbba25d5588b5c900dcd91"
