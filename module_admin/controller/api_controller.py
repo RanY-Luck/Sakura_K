@@ -10,11 +10,9 @@ import asyncio
 import time
 from datetime import datetime
 from typing import List
-
 from fastapi import Depends, APIRouter, Request, Query, HTTPException
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
@@ -153,6 +151,7 @@ async def api_batch_run(
     批量运行接口，返回执行统计信息
     """
     start_time = time.time()
+
     # 使用异步并发执行
     async def run_single_api(api_id: int):
         api_start = time.time()
@@ -199,8 +198,8 @@ async def api_batch_run(
         )
         # 处理结果和统计
         processed_results = []
-        api_success_count = 0      # API实际成功计数
-        api_failure_count = 0      # API实际失败计数
+        api_success_count = 0  # API实际成功计数
+        api_failure_count = 0  # API实际失败计数
 
         for result in results:
             if isinstance(result, Exception):
