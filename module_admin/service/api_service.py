@@ -6,7 +6,6 @@
 # @File    : api_service.py
 # @Software: PyCharm
 # @desc    : 接口模块服务层
-from datetime import datetime
 import json
 import asyncio
 from module_admin.dao.api_dao import *
@@ -295,7 +294,7 @@ class ApiService:
     @classmethod
     async def api_batch_services(cls, query_db: AsyncSession, api_ids: List[int], env_id: int):
         """
-        批量Debug接口service
+        批量运行接口service
         :param query_db: orm对象
         :param api_ids: 接口id列表
         :param env_id: 环境id
