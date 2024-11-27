@@ -6,17 +6,14 @@
 # @File    : testcase_controller.py
 # @Software: PyCharm
 # @desc    : 测试用例配置相关接口
-import asyncio
-import time
-from typing import List
-from fastapi import Depends, APIRouter, Request, Query, HTTPException
+from fastapi import Depends, APIRouter, Request
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
-from module_admin.entity.vo.api_vo import BatchApiStats, BatchApi
+from module_admin.entity.vo.api_vo import BatchApiStats
 from module_admin.entity.vo.testcase_vo import *
 from module_admin.entity.vo.user_vo import CurrentUserModel
 from module_admin.service.testcase_service import TestCaseService
@@ -126,125 +123,18 @@ async def query_detail_testcase(request: Request, testcase_id: int, query_db: As
 
 
 @testcaseController.post(
-    '/batchTestCase',  # 修改路由名称以反映是测试用例批量运行
+    '/TestcaseBatchApi',
     response_model=BatchApiStats,
-    dependencies=[Depends(CheckUserInterfaceAuth('testcase:testcaseInfo:batchtestcase'))]
+    dependencies=[Depends(CheckUserInterfaceAuth('testcase:testcaseInfo:testcasebatchapi'))]
 )
-async def testcase_batch_run(
+async def testcase_run(
         request: Request,
-        testcase_ids: List[int],  # 修改参数名称
-        env_id: int = Query(..., description='环境ID'),
+        testcase_id: int,
+        env_id: int,
         query_db: AsyncSession = Depends(get_db)
 ):
     """
-    批量运行测试用例，返回执行统计信息
+    批量运行接口，返回执行统计信息
     """
-    start_time = time.time()
-
-    # 使用异步并发执行
-    async def run_single_testcase(testcase_id: int):
-        testcase_start = time.time()
-        try:
-            # 调用测试用例批量服务
-            result = await TestCaseService.testcase_batch_services(query_db, [testcase_id], env_id=env_id)
-
-            # 提取测试用例响应中的status
-            testcase_status = result[0].get('response', {}).get('status', False)
-            if isinstance(testcase_status, str):
-                testcase_status = testcase_status.lower() == 'true'
-
-            return BatchApi(
-                id=testcase_id,
-                status='success',
-                response=result[0],
-                execution_time=time.time() - testcase_start,
-                api_status=testcase_status  # 添加测试用例响应状态
-            )
-        except asyncio.TimeoutError:
-            execution_time = time.time() - testcase_start
-            logger.error(f"测试用例 {testcase_id} 执行超时")
-            return BatchApi(
-                id=testcase_id,
-                status='failed',
-                error_message="执行超时",
-                execution_time=execution_time,
-                api_status=False
-            )
-        except Exception as e:
-            execution_time = time.time() - testcase_start
-            logger.error(f"测试用例编号为: {testcase_id} 执行失败: {str(e)}")
-            return BatchApi(
-                id=testcase_id,
-                status='failed',
-                error_message=str(e),
-                execution_time=execution_time,
-                api_status=False
-            )
-
-    try:
-        # 使用asyncio.gather进行并发处理
-        results = await asyncio.gather(
-            *[run_single_testcase(testcase_id) for testcase_id in testcase_ids],
-            return_exceptions=True
-        )
-
-        # 处理结果和统计
-        processed_results = []
-        testcase_success_count = 0  # 测试用例实际成功计数
-        testcase_failure_count = 0  # 测试用例实际失败计数
-
-        for result in results:
-            if isinstance(result, Exception):
-                testcase_failure_count += 1
-                processed_results.append(
-                    BatchApi(
-                        id=-1,
-                        status='failed',
-                        error_message=str(result),
-                        execution_time=0,
-                        api_status=False
-                    )
-                )
-            else:
-                processed_results.append(result)
-                if result.status == 'success':
-                    # 根据测试用例响应状态统计
-                    if result.api_status:
-                        testcase_success_count += 1
-                    else:
-                        testcase_failure_count += 1
-                else:
-                    testcase_failure_count += 1
-
-        total_time = time.time() - start_time
-        total_count = len(testcase_ids)
-        testcase_success_rate = (testcase_success_count / total_count * 100) if total_count > 0 else 0
-
-        # 构建统计响应
-        stats = BatchApiStats(
-            total=total_count,
-            api_success_count=testcase_success_count,
-            api_failure_count=testcase_failure_count,
-            api_success_rate=round(testcase_success_rate, 2),
-            total_time=round(total_time, 3),
-            results=processed_results
-        )
-
-        # 记录执行统计日志
-        logger.info(
-            f"批量执行测试用例完成: "
-            f"总计={stats.total}个, "
-            f"成功={stats.api_success_count}个, "
-            f"失败={stats.api_failure_count}个, "
-            f"成功率={stats.api_success_rate}%, "
-            f"耗时={stats.total_time}s"
-        )
-
-        return stats
-
-    except Exception as e:
-        logger.error(f"批量执行测试用例失败: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"批量执行测试用例失败: {str(e)}"
-        )
+    result = await TestCaseService.testcase_batch_services(query_db, testcase_id, env_id)
+    return ResponseUtil.success(data=result)

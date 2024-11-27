@@ -8,8 +8,11 @@
 # @desc    : 测试用例模块服务层
 import asyncio
 from typing import List
+
+from module_admin.dao.env_dao import EnvDao
 from module_admin.dao.testcase_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
+from module_admin.entity.vo.env_vo import EnvModel
 from utils.common_util import CamelCaseUtil
 from module_admin.service.api_service import ApiService
 
@@ -125,56 +128,19 @@ class TestCaseService:
         return result
 
     @classmethod
-    async def testcase_batch_services(cls, query_db: AsyncSession, testcase_ids: List[int], env_id: int):
+    async def testcase_batch_services(cls, query_db: AsyncSession, testcase_id: int, env_id: int):
         """
-        批量运行测试用例service
+        获取测试用例详细信息service
         :param query_db: orm对象
-        :param testcase_ids: 测试用例id列表
-        :param env_id: 环境id
-        :return: 批量测试用例响应结果
+        :param testcase_id: 测试用例id
+        :return: 测试用例id对应的信息
         """
-
-        # 并发执行多个测试用例的调试
-        async def debug_single_testcase(testcase_id: int):
-            start_time = round(datetime.now().timestamp(), 3)
-            try:
-                # 查询测试用例列表，获取对应的接口信息
-                query_object = TestCasePageQueryModel(testcase_ids=[testcase_id])
-                testcase_list_result = await TestCaseDao.get_testcase_list(query_db, query_object, is_page=False)
-
-                # 如果没有找到测试用例，返回错误
-                if not testcase_list_result or len(testcase_list_result) == 0:
-                    return {
-                        'testcase_id': testcase_id,
-                        'is_success': False,
-                        'error': f'未找到测试用例 {testcase_id} 的相关信息'
-                    }
-
-                # 取第一个测试用例
-                testcase_info = testcase_list_result[0]
-
-                # 调试对应的接口
-                result = await ApiService.api_debug_services(query_db, testcase_info.api_id, env_id)
-
-                end_time = round(datetime.now().timestamp(), 3)
-                return {
-                    'testcase_id': testcase_id,
-                    'api_id': testcase_info.api_id,
-                    'testcase_name': testcase_info.testcase_name,
-                    'is_success': True,
-                    'response': result,
-                    'duration': end_time - start_time
-                }
-            except Exception as e:
-                return {
-                    'testcase_id': testcase_id,
-                    'is_success': False,
-                    'error': str(e)
-                }
-
-        # 使用asyncio.gather并发执行所有测试用例调试
-        results = await asyncio.gather(
-            *[debug_single_testcase(testcase_id) for testcase_id in testcase_ids]
-        )
-
-        return results
+        testcase = await TestCaseDao.get_testcase_detail_by_id(query_db, testcase_id=testcase_id)
+        if testcase is None:
+            return CrudResponseModel(is_success=False, message=f'接口{testcase_id}不存在')
+        env = await EnvDao.get_env_detail_by_id(query_db, env_id=env_id)
+        if env is None:
+            return CrudResponseModel(is_success=False, message=f'环境{env_id}不存在')
+        result = TestCaseModel(**CamelCaseUtil.transform_result(testcase))
+        result2 = EnvModel(**CamelCaseUtil.transform_result(env))
+        return result, result2
