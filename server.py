@@ -39,6 +39,7 @@ from module_admin.controller.role_controller import roleController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.user_controller import userController
 from module_admin.controller.env_controller import envController
+from module_admin.controller.testcase_controller import testcaseController
 
 
 
@@ -108,6 +109,7 @@ controller_list = [
     {'router': dataSourceController, 'tags': ['数据源管理']},
     {'router': apiController, 'tags': ['接口管理']},
     {'router': envController, 'tags': ['环境管理']},
+    {'router': testcaseController, 'tags': ['测试用例管理']},
 ]
 
 # 加载路由
