@@ -6,8 +6,7 @@
 # @File    : testcase_controller.py
 # @Software: PyCharm
 # @desc    : 测试用例配置相关接口
-import asyncio
-
+import json
 from fastapi import Depends, APIRouter, Request
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +15,6 @@ from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
 from module_admin.entity.vo.api_vo import BatchApiStats
-from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.testcase_vo import *
 from module_admin.entity.vo.user_vo import CurrentUserModel
 from module_admin.service.api_service import ApiService
@@ -139,4 +137,14 @@ async def testcase_batch_run(
 
 ):
     result = await TestCaseService.testcase_batch_services(query_db, testcase_id, env_id)
-    return ResponseUtil.success(data=result)
+    # 修改API IDs提取方式
+    api_ids = [api.apiId for api in result[0]]
+    debug_results = await ApiService.api_batch_services(query_db, api_ids, env_id)
+    # 返回调试结果
+    return ResponseUtil.success(
+        data={
+            'test_case_info': result[0],  # 测试用例信息
+            'env_info': result[1],  # 环境信息
+            'testcase_results': debug_results  # 调试结果
+        }
+    )
