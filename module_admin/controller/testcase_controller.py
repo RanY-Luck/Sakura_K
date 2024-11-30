@@ -6,6 +6,8 @@
 # @File    : testcase_controller.py
 # @Software: PyCharm
 # @desc    : 测试用例配置相关接口
+import asyncio
+
 from fastapi import Depends, APIRouter, Request
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,8 +16,10 @@ from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
 from module_admin.entity.vo.api_vo import BatchApiStats
+from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.testcase_vo import *
 from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.service.api_service import ApiService
 from module_admin.service.testcase_service import TestCaseService
 from module_admin.service.login_service import LoginService
 from utils.log_util import logger
@@ -123,18 +127,16 @@ async def query_detail_testcase(request: Request, testcase_id: int, query_db: As
 
 
 @testcaseController.post(
-    '/TestcaseBatchApi',
+    '/testcase_batch',
     response_model=BatchApiStats,
-    dependencies=[Depends(CheckUserInterfaceAuth('testcase:testcaseInfo:testcasebatchapi'))]
+    dependencies=[Depends(CheckUserInterfaceAuth('testcase:testcaseInfo:batch'))]
 )
-async def testcase_run(
+async def testcase_batch_run(
         request: Request,
         testcase_id: int,
         env_id: int,
         query_db: AsyncSession = Depends(get_db)
+
 ):
-    """
-    批量运行接口，返回执行统计信息
-    """
     result = await TestCaseService.testcase_batch_services(query_db, testcase_id, env_id)
     return ResponseUtil.success(data=result)
