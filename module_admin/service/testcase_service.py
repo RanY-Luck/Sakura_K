@@ -7,8 +7,9 @@
 # @Software: PyCharm
 # @desc    : 测试用例模块服务层
 import asyncio
-from typing import List
+from typing import List, Union
 
+from module_admin.dao.api_dao import ApiDao
 from module_admin.dao.env_dao import EnvDao
 from module_admin.dao.testcase_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
@@ -130,17 +131,24 @@ class TestCaseService:
     @classmethod
     async def testcase_batch_services(cls, query_db: AsyncSession, testcase_id: int, env_id: int):
         """
-        获取测试用例详细信息service
-        :param query_db: orm对象
-        :param testcase_id: 测试用例id
-        :return: 测试用例id对应的信息
+        运行测试用例service
+        :param query_db: 数据库会话
+        :param testcase_id: 测试用例ID
+        :param env_id: 环境ID
+        :return: 接口列表和环境信息，或错误响应
         """
-        testcase = await TestCaseDao.get_testcase_detail_by_id(query_db, testcase_id=testcase_id)
-        if testcase is None:
-            return CrudResponseModel(is_success=False, message=f'接口{testcase_id}不存在')
-        env = await EnvDao.get_env_detail_by_id(query_db, env_id=env_id)
+        # 并行获取测试用例接口列表和环境信息
+        api_list, env = await asyncio.gather(
+            TestCaseDao.get_testcase_and_api_list(query_db, testcase_id),
+            EnvDao.get_env_detail_by_id(query_db, env_id=env_id)
+        )
+
+        # 检查测试用例接口列表是否存在错误
+        if isinstance(api_list, CrudResponseModel):
+            return api_list
+
+        # 检查环境是否存在
         if env is None:
             return CrudResponseModel(is_success=False, message=f'环境{env_id}不存在')
-        result = TestCaseModel(**CamelCaseUtil.transform_result(testcase))
-        result2 = EnvModel(**CamelCaseUtil.transform_result(env))
-        return result, result2
+
+        return api_list, env

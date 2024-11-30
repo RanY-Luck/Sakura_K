@@ -8,13 +8,39 @@
 # @desc    : 测试用例表类型-pydantic模型
 import json
 from datetime import datetime
-from typing import Optional, Literal, Any, List
+from typing import Optional, Literal, Any, List, Union, Dict
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 from pydantic_validation_decorator import Xss, NotBlank, Size
 
 from module_admin.annotation.pydantic_annotation import as_query, validate_string
+
+
+class ApiModel(BaseModel):
+    apiId: int
+    # apiName: str
+    # apiUrl: str
+    # apiMethod: str
+    # requestDataType: Optional[Union[str, int]] = Field(default=None)
+    # requestData: Optional[Union[Dict[str, Any], str, int, None]] = None
+    # requestHeaders: Optional[Dict[str, Any]] = None
+    # createBy: Optional[str] = None
+    # createTime: Optional[datetime] = None
+    # updateBy: Optional[str] = None
+    # updateTime: Optional[datetime] = None
+    # remark: Optional[str] = None
+
+    class Config:
+        # 允许从字符串或其他类型转换
+        arbitrary_types_allowed = True
+
+        # 当遇到类型不匹配时尝试强制转换
+        @classmethod
+        def validate_field(cls, field, value):
+            if field.type_ is str and not isinstance(value, str):
+                return str(value)
+            return value
 
 
 class TestCaseModel(BaseModel):
