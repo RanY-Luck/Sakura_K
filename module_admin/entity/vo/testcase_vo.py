@@ -19,17 +19,17 @@ from module_admin.annotation.pydantic_annotation import as_query, validate_strin
 
 class ApiModel(BaseModel):
     apiId: int
-    # apiName: str
-    # apiUrl: str
-    # apiMethod: str
-    # requestDataType: Optional[Union[str, int]] = Field(default=None)
-    # requestData: Optional[Union[Dict[str, Any], str, int, None]] = None
-    # requestHeaders: Optional[Dict[str, Any]] = None
-    # createBy: Optional[str] = None
-    # createTime: Optional[datetime] = None
-    # updateBy: Optional[str] = None
-    # updateTime: Optional[datetime] = None
-    # remark: Optional[str] = None
+    apiName: str
+    apiUrl: str
+    apiMethod: str
+    requestDataType: Optional[Union[str, int]] = Field(default=None)
+    requestData: Optional[Union[Dict[str, Any], str, int, None]] = None
+    requestHeaders: Optional[Dict[str, Any]] = None
+    createBy: Optional[str] = None
+    createTime: Optional[datetime] = None
+    updateBy: Optional[str] = None
+    updateTime: Optional[datetime] = None
+    remark: Optional[str] = None
 
     class Config:
         # 允许从字符串或其他类型转换
