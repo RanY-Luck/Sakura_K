@@ -11,8 +11,6 @@ import asyncio
 from fastapi import Depends, APIRouter, Request
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.responses import JSONResponse
-
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
@@ -128,27 +126,6 @@ async def query_detail_testcase(request: Request, testcase_id: int, query_db: As
     return ResponseUtil.success(data=testcase_detail_result)
 
 
-def transform_json(data):
-    # Extract the API IDs from the first list
-    api_ids = [item["apiId"] for item in data["data"][0]]
-
-    # Create the transformed structure
-    transformed_data = {
-        "code": data["code"],
-        "msg": data["msg"],
-        "data": [
-            api_ids,  # The list of API IDs
-            {
-                "env_id": data["data"][1]["env_id"]  # Only the "env_id" field from the second dictionary
-            }
-        ],
-        "success": data["success"],
-        "time": data["time"]
-    }
-
-    return transformed_data
-
-
 @testcaseController.post(
     '/testcase_batch',
     response_model=BatchApiStats,
@@ -159,16 +136,7 @@ async def testcase_batch_run(
         testcase_id: int,
         env_id: int,
         query_db: AsyncSession = Depends(get_db)
+
 ):
-    # Get the result from the service
     result = await TestCaseService.testcase_batch_services(query_db, testcase_id, env_id)
-
-    # If result is a tuple, extract the first element
-    if isinstance(result, tuple):
-        result = result[0]
-
-    # Transform the result
-    transformed_result = transform_json(result)
-
-    # Return the transformed result
-    return JSONResponse(content=transformed_result)
+    return ResponseUtil.success(data=result)
