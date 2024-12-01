@@ -6,15 +6,18 @@
 # @File    : testcase_controller.py
 # @Software: PyCharm
 # @desc    : 测试用例配置相关接口
+import asyncio
 import json
-from fastapi import Depends, APIRouter, Request
+import time
+
+from fastapi import Depends, APIRouter, Request, Query
 from pydantic_validation_decorator import ValidateFields
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
-from module_admin.entity.vo.api_vo import BatchApiStats
+from module_admin.entity.vo.api_vo import BatchApiStats, BatchApi
 from module_admin.entity.vo.testcase_vo import *
 from module_admin.entity.vo.user_vo import CurrentUserModel
 from module_admin.service.api_service import ApiService
@@ -131,20 +134,59 @@ async def query_detail_testcase(request: Request, testcase_id: int, query_db: As
 )
 async def testcase_batch_run(
         request: Request,
-        testcase_id: int,
-        env_id: int,
+        testcase_id: int = Query(..., description='测试用例ID'),
+        env_id: int = Query(..., description='环境ID'),
         query_db: AsyncSession = Depends(get_db)
 
 ):
+    """
+
+    :param request:
+    :param testcase_id:
+    :param env_id:
+    :param query_db:
+    :return:
+    """
+    start_time = time.time()
     result = await TestCaseService.testcase_batch_services(query_db, testcase_id, env_id)
-    # 修改API IDs提取方式
-    api_ids = [api.apiId for api in result[0]]
+    test_cases, env_info = result
+    api_ids = [api.apiId for api in test_cases]
     debug_results = await ApiService.api_batch_services(query_db, api_ids, env_id)
-    # 返回调试结果
+
+    # 统计API调试结果
+    total_apis = len(debug_results)
+    success_count = 0
+    failed_count = 0
+
+    for result in debug_results:
+        api_status = result.get('response', {}).get('status', False)
+        if isinstance(api_status, str):
+            api_status = api_status.lower() == 'true'
+        if api_status:
+            success_count += 1
+        else:
+            failed_count += 1
+
+    # 计算成功率
+    success_rate = (success_count / total_apis * 100) if total_apis > 0 else 0
+    # 计算耗时（毫秒）
+    end_time = time.time()
+    total_time = round((end_time - start_time) * 1000, 3)
+
+    # 构建统计信息
+    stats_info = {
+        'total_apis': total_apis,
+        'success_count': success_count,
+        'failed_count': failed_count,
+        'success_rate': f'{success_rate:.2f}%',
+        'total_time_ms': total_time,
+        'api_results': debug_results
+    }
+
     return ResponseUtil.success(
         data={
-            'test_case_info': result[0],  # 测试用例信息
-            'env_info': result[1],  # 环境信息
-            'testcase_results': debug_results  # 调试结果
+            'test_case_info': test_cases,  # 测试用例信息
+            'env_info': env_info,  # 环境信息
+            'stats_info': stats_info  # 统计信息
         }
     )

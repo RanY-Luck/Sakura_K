@@ -156,7 +156,7 @@ async def api_batch_run(
     async def run_single_api(api_id: int):
         api_start = time.time()
         try:
-            result = await ApiService.api_batch_services(query_db, [api_id], env_id=env_id)
+            result = await ApiService.api_batch_services(query_db, [api_id], env_id)
             # 提取API响应中的status
             api_status = result[0].get('response', {}).get('status', False)
             if isinstance(api_status, str):
