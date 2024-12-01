@@ -140,53 +140,58 @@ async def testcase_batch_run(
 
 ):
     """
-
-    :param request:
-    :param testcase_id:
-    :param env_id:
-    :param query_db:
-    :return:
+    运行测试用例批量执行
     """
     start_time = time.time()
-    result = await TestCaseService.testcase_batch_services(query_db, testcase_id, env_id)
-    test_cases, env_info = result
-    api_ids = [api.apiId for api in test_cases]
-    debug_results = await ApiService.api_batch_services(query_db, api_ids, env_id)
-
-    # 统计API调试结果
-    total_apis = len(debug_results)
-    success_count = 0
-    failed_count = 0
-
-    for result in debug_results:
-        api_status = result.get('response', {}).get('status', False)
-        if isinstance(api_status, str):
-            api_status = api_status.lower() == 'true'
-        if api_status:
-            success_count += 1
-        else:
-            failed_count += 1
-
-    # 计算成功率
-    success_rate = (success_count / total_apis * 100) if total_apis > 0 else 0
-    # 计算耗时（毫秒）
-    end_time = time.time()
-    total_time = round((end_time - start_time) * 1000, 3)
-
-    # 构建统计信息
-    stats_info = {
-        'total_apis': total_apis,
-        'success_count': success_count,
-        'failed_count': failed_count,
-        'success_rate': f'{success_rate:.2f}%',
-        'total_time_ms': total_time,
-        'api_results': debug_results
-    }
-
-    return ResponseUtil.success(
-        data={
-            'test_case_info': test_cases,  # 测试用例信息
-            'env_info': env_info,  # 环境信息
-            'stats_info': stats_info  # 统计信息
+    try:
+        # 获取测试用例和环境信息
+        result = await TestCaseService.testcase_batch_services(query_db, testcase_id, env_id)
+        test_cases, env_info = result
+        # 提取API IDs
+        api_ids = [api.apiId for api in test_cases]
+        # 批量运行API
+        api_results = await ApiService.api_batch_services(query_db, api_ids, env_id)
+        # 统计API调试结果
+        total_apis = len(api_results)
+        success_count = sum(
+            1 for result in api_results
+            if (isinstance(result.get('response', {}).get('status'), str)
+                and result.get('response', {}).get('status', '').lower() == 'true')
+            or bool(result.get('response', {}).get('status', False))
+        )
+        failed_count = total_apis - success_count
+        # 计算成功率
+        success_rate = (success_count / total_apis * 100) if total_apis > 0 else 0
+        # 计算耗时（毫秒）
+        total_time = round((time.time() - start_time), 3)
+        # 构建统计信息
+        stats_info = {
+            'total_apis': total_apis,
+            'success_count': success_count,
+            'failed_count': failed_count,
+            'success_rate': f'{success_rate:.2f}%',
+            'total_time_ms': f'{total_time}s',
+            'api_results': api_results
         }
-    )
+        # 记录执行统计日志
+        logger.info(
+            f"批量执行API完成: "
+            f"总计={total_apis}个, "
+            f"成功={success_count}个, "
+            f"失败={failed_count}个, "
+            f"成功率={success_rate:.2f}%, "
+            f"耗时={total_time}s"
+        )
+        return ResponseUtil.success(
+            data={
+                'test_case_info': test_cases,
+                'env_info': env_info,
+                'stats_info': stats_info
+            }
+        )
+    except Exception as e:
+        # 统一异常处理
+        logger.error(f"测试用例批量执行失败: {str(e)}", exc_info=True)
+        return ResponseUtil.error(
+            msg=f"测试用例批量执行失败: {str(e)}"
+        )
