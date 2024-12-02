@@ -180,13 +180,13 @@ async def testcase_batch_run(
             f"成功={success_count}个, "
             f"失败={failed_count}个, "
             f"成功率={success_rate:.2f}%, "
-            f"耗时={total_time}s"
+            f"耗时={total_time}秒"
         )
         return ResponseUtil.success(
             data={
+                'stats_info': stats_info,
                 'test_case_info': test_cases,
-                'env_info': env_info,
-                'stats_info': stats_info
+                'env_info': env_info
             }
         )
     except Exception as e:
