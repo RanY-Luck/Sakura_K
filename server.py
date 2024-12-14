@@ -51,6 +51,7 @@ async def lifespan(app: FastAPI):
         logger.info(f"{AppConfig.app_name}开始启动")
         # 启动 Banner
         await worship()
+        sleep(0.1)
         # 初始化数据库
         await init_create_table()
         # 初始化Redis连接池

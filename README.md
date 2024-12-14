@@ -6,7 +6,8 @@
     Skura_K
   </h1>
 
-[预 览](http://beidoulab.club:62388/)    
+[点 击 预 览](https://ranyong.top:62374/)    
+
 特别鸣谢: [vvandk](https://github.com/vvandk) 和 [insistence](https://github.com/insistence) 和 [wu-clan](https://github.com/wu-clan) 给予帮助
 </div>
 
@@ -240,8 +241,8 @@ class DeleteNoticeModel(BaseModel):
 ```python
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from module_admin.entity.do.notice_do import SysNotice
-from module_admin.entity.vo.notice_vo import *
+from module_admin.entity import SysNotice
+from module_admin.entity import *
 from utils.page_util import PageUtil
 from datetime import datetime, time
 
@@ -359,7 +360,7 @@ class NoticeDao:
 
 ```python
 from module_admin.dao.notice_dao import *
-from module_admin.entity.vo.common_vo import CrudResponseModel
+from module_admin.entity import CrudResponseModel
 from utils.common_util import CamelCaseUtil
 
 
@@ -483,8 +484,8 @@ from config.enums import BusinessType
 from config.get_db import get_db
 from module_admin.annotation.log_annotation import Log
 from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
-from module_admin.entity.vo.notice_vo import DeleteNoticeModel, NoticeModel, NoticePageQueryModel
-from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.entity import DeleteNoticeModel, NoticeModel, NoticePageQueryModel
+from module_admin.entity import CurrentUserModel
 from module_admin.service.login_service import LoginService
 from module_admin.service.notice_service import NoticeService
 from utils.log_util import logger
