@@ -1,67 +1,21 @@
 import os
 import sys
 from logging.config import fileConfig
-
-from alembic import context
 from sqlalchemy import engine_from_config
+from alembic import context
 from sqlalchemy import pool
-
 from core.database import Base
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 fileConfig(config.config_file_name)
-
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-# target_metadata = None
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
 # 添加当前项目路径到环境变量
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 # 导入项目中的基本映射类，与 需要迁移的 ORM 模型，不添加会初始化失败
-# from apps.vadmin.auth.models import *
-# from apps.vadmin.system.models import *
-# from apps.vadmin.record.models import *
-# from apps.vadmin.help.models import *
-# from apps.vadmin.resource.models import *
-# from apps.vadmin.redbook.models import *
-# from apps.vadmin.autotest.project.models import *
-# from apps.vadmin.autotest.module.models import *
-# from apps.vadmin.autotest.apinfo.models import *
-# from apps.vadmin.autotest.datasource.models import *
-# from apps.vadmin.autotest.env.models import *
-# from apps.vadmin.autotest.functions.models import *
-# from apps.vadmin.autotest.report.models import *
-# from apps.vadmin.autotest.testcase.models import *
-
-from apps.vadmin.auth.models import *
-from apps.vadmin.system.models import *
-from apps.vadmin.record.models import *
-from apps.vadmin.help.models import *
-from apps.vadmin.resource.models import *
-from apps.vadmin.redbook.models import *
-from apps.vadmin.autotest.project.models import *
-from apps.vadmin.autotest.module.models import *
-from apps.vadmin.autotest.apinfo.models import *
-from apps.vadmin.autotest.datasource.models import *
-from apps.vadmin.autotest.env.models import *
-from apps.vadmin.autotest.functions.models import *
-from apps.vadmin.autotest.report.models import *
-from apps.vadmin.autotest.testcase.models import *
-
+from module_admin.entity.do.demo_do import *
 # 修改配置中的参数
 target_metadata = Base.metadata
 
