@@ -1,28 +1,19 @@
-import os
-import sys
-from logging.config import fileConfig
 from sqlalchemy import engine_from_config
-from alembic import context
 from sqlalchemy import pool
-from core.database import Base
 
+from alembic import context
+
+from db.db_base import BaseModel
 config = context.config
 
-fileConfig(config.config_file_name)
-
-# 添加当前项目路径到环境变量
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
-
-# 导入项目中的基本映射类，与 需要迁移的 ORM 模型，不添加会初始化失败
-from module_admin.entity.do.demo_do import *
-# 修改配置中的参数
-target_metadata = Base.metadata
+from module_admin.entity.do import *
+target_metadata = BaseModel.metadata
 
 
 def run_migrations_offline():
     """
-    以“脱机”模式运行迁移。
+    # 离线运行
+    :return:
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -30,8 +21,6 @@ def run_migrations_offline():
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
-        compare_type=True,  # 是否检查字段类型，字段长度
-        compare_server_default=True  # 是否比较在数据库中的默认值
     )
 
     with context.begin_transaction():
@@ -40,7 +29,8 @@ def run_migrations_offline():
 
 def run_migrations_online():
     """
-    以“在线”模式运行迁移。
+    # 在线运行
+    :return:
     """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
@@ -50,10 +40,7 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=True,  # 是否检查字段类型，字段长度
-            compare_server_default=True  # 是否比较在数据库中的默认值
+            connection=connection, target_metadata=target_metadata
         )
 
         with context.begin_transaction():
@@ -61,8 +48,6 @@ def run_migrations_online():
 
 
 if context.is_offline_mode():
-    print("offline")
     run_migrations_offline()
 else:
-    print("online")
     run_migrations_online()
