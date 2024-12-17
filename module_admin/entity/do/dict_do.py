@@ -6,11 +6,12 @@
 # @File    : dict_do.py
 # @Software: PyCharm
 # @desc    : 字典类型表
-from sqlalchemy import Column, Integer, String, UniqueConstraint
-from config.db_base import BaseModel
+from sqlalchemy import Column, Integer, String, DateTime, UniqueConstraint
+from config.database import Base
+from datetime import datetime
 
 
-class SysDictType(BaseModel):
+class SysDictType(Base):
     """
     字典类型表
     """
@@ -21,13 +22,18 @@ class SysDictType(BaseModel):
     dict_name = Column(String(100), nullable=True, default='', comment='字典名称')
     dict_type = Column(String(100), nullable=True, default='', comment='字典类型')
     status = Column(String(1), nullable=True, default='0', comment='状态（0正常 1停用）')
+    create_by = Column(String(64), nullable=True, default='', comment='创建者')
+    create_time = Column(DateTime, nullable=True, default=datetime.now(), comment='创建时间')
+    update_by = Column(String(64), nullable=True, default='', comment='更新者')
+    update_time = Column(DateTime, nullable=True, default=datetime.now(), comment='更新时间')
+    remark = Column(String(500), nullable=True, default=None, comment='备注')
 
     __table_args__ = (
         UniqueConstraint('dict_type', name='uq_sys_dict_type_dict_type'),
     )
 
 
-class SysDictData(BaseModel):
+class SysDictData(Base):
     """
     字典数据表
     """
@@ -42,3 +48,8 @@ class SysDictData(BaseModel):
     list_class = Column(String(100), nullable=True, default=None, comment='表格回显样式')
     is_default = Column(String(1), nullable=True, default='N', comment='是否默认（Y是 N否）')
     status = Column(String(1), nullable=True, default='0', comment='状态（0正常 1停用）')
+    create_by = Column(String(64), nullable=True, default='', comment='创建者')
+    create_time = Column(DateTime, nullable=True, default=datetime.now(), comment='创建时间')
+    update_by = Column(String(64), nullable=True, default='', comment='更新者')
+    update_time = Column(DateTime, nullable=True, default=datetime.now(), comment='更新时间')
+    remark = Column(String(500), nullable=True, default=None, comment='备注')

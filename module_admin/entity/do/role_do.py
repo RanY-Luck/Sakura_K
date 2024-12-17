@@ -6,7 +6,9 @@
 # @File    : role_do.py
 # @Software: PyCharm
 # @desc    : 角色信息表
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
+from config.database import Base
+from datetime import datetime
 from config.db_base import BaseModel
 
 

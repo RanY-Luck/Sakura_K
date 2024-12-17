@@ -51,6 +51,8 @@ def run_migrations_online():
 
 
 if context.is_offline_mode():
+    print("离线")
     run_migrations_offline()
 else:
+    print("在线")
     run_migrations_online()

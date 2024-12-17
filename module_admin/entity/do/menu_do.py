@@ -6,11 +6,12 @@
 # @File    : menu_do.py
 # @Software: PyCharm
 # @desc    : 菜单权限表
-from sqlalchemy import Column, Integer, String
-from config.db_base import BaseModel
+from sqlalchemy import Column, Integer, String, DateTime
+from config.database import Base
+from datetime import datetime
 
 
-class SysMenu(BaseModel):
+class SysMenu(Base):
     """
     菜单权限表
     """
@@ -32,3 +33,8 @@ class SysMenu(BaseModel):
     status = Column(String(1), nullable=True, default='0', comment='菜单状态（0正常 1停用）')
     perms = Column(String(100), nullable=True, default=None, comment='权限标识')
     icon = Column(String(100), nullable=True, default='#', comment='菜单图标')
+    create_by = Column(String(64), nullable=True, default='', comment='创建者')
+    create_time = Column(DateTime, nullable=True, default=datetime.now(), comment='创建时间')
+    update_by = Column(String(64), nullable=True, default='', comment='更新者')
+    update_time = Column(DateTime, nullable=True, default=datetime.now(), comment='更新时间')
+    remark = Column(String(500), nullable=True, default=None, comment='备注')

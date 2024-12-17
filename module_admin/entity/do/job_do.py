@@ -7,11 +7,11 @@
 # @Software: PyCharm
 # @desc    : 定时任务调度表
 from sqlalchemy import Column, Integer, String, DateTime
-from config.db_base import BaseModel
+from config.database import Base
 from datetime import datetime
 
 
-class SysJob(BaseModel):
+class SysJob(Base):
     """
     定时任务调度表
     """
@@ -36,7 +36,7 @@ class SysJob(BaseModel):
     remark = Column(String(500), nullable=True, default=None, comment='备注信息')
 
 
-class SysJobLog(BaseModel):
+class SysJobLog(Base):
     """
     定时任务调度日志表
     """
