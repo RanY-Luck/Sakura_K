@@ -12,10 +12,7 @@
 官方文档：https://docs.sqlalchemy.org/en/20/intro.html#installation
 """
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase, declared_attr
-
-# 创建数据库连接
-SQLALCHEMY_DATABASE_URL = "mysql+asyncmy://root:Ranyong_520@127.0.0.1:3306/skf"
+from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -24,5 +21,3 @@ class Base(AsyncAttrs, DeclarativeBase):
     稍后，我们将继承该类，创建每个 ORM 模型
     """
     pass
-
-

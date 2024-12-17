@@ -6,9 +6,8 @@
 # @File    : demo_do.py
 # @Software: PyCharm
 # @desc    :
-# from config.db_base import BaseModel
-from sqlalchemy import Column, Integer, String, JSON
-from db.db_base import BaseModel
+from config.db_base import BaseModel
+from sqlalchemy import Column, Integer, String
 
 class Demo(BaseModel):
     """
@@ -19,6 +18,3 @@ class Demo(BaseModel):
 
     demo_id = Column(Integer, primary_key=True, autoincrement=True, comment='接口ID')
     demo_name = Column(String(255), nullable=False, comment='接口名称', index=True)
-    demo_name1 = Column(String(255), nullable=False, comment='接口名称', index=True)
-    demo_name1216 = Column(String(255), nullable=False, comment='接口名称', index=True)
-
