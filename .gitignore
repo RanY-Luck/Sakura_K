@@ -36,3 +36,5 @@ vf_admin/upload_path/*
 vf_admin/download_path/*
 static/*
 docker-compose.yaml
+alembic/versions_dev
+alembic/versions_pro
