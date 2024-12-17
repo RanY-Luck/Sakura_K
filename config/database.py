@@ -8,7 +8,8 @@
 # @desc    : mysql数据库
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
-
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import DeclarativeBase
 from urllib.parse import quote_plus
 from config.env import DataBaseConfig
 
@@ -33,3 +34,9 @@ async_engine = create_async_engine(
 AsyncSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=async_engine)
 
 
+class Base(AsyncAttrs, DeclarativeBase):
+    """
+    创建基本映射类
+    稍后，我们将继承该类，创建每个 ORM 模型
+    """
+    pass

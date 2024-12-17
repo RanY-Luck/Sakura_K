@@ -6,7 +6,6 @@
 # @Software : PyCharm
 # @Desc     : 环境表
 from sqlalchemy import Column, Integer, String, JSON
-
 from config.db_base import BaseModel
 
 

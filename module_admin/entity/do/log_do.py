@@ -6,12 +6,12 @@
 # @File    : log_do.py
 # @Software: PyCharm
 # @desc    : 系统访问记录表
-from sqlalchemy import Column, Integer, String, DateTime, Text, BigInteger, Index
-from config.database import Base
+from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Index
+from config.db_base import BaseModel
 from datetime import datetime
 
 
-class SysLogininfor(Base):
+class SysLogininfor(BaseModel):
     """
     系统访问记录
     """
@@ -32,7 +32,7 @@ class SysLogininfor(Base):
 
 
 
-class SysOperLog(Base):
+class SysOperLog(BaseModel):
     """
     操作日志记录
     """

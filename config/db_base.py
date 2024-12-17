@@ -20,7 +20,6 @@
 from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import DateTime, String, func
-
 from core.database import Base
 
 
@@ -37,7 +36,6 @@ class BaseModel(Base):
     create_time: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
-        onupdate=func.now(),
         comment='创建时间'
     )
     update_by: Mapped[str] = mapped_column(String(64), nullable=True, default='', comment='更新者')

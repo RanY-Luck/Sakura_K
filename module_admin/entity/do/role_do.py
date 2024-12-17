@@ -6,12 +6,11 @@
 # @File    : role_do.py
 # @Software: PyCharm
 # @desc    : 角色信息表
-from sqlalchemy import Column, Integer, String, DateTime
-from config.database import Base
-from datetime import datetime
+from sqlalchemy import Column, Integer, String
+from config.db_base import BaseModel
 
 
-class SysRole(Base):
+class SysRole(BaseModel):
     """
     角色信息表
     """
@@ -31,14 +30,9 @@ class SysRole(Base):
     dept_check_strictly = Column(Integer, default=1, comment='部门树选择项是否关联显示')
     status = Column(String(1), nullable=False, default='0', comment='角色状态（0正常 1停用）')
     del_flag = Column(String(1), default='0', comment='删除标志（0代表存在 2代表删除）')
-    create_by = Column(String(64), default='', comment='创建者')
-    create_time = Column(DateTime, default=datetime.now(), comment='创建时间')
-    update_by = Column(String(64), default='', comment='更新者')
-    update_time = Column(DateTime, default=datetime.now(), comment='更新时间')
-    remark = Column(String(500), default=None, comment='备注')
 
 
-class SysRoleDept(Base):
+class SysRoleDept(BaseModel):
     """
     角色和部门关联表
     """
@@ -48,7 +42,7 @@ class SysRoleDept(Base):
     dept_id = Column(Integer, primary_key=True, nullable=False, comment='部门ID')
 
 
-class SysRoleMenu(Base):
+class SysRoleMenu(BaseModel):
     """
     角色和菜单关联表
     """
