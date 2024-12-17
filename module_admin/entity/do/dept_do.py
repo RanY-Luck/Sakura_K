@@ -6,12 +6,11 @@
 # @File    : dept_do.py
 # @Software: PyCharm
 # @desc    : 部门表
-from sqlalchemy import Column, Integer, String, DateTime
-from config.database import Base
-from datetime import datetime
+from sqlalchemy import Column, Integer, String
+from config.db_base import BaseModel
 
 
-class SysDept(Base):
+class SysDept(BaseModel):
     """
     部门表
     """
@@ -28,7 +27,3 @@ class SysDept(Base):
     email = Column(String(50), nullable=True, default=None, comment='邮箱')
     status = Column(String(1), nullable=True, default='0', comment='部门状态（0正常 1停用）')
     del_flag = Column(String(1), nullable=True, default='0', comment='删除标志（0代表存在 2代表删除）')
-    create_by = Column(String(64), nullable=True, default='', comment='创建者')
-    create_time = Column(DateTime, nullable=True, default=datetime.now(), comment='创建时间')
-    update_by = Column(String(64), nullable=True, default='', comment='更新者')
-    update_time = Column(DateTime, nullable=True, default=datetime.now(), comment='更新时间')

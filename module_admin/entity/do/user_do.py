@@ -7,11 +7,10 @@
 # @Software: PyCharm
 # @desc    : 用户信息表
 from sqlalchemy import Column, Integer, String, DateTime
-from config.database import Base
-from datetime import datetime
+from config.db_base import BaseModel
 
 
-class SysUser(Base):
+class SysUser(BaseModel):
     """
     用户信息表
     """
@@ -32,14 +31,8 @@ class SysUser(Base):
     del_flag = Column(String(1), default='0', comment='删除标志（0代表存在 2代表删除）')
     login_ip = Column(String(128), default='', comment='最后登录IP')
     login_date = Column(DateTime, comment='最后登录时间')
-    create_by = Column(String(64), default='', comment='创建者')
-    create_time = Column(DateTime, comment='创建时间', default=datetime.now())
-    update_by = Column(String(64), default='', comment='更新者')
-    update_time = Column(DateTime, comment='更新时间', default=datetime.now())
-    remark = Column(String(500), default=None, comment='备注')
 
-
-class SysUserRole(Base):
+class SysUserRole(BaseModel):
     """
     用户和角色关联表
     """
@@ -49,7 +42,7 @@ class SysUserRole(Base):
     role_id = Column(Integer, primary_key=True, nullable=False, comment='角色ID')
 
 
-class SysUserPost(Base):
+class SysUserPost(BaseModel):
     """
     用户与岗位关联表
     """
