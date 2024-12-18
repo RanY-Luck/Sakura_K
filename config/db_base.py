@@ -18,34 +18,22 @@
 官方网址：https://hellowac.github.io/alembic_doc/zh/_front_matter.html
 """
 from datetime import datetime
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import DateTime, String, func
-from core.database import Base
+from sqlalchemy import DateTime, Column, String
+from config.database import Base
 
 
-# 使用命令：alembic init alembic 初始化迁移数据库环境
-# 这时会生成alembic文件夹 和 alembic.ini文件
 class BaseModel(Base):
     """
-    公共 ORM 模型，基表
+    公共 ORM 模型，基表,每张表都会有以下字段
     """
     __abstract__ = True
     __mapper_args__ = {"eager_defaults": True}  # 防止 insert 插入后不刷新
 
-    create_by: Mapped[str] = mapped_column(String(64), nullable=True, default='', comment='创建者')
-    create_time: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-        comment='创建时间'
-    )
-    update_by: Mapped[str] = mapped_column(String(64), nullable=True, default='', comment='更新者')
-    update_time: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-        onupdate=func.now(),
-        comment='更新时间'
-    )
-    remark: Mapped[str] = mapped_column(String(100), nullable=True, default=None, comment='备注')
+    create_by = Column(String(64), nullable=True, default='', comment='创建者')
+    create_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='创建时间')
+    update_by = Column(String(64), nullable=True, default='', comment='更新者')
+    update_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='更新时间')
+    remark = Column(String(100), nullable=True, default=None, comment='备注')
 
     @staticmethod
     def get_current_time():

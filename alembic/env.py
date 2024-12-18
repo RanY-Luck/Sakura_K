@@ -1,16 +1,18 @@
+import os
+import sys
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-
-from db.db_base import BaseModel
+from config.database import Base
 
 config = context.config
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../")
 
 # 导入项目中的基本映射类，与 需要迁移的 ORM 模型，不添加会初始化失败
 from module_admin.entity.do import *
 
-target_metadata = BaseModel.metadata
+target_metadata = Base.metadata
 
 
 def run_migrations_offline():
