@@ -34,6 +34,7 @@ user-agents = "2.2.0"
 fastapi = {version = "0.115.0", extras = ["all"]}
 atomic-bomb-engine = "^0.41.3"
 alembic = "1.13.1"
+drissionpage = "^4.1.0.14"
 
 
 [build-system]
