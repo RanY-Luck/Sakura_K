@@ -1,0 +1,92 @@
+# -*- coding:utf-8 -*-
+
+from fastapi import APIRouter, Depends, Form
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
+from typing import List
+from config.enums import BusinessType
+from config.get_db import get_db
+from module_admin.service.login_service import LoginService
+from module_admin.aspect.data_scope import GetDataScope
+from module_admin.aspect.interface_auth import CheckUserInterfaceAuth
+from module_admin.entity.vo.user_vo import CurrentUserModel
+from module_admin.annotation.log_annotation import Log
+from utils.response_util import ResponseUtil
+from utils.common_util import bytes2file_response
+
+from {{ packageName }}.entity.vo.{{ tableName }}_vo import {{ tableName|snake_to_pascal_case }}PageModel, {{ tableName|snake_to_pascal_case }}Model
+from {{ packageName }}.service.{{ tableName }}_service import {{ tableName|snake_to_pascal_case }}Service
+
+{{ tableName|snake_to_camel }}Controller = APIRouter(prefix='/{{ moduleName }}/{{ businessName }}', dependencies=[Depends(LoginService.get_current_user)])
+
+
+@{{ tableName|snake_to_camel }}Controller.get('/list', dependencies=[Depends(CheckUserInterfaceAuth('{{ permissionPrefix }}:list'))])
+async def get_{{ tableName }}_list(
+        request: Request,
+        query_db: AsyncSession = Depends(get_db),
+        page_query: {{ tableName|snake_to_pascal_case }}PageModel = Depends( {{ tableName|snake_to_pascal_case }}PageModel.as_query),
+        data_scope_sql: str = Depends(GetDataScope('SysDept'))
+):
+    {{ tableName }}_result = await {{ tableName|snake_to_pascal_case }}Service.get_{{ tableName }}_list(query_db, page_query, data_scope_sql)
+
+    return ResponseUtil.success(model_content={{ tableName }}_result)
+
+@{{ tableName|snake_to_camel }}Controller.get('/getById/{{ '{' }}{{ tableName|snake_to_camel }}Id{{ '}' }}', dependencies=[Depends(CheckUserInterfaceAuth('{{ permissionPrefix }}:list'))])
+async def get_{{ tableName }}_by_id(
+        request: Request,
+        {{ tableName|snake_to_camel }}Id: int,
+        query_db: AsyncSession = Depends(get_db),
+        data_scope_sql: str = Depends(GetDataScope('SysDept'))
+):
+    {{ tableName }} = await {{ tableName|snake_to_pascal_case }}Service.get_{{ tableName }}_by_id(query_db, {{ tableName|snake_to_camel }}Id)
+    return ResponseUtil.success(data={{ tableName }})
+
+
+@{{ tableName|snake_to_camel }}Controller.post('/add', dependencies=[Depends(CheckUserInterfaceAuth('{{ permissionPrefix }}:add'))])
+@Log(title='{{ tableName }}', business_type=BusinessType.INSERT)
+async def add_{{ tableName }} (
+    request: Request,
+    add_model: {{ tableName|snake_to_pascal_case }}Model,
+    query_db: AsyncSession = Depends(get_db),
+    current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+):
+    add_dict_type_result = await {{ tableName|snake_to_pascal_case }}Service.add_{{ tableName }}(query_db, add_model)
+    return ResponseUtil.success(data=add_dict_type_result)
+
+@{{ tableName|snake_to_camel }}Controller.put('/update', dependencies=[Depends(CheckUserInterfaceAuth('{{ permissionPrefix }}:update'))])
+@Log(title='{{ tableName }}', business_type=BusinessType.UPDATE)
+async def update_{{ tableName }}(
+    request: Request,
+    edit_model: {{ tableName|snake_to_pascal_case }}Model,
+    query_db: AsyncSession = Depends(get_db),
+    current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+):
+    add_dict_type_result = await {{ tableName|snake_to_pascal_case }}Service.update_{{ tableName }}(query_db, edit_model)
+    return ResponseUtil.success(data=add_dict_type_result)
+
+
+@{{ tableName|snake_to_camel }}Controller.delete('/delete/{{ '{' }}{{ tableName|snake_to_camel }}Ids{{ '}' }}', dependencies=[Depends(CheckUserInterfaceAuth('{{ permissionPrefix }}:del'))])
+@Log(title='{{ tableName }}', business_type=BusinessType.DELETE)
+async def del_{{ tableName }}(
+    request: Request,
+    {{ tableName|snake_to_camel }}Ids: str,
+    query_db: AsyncSession = Depends(get_db),
+    current_user: CurrentUserModel = Depends(LoginService.get_current_user),
+):
+    ids = {{ tableName|snake_to_camel }}Ids.split(',')
+    del_result = await {{ tableName|snake_to_pascal_case }}Service.del_{{ tableName }}(query_db, ids)
+    return ResponseUtil.success(data=del_result)
+
+@{{ tableName|snake_to_camel }}Controller.post('/export', dependencies=[Depends(CheckUserInterfaceAuth('{{ permissionPrefix }}:export'))])
+@Log(title='{{ tableName }}', business_type=BusinessType.EXPORT)
+async def export_{{ tableName }}(
+    request: Request,
+    {{ tableName }}_form: {{ tableName|snake_to_pascal_case }}PageModel = Form(),
+    query_db: AsyncSession = Depends(get_db),
+    data_scope_sql: str = Depends(GetDataScope('SysDept')),
+):
+    # 获取全量数据
+    export_result = await {{ tableName|snake_to_pascal_case }}Service.export_{{ tableName }}_list(
+        query_db, {{ tableName }}_form, data_scope_sql
+    )
+    return ResponseUtil.streaming(data=bytes2file_response(export_result))

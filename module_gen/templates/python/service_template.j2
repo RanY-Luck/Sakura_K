@@ -1,0 +1,62 @@
+# -*- coding:utf-8 -*-
+
+from typing import List
+from sqlalchemy.ext.asyncio import AsyncSession
+from utils.common_util import CamelCaseUtil, export_list2excel
+from utils.page_util import PageResponseModel
+from {{ packageName }}.dao.{{ tableName }}_dao import {{ tableName|snake_to_pascal_case }}Dao
+from {{ packageName }}.entity.do.{{ tableName }}_do import {{ tableName|snake_to_pascal_case }}
+from {{ packageName }}.entity.vo.{{ tableName }}_vo import {{ tableName|snake_to_pascal_case }}PageModel, {{ tableName|snake_to_pascal_case }}Model
+
+
+class {{ tableName|snake_to_pascal_case }}Service:
+    """
+    用户管理模块服务层
+    """
+
+    @classmethod
+    async def get_{{ tableName }}_list(cls, query_db: AsyncSession, query_object: {{ tableName|snake_to_pascal_case }}PageModel, data_scope_sql: str) -> [list | PageResponseModel]:
+        {{ tableName }}_list = await {{ tableName|snake_to_pascal_case }}Dao.get_{{ tableName }}_list(query_db, query_object, data_scope_sql, is_page=True)
+        return {{ tableName }}_list
+
+    @classmethod
+    async def get_{{ tableName }}_by_id(cls, query_db: AsyncSession, {{ tableName }}_id: int) -> {{ tableName|snake_to_pascal_case }}Model:
+        {{ tableName }} = await  {{ tableName|snake_to_pascal_case }}Dao.get_by_id(query_db, {{ tableName }}_id)
+        {{ tableName }}_model = {{ tableName|snake_to_pascal_case }}Model(**CamelCaseUtil.transform_result({{ tableName }}))
+        return {{ tableName }}_model
+
+
+    @classmethod
+    async def add_{{ tableName }}(cls, query_db: AsyncSession, query_object: {{ tableName|snake_to_pascal_case }}Model) -> {{ tableName|snake_to_pascal_case }}Model:
+        {{ tableName }} = await {{ tableName|snake_to_pascal_case }}Dao.add_{{ tableName }}(query_db, query_object)
+        {{ tableName }}_model = {{ tableName|snake_to_pascal_case }}Model(**CamelCaseUtil.transform_result({{ tableName }}))
+        return {{ tableName }}_model
+
+
+    @classmethod
+    async def update_{{ tableName }}(cls, query_db: AsyncSession, query_object: {{ tableName|snake_to_pascal_case }}Model) -> {{ tableName|snake_to_pascal_case }}Model:
+        {{ tableName }} = await {{ tableName|snake_to_pascal_case }}Dao.edit_{{ tableName }}(query_db, query_object)
+        {{ tableName }}_model = {{ tableName|snake_to_pascal_case }}Model(**CamelCaseUtil.transform_result({{ tableName }}))
+        return {{ tableName }}_model
+
+
+    @classmethod
+    async def del_{{ tableName }}(cls, query_db: AsyncSession, {{ tableName }}_ids: List[str]):
+        await {{ tableName|snake_to_pascal_case }}Dao.del_{{ tableName }}(query_db, {{ tableName }}_ids)
+
+
+    @classmethod
+    async def export_{{ tableName }}_list(cls, query_db: AsyncSession, query_object: {{ tableName|snake_to_pascal_case }}PageModel, data_scope_sql) -> bytes:
+        {{ tableName }}_list = await {{ tableName|snake_to_pascal_case }}Dao.get_{{ tableName }}_list(query_db, query_object, data_scope_sql, is_page=False)
+        mapping_dict = {
+            {% for column in columns %}
+            {% if column.isList == "1" %}
+            '{{ column.pythonField | snake_to_camel }}': '{% if column.columnComment != "" %}{{ column.columnComment }} {% else %}{{ column.pythonField }}{% endif %}',
+            {% endif %}
+            {% endfor %}
+        }
+        new_data = [
+            {mapping_dict.get(key): value for key, value in item.items() if mapping_dict.get(key)} for item in {{ tableName }}_list
+        ]
+        binary_data = export_list2excel(new_data)
+        return binary_data

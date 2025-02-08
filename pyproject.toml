@@ -35,6 +35,8 @@ fastapi = {version = "0.115.0", extras = ["all"]}
 atomic-bomb-engine = "^0.41.3"
 alembic = "1.13.1"
 drissionpage = "^4.1.0.14"
+oss2 = "2.18.4"
+beautifulsoup4 = "4.12.3"
 
 
 [build-system]
