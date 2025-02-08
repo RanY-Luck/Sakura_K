@@ -65,6 +65,7 @@ class UserWechat(Base, BaseMixin):
     """
 
     __tablename__ = 'user_wechat'
+    __table_args__ = ({'comment': '用户微信信息'})
 
     user_id = Column(Integer, nullable=False, comment='用户ID')
     city = Column(String(100), nullable=True, comment='城市')
