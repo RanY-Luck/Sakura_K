@@ -6,6 +6,8 @@
 # @File    : database.py
 # @Software: PyCharm
 # @desc    : mysql数据库
+import datetime
+from sqlalchemy import Column, Integer, DateTime, String, text
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncAttrs
@@ -40,3 +42,16 @@ class Base(AsyncAttrs, DeclarativeBase):
     稍后，我们将继承该类，创建每个 ORM 模型
     """
     pass
+
+
+class BaseMixin:
+    """model的基类,所有model都必须继承"""
+    id = Column(Integer, primary_key=True)
+    create_time = Column(DateTime, nullable=False, default=datetime.datetime.now, comment='创建时间')
+    update_time = Column(
+        DateTime, nullable=False, default=datetime.datetime.now,
+        onupdate=datetime.datetime.now, index=True, comment='更新时间'
+    )
+    del_flag = Column(
+        String(1), nullable=False, default='0', server_default=text("'0'"), comment='删除标志（0代表存在 2代表删除）'
+    )

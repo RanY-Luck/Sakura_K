@@ -131,3 +131,10 @@ class UnlockUser(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
 
     user_name: str = Field(description='用户名称')
+
+class WxMiniPhoneNumberCode(BaseModel):
+    login_code: Optional[str] = Field(description="login_code")
+    phone_num_code: Optional[str] = Field(description="phone_num_code")
+
+class WxMiniLoginCode(BaseModel):
+    login_code: Optional[str] = Field(description="login_code")
