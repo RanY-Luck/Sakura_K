@@ -18,29 +18,7 @@ from config.get_redis import RedisUtil
 from config.get_scheduler import SchedulerUtil
 from exceptions.handle import handle_exception
 from middlewares.handle import handle_middleware
-from module_admin.controller.api_controller import apiController
-from module_admin.controller.cache_controller import cacheController
-from module_admin.controller.captcha_controller import captchaController
-from module_admin.controller.config_controller import configController
-from module_admin.controller.datasource_controller import dataSourceController
-from module_admin.controller.dept_controller import deptController
-from module_admin.controller.dict_controller import dictController
-from module_admin.controller.job_controller import jobController
-from module_admin.controller.log_controller import logController
-# 路由列表
-from module_admin.controller.login_controller import loginController
-from module_admin.controller.menu_controller import menuController
-from module_admin.controller.notice_controller import noticeController
-from module_admin.controller.online_controller import onlineController
-from module_admin.controller.post_controler import postController
-from module_admin.controller.project_controller import projectController
-from module_admin.controller.robot_controller import robotController
-from module_admin.controller.role_controller import roleController
-from module_admin.controller.server_controller import serverController
-from module_admin.controller.user_controller import userController
-from module_admin.controller.env_controller import envController
-from module_admin.controller.testcase_controller import testcaseController
-
+from router import router_manager
 
 
 # 生命周期事件
@@ -87,32 +65,6 @@ handle_sub_applications(app)
 handle_middleware(app)
 # 加载全局异常处理方法
 handle_exception(app)
-
 # 加载路由列表
-controller_list = [
-    {'router': loginController, 'tags': ['登录模块']},
-    {'router': captchaController, 'tags': ['验证码模块']},
-    {'router': userController, 'tags': ['系统管理-用户管理']},
-    {'router': roleController, 'tags': ['系统管理-角色管理']},
-    {'router': menuController, 'tags': ['系统管理-菜单管理']},
-    {'router': deptController, 'tags': ['系统管理-部门管理']},
-    {'router': postController, 'tags': ['系统管理-岗位管理']},
-    {'router': dictController, 'tags': ['系统管理-字典管理']},
-    {'router': configController, 'tags': ['系统管理-参数管理']},
-    {'router': noticeController, 'tags': ['系统管理-通知公告管理']},
-    {'router': logController, 'tags': ['系统管理-日志管理']},
-    {'router': onlineController, 'tags': ['系统监控-在线用户']},
-    {'router': jobController, 'tags': ['系统监控-定时任务']},
-    {'router': serverController, 'tags': ['系统监控-服务资源']},
-    {'router': cacheController, 'tags': ['系统监控-缓存监控']},
-    {'router': projectController, 'tags': ['项目管理']},
-    {'router': robotController, 'tags': ['机器人管理']},
-    {'router': dataSourceController, 'tags': ['数据源管理']},
-    {'router': apiController, 'tags': ['接口管理']},
-    {'router': envController, 'tags': ['环境管理']},
-    {'router': testcaseController, 'tags': ['测试用例管理']},
-]
+app.include_router(router_manager.register_router())
 
-# 加载路由
-for controller in controller_list:
-    app.include_router(router=controller.get('router'), tags=controller.get('tags'))

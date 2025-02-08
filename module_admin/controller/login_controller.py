@@ -7,13 +7,11 @@
 # @Software: PyCharm
 # @desc    : 登录相关接口
 import uuid
+import jwt
 from datetime import datetime, timedelta
 from typing import Optional
-
-import jwt
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from config.enums import BusinessType, RedisInitKeyConfig
 from config.env import AppConfig, JwtConfig
 from config.get_db import get_db

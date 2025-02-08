@@ -273,3 +273,19 @@ class CrudUserRoleModel(BaseModel):
     user_ids: Optional[str] = Field(default=None, description='用户ID信息')
     role_id: Optional[int] = Field(default=None, description='角色ID')
     role_ids: Optional[str] = Field(default=None, description='角色ID信息')
+
+class UserWechatModel(BaseModel):
+    """
+    用户微信信息
+    """
+    model_config = ConfigDict(alias_generator=to_camel)
+    user_id: Optional[int] = Field(default=None,  description='性别')
+    city: Optional[str] = Field(default=None, description='城市')
+    country: Optional[str] = Field(default=None, description='国家')
+    head_img_url: Optional[str] = Field(default=None, description='微信头像')
+    nickname: Optional[str] = Field(default=None, description='微信昵称')
+    openid: Optional[str] = Field(default=None,  description='openid')
+    union_id: Optional[str] = Field(default=None, description='union_id')
+    user_phone: Optional[str] = Field(default=None,  description='手机号')
+    province: Optional[str] = Field(default=None,  description='省份')
+    sex: Optional[int] = Field(default=None,  description='性别')
