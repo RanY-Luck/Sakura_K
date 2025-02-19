@@ -6,9 +6,9 @@
 # @File    : job_service.py
 # @Software: PyCharm
 # @desc    : 定时任务管理模块服务层
-from typing import List
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
 from config.constant import CommonConstant, JobConstant
 from config.get_scheduler import SchedulerUtil
 from exceptions.exception import ServiceException
@@ -16,8 +16,9 @@ from module_admin.dao.job_dao import JobDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.job_vo import DeleteJobModel, EditJobModel, JobModel, JobPageQueryModel
 from module_admin.service.dict_service import DictDataService
-from utils.common_util import CamelCaseUtil, export_list2excel
+from utils.common_util import CamelCaseUtil
 from utils.cron_util import CronUtil
+from utils.excel_util import ExcelUtil
 from utils.string_util import StringUtil
 
 
@@ -235,7 +236,6 @@ class JobService:
             'remark': '备注',
         }
 
-        data = job_list
         job_group_list = await DictDataService.query_dict_data_list_from_cache_services(
             request.app.state.redis, dict_type='sys_job_group'
         )
@@ -249,7 +249,7 @@ class JobService:
         ]
         job_executor_option_dict = {item.get('value'): item for item in job_executor_option}
 
-        for item in data:
+        for item in job_list:
             if item.get('status') == '0':
                 item['status'] = '正常'
             else:
@@ -268,9 +268,6 @@ class JobService:
                 item['concurrent'] = '允许'
             else:
                 item['concurrent'] = '禁止'
-        new_data = [
-            {mapping_dict.get(key): value for key, value in item.items() if mapping_dict.get(key)} for item in data
-        ]
-        binary_data = export_list2excel(new_data)
+        binary_data = ExcelUtil.export_list2excel(job_list, mapping_dict)
 
         return binary_data
