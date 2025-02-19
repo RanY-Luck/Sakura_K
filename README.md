@@ -581,7 +581,7 @@ async def query_detail_system_post(request: Request, notice_id: int, query_db: A
     return ResponseUtil.success(data=notice_detail_result)
 ```
 
-## 第六步:最后去`server.py`写路由挂载
+## 第六步:最后去`router/router_manager.py`写路由挂载
 
 ```python
 # 导入接口
