@@ -18,12 +18,13 @@ from module_admin.entity.vo.role_vo import (
     RoleDeptQueryModel,
     RoleMenuModel,
     RoleModel,
-    RolePageQueryModel
+    RolePageQueryModel,
 )
 from module_admin.entity.vo.user_vo import UserInfoModel, UserRolePageQueryModel
 from module_admin.dao.role_dao import RoleDao
 from module_admin.dao.user_dao import UserDao
-from utils.common_util import CamelCaseUtil, export_list2excel
+from utils.common_util import CamelCaseUtil
+from utils.excel_util import ExcelUtil
 from utils.page_util import PageResponseModel
 
 
@@ -62,7 +63,7 @@ class RoleService:
 
     @classmethod
     async def get_role_list_services(
-            cls, query_db: AsyncSession, query_object: RolePageQueryModel, data_scope_sql: str, is_page: bool = False
+        cls, query_db: AsyncSession, query_object: RolePageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         获取角色列表信息service
@@ -186,9 +187,9 @@ class RoleService:
         if role_info:
             if page_object.type != 'status':
                 if not await cls.check_role_name_unique_services(query_db, page_object):
-                    raise ServiceException(message=f'修改角色{page_object.post_name}失败，角色名称已存在')
+                    raise ServiceException(message=f'修改角色{page_object.role_name}失败，角色名称已存在')
                 elif not await cls.check_role_key_unique_services(query_db, page_object):
-                    raise ServiceException(message=f'修改角色{page_object.post_name}失败，角色权限已存在')
+                    raise ServiceException(message=f'修改角色{page_object.role_name}失败，角色权限已存在')
             try:
                 await RoleDao.edit_role_dao(query_db, edit_role)
                 if page_object.type != 'status':
@@ -303,23 +304,18 @@ class RoleService:
             'remark': '备注',
         }
 
-        data = role_list
-
-        for item in data:
+        for item in role_list:
             if item.get('status') == '0':
                 item['status'] = '正常'
             else:
                 item['status'] = '停用'
-        new_data = [
-            {mapping_dict.get(key): value for key, value in item.items() if mapping_dict.get(key)} for item in data
-        ]
-        binary_data = export_list2excel(new_data)
+        binary_data = ExcelUtil.export_list2excel(role_list, mapping_dict)
 
         return binary_data
 
     @classmethod
     async def get_role_user_allocated_list_services(
-            cls, query_db: AsyncSession, page_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
+        cls, query_db: AsyncSession, page_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         根据角色id获取已分配用户列表
@@ -344,7 +340,7 @@ class RoleService:
 
     @classmethod
     async def get_role_user_unallocated_list_services(
-            cls, query_db: AsyncSession, page_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
+        cls, query_db: AsyncSession, page_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         根据角色id获取未分配用户列表

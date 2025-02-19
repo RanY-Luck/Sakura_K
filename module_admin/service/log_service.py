@@ -22,7 +22,7 @@ from module_admin.entity.vo.log_vo import (
     UnlockUser,
 )
 from module_admin.service.dict_service import DictDataService
-from utils.common_util import export_list2excel
+from utils.excel_util import ExcelUtil
 
 
 class OperationLogService:
@@ -32,7 +32,7 @@ class OperationLogService:
 
     @classmethod
     async def get_operation_log_list_services(
-            cls, query_db: AsyncSession, query_object: OperLogPageQueryModel, is_page: bool = False
+        cls, query_db: AsyncSession, query_object: OperLogPageQueryModel, is_page: bool = False
     ):
         """
         获取操作日志列表信息service
@@ -130,7 +130,6 @@ class OperationLogService:
             'costTime': '消耗时间（毫秒）',
         }
 
-        data = operation_log_list
         operation_type_list = await DictDataService.query_dict_data_list_from_cache_services(
             request.app.state.redis, dict_type='sys_oper_type'
         )
@@ -139,18 +138,14 @@ class OperationLogService:
         ]
         operation_type_option_dict = {item.get('value'): item for item in operation_type_option}
 
-        for item in data:
+        for item in operation_log_list:
             if item.get('status') == 0:
                 item['status'] = '成功'
             else:
                 item['status'] = '失败'
             if str(item.get('businessType')) in operation_type_option_dict.keys():
                 item['businessType'] = operation_type_option_dict.get(str(item.get('businessType'))).get('label')
-
-        new_data = [
-            {mapping_dict.get(key): value for key, value in item.items() if mapping_dict.get(key)} for item in data
-        ]
-        binary_data = export_list2excel(new_data)
+        binary_data = ExcelUtil.export_list2excel(operation_log_list, mapping_dict)
 
         return binary_data
 
@@ -162,7 +157,7 @@ class LoginLogService:
 
     @classmethod
     async def get_login_log_list_services(
-            cls, query_db: AsyncSession, query_object: LoginLogPageQueryModel, is_page: bool = False
+        cls, query_db: AsyncSession, query_object: LoginLogPageQueryModel, is_page: bool = False
     ):
         """
         获取登录日志列表信息service
@@ -261,16 +256,11 @@ class LoginLogService:
             'loginTime': '登录日期',
         }
 
-        data = login_log_list
-
-        for item in data:
+        for item in login_log_list:
             if item.get('status') == '0':
                 item['status'] = '成功'
             else:
                 item['status'] = '失败'
-        new_data = [
-            {mapping_dict.get(key): value for key, value in item.items() if mapping_dict.get(key)} for item in data
-        ]
-        binary_data = export_list2excel(new_data)
+        binary_data = ExcelUtil.export_list2excel(login_log_list, mapping_dict)
 
         return binary_data

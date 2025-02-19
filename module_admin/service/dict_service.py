@@ -21,9 +21,10 @@ from module_admin.entity.vo.dict_vo import (
     DictDataModel,
     DictDataPageQueryModel,
     DictTypeModel,
-    DictTypePageQueryModel,
+    DictTypePageQueryModel
 )
-from utils.common_util import CamelCaseUtil, export_list2excel
+from utils.common_util import CamelCaseUtil
+from utils.excel_util import ExcelUtil
 
 
 class DictTypeService:
@@ -33,7 +34,7 @@ class DictTypeService:
 
     @classmethod
     async def get_dict_type_list_services(
-            cls, query_db: AsyncSession, query_object: DictTypePageQueryModel, is_page: bool = False
+        cls, query_db: AsyncSession, query_object: DictTypePageQueryModel, is_page: bool = False
     ):
         """
         获取字典类型列表信息service
@@ -123,7 +124,7 @@ class DictTypeService:
                             f'{RedisInitKeyConfig.SYS_DICT.key}:{page_object.dict_type}',
                             json.dumps(dict_data, ensure_ascii=False, default=str),
                         )
-                    return CrudResponseModel(is_success=True, message='字典更新成功')
+                    return CrudResponseModel(is_success=True, message='更新成功')
                 except Exception as e:
                     await query_db.rollback()
                     raise e
@@ -132,7 +133,7 @@ class DictTypeService:
 
     @classmethod
     async def delete_dict_type_services(
-            cls, request: Request, query_db: AsyncSession, page_object: DeleteDictTypeModel
+        cls, request: Request, query_db: AsyncSession, page_object: DeleteDictTypeModel
     ):
         """
         删除字典类型信息service
@@ -200,17 +201,12 @@ class DictTypeService:
             'remark': '备注',
         }
 
-        data = dict_type_list
-
-        for item in data:
+        for item in dict_type_list:
             if item.get('status') == '0':
                 item['status'] = '正常'
             else:
                 item['status'] = '停用'
-        new_data = [
-            {mapping_dict.get(key): value for key, value in item.items() if mapping_dict.get(key)} for item in data
-        ]
-        binary_data = export_list2excel(new_data)
+        binary_data = ExcelUtil.export_list2excel(dict_type_list, mapping_dict)
 
         return binary_data
 
@@ -236,7 +232,7 @@ class DictDataService:
 
     @classmethod
     async def get_dict_data_list_services(
-            cls, query_db: AsyncSession, query_object: DictDataPageQueryModel, is_page: bool = False
+        cls, query_db: AsyncSession, query_object: DictDataPageQueryModel, is_page: bool = False
     ):
         """
         获取字典数据列表信息service
@@ -381,7 +377,7 @@ class DictDataService:
 
     @classmethod
     async def delete_dict_data_services(
-            cls, request: Request, query_db: AsyncSession, page_object: DeleteDictDataModel
+        cls, request: Request, query_db: AsyncSession, page_object: DeleteDictDataModel
     ):
         """
         删除字典数据信息service
@@ -456,9 +452,7 @@ class DictDataService:
             'remark': '备注',
         }
 
-        data = dict_data_list
-
-        for item in data:
+        for item in dict_data_list:
             if item.get('status') == '0':
                 item['status'] = '正常'
             else:
@@ -467,9 +461,6 @@ class DictDataService:
                 item['isDefault'] = '是'
             else:
                 item['isDefault'] = '否'
-        new_data = [
-            {mapping_dict.get(key): value for key, value in item.items() if mapping_dict.get(key)} for item in data
-        ]
-        binary_data = export_list2excel(new_data)
+        binary_data = ExcelUtil.export_list2excel(dict_data_list, mapping_dict)
 
         return binary_data
