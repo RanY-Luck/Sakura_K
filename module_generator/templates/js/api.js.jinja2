@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+
 // 查询{{ functionName }}列表
 export function list{{ BusinessName }}(query) {
   return request({
@@ -7,6 +8,7 @@ export function list{{ BusinessName }}(query) {
     params: query
   })
 }
+
 // 查询{{ functionName }}详细
 export function get{{ BusinessName }}({{ pkColumn.python_field }}) {
   return request({
@@ -14,6 +16,7 @@ export function get{{ BusinessName }}({{ pkColumn.python_field }}) {
     method: 'get'
   })
 }
+
 // 新增{{ functionName }}
 export function add{{ BusinessName }}(data) {
   return request({
@@ -22,6 +25,7 @@ export function add{{ BusinessName }}(data) {
     data: data
   })
 }
+
 // 修改{{ functionName }}
 export function update{{ BusinessName }}(data) {
   return request({
@@ -30,6 +34,7 @@ export function update{{ BusinessName }}(data) {
     data: data
   })
 }
+
 // 删除{{ functionName }}
 export function del{{ BusinessName }}({{ pkColumn.python_field }}) {
   return request({

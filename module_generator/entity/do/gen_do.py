@@ -15,7 +15,9 @@ class GenTable(Base):
     """
     代码生成业务表
     """
+
     __tablename__ = 'gen_table'
+
     table_id = Column(Integer, primary_key=True, autoincrement=True, comment='编号')
     table_name = Column(String(200), nullable=True, default='', comment='表名称')
     table_comment = Column(String(500), nullable=True, default='', comment='表描述')
@@ -39,6 +41,7 @@ class GenTable(Base):
     update_by = Column(String(64), default='', comment='更新者')
     update_time = Column(DateTime, nullable=True, default=datetime.now(), comment='更新时间')
     remark = Column(String(500), nullable=True, default=None, comment='备注')
+
     columns = relationship('GenTableColumn', order_by='GenTableColumn.sort', back_populates='tables')
 
 
@@ -46,7 +49,9 @@ class GenTableColumn(Base):
     """
     代码生成业务表字段
     """
+
     __tablename__ = 'gen_table_column'
+
     column_id = Column(Integer, primary_key=True, autoincrement=True, comment='编号')
     table_id = Column(Integer, ForeignKey('gen_table.table_id'), nullable=True, comment='归属表编号')
     column_name = Column(String(200), nullable=True, comment='列名称')
@@ -57,6 +62,7 @@ class GenTableColumn(Base):
     is_pk = Column(String(1), nullable=True, comment='是否主键（1是）')
     is_increment = Column(String(1), nullable=True, comment='是否自增（1是）')
     is_required = Column(String(1), nullable=True, comment='是否必填（1是）')
+    is_unique = Column(String(1), nullable=True, comment='是否唯一（1是）')
     is_insert = Column(String(1), nullable=True, comment='是否为插入字段（1是）')
     is_edit = Column(String(1), nullable=True, comment='是否编辑字段（1是）')
     is_list = Column(String(1), nullable=True, comment='是否列表字段（1是）')
@@ -71,4 +77,5 @@ class GenTableColumn(Base):
     create_time = Column(DateTime, nullable=True, default=datetime.now(), comment='创建时间')
     update_by = Column(String(64), default='', comment='更新者')
     update_time = Column(DateTime, nullable=True, default=datetime.now(), comment='更新时间')
+
     tables = relationship('GenTable', back_populates='columns')
