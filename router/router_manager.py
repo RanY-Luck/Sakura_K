@@ -9,6 +9,7 @@ from fastapi import APIRouter
 from module_admin.controller.api_controller import apiController
 from module_admin.controller.cache_controller import cacheController
 from module_admin.controller.captcha_controller import captchaController
+from module_admin.controller.common_controller import commonController
 from module_admin.controller.config_controller import configController
 from module_admin.controller.datasource_controller import dataSourceController
 from module_admin.controller.dept_controller import deptController
@@ -29,7 +30,7 @@ from module_admin.controller.user_controller import userController
 from module_admin.controller.env_controller import envController
 from module_admin.controller.testcase_controller import testcaseController
 from module_app.controller.app_login_controller import appLoginController
-from module_gen.controller.gen_controller import gen1Controller
+from module_generator.controller.gen_controller import genController
 from module_website.controller.home_controller import homeRouter
 
 # 加载路由列表
@@ -49,13 +50,14 @@ controller_list = [
     {'router': jobController, 'tags': ['系统监控-定时任务']},
     {'router': serverController, 'tags': ['系统监控-服务资源']},
     {'router': cacheController, 'tags': ['系统监控-缓存监控']},
+    {'router': commonController, 'tags': ['通用模块']},
+    {'router': genController, 'tags': ['代码生成']},
     {'router': projectController, 'tags': ['项目管理']},
     {'router': robotController, 'tags': ['机器人管理']},
     {'router': dataSourceController, 'tags': ['数据源管理']},
     {'router': apiController, 'tags': ['接口管理']},
     {'router': envController, 'tags': ['环境管理']},
     {'router': testcaseController, 'tags': ['测试用例管理']},
-    {'router': gen1Controller, 'tags': ['系统工具-代码生成']},
     {'router': homeRouter, 'tags': ['产品官网']},
 ]
 

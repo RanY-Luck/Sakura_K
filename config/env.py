@@ -68,6 +68,22 @@ class RedisSettings(BaseSettings):
     redis_database: int = 11
 
 
+class GenSettings:
+    """
+    代码生成配置
+    """
+    author = '冉勇'
+    package_name = 'module_admin.system'
+    auto_remove_pre = False
+    table_prefix = 'sys_'
+    allow_overwrite = True
+    GEN_PATH = 'vf_admin/gen_path'
+
+    def __init__(self):
+        if not os.path.exists(self.GEN_PATH):
+            os.makedirs(self.GEN_PATH)
+
+
 class UploadSettings:
     """
     上传配置
@@ -145,6 +161,14 @@ class GetConfig:
         return RedisSettings()
 
     @lru_cache()
+    def get_gen_config(self):
+        """
+        获取代码生成配置
+        """
+        # 实例化代码生成配置
+        return GenSettings()
+
+    @lru_cache()
     def get_upload_config(self):
         """
         获取数据库配置
@@ -210,5 +234,7 @@ JwtConfig = get_config.get_jwt_config()
 DataBaseConfig = get_config.get_database_config()
 # Redis配置
 RedisConfig = get_config.get_redis_config()
+# 代码生成配置
+GenConfig = get_config.get_gen_config()
 # 上传配置
 UploadConfig = get_config.get_upload_config()

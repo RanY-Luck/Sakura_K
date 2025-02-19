@@ -20,6 +20,7 @@ from exceptions.handle import handle_exception
 from middlewares.handle import handle_middleware
 from module_admin.controller.api_controller import apiController
 from module_admin.controller.cache_controller import cacheController
+from module_admin.controller.common_controller import commonController
 from module_admin.controller.captcha_controller import captchaController
 from module_admin.controller.config_controller import configController
 from module_admin.controller.datasource_controller import dataSourceController
@@ -40,6 +41,7 @@ from module_admin.controller.server_controller import serverController
 from module_admin.controller.user_controller import userController
 from module_admin.controller.env_controller import envController
 from module_admin.controller.testcase_controller import testcaseController
+from module_generator.controller.gen_controller import genController
 
 
 
@@ -105,6 +107,8 @@ controller_list = [
     {'router': jobController, 'tags': ['系统监控-定时任务']},
     {'router': serverController, 'tags': ['系统监控-服务资源']},
     {'router': cacheController, 'tags': ['系统监控-缓存监控']},
+    {'router': commonController, 'tags': ['通用模块']},
+    {'router': genController, 'tags': ['代码生成']},
     {'router': projectController, 'tags': ['项目管理']},
     {'router': robotController, 'tags': ['机器人管理']},
     {'router': dataSourceController, 'tags': ['数据源管理']},
