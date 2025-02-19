@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2024/8/14 17:47
-# @Author  : 冉勇
-# @Site    : 
-# @File    : string_util.py
-# @Software: PyCharm
-# @desc    : 字符串工具类
+# @Time     : 2025/2/19 15:40
+# @Author   : 冉勇
+# @File     : template_util.py
+# @Software : PyCharm
+# @Desc     :
 from typing import Dict, List
 from config.constant import CommonConstant
 
