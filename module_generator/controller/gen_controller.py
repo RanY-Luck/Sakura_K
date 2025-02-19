@@ -37,6 +37,7 @@ async def get_gen_table_list(
     # 获取分页数据
     gen_page_query_result = await GenTableService.get_gen_table_list_services(query_db, gen_page_query, is_page=True)
     logger.info('获取成功')
+
     return ResponseUtil.success(model_content=gen_page_query_result)
 
 
@@ -51,6 +52,7 @@ async def get_gen_db_table_list(
     # 获取分页数据
     gen_page_query_result = await GenTableService.get_gen_db_table_list_services(query_db, gen_page_query, is_page=True)
     logger.info('获取成功')
+
     return ResponseUtil.success(model_content=gen_page_query_result)
 
 
@@ -66,11 +68,12 @@ async def import_gen_table(
     add_gen_table_list = await GenTableService.get_gen_db_table_list_by_name_services(query_db, table_names)
     add_gen_table_result = await GenTableService.import_gen_table_services(query_db, add_gen_table_list, current_user)
     logger.info(add_gen_table_result.message)
+
     return ResponseUtil.success(msg=add_gen_table_result.message)
 
 
 @genController.put('', dependencies=[Depends(CheckUserInterfaceAuth('tool:gen:edit'))])
-@ValidateFields(validate_model='edit_post')
+@ValidateFields(validate_model='edit_gen_table')
 @Log(title='代码生成', business_type=BusinessType.UPDATE)
 async def edit_gen_table(
         request: Request,
@@ -83,6 +86,7 @@ async def edit_gen_table(
     await GenTableService.validate_edit(edit_gen_table)
     edit_gen_result = await GenTableService.edit_gen_table_services(query_db, edit_gen_table)
     logger.info(edit_gen_result.message)
+
     return ResponseUtil.success(msg=edit_gen_result.message)
 
 
@@ -92,6 +96,7 @@ async def delete_gen_table(request: Request, table_ids: str, query_db: AsyncSess
     delete_gen_table = DeleteGenTableModel(tableIds=table_ids)
     delete_gen_table_result = await GenTableService.delete_gen_table_services(query_db, delete_gen_table)
     logger.info(delete_gen_table_result.message)
+
     return ResponseUtil.success(msg=delete_gen_table_result.message)
 
 
@@ -105,6 +110,7 @@ async def create_table(
 ):
     create_table_result = await GenTableService.create_table_services(query_db, sql, current_user)
     logger.info(create_table_result.message)
+
     return ResponseUtil.success(msg=create_table_result.message)
 
 
@@ -114,6 +120,7 @@ async def batch_gen_code(request: Request, tables: str = Query(), query_db: Asyn
     table_names = tables.split(',') if tables else []
     batch_gen_code_result = await GenTableService.batch_gen_code_services(query_db, table_names)
     logger.info('生成代码成功')
+
     return ResponseUtil.streaming(data=bytes2file_response(batch_gen_code_result))
 
 
@@ -125,6 +132,7 @@ async def gen_code_local(request: Request, table_name: str, query_db: AsyncSessi
         return ResponseUtil.error('【系统预设】不允许生成文件覆盖到本地')
     gen_code_local_result = await GenTableService.generate_code_services(query_db, table_name)
     logger.info(gen_code_local_result.message)
+
     return ResponseUtil.success(msg=gen_code_local_result.message)
 
 
@@ -135,6 +143,7 @@ async def query_detail_gen_table(request: Request, table_id: int, query_db: Asyn
     gen_columns = await GenTableColumnService.get_gen_table_column_list_by_table_id_services(query_db, table_id)
     gen_table_detail_result = dict(info=gen_table, rows=gen_columns, tables=gen_tables)
     logger.info(f'获取table_id为{table_id}的信息成功')
+
     return ResponseUtil.success(data=gen_table_detail_result)
 
 
@@ -142,6 +151,7 @@ async def query_detail_gen_table(request: Request, table_id: int, query_db: Asyn
 async def preview_code(request: Request, table_id: int, query_db: AsyncSession = Depends(get_db)):
     preview_code_result = await GenTableService.preview_code_services(query_db, table_id)
     logger.info('获取预览代码成功')
+
     return ResponseUtil.success(data=preview_code_result)
 
 
@@ -150,4 +160,5 @@ async def preview_code(request: Request, table_id: int, query_db: AsyncSession =
 async def sync_db(request: Request, table_name: str, query_db: AsyncSession = Depends(get_db)):
     sync_db_result = await GenTableService.sync_db_services(query_db, table_name)
     logger.info(sync_db_result.message)
+
     return ResponseUtil.success(data=sync_db_result.message)

@@ -34,4 +34,3 @@ def remove_html_tags(text):
     return plain_text
 
 
-print(format_date("2025-11-15 13:33:22"))
