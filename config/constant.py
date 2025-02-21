@@ -7,6 +7,8 @@
 # @Software: PyCharm
 # @desc    : 常用常量
 from config.env import DataBaseConfig
+
+
 class CommonConstant:
     """
     常用常量
@@ -159,6 +161,7 @@ class MenuConstant:
     LAYOUT = 'Layout'
     PARENT_VIEW = 'ParentView'
     INNER_LINK = 'InnerLink'
+
 
 class GenConstant:
     """
