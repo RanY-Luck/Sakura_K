@@ -48,7 +48,7 @@ class GenUtils:
         column.python_field = cls.to_camel_case(column_name)
         # 设置默认类型
         column.python_type = StringUtil.get_mapping_value_by_key_ignore_case(
-            GenConstant.MYSQL_TO_PYTHON_TYPE_MAPPING, data_type
+            GenConstant.DB_TO_PYTHON_TYPE_MAPPING, data_type
         )
         column.query_type = GenConstant.QUERY_EQ
         if cls.arrays_contains(GenConstant.COLUMNTYPE_STR, data_type) or cls.arrays_contains(
