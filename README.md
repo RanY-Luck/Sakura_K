@@ -105,7 +105,7 @@ docker logs sakura_k
 # 定时备份linux中数据库(可选)
 假设我项目拉取下来存在:/usr/local/ranyong/Sakura_k目录中
 
-cd /usr/local/ranyong/Sakura_k/sql
+cd /usr/local/ranyong/Sakura_K/sql
 
 ## 使脚本可执行
 chmod +x backup_mysql.sh
