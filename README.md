@@ -18,7 +18,7 @@
 [![](https://img.shields.io/badge/Vue-3.4.15-green.svg)](https://cn.vuejs.org/index.html)
 [![](https://img.shields.io/badge/ElementUI-2.7.6-blue.svg)](https://element.eleme.io/#/zh-CN)
 
-> 后端基于`python3.10`和`Fastapi0.111.1`开发。
+> 后端基于`python3.10`和`Fastapi0.115.8`开发。
 
 </div>
 
@@ -29,6 +29,23 @@
 ```shell
 # 安装项目依赖环境
 pip3 install -r requirements.txt
+# 安装项目依赖环境(推荐uv)
+pip3 install uv
+uv venv
+source .venv/bin/activate
+uv pip install -r requirements.txt
+
+# uv其他使用补充
+uv python list — 列出uv支持的python版本
+uv python install cpython3.10 — 安装某个python版本 (3.10)
+uv run -p 3.10 xxx.py — 使用特定版本python运行xxx.py
+uv run -p 3.10 python — 运行python交互界面
+uv run xxx.py — 使用系统python或当前工程的虚拟环境运行xxx.py
+uv init — 创建工程
+uv add pydantic_ai — 添加依赖 (pydantic_ai)
+uv tree — 打印依赖树
+uv remove pydantic_ai — 删除依赖
+uv build — 编译工程为whl文件
 
 # 配置环境（开发、生产环境操作一样）
 根目录复制 .env.dev.example -> .env.dev
@@ -120,6 +137,14 @@ crontab -e
 例如,要每天凌晨2点运行备份
 0 2 * * * /usr/local/ranyong/Sakura_k/sql/backup_mysql.sh
 
+## mac系统运行可能会出现这个问题：
+"MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. 
+Commands that may modify the data set are disabled, because this instance is configured to report errors during writes 
+if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error."
+
+解决办法
+redis-cli -h 127.0.0.1 -p 6379
+CONFIG SET stop-writes-on-bgsave-error no
 ```
 
 # 其他操作
@@ -589,6 +614,7 @@ from module_admin.controller.notice_controller import noticeController
 
 # 引入接口,并写好tags
 controller_list = [
+    # ...
     {'router': noticeController, 'tags': ['系统管理-通知公告管理']},
 ]
 ```
