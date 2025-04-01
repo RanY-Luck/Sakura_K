@@ -1,7 +1,7 @@
 [project]
 name = "Sakura_K"
 version = "0.1.0"
-description = "Add your description here"
+description = ""
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
