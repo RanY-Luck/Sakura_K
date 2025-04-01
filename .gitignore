@@ -37,4 +37,4 @@ docker-compose.yaml
 alembic/versions_dev
 alembic/versions_pro
 vf_admin
-venv
+.venv
