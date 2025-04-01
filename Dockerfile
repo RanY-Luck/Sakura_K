@@ -4,14 +4,21 @@ LABEL maintainer="ranyong"
 
 WORKDIR /Sakura_k
 
-COPY pyproject.toml poetry.lock ./
+# 复制依赖文件
+COPY pyproject.toml uv.lock ./
 
+# 安装 uv 并使用它来安装依赖
 RUN pip3 install --upgrade pip && \
-    pip3 install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev
+    pip3 install uv && \
+    uv venv && \
+    # 先将 pyproject.toml 转换为 requirements.txt
+    uv pip compile pyproject.toml -o requirements.txt && \
+    # 然后使用 requirements.txt 安装依赖
+    uv pip install -r requirements.txt
 
+# 复制剩余文件
 COPY . .
 COPY .env.docker ./.env
 
-CMD ["poetry", "run", "python", "app.py"]
+# 使用 python 直接运行应用
+CMD ["uv","run", "app.py"]
