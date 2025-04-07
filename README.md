@@ -27,9 +27,9 @@
 
 
 ```shell
-# 安装项目依赖环境
+# 方式一：安装项目依赖环境
 pip3 install -r requirements.txt
-# 安装项目依赖环境(推荐uv)
+# 方式二：安装项目依赖环境(推荐uv)
 pip3 install uv
 uv venv
 (mac/linux 激活虚拟环境)
