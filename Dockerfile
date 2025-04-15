@@ -4,6 +4,9 @@ LABEL maintainer="ranyong"
 
 WORKDIR /Sakura_k
 
+# 安装必要的构建工具
+RUN apt-get update && apt-get install -y g++ && rm -rf /var/lib/apt/lists/*
+
 # 复制依赖文件
 COPY pyproject.toml uv.lock ./
 
