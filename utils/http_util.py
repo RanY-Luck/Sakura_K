@@ -10,9 +10,8 @@ import asyncio
 import json
 import time
 import urllib
-from enum import IntEnum
-
 import aiohttp
+from enum import IntEnum
 from aiohttp import FormData
 
 
@@ -38,7 +37,6 @@ class AsyncRequest(object):
         self.token = token
         self.kwargs = kwargs
         self.timeout = aiohttp.ClientTimeout(total=timeout)
-
 
     def get_data(self, kwargs):
         """获取请求数据"""
@@ -267,7 +265,6 @@ class AsyncRequest(object):
         # 格式化请求和响应头
         formatted_request_headers = format_headers(request_headers)
         formatted_response_headers = format_headers(response_headers)
-
 
         # 处理请求数据
         if isinstance(request_data, (dict, list)):

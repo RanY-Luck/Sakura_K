@@ -8,8 +8,11 @@
 from datetime import datetime, time
 from sqlalchemy import delete, func, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlglot.expressions import Expression
 from sqlalchemy.orm import selectinload
 from typing import List
+
+from config.env import DataBaseConfig
 from module_generator.entity.do.gen_do import GenTable, GenTableColumn
 from module_generator.entity.vo.gen_vo import (
     GenTableBaseModel,
@@ -81,15 +84,17 @@ class GenTableDao:
         return gen_table_all
 
     @classmethod
-    async def create_table_by_sql_dao(cls, db: AsyncSession, sql: str):
+    async def create_table_by_sql_dao(cls, db: AsyncSession, sql_statements: List[Expression]):
         """
         根据sql语句创建表结构
 
         :param db: orm对象
-        :param sql: sql语句
+        :param sql_statements: sql语句的ast列表
         :return:
         """
-        await db.execute(text(sql))
+        for sql_statement in sql_statements:
+            sql = sql_statement.sql(dialect=DataBaseConfig.sqlglot_parse_dialect)
+            await db.execute(text(sql))
 
     @classmethod
     async def get_gen_table_list(cls, db: AsyncSession, query_object: GenTablePageQueryModel, is_page: bool = False):

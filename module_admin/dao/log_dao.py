@@ -13,6 +13,7 @@ from module_admin.entity.vo.log_vo import *
 from utils.page_util import PageUtil
 from utils.common_util import SnakeCaseUtil
 from datetime import datetime, time
+from utils.time_format_util import TimeFormatUtil
 
 
 class OperationLogDao:
@@ -46,8 +47,8 @@ class OperationLogDao:
                 SysOperLog.business_type == query_object.business_type if query_object.business_type else True,
                 SysOperLog.status == query_object.status if query_object.status else True,
                 SysOperLog.oper_time.between(
-                    datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                    datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59)),
+                    datetime.combine(TimeFormatUtil.parse_date(query_object.begin_time), time(00, 00, 00)),
+                    datetime.combine(TimeFormatUtil.parse_date(query_object.end_time), time(23, 59, 59)),
                 )
                 if query_object.begin_time and query_object.end_time
                 else True,
@@ -139,8 +140,8 @@ class LoginLogDao:
             SysLogininfor.user_name.like(f'%{query_object.user_name}%') if query_object.user_name else True,
             SysLogininfor.status == query_object.status if query_object.status else True,
             SysLogininfor.login_time.between(
-                datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
-                datetime.combine(datetime.strptime(query_object.end_time, '%Y-%m-%d'), time(23, 59, 59))
+                datetime.combine(TimeFormatUtil.parse_date(query_object.begin_time), time(00, 00, 00)),
+                datetime.combine(TimeFormatUtil.parse_date(query_object.end_time), time(23, 59, 59)),
             )
             if is_valid_date(query_object.begin_time) and is_valid_date(query_object.end_time) else True
         ) \
