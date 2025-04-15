@@ -23,6 +23,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # 可以在这里添加构建参数，例如版本号等
+        APP_VERSION: 1.6.2
+      tags:
+        - sakura_k: 1.6.2
     environment:
       TZ: "Asia/Shanghai"
       REDIS_HOST: redis
@@ -38,14 +43,14 @@ services:
       - mysql
 
   redis:
-    image: redis:latest
+    image: redis:7.0.11
     container_name: sakura_redis
     restart: always
     ports:
       - "6380:6379"
 
   mysql:
-    image: mysql:latest
+    image: mysql:5.7.43
     container_name: sakura_mysql
     restart: always
     ports:
