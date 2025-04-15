@@ -16,6 +16,8 @@ dependencies = [
     "faker~=30.3.0",
     "fastapi[all]==0.115.8",
     "loguru==0.7.3",
+    "mcp==1.6.0",
+    "openai==1.72.0",
     "openpyxl==3.1.5",
     "oss2==2.18.4",
     "pandas==2.2.3",
@@ -31,6 +33,7 @@ dependencies = [
     "requests==2.32.3",
     "rich==13.9.3",
     "sqlalchemy[asyncio]==2.0.38",
+    "sqlglot==26.6.0",
     "starlette==0.40.0",
     "user-agents==2.2.0",
 ]
