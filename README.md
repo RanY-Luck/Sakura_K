@@ -32,10 +32,11 @@ pip3 install -r requirements.txt
 # 方式二：安装项目依赖环境(推荐uv)
 pip3 install uv
 uv venv
-(mac/linux 激活虚拟环境)
+# (On Unix or MacOS: 激活虚拟环境)
 source .venv/bin/activate
-(win 激活虚拟环境)
+# (On Windows: 激活虚拟环境)
 .venv\Scripts\activate
+# 安装项目依赖环境
 uv pip install -r requirements.txt
 
 # uv其他使用补充
