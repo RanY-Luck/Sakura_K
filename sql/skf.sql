@@ -11,7 +11,7 @@
  Target Server Version : 80033
  File Encoding         : 65001
 
- Date: 16/04/2025 15:02:36
+ Date: 16/04/2025 23:34:53
 */
 
 SET NAMES utf8mb4;
@@ -2321,6 +2321,9 @@ INSERT INTO `sys_logininfor` VALUES (3641, 'admin', '', '内网IP', 'Chrome 120'
 INSERT INTO `sys_logininfor` VALUES (3642, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-14 11:24:32');
 INSERT INTO `sys_logininfor` VALUES (3643, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-14 13:59:40');
 INSERT INTO `sys_logininfor` VALUES (3644, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-16 10:07:20');
+INSERT INTO `sys_logininfor` VALUES (3645, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-16 15:21:22');
+INSERT INTO `sys_logininfor` VALUES (3646, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-16 17:03:20');
+INSERT INTO `sys_logininfor` VALUES (3647, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-16 18:09:30');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -2879,7 +2882,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2024/11/18/avatar_20241118130722A292.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-04-16 10:07:20', 'admin', '2024-08-13 18:18:19', 'admin', '2024-11-18 13:07:23', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2024/11/18/avatar_20241118130722A292.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-04-16 18:09:30', 'admin', '2024-08-13 18:18:19', 'admin', '2024-11-18 13:07:23', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'niangao', '年糕', '00', 'niangao@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '2', '127.0.0.1', '2024-08-13 18:18:19', 'admin', '2024-08-13 18:18:19', 'admin', '2024-09-20 22:45:06', '测试员');
 INSERT INTO `sys_user` VALUES (100, 100, 'ranyong', 'ranyong', '00', '', '', '0', '', '$2b$12$iPYmQp3jjdIrZBqyaf6loOITsuvUQost39wHqNzzBCTOge7cmNblW', '0', '0', '', NULL, 'admin', '2024-08-13 20:47:13', 'admin', '2024-08-15 11:04:07', NULL);
 INSERT INTO `sys_user` VALUES (101, 103, 'demo1', 'demo1', '00', '', '', '0', '', '$2b$12$bFu.K.grA9O/zrZ9aQTGzeE4PjKwRbXJMm9rgJpN8ZzT5Ri2LXsve', '0', '0', '', '2024-09-20 22:40:21', '', '2024-08-16 10:28:18', 'admin', '2024-09-20 22:44:56', NULL);
