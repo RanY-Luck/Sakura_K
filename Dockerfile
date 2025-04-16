@@ -17,7 +17,8 @@ RUN pip3 install --upgrade pip && \
     # 先将 pyproject.toml 转换为 requirements.txt
     uv pip compile pyproject.toml -o requirements.txt && \
     # 然后使用 requirements.txt 安装依赖
-    uv pip install -r requirements.txt
+    uv pip install -r requirements.txt \
+    pip3 install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # 复制剩余文件
 COPY . .
