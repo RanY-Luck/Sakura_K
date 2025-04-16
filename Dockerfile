@@ -23,5 +23,6 @@ RUN pip3 install --upgrade pip && \
 COPY . .
 COPY .env.docker ./.env
 
+RUN if [ -f ".env.docker" ]; then mv .env.docker .env; fi
 # 使用 python 直接运行应用
 CMD ["uv","run", "app.py"]

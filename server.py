@@ -19,6 +19,7 @@ from config.get_scheduler import SchedulerUtil
 from exceptions.handle import handle_exception
 from middlewares.handle import handle_middleware
 from router import router_manager
+from mcp_server.ai_websocket import init_ai_websocket
 
 
 # 生命周期事件
@@ -40,6 +41,10 @@ async def lifespan(app: FastAPI):
         await RedisUtil.init_sys_config(app.state.redis)
         # 初始化定时任务
         await SchedulerUtil.init_system_scheduler()
+        # 初始化AI WebSocket
+        await init_ai_websocket(app)
+        # 挂载子应用
+        handle_sub_applications(app)
         logger.info(f"{AppConfig.app_name}启动成功")
         sleep(0.1)
         await panel()
@@ -59,8 +64,6 @@ app = FastAPI(
     lifespan=lifespan  # 生命周期事件
 )
 
-# 挂载子应用
-handle_sub_applications(app)
 # 加载中间件处理方法
 handle_middleware(app)
 # 加载全局异常处理方法
