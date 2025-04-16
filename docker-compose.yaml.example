@@ -23,8 +23,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      tags:
-        - sakura_k: 1.6.2
     environment:
       TZ: "Asia/Shanghai"
       REDIS_HOST: redis

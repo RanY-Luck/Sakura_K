@@ -52,12 +52,6 @@ click==8.1.8
     #   rich-toolkit
     #   typer
     #   uvicorn
-colorama==0.4.6
-    # via
-    #   click
-    #   loguru
-    #   tqdm
-    #   uvicorn
 crcmod==1.7
     # via oss2
 cryptography==43.0.3
@@ -275,9 +269,7 @@ typing-extensions==4.13.2
 typing-inspection==0.4.0
     # via pydantic
 tzdata==2025.2
-    # via
-    #   pandas
-    #   tzlocal
+    # via pandas
 tzlocal==5.3.1
     # via apscheduler
 ua-parser==1.0.1
@@ -296,12 +288,12 @@ uvicorn==0.34.1
     #   fastapi-cli
     #   mcp
     #   sse-starlette
+uvloop==0.21.0
+    # via uvicorn
 watchfiles==1.0.5
     # via uvicorn
 websockets==15.0.1
     # via uvicorn
-win32-setctime==1.2.0
-    # via loguru
 yarl==1.19.0
     # via aiohttp
 zope-interface==7.2
