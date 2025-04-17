@@ -42,20 +42,25 @@ services:
     container_name: sakura_redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
   mysql:
-    image: mysql:5.7.43
+    image: mysql:8.0.33
     container_name: sakura_mysql
     restart: always
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       TZ: "Asia/Shanghai"
       MYSQL_ROOT_PASSWORD: 123456
       MYSQL_DATABASE: skf
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 
 volumes:

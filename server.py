@@ -70,4 +70,3 @@ handle_middleware(app)
 handle_exception(app)
 # 加载路由列表
 app.include_router(router_manager.register_router())
-
