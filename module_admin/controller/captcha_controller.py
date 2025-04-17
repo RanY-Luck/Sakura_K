@@ -25,8 +25,9 @@ login_manager = LoginManager()
 async def get_captcha_image(request: Request):
     captcha_enabled = (
         True
-        if await request.app.state.redis.get(f'{RedisInitKeyConfig.SYS_CONFIG.key}:sys.account.captchaEnabled')
-           == 'true'
+        if await request.app.state.redis.get(
+            f'{RedisInitKeyConfig.SYS_CONFIG.key}:sys.account.captchaEnabled'
+        ) == 'true'
         else False
     )
     register_enabled = (
