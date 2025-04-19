@@ -11,7 +11,7 @@
  Target Server Version : 80033
  File Encoding         : 65001
 
- Date: 17/04/2025 10:13:09
+ Date: 19/04/2025 14:53:36
 */
 
 SET NAMES utf8mb4;
@@ -159,6 +159,7 @@ CREATE TABLE `gen_table`  (
 -- ----------------------------
 -- Records of gen_table
 -- ----------------------------
+INSERT INTO `gen_table` VALUES (1, 'env_info', '环境表', NULL, NULL, 'EnvInfo', 'crud', '', 'module_admin.system', 'system', 'info', '环境', '冉勇', '0', '/', NULL, 'admin', '2025-04-19 14:52:36', 'admin', '2025-04-19 14:52:36', NULL);
 
 -- ----------------------------
 -- Table structure for gen_table_column
@@ -170,11 +171,12 @@ CREATE TABLE `gen_table_column`  (
   `column_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列名称',
   `column_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列描述',
   `column_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列类型',
-  `java_type` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'JAVA类型',
-  `java_field` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'JAVA字段名',
+  `python_type` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'JAVA类型',
+  `python_field` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'JAVA字段名',
   `is_pk` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否主键（1是）',
   `is_increment` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否自增（1是）',
   `is_required` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否必填（1是）',
+  `is_unique` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否唯一（1是）',
   `is_insert` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否为插入字段（1是）',
   `is_edit` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否编辑字段（1是）',
   `is_list` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '是否列表字段（1是）',
@@ -193,6 +195,17 @@ CREATE TABLE `gen_table_column`  (
 -- ----------------------------
 -- Records of gen_table_column
 -- ----------------------------
+INSERT INTO `gen_table_column` VALUES (1, 1, 'env_id', '环境ID', 'int', 'int', 'envId', '1', '1', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 1, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (2, 1, 'env_name', '环境名称', 'varchar(10)', 'str', 'envName', '0', '0', '1', NULL, '1', NULL, NULL, NULL, 'LIKE', 'input', '', 2, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (3, 1, 'env_url', '环境地址', 'varchar(512)', 'str', 'envUrl', '0', '0', '1', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 3, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (4, 1, 'env_variables', '环境变量', 'json', 'dict', 'envVariables', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', NULL, '', 4, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (5, 1, 'env_headers', '环境请求头', 'json', 'dict', 'envHeaders', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', NULL, '', 5, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (6, 1, 'create_by', '创建者', 'varchar(64)', 'str', 'createBy', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 6, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (7, 1, 'create_time', '创建时间', 'datetime', 'datetime', 'createTime', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'datetime', '', 7, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (8, 1, 'update_by', '更新者', 'varchar(64)', 'str', 'updateBy', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 8, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (9, 1, 'update_time', '更新时间', 'datetime', 'datetime', 'updateTime', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'datetime', '', 9, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (10, 1, 'remark', '备注', 'varchar(100)', 'str', 'remark', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 10, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (11, 1, 'del_flag', '删除标志（0代表存在 2代表删除）', 'char(1)', 'str', 'delFlag', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 11, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
 
 -- ----------------------------
 -- Table structure for project_info
@@ -816,7 +829,7 @@ CREATE TABLE `sys_menu`  (
   `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '备注',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2035 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单权限表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2036 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单权限表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -936,6 +949,7 @@ INSERT INTO `sys_menu` VALUES (2031, '环境查询', 2030, 0, '', NULL, NULL, ''
 INSERT INTO `sys_menu` VALUES (2032, '环境新增', 2030, 1, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:add', '#', 'admin', '2024-10-31 22:09:29', 'admin', '2024-10-31 22:09:29', NULL);
 INSERT INTO `sys_menu` VALUES (2033, '环境编辑', 2030, 2, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:edit', '#', 'admin', '2024-10-31 22:09:46', 'admin', '2024-10-31 22:09:46', NULL);
 INSERT INTO `sys_menu` VALUES (2034, '环境删除', 2030, 3, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:remove', '#', 'admin', '2024-10-31 22:10:12', 'admin', '2024-10-31 22:10:12', NULL);
+INSERT INTO `sys_menu` VALUES (2035, 'AI管家', 0, 4, 'ai_chat', 'ai/chat/index', NULL, '', 1, 0, 'C', '0', '0', NULL, 'color', 'admin', '2025-04-17 10:47:11', 'admin', '2025-04-17 10:47:11', NULL);
 
 -- ----------------------------
 -- Table structure for sys_notice
@@ -987,7 +1001,7 @@ CREATE TABLE `sys_oper_log`  (
   INDEX `idx_sys_oper_log_bt`(`business_type`) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status`) USING BTREE,
   INDEX `idx_sys_oper_log_ot`(`oper_time`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1018 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1022 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -1079,6 +1093,8 @@ INSERT INTO `sys_oper_log` VALUES (1017, '定时任务调度日志', 9, 'module_
 INSERT INTO `sys_oper_log` VALUES (1018, '菜单管理', 2, 'module_admin.controller.menu_controller.edit_system_menu()', 'PUT', 1, 'admin', '研发部门', '/system/menu', '', '内网IP', '{\"menuId\": 111, \"menuName\": \"数据监控\", \"parentId\": 2, \"orderNum\": 3, \"path\": \"druid\", \"component\": \"monitor/druid/index\", \"query\": \"\", \"routeName\": \"\", \"isFrame\": 1, \"isCache\": 0, \"menuType\": \"C\", \"visible\": \"1\", \"status\": \"0\", \"perms\": \"monitor:druid:list\", \"icon\": \"druid\", \"createBy\": \"admin\", \"createTime\": \"2024-08-13T18:18:19\", \"updateBy\": \"\", \"updateTime\": null, \"remark\": \"数据监控菜单\"}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-17T10:07:47.269616\"}', 0, '', '2025-04-17 10:07:47', 0);
 INSERT INTO `sys_oper_log` VALUES (1019, '个人信息', 2, 'module_admin.controller.user_controller.change_system_user_profile_avatar()', 'POST', 1, 'admin', '研发部门', '/system/user/profile/avatar', '', '内网IP', 'avatarfile: UploadFile(filename=\'circusbear_z-20221221_120758-320872197_209105674908150_2520761846368544559_n.jpeg\', size=87947, headers=Headers({\'content-disposition\': \'form-data; name=\"avatarfile\"; filename=\"circusbear_z-20221221_120758-320872197_209105674908150_2520761846368544559_n.jpeg\"\', \'content-type\': \'image/png\'}))', '{\"code\": 200, \"msg\": \"更新成功\", \"imgUrl\": \"/profile/avatar/2025/04/17/avatar_20250417101058A609.png\", \"success\": true, \"time\": \"2025-04-17T10:10:58.576664\"}', 0, '', '2025-04-17 10:10:59', 1);
 INSERT INTO `sys_oper_log` VALUES (1020, '个人信息', 2, 'module_admin.controller.user_controller.change_system_user_profile_info()', 'PUT', 1, 'admin', '研发部门', '/system/user/profile', '', '内网IP', '{\"nickName\": \"超级管理员\", \"phonenumber\": \"15888888888\", \"email\": \"ranyong@163.com\", \"sex\": \"0\"}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-17T10:11:00.061260\"}', 0, '', '2025-04-17 10:11:00', 2);
+INSERT INTO `sys_oper_log` VALUES (1021, '菜单管理', 1, 'module_admin.controller.menu_controller.add_system_menu()', 'POST', 1, 'admin', '研发部门', '/system/menu', '', '内网IP', '{\"parentId\": 0, \"menuName\": \"AI管家\", \"routeName\": \"\", \"icon\": \"color\", \"menuType\": \"C\", \"orderNum\": 4, \"isFrame\": 1, \"isCache\": 0, \"visible\": \"0\", \"status\": \"0\", \"path\": \"ai_chat\", \"component\": \"ai/chat/index\"}', '{\"code\": 200, \"msg\": \"新增成功\", \"success\": true, \"time\": \"2025-04-17T10:47:11.435579\"}', 0, '', '2025-04-17 10:47:11', 0);
+INSERT INTO `sys_oper_log` VALUES (1022, '代码生成', 6, 'module_generator.controller.gen_controller.import_gen_table()', 'POST', 1, 'admin', '研发部门', '/tool/gen/importTable', '', '内网IP', '{}', '{\"code\": 200, \"msg\": \"导入成功\", \"success\": true, \"time\": \"2025-04-19T14:52:35.973234\"}', 0, '', '2025-04-19 14:52:36', 3);
 
 -- ----------------------------
 -- Table structure for sys_post
@@ -1297,7 +1313,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2024-12-02 10:43:49', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-04-17 13:50:03', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'niangao', '年糕', '00', 'niangao@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '2', '127.0.0.1', '2024-08-13 18:18:19', 'admin', '2024-08-13 18:18:19', 'admin', '2024-09-20 22:45:06', '测试员');
 INSERT INTO `sys_user` VALUES (100, 100, 'ranyong', 'ranyong', '00', '', '', '0', '', '$2b$12$iPYmQp3jjdIrZBqyaf6loOITsuvUQost39wHqNzzBCTOge7cmNblW', '0', '0', '', NULL, 'admin', '2024-08-13 20:47:13', 'admin', '2024-08-15 11:04:07', NULL);
 INSERT INTO `sys_user` VALUES (101, 103, 'demo1', 'demo1', '00', '', '', '0', '', '$2b$12$bFu.K.grA9O/zrZ9aQTGzeE4PjKwRbXJMm9rgJpN8ZzT5Ri2LXsve', '0', '0', '', '2024-09-20 22:40:21', '', '2024-08-16 10:28:18', 'admin', '2024-09-20 22:44:56', NULL);
@@ -1383,7 +1399,7 @@ CREATE TABLE `user_wechat`  (
   UNIQUE INDEX `openid`(`openid`) USING BTREE,
   UNIQUE INDEX `user_phone`(`user_phone`) USING BTREE,
   INDEX `ix_user_wechat_update_time`(`update_time`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user_wechat
