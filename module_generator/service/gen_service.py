@@ -236,8 +236,8 @@ class GenTableService:
             for sql_statement in sql_statements
         ]
         if not any(validate_create) or any(validate_forbidden_keywords):
-            return True
-        return False
+            return False
+        return True
 
     @classmethod
     def __get_table_names(cls, sql_statements: List[Expression]):
@@ -269,6 +269,9 @@ class GenTableService:
         await cls.set_pk_column(gen_table)
         env = TemplateInitializer.init_jinja2()
         context = TemplateUtils.prepare_context(gen_table)
+        # 添加缺失的变量
+        context["column_not_add_show"] = []
+        context["column_not_edit_show"] = []
         template_list = TemplateUtils.get_template_list(gen_table.tpl_category, gen_table.tpl_web_type)
         preview_code_result = {}
         for template in template_list:

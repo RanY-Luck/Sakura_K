@@ -120,6 +120,9 @@ docker exec -it sakura_k /bin/bash
 
 ## 查看容器日志
 docker logs sakura_k
+
+## 清理Docker缓存
+docker builder prune
 ```
 
 ```shell

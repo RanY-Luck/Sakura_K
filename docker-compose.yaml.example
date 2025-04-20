@@ -23,6 +23,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - HTTP_TIMEOUT=600
     environment:
       TZ: "Asia/Shanghai"
       REDIS_HOST: redis
