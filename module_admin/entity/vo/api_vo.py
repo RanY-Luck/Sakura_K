@@ -79,6 +79,7 @@ class ApiModel(BaseModel):
     request_data_type: Optional[int] = Field(
         default=None, description='数据类型:0[none] 1[json] 2[form] 3[x_form] 4[raw]'
     )
+    request_params: Optional[Any] = Field(default=[], description='请求参数')
     request_data: Optional[Any] = Field(default={}, description='请求体')
     request_headers: Optional[Any] = Field(default={}, description='请求头')
 

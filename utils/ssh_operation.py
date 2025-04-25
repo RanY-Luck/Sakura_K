@@ -154,7 +154,7 @@ if __name__ == "__main__":
     username = os.getenv("SSH_USERNAME")  # 虚拟机用户名
     password = os.getenv("SSH_PASSWORD")  # 虚拟机密码
     # 上传文件示例
-    ssh_operation(host, username, password, "upload_file", "../assets/images/realm.svg", "/usr/local/1.svg")
+    # ssh_operation(host, username, password, "upload_file", "../assets/images/realm.svg", "/usr/local/1.svg")
 
     # 下载文件示例
     # ssh_operation(host, username, password, "download_file", "assets/images/downloaded_file.txt", "/usr/local/remote_file.txt")
@@ -167,8 +167,8 @@ if __name__ == "__main__":
     # print("读取的内容:", content)
 
     # 执行命令示例
-    # result = ssh_operation(host, username, password, "execute_command", content="docker ps")
-    # print("命令输出:", result)
+    result = ssh_operation(host, username, password, "execute_command", content="docker ps")
+    print("命令输出:", result)
 
     # 列出目录内容示例
     # files = ssh_operation(host, username, password, "list_dir", remote_path="/usr/local")
