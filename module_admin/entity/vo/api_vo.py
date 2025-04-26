@@ -54,6 +54,7 @@ class ApiQueryModel(BaseModel):
     )
     request_data: Optional[Any] = Field(default=None, description='请求体')
     request_headers: Optional[Any] = Field(default=None, description='请求头')
+    variable: Optional[Any] = Field(default=None, description='变量')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
