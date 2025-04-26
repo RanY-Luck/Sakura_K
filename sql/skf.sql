@@ -1,17 +1,17 @@
 /*
- Navicat Premium Data Transfer
+ Navicat Premium Dump SQL
 
  Source Server         : 本地数据库
  Source Server Type    : MySQL
- Source Server Version : 80033
+ Source Server Version : 80033 (8.0.33)
  Source Host           : 192.168.1.243:3306
  Source Schema         : skf
 
  Target Server Type    : MySQL
- Target Server Version : 80033
+ Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 19/04/2025 14:53:36
+ Date: 26/04/2025 16:48:44
 */
 
 SET NAMES utf8mb4;
@@ -22,36 +22,41 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `api_info`;
 CREATE TABLE `api_info`  (
-  `api_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '接口ID',
-  `api_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '接口名称',
-  `project_id` int(0) NOT NULL COMMENT '项目ID',
-  `api_method` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '接口方法',
-  `api_url` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '接口地址',
-  `api_status` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '状态（0正常 1停用）',
-  `api_level` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '优先级（P0、P1、P2、P3）',
+  `api_id` int NOT NULL AUTO_INCREMENT COMMENT '接口ID',
+  `api_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '接口名称',
+  `project_id` int NOT NULL COMMENT '项目ID',
+  `api_method` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '接口方法',
+  `api_url` varchar(512) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '接口地址',
+  `api_status` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '状态（0正常 1停用）',
+  `api_level` varchar(2) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '优先级（P0、P1、P2、P3）',
   `api_tags` json NULL COMMENT '标签',
-  `request_data_type` int(0) NULL DEFAULT NULL COMMENT '请求数据类型',
+  `request_data_type` int NULL DEFAULT NULL COMMENT '请求数据类型:0[none] 1[json] 2[form] 3[x_form] 4[raw]',
+  `request_params` json NULL COMMENT '请求参数',
   `request_data` json NULL COMMENT '请求数据',
   `request_headers` json NULL COMMENT '请求头',
-  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
-  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
-  `remark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
+  `create_by` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `remark` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `del_flag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`api_id`) USING BTREE,
-  INDEX `ix_api_info_api_name`(`api_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 102 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '接口表' ROW_FORMAT = Dynamic;
+  INDEX `ix_api_info_api_name`(`api_name` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 111 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '接口表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of api_info
 -- ----------------------------
-INSERT INTO `api_info` VALUES (1, '查询倾角图表', 3, 'POST', 'https://www.convercomm.com/api/admin/packetInfo/getDevicePacketChart', '0', 'P0', '[]', 1, '{\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}', '{\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU\"}', 'admin', '2024-10-24 22:06:52', 'admin', '2024-10-24 22:06:52', '', NULL);
-INSERT INTO `api_info` VALUES (2, '登录', 3, 'POST', 'https://www.convercomm.com//api/auth/jwt/miniLogin', '0', 'P0', '[]', 1, '{\"password\": \"3H/5JXwqnCGKh+s=\", \"username\": \"ran_dev\"}', '{}', 'admin', '2024-10-24 22:06:52', 'admin', '2024-10-24 22:06:52', '', NULL);
-INSERT INTO `api_info` VALUES (3, 'string', 0, 'GET', 'string', '0', 'P0', '[]', 0, '{}', '{}', 'admin', '2024-10-24 23:33:18', 'admin', '2024-10-24 23:33:18', 'string', NULL);
-INSERT INTO `api_info` VALUES (99, '登录接口', 17, 'DELETE', '/login', '0', 'P0', '[\"登录\"]', 0, '{}', '{}', 'admin', '2024-10-26 16:33:36', 'admin', '2024-10-26 16:37:24', '这是一个编辑功能', NULL);
-INSERT INTO `api_info` VALUES (100, 'restart', 17, 'POST', '/restart', '0', 'P0', '[]', 0, '{}', '{}', 'admin', '2024-10-26 16:47:43', 'admin', '2024-10-26 16:47:43', '', NULL);
-INSERT INTO `api_info` VALUES (101, '111', 17, 'POST', '111', '0', 'P0', '[]', 0, '{}', '{}', 'admin', '2024-10-26 16:47:59', 'admin', '2024-10-26 16:47:59', '', NULL);
+INSERT INTO `api_info` VALUES (1, '查询倾角图表', 3, 'POST', '/api/admin/packetInfo/getDevicePacketChart', '0', 'P0', '[]', 1, NULL, '{\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}', '{\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fZGV2IiwidXNlcklkIjoiMjc2IiwibmFtZSI6IuWGieWLhyIsImlkIjoiVkw1UElxZGMiLCJleHAiOjE3NDYxNzg3MTV9.ECmD7sdk04F-9VxPFHgrVraC5OLAXUzVqEdtg4DxtlB5hwdXDwKfR3B3n_OcaJyxzeBrycMSBG3gBg2K-vQz4zRqU7ggpbhe8vspol21pnHj2orH2VyHSTXg2sbLkU_1Y-DS4HAEVHPntkbosvNz1olWolucG7PmWD_xEdGFW2A\"}', 'admin', '2024-10-24 22:06:52', 'admin', '2024-10-24 22:06:52', '', NULL);
+INSERT INTO `api_info` VALUES (2, '登录', 3, 'POST', 'https://www.convercomm.com//api/auth/jwt/miniLogin', '0', 'P0', '[]', 1, NULL, '{\"password\": \"3H/5JXwqnCGKh+s=\", \"username\": \"ran_dev\"}', '{}', 'admin', '2024-10-24 22:06:52', 'admin', '2024-10-24 22:06:52', '', NULL);
+INSERT INTO `api_info` VALUES (3, 'string', 0, 'GET', 'string', '0', 'P0', '[]', 0, NULL, '{}', '{}', 'admin', '2024-10-24 23:33:18', 'admin', '2024-10-24 23:33:18', 'string', NULL);
+INSERT INTO `api_info` VALUES (99, '登录接口', 17, 'DELETE', '/login', '0', 'P0', '[\"登录\"]', 0, NULL, '{}', '{}', 'admin', '2024-10-26 16:33:36', 'admin', '2024-10-26 16:37:24', '这是一个编辑功能', NULL);
+INSERT INTO `api_info` VALUES (100, 'restart', 17, 'POST', '/restart', '0', 'P0', '[]', 0, NULL, '{}', '{}', 'admin', '2024-10-26 16:47:43', 'admin', '2024-10-26 16:47:43', '', NULL);
+INSERT INTO `api_info` VALUES (101, '111', 17, 'POST', '111', '0', 'P0', '[]', 0, NULL, '{}', '{}', 'admin', '2024-10-26 16:47:59', 'admin', '2024-10-26 16:47:59', '', NULL);
+INSERT INTO `api_info` VALUES (103, '游123戏', 1, 'POST', '/login', '0', 'P1', '[\"123\", \"注册\"]', 0, NULL, '[{\"key\": \"ranyong\", \"value\": \"yong\", \"remarks\": \"这是 x_www_form_urlencoded\"}]', '[{\"key\": \"Authorization\", \"value\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU\", \"remarks\": \"这是一个请求头\"}]', 'admin', '2024-09-27 17:43:19', 'admin', '2025-04-23 09:43:16', '这是一个编辑功能', NULL);
+INSERT INTO `api_info` VALUES (106, '百度一下', 19, 'GET', 'www.baidu.com', '0', 'P0', '[\"百\", \"度\", \"一\", \"下\"]', 0, NULL, '{}', '{}', 'admin', '2025-04-23 09:51:33', 'admin', '2025-04-23 10:27:37', '这是一个百度接口', NULL);
+INSERT INTO `api_info` VALUES (107, 'ff', 19, 'POST', 'https://www.baidu.com', '0', 'P0', '[]', 0, NULL, '{}', '{}', 'admin', '2025-04-23 10:56:26', 'admin', '2025-04-24 13:38:09', '123123', NULL);
+INSERT INTO `api_info` VALUES (110, '测试本地接口', 1, 'GET', 'http://127.0.0.1:9099/dev-api/openapi.json', '1', 'P1', '[]', 0, '[{\"name\": \"冉勇\", \"value\": \"ranyong\", \"remark\": \"这是一个描述\"}, {\"name\": \"冉勇1\", \"value\": \"ranyong1\", \"remark\": \"这是一个描述1\"}]', '{\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}', '{\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fZGV2IiwidXNlcklkIjoiMjc2IiwibmFtZSI6IuWGieWLhyIsImlkIjoiVkw1UElxZGMiLCJleHAiOjE3NDYxNzg3MTV9.ECmD7sdk04F-9VxPFHgrVraC5OLAXUzVqEdtg4DxtlB5hwdXDwKfR3B3n_OcaJyxzeBrycMSBG3gBg2K-vQz4zRqU7ggpbhe8vspol21pnHj2orH2VyHSTXg2sbLkU_1Y-DS4HAEVHPntkbosvNz1olWolucG7PmWD_xEdGFW2A\"}', 'admin', '2025-04-25 11:30:15', 'admin', '2025-04-25 11:30:15', 'string', NULL);
 
 -- ----------------------------
 -- Table structure for apscheduler_jobs
@@ -62,8 +67,8 @@ CREATE TABLE `apscheduler_jobs`  (
   `next_run_time` double NULL DEFAULT NULL,
   `job_state` blob NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `ix_apscheduler_jobs_next_run_time`(`next_run_time`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+  INDEX `ix_apscheduler_jobs_next_run_time`(`next_run_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of apscheduler_jobs
@@ -74,7 +79,7 @@ CREATE TABLE `apscheduler_jobs`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `data_source`;
 CREATE TABLE `data_source`  (
-  `datasource_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '数据源ID',
+  `datasource_id` int NOT NULL AUTO_INCREMENT COMMENT '数据源ID',
   `datasource_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '数据源名称',
   `datasource_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '数据源类型',
   `datasource_host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '数据源地址',
@@ -82,14 +87,14 @@ CREATE TABLE `data_source`  (
   `datasource_user` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '数据源用户名',
   `datasource_pwd` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '数据源密码',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`datasource_id`) USING BTREE,
-  INDEX `ix_data_source_datasource_name`(`datasource_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '数据源配置表' ROW_FORMAT = Dynamic;
+  INDEX `ix_data_source_datasource_name`(`datasource_name` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '数据源配置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of data_source
@@ -103,36 +108,33 @@ INSERT INTO `data_source` VALUES (8, 'Docker 数据库', 'mysql', 'beidoulab.clu
 -- ----------------------------
 DROP TABLE IF EXISTS `env_info`;
 CREATE TABLE `env_info`  (
-  `env_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '环境ID',
+  `env_id` int NOT NULL AUTO_INCREMENT COMMENT '环境ID',
   `env_name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '环境名称',
   `env_url` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '环境地址',
   `env_variables` json NULL COMMENT '环境变量',
   `env_headers` json NULL COMMENT '环境请求头',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`env_id`) USING BTREE,
-  INDEX `ix_env_info_env_name`(`env_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '环境表' ROW_FORMAT = Dynamic;
+  INDEX `ix_env_info_env_name`(`env_name` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '环境表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of env_info
 -- ----------------------------
 INSERT INTO `env_info` VALUES (1, '测试环境', 'https://beidoulab.club:5557/', '{}', '{}', 'admin', '2024-10-30 22:54:51', 'admin', '2024-10-30 22:54:51', '', NULL);
 INSERT INTO `env_info` VALUES (2, '正式环境', 'https://convercomm.com/', '{}', '{}', 'admin', '2024-10-30 22:56:38', 'admin', '2024-10-30 22:56:38', '', NULL);
-INSERT INTO `env_info` VALUES (46, '眼', 'https://beidoulab.club:5557/', '{}', '{}', 'admin', '2024-10-31 22:47:50', 'admin', '2024-10-31 22:47:50', '', NULL);
-INSERT INTO `env_info` VALUES (61, '方', 'https://beidoulab.club:5557/', '{}', '{}', 'admin', '2024-10-31 22:47:49', 'admin', '2024-10-31 22:47:49', '', NULL);
-INSERT INTO `env_info` VALUES (100, '好 123', 'https:www.hao123.com', '{}', '{}', 'admin', '2024-10-31 23:39:40', 'admin', '2024-10-31 23:39:40', '', NULL);
 
 -- ----------------------------
 -- Table structure for gen_table
 -- ----------------------------
 DROP TABLE IF EXISTS `gen_table`;
 CREATE TABLE `gen_table`  (
-  `table_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `table_id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
   `table_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '表名称',
   `table_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '表描述',
   `sub_table_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '关联子表的表名',
@@ -149,25 +151,25 @@ CREATE TABLE `gen_table`  (
   `gen_path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '/' COMMENT '生成路径（不填默认项目路径）',
   `options` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '其它生成选项',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`table_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代码生成业务表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代码生成业务表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of gen_table
 -- ----------------------------
-INSERT INTO `gen_table` VALUES (1, 'env_info', '环境表', NULL, NULL, 'EnvInfo', 'crud', '', 'module_admin.system', 'system', 'info', '环境', '冉勇', '0', '/', NULL, 'admin', '2025-04-19 14:52:36', 'admin', '2025-04-19 14:52:36', NULL);
+INSERT INTO `gen_table` VALUES (1, 'env_info', '环境表', NULL, NULL, 'EnvInfo', 'crud', 'element-plus', 'module_admin.system', 'system', 'info', '环境', '冉勇', '0', '/', '{\"treeCode\": null, \"treeParentCode\": null, \"treeName\": null, \"parentMenuId\": null}', 'admin', '2025-04-19 14:52:36', 'admin', '2025-04-19 15:02:56', NULL);
 
 -- ----------------------------
 -- Table structure for gen_table_column
 -- ----------------------------
 DROP TABLE IF EXISTS `gen_table_column`;
 CREATE TABLE `gen_table_column`  (
-  `column_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '编号',
-  `table_id` bigint(0) NULL DEFAULT NULL COMMENT '归属表编号',
+  `column_id` bigint NOT NULL AUTO_INCREMENT COMMENT '编号',
+  `table_id` bigint NULL DEFAULT NULL COMMENT '归属表编号',
   `column_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列名称',
   `column_comment` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列描述',
   `column_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '列类型',
@@ -184,35 +186,35 @@ CREATE TABLE `gen_table_column`  (
   `query_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'EQ' COMMENT '查询方式（等于、不等于、大于、小于、范围）',
   `html_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '显示类型（文本框、文本域、下拉框、复选框、单选框、日期控件）',
   `dict_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '字典类型',
-  `sort` int(0) NULL DEFAULT NULL COMMENT '排序',
+  `sort` int NULL DEFAULT NULL COMMENT '排序',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`column_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代码生成业务表字段' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '代码生成业务表字段' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of gen_table_column
 -- ----------------------------
-INSERT INTO `gen_table_column` VALUES (1, 1, 'env_id', '环境ID', 'int', 'int', 'envId', '1', '1', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 1, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (2, 1, 'env_name', '环境名称', 'varchar(10)', 'str', 'envName', '0', '0', '1', NULL, '1', NULL, NULL, NULL, 'LIKE', 'input', '', 2, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (3, 1, 'env_url', '环境地址', 'varchar(512)', 'str', 'envUrl', '0', '0', '1', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 3, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (4, 1, 'env_variables', '环境变量', 'json', 'dict', 'envVariables', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', NULL, '', 4, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (5, 1, 'env_headers', '环境请求头', 'json', 'dict', 'envHeaders', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', NULL, '', 5, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (6, 1, 'create_by', '创建者', 'varchar(64)', 'str', 'createBy', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 6, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (7, 1, 'create_time', '创建时间', 'datetime', 'datetime', 'createTime', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'datetime', '', 7, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (8, 1, 'update_by', '更新者', 'varchar(64)', 'str', 'updateBy', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 8, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (9, 1, 'update_time', '更新时间', 'datetime', 'datetime', 'updateTime', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'datetime', '', 9, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (10, 1, 'remark', '备注', 'varchar(100)', 'str', 'remark', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 10, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
-INSERT INTO `gen_table_column` VALUES (11, 1, 'del_flag', '删除标志（0代表存在 2代表删除）', 'char(1)', 'str', 'delFlag', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', '', 11, 'admin', '2025-04-19 14:52:30', '', '2025-04-19 14:52:30');
+INSERT INTO `gen_table_column` VALUES (1, 1, 'env_id', '环境ID', 'int', 'int', 'envId', '1', '1', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', NULL, 1, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (2, 1, 'env_name', '环境名称', 'varchar(10)', 'str', 'envName', '0', '0', '1', NULL, '1', NULL, NULL, NULL, 'LIKE', 'input', NULL, 2, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (3, 1, 'env_url', '环境地址', 'varchar(512)', 'str', 'envUrl', '0', '0', '1', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', NULL, 3, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (4, 1, 'env_variables', '环境变量', 'json', 'dict', 'envVariables', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', NULL, NULL, 4, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (5, 1, 'env_headers', '环境请求头', 'json', 'dict', 'envHeaders', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', NULL, NULL, 5, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (6, 1, 'create_by', '创建者', 'varchar(64)', 'str', 'createBy', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', NULL, 6, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (7, 1, 'create_time', '创建时间', 'datetime', 'datetime', 'createTime', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'datetime', NULL, 7, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (8, 1, 'update_by', '更新者', 'varchar(64)', 'str', 'updateBy', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', NULL, 8, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (9, 1, 'update_time', '更新时间', 'datetime', 'datetime', 'updateTime', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'datetime', NULL, 9, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (10, 1, 'remark', '备注', 'varchar(100)', 'str', 'remark', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', NULL, 10, 'admin', NULL, NULL, NULL);
+INSERT INTO `gen_table_column` VALUES (11, 1, 'del_flag', '删除标志（0代表存在 2代表删除）', 'char(1)', 'str', 'delFlag', '0', '0', '0', NULL, '1', NULL, NULL, NULL, 'EQ', 'input', NULL, 11, 'admin', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for project_info
 -- ----------------------------
 DROP TABLE IF EXISTS `project_info`;
 CREATE TABLE `project_info`  (
-  `project_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '项目ID',
+  `project_id` int NOT NULL AUTO_INCREMENT COMMENT '项目ID',
   `project_name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '项目名称',
   `responsible_name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '负责人',
   `test_user` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '测试人员',
@@ -221,13 +223,13 @@ CREATE TABLE `project_info`  (
   `simple_desc` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '简要描述',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`project_id`) USING BTREE,
-  INDEX `ix_project_info_project_name`(`project_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 19 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目表' ROW_FORMAT = Dynamic;
+  INDEX `ix_project_info_project_name`(`project_name` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of project_info
@@ -239,27 +241,28 @@ INSERT INTO `project_info` VALUES (7, '冉勇', 'string', 'asda', 'string', 'str
 INSERT INTO `project_info` VALUES (14, '！@#！#', '！@#！#', '！@#！#', '！@#！#', '！@#！#', '', NULL, 'admin', '2024-09-10 21:57:14', 'admin', '2024-09-10 21:57:14', '');
 INSERT INTO `project_info` VALUES (15, '1111111111', '2222222222', '4444444444', '3333333333', '5555555555', '9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999', NULL, 'admin', '2024-09-10 22:36:27', 'admin', '2024-09-10 22:36:27', '8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888');
 INSERT INTO `project_info` VALUES (17, '测试项目', '冉勇', '冉勇', '冉勇', 'web', '这是一个描述', NULL, 'admin', '2024-09-16 10:06:07', 'admin', '2024-09-20 22:31:33', '这是一个备注放放风1');
+INSERT INTO `project_info` VALUES (19, '测试', '肉', '让', '人', 'web', '1', NULL, 'admin', '2025-04-22 14:41:09', 'admin', '2025-04-22 14:41:20', '2');
 
 -- ----------------------------
 -- Table structure for robot_conf
 -- ----------------------------
 DROP TABLE IF EXISTS `robot_conf`;
 CREATE TABLE `robot_conf`  (
-  `robot_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '机器人ID',
+  `robot_id` int NOT NULL AUTO_INCREMENT COMMENT '机器人ID',
   `robot_name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '机器人名称',
   `robot_webhook` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '机器人WebHook',
   `robot_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '机器人类型',
   `robot_template` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '机器人通知模板',
   `robot_status` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '机器人状态（0正常 1停用）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`robot_id`) USING BTREE,
-  INDEX `ix_robot_conf_robot_name`(`robot_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '机器人配置表' ROW_FORMAT = Dynamic;
+  INDEX `ix_robot_conf_robot_name`(`robot_name` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '机器人配置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of robot_conf
@@ -273,18 +276,18 @@ INSERT INTO `robot_conf` VALUES (6, '企业微信机器人62', 'https://qyapi.we
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE `sys_config`  (
-  `config_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '参数主键',
+  `config_id` int NOT NULL AUTO_INCREMENT COMMENT '参数主键',
   `config_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '参数名称',
   `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '参数键名',
   `config_value` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '参数键值',
   `config_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'N' COMMENT '系统内置（Y是 N否）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`config_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '参数配置表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '参数配置表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_config
@@ -301,22 +304,22 @@ INSERT INTO `sys_config` VALUES (6, '用户登录-黑名单列表', 'sys.login.b
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept`  (
-  `dept_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '部门id',
-  `parent_id` bigint(0) NULL DEFAULT 0 COMMENT '父部门id',
+  `dept_id` bigint NOT NULL AUTO_INCREMENT COMMENT '部门id',
+  `parent_id` bigint NULL DEFAULT 0 COMMENT '父部门id',
   `ancestors` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '祖级列表',
   `dept_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '部门名称',
-  `order_num` int(0) NULL DEFAULT 0 COMMENT '显示顺序',
+  `order_num` int NULL DEFAULT 0 COMMENT '显示顺序',
   `leader` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '负责人',
   `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '联系电话',
   `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '邮箱',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '部门状态（0正常 1停用）',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`dept_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 201 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 201 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '部门表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dept
@@ -338,8 +341,8 @@ INSERT INTO `sys_dept` VALUES (200, 101, '0,100,101', 'demo', 0, '1', '132062698
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_data`;
 CREATE TABLE `sys_dict_data`  (
-  `dict_code` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '字典编码',
-  `dict_sort` int(0) NULL DEFAULT 0 COMMENT '字典排序',
+  `dict_code` bigint NOT NULL AUTO_INCREMENT COMMENT '字典编码',
+  `dict_sort` int NULL DEFAULT 0 COMMENT '字典排序',
   `dict_label` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '字典标签',
   `dict_value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '字典键值',
   `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '字典类型',
@@ -348,12 +351,12 @@ CREATE TABLE `sys_dict_data`  (
   `is_default` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'N' COMMENT '是否默认（Y是 N否）',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`dict_code`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 102 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 102 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典数据表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_data
@@ -396,18 +399,18 @@ INSERT INTO `sys_dict_data` VALUES (32, 2, '失败', '1', 'sys_common_status', '
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_dict_type`;
 CREATE TABLE `sys_dict_type`  (
-  `dict_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '字典主键',
+  `dict_id` bigint NOT NULL AUTO_INCREMENT COMMENT '字典主键',
   `dict_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '字典名称',
   `dict_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '字典类型',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`dict_id`) USING BTREE,
-  UNIQUE INDEX `dict_type`(`dict_type`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = Dynamic;
+  UNIQUE INDEX `dict_type`(`dict_type` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '字典类型表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict_type
@@ -429,7 +432,7 @@ INSERT INTO `sys_dict_type` VALUES (11, '系统状态', 'sys_common_status', '0'
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_job`;
 CREATE TABLE `sys_job`  (
-  `job_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+  `job_id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务ID',
   `job_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '任务名称',
   `job_group` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'default' COMMENT '任务组名',
   `job_executor` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'default' COMMENT '任务执行器',
@@ -441,12 +444,12 @@ CREATE TABLE `sys_job`  (
   `concurrent` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '是否并发执行（0允许 1禁止）',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '状态（0正常 1暂停）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '备注信息',
   PRIMARY KEY (`job_id`, `job_name`, `job_group`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 103 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 103 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_job
@@ -464,7 +467,7 @@ INSERT INTO `sys_job` VALUES (7, '打包、删除日志', 'default', 'default', 
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_job_log`;
 CREATE TABLE `sys_job_log`  (
-  `job_log_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '任务日志ID',
+  `job_log_id` bigint NOT NULL AUTO_INCREMENT COMMENT '任务日志ID',
   `job_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '任务名称',
   `job_group` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '任务组名',
   `job_executor` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '任务执行器',
@@ -475,9 +478,9 @@ CREATE TABLE `sys_job_log`  (
   `job_message` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '日志信息',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '执行状态（0正常 1失败）',
   `exception_info` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '异常信息',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 203 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 213 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_job_log
@@ -546,13 +549,23 @@ INSERT INTO `sys_job_log` VALUES (199, '打包、删除日志', 'default', 'defa
 INSERT INTO `sys_job_log` VALUES (200, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2024-12-23 00:00:00', '0', '', '2024-12-23 00:00:00');
 INSERT INTO `sys_job_log` VALUES (201, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2024-12-24 00:00:00', '0', '', '2024-12-24 00:00:00');
 INSERT INTO `sys_job_log` VALUES (202, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2024-12-24 00:00:00', '0', '', '2024-12-24 00:00:00');
+INSERT INTO `sys_job_log` VALUES (203, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-20 00:00:00', '0', '', '2025-04-20 00:00:00');
+INSERT INTO `sys_job_log` VALUES (204, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-20 00:00:00', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-04-19_error.log\'', '2025-04-20 00:00:00');
+INSERT INTO `sys_job_log` VALUES (205, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-23 00:00:00', '0', '', '2025-04-23 00:00:00');
+INSERT INTO `sys_job_log` VALUES (206, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-23 00:00:00', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-04-22_error.log\'', '2025-04-23 00:00:00');
+INSERT INTO `sys_job_log` VALUES (207, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-24 00:00:01', '0', '', '2025-04-24 00:00:02');
+INSERT INTO `sys_job_log` VALUES (208, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-24 00:00:01', '0', '', '2025-04-24 00:00:02');
+INSERT INTO `sys_job_log` VALUES (209, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-25 00:00:00', '0', '', '2025-04-25 00:00:00');
+INSERT INTO `sys_job_log` VALUES (210, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-25 00:00:00', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-04-24_error.log\'', '2025-04-25 00:00:00');
+INSERT INTO `sys_job_log` VALUES (211, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-26 00:00:00', '0', '', '2025-04-26 00:00:00');
+INSERT INTO `sys_job_log` VALUES (212, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-04-26 00:00:00', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-04-25_error.log\'', '2025-04-26 00:00:00');
 
 -- ----------------------------
 -- Table structure for sys_logininfor
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_logininfor`;
 CREATE TABLE `sys_logininfor`  (
-  `info_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+  `info_id` bigint NOT NULL AUTO_INCREMENT COMMENT '访问ID',
   `user_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '用户账号',
   `ipaddr` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '登录IP地址',
   `login_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '登录地点',
@@ -560,11 +573,11 @@ CREATE TABLE `sys_logininfor`  (
   `os` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '操作系统',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '登录状态（0成功 1失败）',
   `msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '提示消息',
-  `login_time` datetime(0) NULL DEFAULT NULL COMMENT '访问时间',
+  `login_time` datetime NULL DEFAULT NULL COMMENT '访问时间',
   PRIMARY KEY (`info_id`) USING BTREE,
-  INDEX `idx_sys_logininfor_s`(`status`) USING BTREE,
-  INDEX `idx_sys_logininfor_lt`(`login_time`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2140 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = Dynamic;
+  INDEX `idx_sys_logininfor_s`(`status` ASC) USING BTREE,
+  INDEX `idx_sys_logininfor_lt`(`login_time` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2158 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -802,34 +815,52 @@ INSERT INTO `sys_logininfor` VALUES (2136, 'admin', '222.80.91.104', '亚洲-新
 INSERT INTO `sys_logininfor` VALUES (2137, 'admin', '222.137.128.42', '未知', 'Chrome 131', 'Windows 10', '1', '密码错误', '2024-12-15 00:25:54');
 INSERT INTO `sys_logininfor` VALUES (2138, 'admin', '', '内网IP', 'Other', 'Other', '1', '验证码已失效', '2024-12-17 15:45:06');
 INSERT INTO `sys_logininfor` VALUES (2139, 'admin', '', '内网IP', 'Other', 'Other', '1', '验证码已失效', '2024-12-17 15:45:20');
+INSERT INTO `sys_logininfor` VALUES (2140, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-22 14:40:34');
+INSERT INTO `sys_logininfor` VALUES (2141, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-22 15:27:59');
+INSERT INTO `sys_logininfor` VALUES (2142, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-22 17:46:20');
+INSERT INTO `sys_logininfor` VALUES (2143, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-23 09:38:04');
+INSERT INTO `sys_logininfor` VALUES (2144, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-04-23 09:41:06');
+INSERT INTO `sys_logininfor` VALUES (2145, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '1', '验证码错误', '2025-04-23 16:45:33');
+INSERT INTO `sys_logininfor` VALUES (2146, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-23 16:45:39');
+INSERT INTO `sys_logininfor` VALUES (2147, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-24 09:53:06');
+INSERT INTO `sys_logininfor` VALUES (2148, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '1', '验证码已失效', '2025-04-24 10:30:56');
+INSERT INTO `sys_logininfor` VALUES (2149, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-24 10:31:00');
+INSERT INTO `sys_logininfor` VALUES (2150, 'admin', '', '内网IP', 'Edge 134', 'Windows 10', '0', '登录成功', '2025-04-24 11:40:18');
+INSERT INTO `sys_logininfor` VALUES (2151, 'admin', '', '内网IP', 'Edge 134', 'Windows 10', '1', '验证码错误', '2025-04-24 13:37:04');
+INSERT INTO `sys_logininfor` VALUES (2152, 'admin', '', '内网IP', 'Edge 134', 'Windows 10', '0', '登录成功', '2025-04-24 13:37:08');
+INSERT INTO `sys_logininfor` VALUES (2153, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-24 14:22:41');
+INSERT INTO `sys_logininfor` VALUES (2154, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-24 15:12:37');
+INSERT INTO `sys_logininfor` VALUES (2155, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '1', '验证码已失效', '2025-04-25 09:56:48');
+INSERT INTO `sys_logininfor` VALUES (2156, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-04-25 09:56:53');
+INSERT INTO `sys_logininfor` VALUES (2157, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-04-25 11:23:39');
 
 -- ----------------------------
 -- Table structure for sys_menu
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu`  (
-  `menu_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
+  `menu_id` bigint NOT NULL AUTO_INCREMENT COMMENT '菜单ID',
   `menu_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '菜单名称',
-  `parent_id` bigint(0) NULL DEFAULT 0 COMMENT '父菜单ID',
-  `order_num` int(0) NULL DEFAULT 0 COMMENT '显示顺序',
+  `parent_id` bigint NULL DEFAULT 0 COMMENT '父菜单ID',
+  `order_num` int NULL DEFAULT 0 COMMENT '显示顺序',
   `path` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '路由地址',
   `component` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '组件路径',
   `query` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '路由参数',
   `route_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '路由名称',
-  `is_frame` int(0) NULL DEFAULT 1 COMMENT '是否为外链（0是 1否）',
-  `is_cache` int(0) NULL DEFAULT 0 COMMENT '是否缓存（0缓存 1不缓存）',
+  `is_frame` int NULL DEFAULT 1 COMMENT '是否为外链（0是 1否）',
+  `is_cache` int NULL DEFAULT 0 COMMENT '是否缓存（0缓存 1不缓存）',
   `menu_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '菜单类型（M目录 C菜单 F按钮）',
   `visible` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '菜单状态（0显示 1隐藏）',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '菜单状态（0正常 1停用）',
   `perms` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '权限标识',
   `icon` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '#' COMMENT '菜单图标',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '备注',
   PRIMARY KEY (`menu_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2036 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单权限表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2036 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '菜单权限表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_menu
@@ -956,18 +987,18 @@ INSERT INTO `sys_menu` VALUES (2035, 'AI管家', 0, 4, 'ai_chat', 'ai/chat/index
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_notice`;
 CREATE TABLE `sys_notice`  (
-  `notice_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '公告ID',
+  `notice_id` int NOT NULL AUTO_INCREMENT COMMENT '公告ID',
   `notice_title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告标题',
   `notice_type` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告类型（1通知 2公告）',
   `notice_content` longblob NULL COMMENT '公告内容',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '公告状态（0正常 1关闭）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`notice_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '通知公告表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '通知公告表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_notice
@@ -980,12 +1011,12 @@ INSERT INTO `sys_notice` VALUES (2, '维护通知：2018-07-01 vfadmin系统凌�
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_oper_log`;
 CREATE TABLE `sys_oper_log`  (
-  `oper_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+  `oper_id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志主键',
   `title` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '模块标题',
-  `business_type` int(0) NULL DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
+  `business_type` int NULL DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
   `method` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '方法名称',
   `request_method` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '请求方式',
-  `operator_type` int(0) NULL DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
+  `operator_type` int NULL DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
   `oper_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '操作人员',
   `dept_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '部门名称',
   `oper_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '请求URL',
@@ -993,15 +1024,15 @@ CREATE TABLE `sys_oper_log`  (
   `oper_location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '操作地点',
   `oper_param` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '请求参数',
   `json_result` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '返回参数',
-  `status` int(0) NULL DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
+  `status` int NULL DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
   `error_msg` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '错误消息',
-  `oper_time` datetime(0) NULL DEFAULT NULL COMMENT '操作时间',
-  `cost_time` bigint(0) NULL DEFAULT 0 COMMENT '消耗时间',
+  `oper_time` datetime NULL DEFAULT NULL COMMENT '操作时间',
+  `cost_time` bigint NULL DEFAULT 0 COMMENT '消耗时间',
   PRIMARY KEY (`oper_id`) USING BTREE,
-  INDEX `idx_sys_oper_log_bt`(`business_type`) USING BTREE,
-  INDEX `idx_sys_oper_log_s`(`status`) USING BTREE,
-  INDEX `idx_sys_oper_log_ot`(`oper_time`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1022 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = Dynamic;
+  INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
+  INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
+  INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1107 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -1095,24 +1126,108 @@ INSERT INTO `sys_oper_log` VALUES (1019, '个人信息', 2, 'module_admin.contro
 INSERT INTO `sys_oper_log` VALUES (1020, '个人信息', 2, 'module_admin.controller.user_controller.change_system_user_profile_info()', 'PUT', 1, 'admin', '研发部门', '/system/user/profile', '', '内网IP', '{\"nickName\": \"超级管理员\", \"phonenumber\": \"15888888888\", \"email\": \"ranyong@163.com\", \"sex\": \"0\"}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-17T10:11:00.061260\"}', 0, '', '2025-04-17 10:11:00', 2);
 INSERT INTO `sys_oper_log` VALUES (1021, '菜单管理', 1, 'module_admin.controller.menu_controller.add_system_menu()', 'POST', 1, 'admin', '研发部门', '/system/menu', '', '内网IP', '{\"parentId\": 0, \"menuName\": \"AI管家\", \"routeName\": \"\", \"icon\": \"color\", \"menuType\": \"C\", \"orderNum\": 4, \"isFrame\": 1, \"isCache\": 0, \"visible\": \"0\", \"status\": \"0\", \"path\": \"ai_chat\", \"component\": \"ai/chat/index\"}', '{\"code\": 200, \"msg\": \"新增成功\", \"success\": true, \"time\": \"2025-04-17T10:47:11.435579\"}', 0, '', '2025-04-17 10:47:11', 0);
 INSERT INTO `sys_oper_log` VALUES (1022, '代码生成', 6, 'module_generator.controller.gen_controller.import_gen_table()', 'POST', 1, 'admin', '研发部门', '/tool/gen/importTable', '', '内网IP', '{}', '{\"code\": 200, \"msg\": \"导入成功\", \"success\": true, \"time\": \"2025-04-19T14:52:35.973234\"}', 0, '', '2025-04-19 14:52:36', 3);
+INSERT INTO `sys_oper_log` VALUES (1023, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 601, \"msg\": \"请先完善生成配置信息\", \"success\": false, \"time\": \"2025-04-19T14:55:31.154120\"}', 1, '请先完善生成配置信息', '2025-04-19 14:55:31', 1);
+INSERT INTO `sys_oper_log` VALUES (1024, '代码生成', 2, 'module_generator.controller.gen_controller.edit_gen_table()', 'PUT', 1, 'admin', '研发部门', '/tool/gen', '', '内网IP', '请求参数过长', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-19T14:55:40.038522\"}', 0, '', '2025-04-19 14:55:40', 3);
+INSERT INTO `sys_oper_log` VALUES (1025, '代码生成', 2, 'module_generator.controller.gen_controller.edit_gen_table()', 'PUT', 1, 'admin', '研发部门', '/tool/gen', '', '内网IP', '请求参数过长', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-19T14:58:37.548864\"}', 0, '', '2025-04-19 14:58:38', 4);
+INSERT INTO `sys_oper_log` VALUES (1026, '代码生成', 2, 'module_generator.controller.gen_controller.sync_db()', 'GET', 1, 'admin', '研发部门', '/tool/gen/synchDb/env_info', '', '内网IP', '{\"table_name\": \"env_info\"}', '{\"code\": 200, \"msg\": \"操作成功\", \"data\": \"同步成功\", \"success\": true, \"time\": \"2025-04-19T15:01:01.875554\"}', 0, '', '2025-04-19 15:01:02', 3);
+INSERT INTO `sys_oper_log` VALUES (1027, '代码生成', 2, 'module_generator.controller.gen_controller.edit_gen_table()', 'PUT', 1, 'admin', '研发部门', '/tool/gen', '', '内网IP', '请求参数过长', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-19T15:01:40.690496\"}', 0, '', '2025-04-19 15:01:41', 4);
+INSERT INTO `sys_oper_log` VALUES (1028, '代码生成', 2, 'module_generator.controller.gen_controller.sync_db()', 'GET', 1, 'admin', '研发部门', '/tool/gen/synchDb/env_info', '', '内网IP', '{\"table_name\": \"env_info\"}', '{\"code\": 200, \"msg\": \"操作成功\", \"data\": \"同步成功\", \"success\": true, \"time\": \"2025-04-19T15:01:43.763983\"}', 0, '', '2025-04-19 15:01:44', 3);
+INSERT INTO `sys_oper_log` VALUES (1029, '代码生成', 2, 'module_generator.controller.gen_controller.edit_gen_table()', 'PUT', 1, 'admin', '研发部门', '/tool/gen', '', '内网IP', '请求参数过长', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-19T15:02:11.294107\"}', 0, '', '2025-04-19 15:02:11', 3);
+INSERT INTO `sys_oper_log` VALUES (1030, '代码生成', 2, 'module_generator.controller.gen_controller.sync_db()', 'GET', 1, 'admin', '研发部门', '/tool/gen/synchDb/env_info', '', '内网IP', '{\"table_name\": \"env_info\"}', '{\"code\": 200, \"msg\": \"操作成功\", \"data\": \"同步成功\", \"success\": true, \"time\": \"2025-04-19T15:02:21.238317\"}', 0, '', '2025-04-19 15:02:21', 3);
+INSERT INTO `sys_oper_log` VALUES (1031, '代码生成', 2, 'module_generator.controller.gen_controller.edit_gen_table()', 'PUT', 1, 'admin', '研发部门', '/tool/gen', '', '内网IP', '请求参数过长', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-04-19T15:02:56.384062\"}', 0, '', '2025-04-19 15:02:56', 2);
+INSERT INTO `sys_oper_log` VALUES (1032, '代码生成', 2, 'module_generator.controller.gen_controller.sync_db()', 'GET', 1, 'admin', '研发部门', '/tool/gen/synchDb/env_info', '', '内网IP', '{\"table_name\": \"env_info\"}', '{\"code\": 200, \"msg\": \"操作成功\", \"data\": \"同步成功\", \"success\": true, \"time\": \"2025-04-19T15:03:01.049722\"}', 0, '', '2025-04-19 15:03:01', 3);
+INSERT INTO `sys_oper_log` VALUES (1033, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:03:12.838186\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:03:13', 33);
+INSERT INTO `sys_oper_log` VALUES (1034, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:03:20.543582\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:03:20', 43);
+INSERT INTO `sys_oper_log` VALUES (1035, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:03:30.316570\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:03:30', 41);
+INSERT INTO `sys_oper_log` VALUES (1036, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:03:51.259106\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:03:51', 29);
+INSERT INTO `sys_oper_log` VALUES (1037, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"Encountered unknown tag \'endif\'. Jinja was looking for the following tags: \'endfor\' or \'else\'. The innermost block that needs to be closed is \'for\'.\", \"success\": false, \"time\": \"2025-04-19T15:04:15.144188\"}', 1, 'Encountered unknown tag \'endif\'. Jinja was looking for the following tags: \'endfor\' or \'else\'. The innermost block that needs to be closed is \'for\'.', '2025-04-19 15:04:15', 21);
+INSERT INTO `sys_oper_log` VALUES (1038, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"Encountered unknown tag \'elif\'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for \'endif\'. The innermost block that needs to be closed is \'if\'.\", \"success\": false, \"time\": \"2025-04-19T15:04:36.914565\"}', 1, 'Encountered unknown tag \'elif\'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for \'endif\'. The innermost block that needs to be closed is \'if\'.', '2025-04-19 15:04:37', 33);
+INSERT INTO `sys_oper_log` VALUES (1039, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"Encountered unknown tag \'endif\'. Jinja was looking for the following tags: \'endfor\' or \'else\'. The innermost block that needs to be closed is \'for\'.\", \"success\": false, \"time\": \"2025-04-19T15:05:00.009261\"}', 1, 'Encountered unknown tag \'endif\'. Jinja was looking for the following tags: \'endfor\' or \'else\'. The innermost block that needs to be closed is \'for\'.', '2025-04-19 15:05:00', 21);
+INSERT INTO `sys_oper_log` VALUES (1040, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:10:29.486152\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:10:29', 27);
+INSERT INTO `sys_oper_log` VALUES (1041, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:10:59.656699\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:10:59', 37);
+INSERT INTO `sys_oper_log` VALUES (1042, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:11:06.732341\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:11:06', 31);
+INSERT INTO `sys_oper_log` VALUES (1043, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-04-19 15:17:06', 34);
+INSERT INTO `sys_oper_log` VALUES (1044, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-04-19 15:17:33', 28);
+INSERT INTO `sys_oper_log` VALUES (1045, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:23:38.996234\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:23:39', 27);
+INSERT INTO `sys_oper_log` VALUES (1046, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 500, \"msg\": \"\'column_not_add_show\' is undefined\", \"success\": false, \"time\": \"2025-04-19T15:23:43.905713\"}', 1, '\'column_not_add_show\' is undefined', '2025-04-19 15:23:44', 23);
+INSERT INTO `sys_oper_log` VALUES (1047, '代码生成', 8, 'module_generator.controller.gen_controller.batch_gen_code()', 'GET', 1, 'admin', '研发部门', '/tool/gen/batchGenCode', '', '内网IP', '{}', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-04-19 15:25:34', 24);
+INSERT INTO `sys_oper_log` VALUES (1048, '项目管理', 1, 'module_admin.controller.project_controller.add_project()', 'POST', 1, 'admin', '研发部门', '/auto/project', '', '内网IP', '{\"projectName\": \"测试\", \"responsibleName\": \"肉\", \"testUser\": \"让\", \"devUser\": \"人\", \"publishApp\": \"web\"}', '{\"code\": 200, \"msg\": \"新增项目成功\", \"success\": true, \"time\": \"2025-04-22T14:41:09.210947\"}', 0, '', '2025-04-22 14:41:09', 0);
+INSERT INTO `sys_oper_log` VALUES (1049, '项目管理', 2, 'module_admin.controller.project_controller.edit_project()', 'PUT', 1, 'admin', '研发部门', '/auto/project', '', '内网IP', '{\"projectId\": 19, \"projectName\": \"测试\", \"responsibleName\": \"肉\", \"testUser\": \"让\", \"devUser\": \"人\", \"publishApp\": \"web\", \"simpleDesc\": \"1\", \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:41:09\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T14:41:09\", \"remark\": \"2\"}', '{\"code\": 200, \"msg\": \"项目:测试 更新成功\", \"success\": true, \"time\": \"2025-04-22T14:41:19.788723\"}', 0, '', '2025-04-22 14:41:20', 0);
+INSERT INTO `sys_oper_log` VALUES (1050, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"放放风\", \"百度\"], \"apiLevel\": \"P0\", \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-22T14:42:28.291442\"}', 0, '', '2025-04-22 14:42:28', 0);
+INSERT INTO `sys_oper_log` VALUES (1051, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"放放风\", \"百度\"], \"apiLevel\": \"P0\", \"remark\": \"\", \"apiId\": 102, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:42:28\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T14:42:28\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T14:47:36.198152\"}', 0, '', '2025-04-22 14:47:36', 0);
+INSERT INTO `sys_oper_log` VALUES (1052, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"放放风\", \"百度\"], \"apiLevel\": \"P0\", \"remark\": \"\", \"apiId\": 102, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:42:28\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T14:42:28\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T14:47:42.750497\"}', 0, '', '2025-04-22 14:47:43', 0);
+INSERT INTO `sys_oper_log` VALUES (1053, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"放放风\", \"百度\"], \"apiLevel\": \"P0\", \"remark\": \"\", \"apiId\": 102, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:42:28\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T14:42:28\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T14:47:52.085330\"}', 0, '', '2025-04-22 14:47:52', 0);
+INSERT INTO `sys_oper_log` VALUES (1054, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"放放风\", \"百度\"], \"apiLevel\": \"P0\", \"remark\": \"\", \"apiId\": 102, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:42:28\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T14:42:28\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T14:48:19.322197\"}', 0, '', '2025-04-22 14:48:19', 0);
+INSERT INTO `sys_oper_log` VALUES (1055, '接口', 3, 'module_admin.controller.api_controller.delete_api()', 'DELETE', 1, 'admin', '研发部门', '/apitest/apiInfo/102', '', '内网IP', '{\"api_ids\": \"102\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-04-22T14:48:23.247485\"}', 0, '', '2025-04-22 14:48:23', 0);
+INSERT INTO `sys_oper_log` VALUES (1056, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-22T14:48:52.579141\"}', 0, '', '2025-04-22 14:48:53', 0);
+INSERT INTO `sys_oper_log` VALUES (1057, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"123\", \"apiUrl\": \"123\", \"projectId\": 19, \"apiTags\": [\"123\"], \"apiLevel\": \"P0\", \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-22T16:17:38.934089\"}', 0, '', '2025-04-22 16:17:39', 1);
+INSERT INTO `sys_oper_log` VALUES (1058, '接口', 3, 'module_admin.controller.api_controller.delete_api()', 'DELETE', 1, 'admin', '研发部门', '/apitest/apiInfo/104', '', '内网IP', '{\"api_ids\": \"104\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-04-22T16:17:44.981322\"}', 0, '', '2025-04-22 16:17:45', 0);
+INSERT INTO `sys_oper_log` VALUES (1059, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T14:48:53\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T16:30:04.937924\"}', 0, '', '2025-04-22 16:30:05', 0);
+INSERT INTO `sys_oper_log` VALUES (1060, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T16:30:05\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T16:30:12.518245\"}', 0, '', '2025-04-22 16:30:13', 0);
+INSERT INTO `sys_oper_log` VALUES (1061, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T16:30:13\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T16:32:00.322326\"}', 0, '', '2025-04-22 16:32:00', 0);
+INSERT INTO `sys_oper_log` VALUES (1062, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}, \"requestHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU\"}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T16:32:00\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T17:47:03.012326\"}', 0, '', '2025-04-22 17:47:03', 0);
+INSERT INTO `sys_oper_log` VALUES (1063, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}, \"requestHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU\"}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T16:32:00\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T17:47:06.987601\"}', 0, '', '2025-04-22 17:47:07', 0);
+INSERT INTO `sys_oper_log` VALUES (1064, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}, \"requestHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU\"}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T16:32:00\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T17:47:28.458526\"}', 0, '', '2025-04-22 17:47:28', 0);
+INSERT INTO `sys_oper_log` VALUES (1065, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}, \"requestHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU\"}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T17:47:28\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-22T17:49:31.879086\"}', 0, '', '2025-04-22 17:49:32', 1);
+INSERT INTO `sys_oper_log` VALUES (1066, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"apiLevel\": \"P0\", \"remark\": \"这是一个描述\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": {\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}, \"requestHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAxIiwidXNlcklkIjoiNDk2IiwibmFtZSI6InJhbl8wMDEiLCJpZCI6IjFhQ1dacjdEIiwiZXhwIjoxNzMwNjQzODQzfQ.G5PkcS1NTuC2rNdNV78jUFro5y-sqFifHEW2G-5AliUds1Ye0e0vCLlsvPDC_XupwT0dmKbnE4YyKtVLF35FOzj42X0xbeZcPNkr3IEUHICBKEMyjqLUsRq_HOPZcY2EKmO4xV-yJFFR2IWyixHUC465oU9F9f2OlThV_sU6QhU\"}, \"createBy\": \"admin\", \"createTime\": \"2025-04-22T14:48:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-22T17:49:32\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T09:39:06.624546\"}', 0, '', '2025-04-23 09:39:07', 0);
+INSERT INTO `sys_oper_log` VALUES (1067, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 0, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiId\": 103, \"apiName\": \"游123戏\", \"projectId\": 1, \"apiMethod\": \"POST\", \"apiUrl\": \"/login\", \"apiStatus\": \"0\", \"apiLevel\": \"P1\", \"apiTags\": [\"123\", \"注册\"], \"requestDataType\": 0, \"requestData\": [{\"key\": \"ranyong\", \"value\": \"yong\", \"remarks\": \"这是 x_www_form_urlencoded\"}], \"requestHeaders\": [{\"key\": \"Authorization\", \"value\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU\", \"remarks\": \"这是一个请求头\"}], \"createBy\": \"admin\", \"createTime\": \"2024-09-27T17:43:19\", \"updateBy\": \"admin\", \"updateTime\": \"2024-09-27T17:43:19\", \"remark\": \"这是一个编辑功能\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T09:42:39.238022\"}', 0, '', '2025-04-23 09:42:39', 0);
+INSERT INTO `sys_oper_log` VALUES (1068, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"游123戏\", \"apiUrl\": \"/login\", \"projectId\": 1, \"apiTags\": [\"123\", \"注册\"], \"apiLevel\": \"P1\", \"remark\": \"这是一个编辑功能\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": [{\"key\": \"ranyong\", \"value\": \"yong\", \"remarks\": \"这是 x_www_form_urlencoded\"}], \"requestHeaders\": [{\"key\": \"Authorization\", \"value\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU\", \"remarks\": \"这是一个请求头\"}], \"createBy\": \"admin\", \"createTime\": \"2024-09-27T17:43:19\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:42:39\"}', '{\"code\": 200, \"msg\": \"接口:游123戏 更新成功\", \"success\": true, \"time\": \"2025-04-23T09:43:11.427205\"}', 0, '', '2025-04-23 09:43:11', 0);
+INSERT INTO `sys_oper_log` VALUES (1069, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"游123戏\", \"apiUrl\": \"/login\", \"projectId\": 1, \"apiTags\": [\"123\", \"注册\"], \"apiLevel\": \"P1\", \"remark\": \"这是一个编辑功能\", \"apiId\": 103, \"apiStatus\": \"0\", \"requestDataType\": 0, \"requestData\": [{\"key\": \"ranyong\", \"value\": \"yong\", \"remarks\": \"这是 x_www_form_urlencoded\"}], \"requestHeaders\": [{\"key\": \"Authorization\", \"value\": \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMSIsInVzZXJfbmFtZSI6ImFkbWluIiwiZGVwdF9uYW1lIjoiXHU3ODE0XHU1M2QxXHU5MGU4XHU5NWU4Iiwic2Vzc2lvbl9pZCI6ImE1YzQ5MDhhLTNjMTgtNDE1Ni1hNTkwLWFkMGIyZDY1NDNhYSIsImxvZ2luX2luZm8iOnsiaXBhZGRyIjoiMTEyLjk2LjIyNC4xMzgiLCJsb2dpbkxvY2F0aW9uIjoiXHU0ZTlhXHU2ZDMyLVx1NWU3Zlx1NGUxY1x1NzcwMSIsImJyb3dzZXIiOiJDaHJvbWUgMTA5Iiwib3MiOiJNYWMgT1MgWCAxMCIsImxvZ2luVGltZSI6IjIwMjQtMDktMjYgMjA6NTc6MzMifSwiZXhwIjoxNzI3NDQxODUzfQ.UMV9sONUcsMOje0eMmrfwJRlzST29DsQR5XaPinsSiU\", \"remarks\": \"这是一个请求头\"}], \"createBy\": \"admin\", \"createTime\": \"2024-09-27T17:43:19\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:42:39\"}', '{\"code\": 200, \"msg\": \"接口:游123戏 更新成功\", \"success\": true, \"time\": \"2025-04-23T09:43:15.888230\"}', 0, '', '2025-04-23 09:43:16', 0);
+INSERT INTO `sys_oper_log` VALUES (1070, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"访问百度\", \"apiUrl\": \"https://baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度一下\"], \"apiLevel\": \"P1\", \"remark\": \"这是一个访问百度的接口\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-23T09:44:19.920865\"}', 0, '', '2025-04-23 09:44:20', 0);
+INSERT INTO `sys_oper_log` VALUES (1071, '接口', 3, 'module_admin.controller.api_controller.delete_api()', 'DELETE', 1, 'admin', '研发部门', '/apitest/apiInfo/105', '', '内网IP', '{\"api_ids\": \"105\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-04-23T09:50:59.586984\"}', 0, '', '2025-04-23 09:51:00', 0);
+INSERT INTO `sys_oper_log` VALUES (1072, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-23T09:51:32.877792\"}', 0, '', '2025-04-23 09:51:33', 0);
+INSERT INTO `sys_oper_log` VALUES (1073, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:11:29.561889\"}', 0, '', '2025-04-23 10:11:30', 0);
+INSERT INTO `sys_oper_log` VALUES (1074, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百度\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:11:33.986874\"}', 0, '', '2025-04-23 10:11:34', 0);
+INSERT INTO `sys_oper_log` VALUES (1075, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:11:50.911786\"}', 0, '', '2025-04-23 10:11:51', 0);
+INSERT INTO `sys_oper_log` VALUES (1076, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:12:13.249762\"}', 0, '', '2025-04-23 10:12:13', 0);
+INSERT INTO `sys_oper_log` VALUES (1077, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:12:16.102030\"}', 0, '', '2025-04-23 10:12:16', 0);
+INSERT INTO `sys_oper_log` VALUES (1078, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:12:36.519996\"}', 0, '', '2025-04-23 10:12:37', 0);
+INSERT INTO `sys_oper_log` VALUES (1079, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:12:44.764438\"}', 0, '', '2025-04-23 10:12:45', 0);
+INSERT INTO `sys_oper_log` VALUES (1080, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T09:51:33\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:13:03.375570\"}', 0, '', '2025-04-23 10:13:03', 1);
+INSERT INTO `sys_oper_log` VALUES (1081, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T10:13:03\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:25:34.272057\"}', 0, '', '2025-04-23 10:25:34', 1);
+INSERT INTO `sys_oper_log` VALUES (1082, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T10:13:03\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:25:39.111685\"}', 0, '', '2025-04-23 10:25:39', 0);
+INSERT INTO `sys_oper_log` VALUES (1083, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T10:13:03\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:26:08.745041\"}', 0, '', '2025-04-23 10:26:09', 0);
+INSERT INTO `sys_oper_log` VALUES (1084, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T10:26:09\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:27:02.343668\"}', 0, '', '2025-04-23 10:27:02', 0);
+INSERT INTO `sys_oper_log` VALUES (1085, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiTags\": [\"百\", \"度\", \"一\", \"下\"], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"这是一个百度接口\", \"apiId\": 106, \"apiStatus\": \"0\", \"requestData\": {}, \"requestHeaders\": {}, \"createBy\": \"admin\", \"createTime\": \"2025-04-23T09:51:33\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T10:26:09\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-04-23T10:27:36.799813\"}', 0, '', '2025-04-23 10:27:37', 0);
+INSERT INTO `sys_oper_log` VALUES (1086, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiTags\": [], \"requestDataType\": \"0\", \"apiLevel\": \"P0\", \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-23T10:56:25.998061\"}', 0, '', '2025-04-23 10:56:26', 0);
+INSERT INTO `sys_oper_log` VALUES (1087, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T10:56:26\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:47:10.398584\"}', 0, '', '2025-04-23 16:47:10', 0);
+INSERT INTO `sys_oper_log` VALUES (1088, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T10:56:26\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:47:21.640969\"}', 0, '', '2025-04-23 16:47:22', 0);
+INSERT INTO `sys_oper_log` VALUES (1089, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T16:47:22\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:48:54.678827\"}', 0, '', '2025-04-23 16:48:55', 0);
+INSERT INTO `sys_oper_log` VALUES (1090, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T16:47:22\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:48:57.227006\"}', 0, '', '2025-04-23 16:48:57', 0);
+INSERT INTO `sys_oper_log` VALUES (1091, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T16:47:22\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:48:58.376716\"}', 0, '', '2025-04-23 16:48:58', 0);
+INSERT INTO `sys_oper_log` VALUES (1092, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T16:48:58\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:51:06.694309\"}', 0, '', '2025-04-23 16:51:07', 0);
+INSERT INTO `sys_oper_log` VALUES (1093, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T16:51:07\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:51:19.319614\"}', 0, '', '2025-04-23 16:51:19', 0);
+INSERT INTO `sys_oper_log` VALUES (1094, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T16:51:19\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T16:52:23.426886\"}', 0, '', '2025-04-23 16:52:23', 0);
+INSERT INTO `sys_oper_log` VALUES (1095, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T16:52:23\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T17:25:34.000562\"}', 0, '', '2025-04-23 17:25:34', 0);
+INSERT INTO `sys_oper_log` VALUES (1096, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T17:25:34\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T17:28:55.461772\"}', 0, '', '2025-04-23 17:28:55', 0);
+INSERT INTO `sys_oper_log` VALUES (1097, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T17:28:55\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T17:29:23.636974\"}', 0, '', '2025-04-23 17:29:24', 0);
+INSERT INTO `sys_oper_log` VALUES (1098, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T17:29:24\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T17:31:02.436242\"}', 0, '', '2025-04-23 17:31:02', 0);
+INSERT INTO `sys_oper_log` VALUES (1099, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T17:31:02\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T17:46:10.835425\"}', 0, '', '2025-04-23 17:46:11', 0);
+INSERT INTO `sys_oper_log` VALUES (1100, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T17:31:02\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T17:46:15.262126\"}', 0, '', '2025-04-23 17:46:15', 1);
+INSERT INTO `sys_oper_log` VALUES (1101, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T17:46:15\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-23T17:50:44.750780\"}', 0, '', '2025-04-23 17:50:45', 0);
+INSERT INTO `sys_oper_log` VALUES (1102, '环境', 3, 'module_admin.controller.env_controller.delete_env()', 'DELETE', 1, 'admin', '研发部门', '/env/envInfo/61,46,100', '', '内网IP', '{\"env_ids\": \"61,46,100\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-04-23T17:59:42.410012\"}', 0, '', '2025-04-23 17:59:42', 1);
+INSERT INTO `sys_oper_log` VALUES (1103, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"POST\", \"apiName\": \"ff\", \"apiUrl\": \"https://www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"123123\", \"apiId\": 107, \"apiStatus\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-04-23T10:56:26\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-23T17:50:45\"}', '{\"code\": 200, \"msg\": \"接口:ff 更新成功\", \"success\": true, \"time\": \"2025-04-24T13:38:09.463315\"}', 0, '', '2025-04-24 13:38:09', 1);
+INSERT INTO `sys_oper_log` VALUES (1104, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 0, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiId\": 110, \"apiName\": \"测试本地接口\", \"projectId\": 1, \"apiMethod\": \"GET\", \"apiUrl\": \"http://127.0.0.1:9099/dev-api/openapi.json\", \"apiStatus\": \"0\", \"apiLevel\": \"P1\", \"apiTags\": [], \"requestDataType\": 0, \"requestParams\": [], \"requestData\": [], \"requestHeaders\": [], \"createBy\": \"string\", \"createTime\": \"2024-09-27T09:25:35.690Z\", \"updateBy\": \"string\", \"updateTime\": \"2024-09-27T09:25:35.690Z\", \"remark\": \"string\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-25T11:25:37.501905\"}', 0, '', '2025-04-25 11:25:37', 2);
+INSERT INTO `sys_oper_log` VALUES (1105, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 0, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiId\": 110, \"apiName\": \"测试本地接口\", \"projectId\": 1, \"apiMethod\": \"GET\", \"apiUrl\": \"http://127.0.0.1:9099/dev-api/openapi.json\", \"apiStatus\": \"0\", \"apiLevel\": \"P1\", \"apiTags\": [], \"requestDataType\": 0, \"requestParams\": {\"name\": \"冉勇\", \"value\": \"ranyong\", \"remark\": \"这是一个描述\"}, \"requestData\": {\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}, \"requestHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fZGV2IiwidXNlcklkIjoiMjc2IiwibmFtZSI6IuWGieWLhyIsImlkIjoiVkw1UElxZGMiLCJleHAiOjE3NDYxNzg3MTV9.ECmD7sdk04F-9VxPFHgrVraC5OLAXUzVqEdtg4DxtlB5hwdXDwKfR3B3n_OcaJyxzeBrycMSBG3gBg2K-vQz4zRqU7ggpbhe8vspol21pnHj2orH2VyHSTXg2sbLkU_1Y-DS4HAEVHPntkbosvNz1olWolucG7PmWD_xEdGFW2A\"}, \"createBy\": \"string\", \"createTime\": \"2024-09-27T09:25:35.690Z\", \"updateBy\": \"string\", \"updateTime\": \"2024-09-27T09:25:35.690Z\", \"remark\": \"string\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-25T11:28:54.331443\"}', 0, '', '2025-04-25 11:28:54', 1);
+INSERT INTO `sys_oper_log` VALUES (1106, '接口', 1, 'module_admin.controller.api_controller.add_api()', 'POST', 0, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiId\": 110, \"apiName\": \"测试本地接口\", \"projectId\": 1, \"apiMethod\": \"GET\", \"apiUrl\": \"http://127.0.0.1:9099/dev-api/openapi.json\", \"apiStatus\": \"1\", \"apiLevel\": \"P1\", \"apiTags\": [], \"requestDataType\": 0, \"requestParams\": [{\"name\": \"冉勇\", \"value\": \"ranyong\", \"remark\": \"这是一个描述\"}, {\"name\": \"冉勇1\", \"value\": \"ranyong1\", \"remark\": \"这是一个描述1\"}], \"requestData\": {\"imei\": \"BD012307272000FB\", \"endTime\": \"2024-04-08 23:59:59\", \"startTime\": \"2024-04-01 00:00:00\"}, \"requestHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fZGV2IiwidXNlcklkIjoiMjc2IiwibmFtZSI6IuWGieWLhyIsImlkIjoiVkw1UElxZGMiLCJleHAiOjE3NDYxNzg3MTV9.ECmD7sdk04F-9VxPFHgrVraC5OLAXUzVqEdtg4DxtlB5hwdXDwKfR3B3n_OcaJyxzeBrycMSBG3gBg2K-vQz4zRqU7ggpbhe8vspol21pnHj2orH2VyHSTXg2sbLkU_1Y-DS4HAEVHPntkbosvNz1olWolucG7PmWD_xEdGFW2A\"}, \"createBy\": \"string\", \"createTime\": \"2024-09-27T09:25:35.690Z\", \"updateBy\": \"string\", \"updateTime\": \"2024-09-27T09:25:35.690Z\", \"remark\": \"string\"}', '{\"code\": 200, \"msg\": \"新增接口成功\", \"success\": true, \"time\": \"2025-04-25T11:30:14.695276\"}', 0, '', '2025-04-25 11:30:15', 0);
 
 -- ----------------------------
 -- Table structure for sys_post
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_post`;
 CREATE TABLE `sys_post`  (
-  `post_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '岗位ID',
+  `post_id` bigint NOT NULL AUTO_INCREMENT COMMENT '岗位ID',
   `post_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '岗位编码',
   `post_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '岗位名称',
-  `post_sort` int(0) NOT NULL COMMENT '显示顺序',
+  `post_sort` int NOT NULL COMMENT '显示顺序',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '状态（0正常 1停用）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`post_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '岗位信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '岗位信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_post
@@ -1127,22 +1242,22 @@ INSERT INTO `sys_post` VALUES (4, 'user', '普通员工', 4, '0', 'admin', '2024
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role`  (
-  `role_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '角色ID',
+  `role_id` bigint NOT NULL AUTO_INCREMENT COMMENT '角色ID',
   `role_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色名称',
   `role_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色权限字符串',
-  `role_sort` int(0) NOT NULL COMMENT '显示顺序',
+  `role_sort` int NOT NULL COMMENT '显示顺序',
   `data_scope` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '1' COMMENT '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
   `menu_check_strictly` tinyint(1) NULL DEFAULT 1 COMMENT '菜单树选择项是否关联显示',
   `dept_check_strictly` tinyint(1) NULL DEFAULT 1 COMMENT '部门树选择项是否关联显示',
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角色状态（0正常 1停用）',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`role_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role
@@ -1156,10 +1271,10 @@ INSERT INTO `sys_role` VALUES (100, '开发者', ' dev', 2, '1', 1, 1, '0', '0',
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_dept`;
 CREATE TABLE `sys_role_dept`  (
-  `role_id` bigint(0) NOT NULL COMMENT '角色ID',
-  `dept_id` bigint(0) NOT NULL COMMENT '部门ID',
+  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `dept_id` bigint NOT NULL COMMENT '部门ID',
   PRIMARY KEY (`role_id`, `dept_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色和部门关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色和部门关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_dept
@@ -1170,10 +1285,10 @@ CREATE TABLE `sys_role_dept`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu`  (
-  `role_id` bigint(0) NOT NULL COMMENT '角色ID',
-  `menu_id` bigint(0) NOT NULL COMMENT '菜单ID',
+  `role_id` bigint NOT NULL COMMENT '角色ID',
+  `menu_id` bigint NOT NULL COMMENT '菜单ID',
   PRIMARY KEY (`role_id`, `menu_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色和菜单关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '角色和菜单关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -1288,8 +1403,8 @@ INSERT INTO `sys_role_menu` VALUES (100, 2018);
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
-  `user_id` bigint(0) NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-  `dept_id` bigint(0) NULL DEFAULT NULL COMMENT '部门ID',
+  `user_id` bigint NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `dept_id` bigint NULL DEFAULT NULL COMMENT '部门ID',
   `user_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户账号',
   `nick_name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '用户昵称',
   `user_type` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '00' COMMENT '用户类型（00系统用户）',
@@ -1301,19 +1416,19 @@ CREATE TABLE `sys_user`  (
   `status` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '帐号状态（0正常 1停用）',
   `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）',
   `login_ip` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最后登录IP',
-  `login_date` datetime(0) NULL DEFAULT NULL COMMENT '最后登录时间',
+  `login_date` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 106 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户信息表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 106 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-04-17 13:50:03', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-04-25 11:23:39', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'niangao', '年糕', '00', 'niangao@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '2', '127.0.0.1', '2024-08-13 18:18:19', 'admin', '2024-08-13 18:18:19', 'admin', '2024-09-20 22:45:06', '测试员');
 INSERT INTO `sys_user` VALUES (100, 100, 'ranyong', 'ranyong', '00', '', '', '0', '', '$2b$12$iPYmQp3jjdIrZBqyaf6loOITsuvUQost39wHqNzzBCTOge7cmNblW', '0', '0', '', NULL, 'admin', '2024-08-13 20:47:13', 'admin', '2024-08-15 11:04:07', NULL);
 INSERT INTO `sys_user` VALUES (101, 103, 'demo1', 'demo1', '00', '', '', '0', '', '$2b$12$bFu.K.grA9O/zrZ9aQTGzeE4PjKwRbXJMm9rgJpN8ZzT5Ri2LXsve', '0', '0', '', '2024-09-20 22:40:21', '', '2024-08-16 10:28:18', 'admin', '2024-09-20 22:44:56', NULL);
@@ -1326,10 +1441,10 @@ INSERT INTO `sys_user` VALUES (105, NULL, 'ranyong123', 'ranyong123', '00', '', 
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_post`;
 CREATE TABLE `sys_user_post`  (
-  `user_id` bigint(0) NOT NULL COMMENT '用户ID',
-  `post_id` bigint(0) NOT NULL COMMENT '岗位ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `post_id` bigint NOT NULL COMMENT '岗位ID',
   PRIMARY KEY (`user_id`, `post_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户与岗位关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户与岗位关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_post
@@ -1341,10 +1456,10 @@ INSERT INTO `sys_user_post` VALUES (1, 1);
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role`  (
-  `user_id` bigint(0) NOT NULL COMMENT '用户ID',
-  `role_id` bigint(0) NOT NULL COMMENT '角色ID',
+  `user_id` bigint NOT NULL COMMENT '用户ID',
+  `role_id` bigint NOT NULL COMMENT '角色ID',
   PRIMARY KEY (`user_id`, `role_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户和角色关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户和角色关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_user_role
@@ -1358,18 +1473,18 @@ INSERT INTO `sys_user_role` VALUES (101, 2);
 -- ----------------------------
 DROP TABLE IF EXISTS `testcase_info`;
 CREATE TABLE `testcase_info`  (
-  `testcase_id` int(0) NOT NULL AUTO_INCREMENT COMMENT '测试用例ID',
+  `testcase_id` int NOT NULL AUTO_INCREMENT COMMENT '测试用例ID',
   `testcase_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '测试用例名称',
-  `project_id` int(0) NOT NULL COMMENT '项目ID',
+  `project_id` int NOT NULL COMMENT '项目ID',
   `testcase_list` json NOT NULL COMMENT '测试用例数组',
   `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime(0) NULL DEFAULT NULL COMMENT '创建时间',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime(0) NULL DEFAULT NULL COMMENT '更新时间',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`testcase_id`) USING BTREE,
-  INDEX `ix_testcase_info_testcase_name`(`testcase_name`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '测试用例表' ROW_FORMAT = Dynamic;
+  INDEX `ix_testcase_info_testcase_name`(`testcase_name` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '测试用例表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of testcase_info
@@ -1381,7 +1496,7 @@ INSERT INTO `testcase_info` VALUES (1, '测试编辑测试用例', 1, '[1, 2, 3]
 -- ----------------------------
 DROP TABLE IF EXISTS `user_wechat`;
 CREATE TABLE `user_wechat`  (
-  `user_id` int(0) NOT NULL COMMENT '用户ID',
+  `user_id` int NOT NULL COMMENT '用户ID',
   `city` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '城市',
   `country` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '国家',
   `head_img_url` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '微信头像',
@@ -1390,16 +1505,16 @@ CREATE TABLE `user_wechat`  (
   `union_id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'union_id',
   `user_phone` varchar(15) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '手机号',
   `province` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '省份',
-  `sex` int(0) NULL DEFAULT NULL COMMENT '性别',
-  `id` int(0) NOT NULL AUTO_INCREMENT,
-  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
-  `update_time` datetime(0) NOT NULL COMMENT '更新时间',
+  `sex` int NULL DEFAULT NULL COMMENT '性别',
+  `id` int NOT NULL AUTO_INCREMENT,
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
   `del_flag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `openid`(`openid`) USING BTREE,
-  UNIQUE INDEX `user_phone`(`user_phone`) USING BTREE,
-  INDEX `ix_user_wechat_update_time`(`update_time`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+  UNIQUE INDEX `openid`(`openid` ASC) USING BTREE,
+  UNIQUE INDEX `user_phone`(`user_phone` ASC) USING BTREE,
+  INDEX `ix_user_wechat_update_time`(`update_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_wechat
