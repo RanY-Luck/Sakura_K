@@ -29,3 +29,4 @@ class Api(BaseModel):
     request_params = Column(JSON, nullable=True, comment='请求参数')
     request_data = Column(JSON, nullable=True, comment='请求数据')
     request_headers = Column(JSON, nullable=True, comment='请求头')
+    cookie = Column(JSON, nullable=True, comment='Cookie')
