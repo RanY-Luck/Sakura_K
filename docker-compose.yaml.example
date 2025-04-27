@@ -11,7 +11,8 @@ services:
       - /usr/local/web:/usr/local/web:ro
       - ./docker_env/nginx/ssl:/etc/nginx/ssl:ro  # 映射 SSL 证书目录(需要时打开)
     depends_on:
-      - sakura_k
+      sakura_k:
+        condition: service_started
 
   sakura_k:
     container_name: 'sakura_k'
@@ -36,8 +37,10 @@ services:
     volumes:
       - ../sakura_k:/app
     depends_on:
-      - redis
-      - mysql
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
 
   redis:
     image: redis:7.0.11
@@ -45,6 +48,14 @@ services:
     restart: always
     ports:
       - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes  # 启用 AOF 持久化
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   mysql:
     image: mysql:8.0.33
@@ -59,11 +70,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 3s
       retries: 10
 
-
 volumes:
   mysql_data:
+  redis_data:
