@@ -52,9 +52,12 @@ class ApiQueryModel(BaseModel):
     request_data_type: Optional[int] = Field(
         default=None, description='数据类型:0[none] 1[json] 2[form] 3[x_form] 4[raw]'
     )
+    request_params: Optional[Any] = Field(default=[], description='请求参数')
     request_data: Optional[Any] = Field(default=None, description='请求体')
     request_headers: Optional[Any] = Field(default=None, description='请求头')
     cookie: Optional[Any] = Field(default=None, description='Cookie')
+    last_run_time: Optional[datetime] = Field(default=None, description='最后执行时间')
+    last_run_status: Optional[str] = Field(default=None, description='最后执行状态(0正常 1失败)')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
@@ -83,6 +86,9 @@ class ApiModel(BaseModel):
     request_params: Optional[Any] = Field(default=[], description='请求参数')
     request_data: Optional[Any] = Field(default={}, description='请求体')
     request_headers: Optional[Any] = Field(default={}, description='请求头')
+    cookie: Optional[Any] = Field(default=None, description='Cookie')
+    last_run_time: Optional[datetime] = Field(default=None, description='最后执行时间')
+    last_run_status: Optional[str] = Field(default=None, description='最后执行状态(0正常 1失败)')
 
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
