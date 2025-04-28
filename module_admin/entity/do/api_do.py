@@ -7,7 +7,8 @@
 # @Software: PyCharm
 # @desc    : 接口表
 from config.db_base import BaseModel
-from sqlalchemy import Column, Integer, String, JSON
+from sqlalchemy import Column, Integer, String, JSON, DateTime
+from datetime import datetime
 
 
 class Api(BaseModel):
@@ -30,3 +31,5 @@ class Api(BaseModel):
     request_data = Column(JSON, nullable=True, comment='请求数据')
     request_headers = Column(JSON, nullable=True, comment='请求头')
     cookie = Column(JSON, nullable=True, comment='Cookie')
+    last_run_time = Column(DateTime, nullable=True, default=datetime.now(), comment='最后执行时间')
+    last_run_status = Column(String(1), nullable=True, default='0', comment='最后执行状态（0正常 1失败）')
