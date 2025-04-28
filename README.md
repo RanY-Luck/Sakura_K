@@ -127,7 +127,7 @@ docker builder prune
 
 ```shell
 # 定时备份linux中数据库(可选)
-假设我项目拉取下来存在:/usr/local/ranyong/Sakura_k目录中
+假设我项目拉取下来存在:/usr/local/ranyong/Sakura_K目录中
 
 cd /usr/local/ranyong/Sakura_K/sql
 
@@ -142,7 +142,7 @@ crontab -e
 
 ## 添加定时任务(采用Cron表达式)
 例如,要每天凌晨2点运行备份
-0 2 * * * /usr/local/ranyong/Sakura_k/sql/backup_mysql.sh
+0 2 * * * /usr/local/ranyong/Sakura_K/sql/backup_mysql.sh
 
 ## mac系统运行可能会出现这个问题：
 "MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. 
