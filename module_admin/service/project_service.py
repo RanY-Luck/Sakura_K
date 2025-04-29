@@ -109,7 +109,7 @@ class ProjectService:
     @classmethod
     async def project_detail_services(cls, query_db: AsyncSession, project_id: int):
         """
-        获取通知公告详细信息service
+        获取项目详细信息service
         :param query_db: orm对象
         :param project_id: 通知公告id
         :return: 通知公告id对应的信息
@@ -120,3 +120,41 @@ class ProjectService:
         result = ProjectModel(**CamelCaseUtil.transform_result(project))
 
         return result
+
+    @classmethod
+    async def copy_project_services(cls, query_db: AsyncSession, new_project: ProjectModel):
+        """
+        复制项目service
+        :param query_db: orm对象
+        :param new_project: 新项目对象（Pydantic 模型）
+        :return: 复制项目结果
+        """
+        try:
+            # 检查原项目是否存在
+            original_project_id = new_project.project_id
+            original_project = await cls.project_detail_services(query_db, original_project_id)
+            if not original_project:
+                result = dict(is_success=False, message='原项目不存在')
+                return CrudResponseModel(**result)
+
+            # 将 Pydantic 模型转换为 SQLAlchemy 模型
+            new_project_dict = new_project.model_dump(exclude_unset=True)
+            new_project_dict.pop('project_id', None)  # 移除 project_id，依赖数据库自增
+
+            # 创建 SQLAlchemy 模型实例
+            db_project = Project(**new_project_dict)
+
+            # 添加新项目到数据库
+            query_db.add(db_project)
+
+            # 提交事务
+            await query_db.commit()
+
+            # 刷新新项目对象以获取数据库生成的主键等信息
+            await query_db.refresh(db_project)
+
+            result = dict(is_success=True, message=f'项目:{new_project.project_name} 复制成功')
+            return CrudResponseModel(**result)
+        except Exception as e:
+            await query_db.rollback()
+            raise e
