@@ -26,8 +26,7 @@ POST /ssh/connect/test
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 
 ### 3.2 执行远程命令
@@ -39,8 +38,7 @@ POST /ssh/command/execute
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - command: 要执行的命令
 - timeout: 超时时间（默认60秒）
@@ -54,8 +52,7 @@ POST /ssh/script/execute
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - script_content: 脚本内容
 - timeout: 超时时间（默认60秒）
@@ -69,8 +66,7 @@ POST /ssh/file/upload
 请求参数（multipart/form-data）：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 远程路径
 - file: 要上传的文件
@@ -84,8 +80,7 @@ POST /ssh/file/download
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 远程文件路径
 - local_path: 本地保存路径
@@ -99,8 +94,7 @@ POST /ssh/text/write
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 远程文件路径
 - content: 要写入的文本内容
@@ -114,8 +108,7 @@ POST /ssh/text/read
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 远程文件路径
 
@@ -128,8 +121,7 @@ POST /ssh/dir/list
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 远程目录路径
 
@@ -142,8 +134,7 @@ POST /ssh/dir/make
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 要创建的远程目录路径
 
@@ -156,8 +147,7 @@ POST /ssh/file/remove
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 要删除的远程文件路径
 
@@ -170,8 +160,7 @@ POST /ssh/dir/remove
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 要删除的远程目录路径
 - recursive: 是否递归删除（默认false）
@@ -185,8 +174,7 @@ POST /ssh/file/info
 请求参数：
 - host: 主机地址
 - username: 用户名
-- password: 密码（可选）
-- key_path: 私钥路径（可选）
+- password: 密码
 - port: SSH端口（默认22）
 - remote_path: 远程文件路径
 
@@ -241,8 +229,7 @@ async function executeCommand() {
 
 ## 5. 注意事项
 
-1. 密码和私钥路径至少需要提供一个用于身份验证
+1. 目前仅支持密码验证方式
 2. 上传和下载大文件时需要考虑超时设置
 3. 执行命令时建议设置合理的超时时间
-4. 递归删除目录操作需谨慎，确认路径正确
-5. 为保证安全，建议使用私钥认证替代密码认证 
+4. 递归删除目录操作需谨慎，确认路径正确 

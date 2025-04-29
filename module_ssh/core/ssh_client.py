@@ -23,15 +23,13 @@ class SSHClient:
     @classmethod
     def get_connection(
             cls, host: str, username: str, password: str = None,
-            key_path: str = None, port: int = 22,
-            timeout: int = 10
+            port: int = 22, timeout: int = 10
     ) -> 'SSHClient':
         """
         获取或创建SSH连接
         :param host: 主机地址
         :param username: 用户名
         :param password: 密码（可选）
-        :param key_path: 私钥路径（可选）
         :param port: SSH端口，默认22
         :param timeout: 连接超时时间（秒）
         :return: SSHClient实例
@@ -49,27 +47,25 @@ class SSHClient:
                     del cls._connections[conn_key]
 
             # 创建新连接
-            conn = cls(host, username, password, key_path, port, timeout)
+            conn = cls(host, username, password, port, timeout)
             cls._connections[conn_key] = conn
             return conn
 
     def __init__(
             self, host: str, username: str, password: str = None,
-            key_path: str = None, port: int = 22, timeout: int = 10
+            port: int = 22, timeout: int = 10
     ):
         """
         初始化SSH连接
         :param host: 主机地址
         :param username: 用户名
-        :param password: 密码
-        :param key_path: 私钥路径（可选）
+        :param password: 密码（可选）
         :param port: SSH端口，默认22
         :param timeout: 连接超时时间（秒）
         """
         self.host = host
         self.username = username
         self.password = password
-        self.key_path = key_path
         self.port = port
         self.timeout = timeout
         self.client = None
@@ -93,9 +89,6 @@ class SSHClient:
 
             if self.password:
                 connect_kwargs['password'] = self.password
-
-            if self.key_path:
-                connect_kwargs['key_filename'] = self.key_path
 
             self.client.connect(**connect_kwargs)
             self.sftp = self.client.open_sftp()
@@ -207,14 +200,13 @@ class SSHClient:
     @classmethod
     def test_connection(
             cls, host: str, username: str, password: str = None,
-            key_path: str = None, port: int = 22, timeout: int = 5
+            port: int = 22, timeout: int = 5
     ) -> Tuple[bool, str]:
         """
         测试SSH连接是否可用
         :param host: 主机地址
         :param username: 用户名
         :param password: 密码（可选）
-        :param key_path: 私钥路径（可选）
         :param port: SSH端口，默认22
         :param timeout: 连接超时时间（秒）
         :return: 元组 (是否成功, 错误信息)
@@ -235,9 +227,6 @@ class SSHClient:
 
             if password:
                 connect_kwargs['password'] = password
-
-            if key_path:
-                connect_kwargs['key_filename'] = key_path
 
             client.connect(**connect_kwargs)
 
@@ -265,13 +254,11 @@ if __name__ == "__main__":
         host = "192.168.1.50"
         username = "root"
         password = "123456"
-
         # 测试连接
         success, error = SSHClient.test_connection(host, username, password)
         print(f"连接测试结果: {'成功' if success else '失败'}")
         if not success:
             print(f"错误: {error}")
-
         # 执行命令
         with SSHClient.get_connection(host, username, password) as ssh_client:
             output, error, status = ssh_client.execute_command("ls -la")
@@ -279,6 +266,6 @@ if __name__ == "__main__":
             print(f"输出:\n{output}")
             if error:
                 print(f"错误:\n{error}")
-
+                
     except Exception as e:
         print(f"测试过程中发生错误: {str(e)}")
