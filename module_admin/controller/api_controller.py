@@ -256,3 +256,43 @@ async def api_batch_run(
             status_code=500,
             detail=f"Batch execution failed: {str(e)}"
         )
+
+
+@apiController.post('/copy/{api_id}', dependencies=[Depends(CheckUserInterfaceAuth('apitest:apiInfo:copy'))])
+@Log(title='接口管理', business_type=BusinessType.INSERT)
+async def copy_api(
+        request: Request,
+        api_id: int,
+        query_db: AsyncSession = Depends(get_db),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
+):
+    """
+    复制接口
+    """
+    # 获取原项目的信息
+    original_api = await ApiService.api_detail_services(query_db, api_id)
+    if not original_api:
+        return ResponseUtil.error(msg="要复制的接口不存在")
+
+    # 创建新接口对象，基于原项目的所有字段
+    new_api = original_api.copy(
+        update={
+            "api_name": f"{original_api.api_name}_copy",
+            "create_by": current_user.user.user_name,
+            "create_time": datetime.now(),
+            "update_by": current_user.user.user_name,
+            "update_time": datetime.now()
+        }
+    )
+
+    # 保存原项目ID，用于在service中查找原项目
+    new_api.api_id = api_id
+
+    # 复制项目
+    copy_api_result = await ApiService.copy_api_services(query_db, new_api)
+    logger.info(copy_api_result.message)
+
+    if copy_api_result.is_success:
+        return ResponseUtil.success(msg=copy_api_result.message)
+    else:
+        return ResponseUtil.error(msg=copy_api_result.message)
