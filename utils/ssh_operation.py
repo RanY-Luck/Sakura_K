@@ -25,7 +25,7 @@ class SSHConnection:
     @classmethod
     def get_connection(
             cls, host: str, username: str, password: str = None,
-            key_path: str = None, port: int = 22
+            port: int = 22
     ) -> 'SSHConnection':
         """获取或创建SSH连接
         
@@ -33,7 +33,6 @@ class SSHConnection:
             host: 主机地址
             username: 用户名
             password: 密码（可选）
-            key_path: 私钥路径（可选）
             port: SSH端口，默认22
             
         Returns:
@@ -51,13 +50,13 @@ class SSHConnection:
                     del cls._connections[conn_key]
 
             # 创建新连接
-            conn = SSHConnection(host, username, password, key_path, port)
+            conn = SSHConnection(host, username, password, port)
             cls._connections[conn_key] = conn
             return conn
 
     def __init__(
             self, host: str, username: str, password: str = None,
-            key_path: str = None, port: int = 22
+            port: int = 22
     ):
         """初始化SSH连接
         
@@ -65,13 +64,11 @@ class SSHConnection:
             host: 主机地址
             username: 用户名
             password: 密码（可选）
-            key_path: 私钥路径（可选）
             port: SSH端口，默认22
         """
         self.host = host
         self.username = username
         self.password = password
-        self.key_path = key_path
         self.port = port
 
         self.client = None
@@ -92,9 +89,6 @@ class SSHConnection:
 
             if self.password:
                 connect_kwargs['password'] = self.password
-
-            if self.key_path:
-                connect_kwargs['key_filename'] = self.key_path
 
             self.client.connect(**connect_kwargs)
             self.sftp = self.client.open_sftp()
@@ -426,7 +420,6 @@ def ssh_operation(
         local_path=None,
         remote_path=None,
         content=None,
-        key_path=None,
         port=22
 ):
     """
@@ -441,7 +434,6 @@ def ssh_operation(
     local_path (str): 本地文件或目录路径
     remote_path (str): 远程文件或目录路径
     content (str): 文本内容或命令字符串
-    key_path (str): SSH私钥路径
     port (int): SSH端口，默认22
 
     返回:
@@ -449,57 +441,57 @@ def ssh_operation(
     """
     conn = None
     try:
-        conn = SSHConnection.get_connection(host, username, password, key_path, port)
-
+        conn = SSHConnection.get_connection(host, username, password, port)
+        
         if operation == "upload_file":
             if not local_path or not remote_path:
                 raise ValueError("上传文件需要提供本地和远程路径")
             return conn.upload_file(local_path, remote_path)
-
+            
         elif operation == "download_file":
             if not local_path or not remote_path:
                 raise ValueError("下载文件需要提供本地和远程路径")
             return conn.download_file(remote_path, local_path)
-
+            
         elif operation == "write_text":
             if not remote_path or content is None:
                 raise ValueError("写入文本需要提供远程路径和内容")
             return conn.write_text(remote_path, content)
-
+            
         elif operation == "read_text":
             if not remote_path:
                 raise ValueError("读取文本需要提供远程路径")
             return conn.read_text(remote_path)
-
+            
         elif operation == "execute_command":
             if not content:
                 raise ValueError("执行命令需要提供命令内容")
             output, error, _ = conn.execute_command(content)
             return output
-
+            
         elif operation == "list_dir":
             if not remote_path:
                 raise ValueError("列出目录需要提供远程路径")
             return conn.list_dir(remote_path)
-
+            
         elif operation == "make_dir":
             if not remote_path:
                 raise ValueError("创建目录需要提供远程路径")
             return conn.make_dir(remote_path)
-
+            
         elif operation == "remove_file":
             if not remote_path:
                 raise ValueError("删除文件需要提供远程路径")
             return conn.remove_file(remote_path)
-
+            
         elif operation == "remove_dir":
             if not remote_path:
                 raise ValueError("删除目录需要提供远程路径")
             return conn.remove_dir(remote_path)
-
+            
         else:
             raise ValueError(f"不支持的操作: {operation}")
-
+            
     except Exception as e:
         logger.error(f"SSH操作失败: {str(e)}")
         raise
@@ -512,7 +504,7 @@ def ssh_operation(
 if __name__ == "__main__":
     os.environ["SSH_HOST"] = "192.168.1.50"
     os.environ["SSH_USERNAME"] = "root"
-    os.environ["SSH_PASSWORD"] = "Ranyong_123"
+    os.environ["SSH_PASSWORD"] = "123456"
     host = os.getenv("SSH_HOST")  # 虚拟机IP地址
     username = os.getenv("SSH_USERNAME")  # 虚拟机用户名
     password = os.getenv("SSH_PASSWORD")  # 虚拟机密码

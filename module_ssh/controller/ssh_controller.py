@@ -22,7 +22,6 @@ async def test_ssh_connection(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口")
 ):
     """
@@ -33,7 +32,6 @@ async def test_ssh_connection(
             host=host, 
             username=username, 
             password=password,
-            key_path=key_path,
             port=port
         )
         
@@ -50,7 +48,6 @@ async def execute_command(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     command: str = Body(..., description="要执行的命令"),
     timeout: int = Body(60, description="命令超时时间(秒)")
@@ -63,7 +60,6 @@ async def execute_command(
             host=host,
             username=username,
             password=password,
-            key_path=key_path,
             port=port
         )
         
@@ -83,7 +79,6 @@ async def execute_script(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     script_content: str = Body(..., description="脚本内容"),
     timeout: int = Body(60, description="脚本超时时间(秒)")
@@ -96,7 +91,6 @@ async def execute_script(
             host=host,
             username=username,
             password=password,
-            key_path=key_path,
             port=port
         )
         
@@ -116,7 +110,6 @@ async def upload_file(
     host: str = Form(..., description="主机地址"),
     username: str = Form(..., description="用户名"),
     password: Optional[str] = Form(None, description="密码"),
-    key_path: Optional[str] = Form(None, description="私钥路径"),
     port: int = Form(22, description="SSH端口"),
     remote_path: str = Form(..., description="远程路径"),
     file: UploadFile = File(..., description="要上传的文件")
@@ -144,7 +137,6 @@ async def upload_file(
             operation="upload_file",
             local_path=temp_file_path,
             remote_path=remote_path,
-            key_path=key_path,
             port=port
         )
         
@@ -164,7 +156,6 @@ async def download_file(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="远程文件路径"),
     local_path: str = Body(..., description="本地保存路径")
@@ -180,7 +171,6 @@ async def download_file(
             operation="download_file",
             local_path=local_path,
             remote_path=remote_path,
-            key_path=key_path,
             port=port
         )
         
@@ -197,7 +187,6 @@ async def write_text(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="远程文件路径"),
     content: str = Body(..., description="要写入的文本内容")
@@ -213,7 +202,6 @@ async def write_text(
             operation="write_text",
             remote_path=remote_path,
             content=content,
-            key_path=key_path,
             port=port
         )
         
@@ -230,7 +218,6 @@ async def read_text(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="远程文件路径")
 ):
@@ -244,7 +231,6 @@ async def read_text(
             password=password,
             operation="read_text",
             remote_path=remote_path,
-            key_path=key_path,
             port=port
         )
         
@@ -261,7 +247,6 @@ async def list_directory(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="远程目录路径")
 ):
@@ -275,7 +260,6 @@ async def list_directory(
             password=password,
             operation="list_dir",
             remote_path=remote_path,
-            key_path=key_path,
             port=port
         )
         
@@ -289,7 +273,6 @@ async def make_directory(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="要创建的远程目录路径")
 ):
@@ -303,7 +286,6 @@ async def make_directory(
             password=password,
             operation="make_dir",
             remote_path=remote_path,
-            key_path=key_path,
             port=port
         )
         
@@ -320,7 +302,6 @@ async def remove_file(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="要删除的远程文件路径")
 ):
@@ -334,7 +315,6 @@ async def remove_file(
             password=password,
             operation="remove_file",
             remote_path=remote_path,
-            key_path=key_path,
             port=port
         )
         
@@ -351,7 +331,6 @@ async def remove_directory(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="要删除的远程目录路径"),
     recursive: bool = Body(False, description="是否递归删除目录内容")
@@ -365,7 +344,6 @@ async def remove_directory(
                 host=host,
                 username=username,
                 password=password,
-                key_path=key_path,
                 port=port
             )
             result = ssh_ops.remove_dir(remote_path, recursive=True)
@@ -376,7 +354,6 @@ async def remove_directory(
                 password=password,
                 operation="remove_dir",
                 remote_path=remote_path,
-                key_path=key_path,
                 port=port
             )
         
@@ -393,7 +370,6 @@ async def get_file_info(
     host: str = Body(..., description="主机地址"),
     username: str = Body(..., description="用户名"),
     password: Optional[str] = Body(None, description="密码"),
-    key_path: Optional[str] = Body(None, description="私钥路径"),
     port: int = Body(22, description="SSH端口"),
     remote_path: str = Body(..., description="远程文件路径")
 ):
@@ -405,7 +381,6 @@ async def get_file_info(
             host=host,
             username=username,
             password=password,
-            key_path=key_path,
             port=port
         )
         

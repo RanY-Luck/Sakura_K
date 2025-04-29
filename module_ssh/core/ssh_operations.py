@@ -25,19 +25,18 @@ class SSHOperations:
     @classmethod
     def from_credentials(
             cls, host: str, username: str, password: str = None,
-            key_path: str = None, port: int = 22
+            port: int = 22
     ) -> 'SSHOperations':
         """
         从凭据创建SSH操作实例
         :param host: 主机地址
         :param username: 用户名
         :param password: 密码（可选）
-        :param key_path: 私钥路径（可选）
         :param port: SSH端口，默认22
         :return: SSHOperations实例
         """
         ssh_client = SSHClient.get_connection(
-            host, username, password, key_path, port
+            host, username, password, port
         )
         return cls(ssh_client)
 
@@ -348,7 +347,7 @@ if __name__ == "__main__":
     try:
         host = "192.168.1.50"
         username = "root"
-        password = "123456"
+        password = "Ranyong_123"
 
         # 创建SSH操作实例
         ssh_ops = SSHOperations.from_credentials(host, username, password)
