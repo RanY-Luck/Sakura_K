@@ -326,3 +326,41 @@ class ApiService:
         )
 
         return results
+
+    @classmethod
+    async def copy_api_services(cls, query_db: AsyncSession, new_api: ApiModel):
+        """
+        复制项目service
+        :param query_db: orm对象
+        :param new_api: 新接口对象（Pydantic 模型）
+        :return: 复制项目结果
+        """
+        try:
+            # 检查原项目是否存在
+            original_api_id = new_api.api_id
+            original_api = await cls.api_detail_services(query_db, original_api_id)
+            if not original_api:
+                result = dict(is_success=False, message='原接口不存在')
+                return CrudResponseModel(**result)
+
+            # 将 Pydantic 模型转换为 SQLAlchemy 模型
+            new_api_dict = new_api.model_dump(exclude_unset=True)
+            new_api_dict.pop('api_id', None)  # 移除 api_id，依赖数据库自增
+
+            # 创建 SQLAlchemy 模型实例
+            db_api = Api(**new_api_dict)
+
+            # 添加新项目到数据库
+            query_db.add(db_api)
+
+            # 提交事务
+            await query_db.commit()
+
+            # 刷新新项目对象以获取数据库生成的主键等信息
+            await query_db.refresh(db_api)
+
+            result = dict(is_success=True, message=f'项目:{new_api.api_name} 复制成功')
+            return CrudResponseModel(**result)
+        except Exception as e:
+            await query_db.rollback()
+            raise e
