@@ -113,3 +113,51 @@ async def query_detail_system_post(request: Request, project_id: int, query_db: 
     logger.info(f'获取project_id为{project_id}的信息成功')
 
     return ResponseUtil.success(data=project_detail_result)
+
+
+@projectController.post('/copy/{project_id}', dependencies=[Depends(CheckUserInterfaceAuth('auto:project:copy'))])
+@Log(title='项目管理', business_type=BusinessType.INSERT)
+async def copy_project(
+        request: Request,
+        project_id: int,
+        query_db: AsyncSession = Depends(get_db),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
+):
+    """
+    复制项目
+    """
+    # 获取原项目的信息
+    original_project = await ProjectService.project_detail_services(query_db, project_id)
+    if not original_project:
+        return ResponseUtil.error(msg="要复制的项目不存在")
+    # 获取原项目的信息
+    original_project = await ProjectService.project_detail_services(query_db, project_id)
+    if not original_project:
+        return ResponseUtil.error(msg="要复制的项目不存在")
+    project_dict = original_project.dict()
+    new_project = ProjectModel(**project_dict)
+    # 设置原项目ID（用于在service中查找原项目）
+    new_project.project_id = project_id
+    # 更改项目名称
+    new_project.project_name = f"{original_project.project_name}_copy"
+    new_project.responsible_name = original_project.responsible_name
+    new_project.test_user = original_project.test_user
+    new_project.dev_user = original_project.dev_user
+    new_project.publish_app = original_project.publish_app
+    new_project.simple_desc = original_project.simple_desc
+    new_project.remark = original_project.remark
+
+    # 更新创建和更新信息
+    new_project.create_by = current_user.user.user_name
+    new_project.create_time = datetime.now()
+    new_project.update_by = current_user.user.user_name
+    new_project.update_time = datetime.now()
+
+    # 复制项目
+    copy_project_result = await ProjectService.copy_project_services(query_db, new_project)
+    logger.info(copy_project_result.message)
+
+    if copy_project_result.is_success:
+        return ResponseUtil.success(msg=copy_project_result.message)
+    else:
+        return ResponseUtil.error(msg=copy_project_result.message)
