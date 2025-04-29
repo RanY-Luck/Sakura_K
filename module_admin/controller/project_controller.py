@@ -130,28 +130,18 @@ async def copy_project(
     original_project = await ProjectService.project_detail_services(query_db, project_id)
     if not original_project:
         return ResponseUtil.error(msg="要复制的项目不存在")
-    # 获取原项目的信息
-    original_project = await ProjectService.project_detail_services(query_db, project_id)
-    if not original_project:
-        return ResponseUtil.error(msg="要复制的项目不存在")
-    project_dict = original_project.dict()
-    new_project = ProjectModel(**project_dict)
-    # 设置原项目ID（用于在service中查找原项目）
-    new_project.project_id = project_id
-    # 更改项目名称
-    new_project.project_name = f"{original_project.project_name}_copy"
-    new_project.responsible_name = original_project.responsible_name
-    new_project.test_user = original_project.test_user
-    new_project.dev_user = original_project.dev_user
-    new_project.publish_app = original_project.publish_app
-    new_project.simple_desc = original_project.simple_desc
-    new_project.remark = original_project.remark
 
-    # 更新创建和更新信息
-    new_project.create_by = current_user.user.user_name
-    new_project.create_time = datetime.now()
-    new_project.update_by = current_user.user.user_name
-    new_project.update_time = datetime.now()
+    # 创建新项目对象，基于原项目的所有字段
+    new_project = original_project.copy(update={
+        "project_name": f"{original_project.project_name}_copy",
+        "create_by": current_user.user.user_name,
+        "create_time": datetime.now(),
+        "update_by": current_user.user.user_name,
+        "update_time": datetime.now()
+    })
+    
+    # 保存原项目ID，用于在service中查找原项目
+    new_project.project_id = project_id
 
     # 复制项目
     copy_project_result = await ProjectService.copy_project_services(query_db, new_project)
