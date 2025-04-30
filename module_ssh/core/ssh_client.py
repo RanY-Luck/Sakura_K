@@ -265,6 +265,6 @@ if __name__ == "__main__":
             print(f"输出:\n{output}")
             if error:
                 print(f"错误:\n{error}")
-                
+
     except Exception as e:
         print(f"测试过程中发生错误: {str(e)}")
