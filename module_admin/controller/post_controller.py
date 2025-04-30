@@ -3,7 +3,7 @@
 # @Time    : 2024/7/12 16:59
 # @Author  : 冉勇
 # @Site    : 
-# @File    : post_controler.py
+# @File    : post_controller.py
 # @Software: PyCharm
 # @desc    : 岗位相关接口
 from datetime import datetime

@@ -17,6 +17,7 @@ from module_admin.controller.config_controller import configController
 from module_admin.controller.datasource_controller import dataSourceController
 from module_admin.controller.dept_controller import deptController
 from module_admin.controller.dict_controller import dictController
+from module_admin.controller.post_controller import postController
 from module_admin.controller.job_controller import jobController
 from module_admin.controller.log_controller import logController
 from module_admin.controller.login_controller import loginController
@@ -24,7 +25,6 @@ from module_app.controller.app_login_controller import appLoginController
 from module_admin.controller.menu_controller import menuController
 from module_admin.controller.notice_controller import noticeController
 from module_admin.controller.online_controller import onlineController
-from module_admin.controller.post_controler import postController
 # 路由列表(自己写的功能)
 from module_admin.controller.project_controller import projectController
 from module_admin.controller.robot_controller import robotController
@@ -67,7 +67,6 @@ controller_tags_mapping = {
     'sshController': ['SSH远程操作'],
     'infoController': ['服务器管理'],
     'homeRouter': ['产品官网'],
-    'demoController': ['DEMO'],
 }
 
 # 加载路由列表 - 手动方式
@@ -211,7 +210,7 @@ def get_app_router():
     # 手动控制器注册方式 (如果要使用此方式，请取消注释下面一行并注释上面的三行)
     # for controller in app_controllers:
     #     app_router.include_router(
-    #         router=controller.get('router'), 
+    #         router=controller.get('router'),
     #         prefix=controller.get('prefix'),
     #         tags=controller.get('tags')
     #     )
