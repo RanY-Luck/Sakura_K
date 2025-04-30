@@ -33,6 +33,7 @@ from module_app.controller.app_login_controller import appLoginController
 from module_generator.controller.gen_controller import genController
 from module_website.controller.home_controller import homeRouter
 from module_ssh.controller.ssh_controller import sshController
+from module_admin.controller.info_controller import infoController
 
 # 加载路由列表
 controller_list = [
@@ -59,8 +60,9 @@ controller_list = [
     {'router': apiController, 'tags': ['接口管理']},
     {'router': envController, 'tags': ['环境管理']},
     {'router': testcaseController, 'tags': ['测试用例管理']},
-    {'router': homeRouter, 'tags': ['产品官网']},
     {'router': sshController, 'tags': ['SSH远程操作']},
+    {'router': infoController, 'tags': ['服务器管理']},
+    {'router': homeRouter, 'tags': ['产品官网']},
 ]
 
 app_controllers = [
