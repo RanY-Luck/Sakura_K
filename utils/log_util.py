@@ -11,7 +11,6 @@ import sys
 import time
 import datetime
 import zipfile
-import uuid
 from loguru import logger
 from loguru import logger as _logger
 from typing import Dict
@@ -121,8 +120,8 @@ class LoggerInitializer:
         # 自定义日志格式
         format_str = (
             '<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | '
-            '<cyan>{trace_id}</cyan> | '
-            '<level>{level: <8}</level> | '
+            '<cyan>trace_id:{trace_id}</cyan> | '
+            '<level>{level: <3}</level> | '
             '<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - '
             '<level>{message}</level>'
         )
