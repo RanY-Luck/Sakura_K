@@ -204,17 +204,46 @@ class SSHConnection:
             成功返回True，失败返回False
         """
         try:
+            # 检查远程文件是否存在
+            try:
+                self.sftp.stat(remote_path)
+            except FileNotFoundError:
+                logger.error(f"远程文件不存在: {remote_path}")
+                return False
+            
             # 确保本地目录存在
             local_dir = os.path.dirname(local_path)
             if local_dir and not os.path.exists(local_dir):
-                os.makedirs(local_dir)
-
+                try:
+                    logger.info(f"创建本地目录: {local_dir}")
+                    os.makedirs(local_dir, exist_ok=True)
+                except Exception as dir_err:
+                    logger.error(f"创建本地目录失败: {str(dir_err)}")
+                    return False
+            
+            # 处理Windows路径
+            local_path = local_path.replace('\\', '/')
+            
+            # 执行下载
             self.sftp.get(remote_path, local_path, callback=callback)
-            logger.info(f"文件已成功下载: {remote_path} -> {local_path}")
-            return True
+            
+            # 验证文件是否成功下载
+            if os.path.exists(local_path):
+                file_size = os.path.getsize(local_path)
+                logger.info(f"文件已成功下载: {remote_path} -> {local_path} (大小: {file_size} 字节)")
+                return True
+            else:
+                logger.error(f"下载后本地文件不存在: {local_path}")
+                return False
 
+        except FileNotFoundError as fnf:
+            logger.error(f"远程文件不存在: {remote_path}, 错误: {str(fnf)}")
+            return False
+        except PermissionError as pe:
+            logger.error(f"权限错误: {str(pe)}")
+            return False
         except Exception as e:
-            logger.error(f"下载文件失败: {str(e)}")
+            logger.error(f"下载文件失败: {str(e)}, 类型: {type(e)}")
             return False
 
     def write_text(self, remote_path: str, content: str) -> bool:

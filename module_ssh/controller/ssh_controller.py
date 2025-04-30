@@ -7,14 +7,16 @@
 # @Software: PyCharm
 # @desc    : SSH操作控制器
 from typing import Optional
-from fastapi import APIRouter, UploadFile, File, Form, Body
+from fastapi import APIRouter, UploadFile, File, Form, Body,Depends
 from utils.response_util import ResponseUtil
+from module_admin.service.login_service import LoginService
+from module_admin.aspect.interface_auth import CheckRoleInterfaceAuth, CheckUserInterfaceAuth
 from utils.ssh_operation import ssh_operation
 from module_ssh.core.ssh_client import SSHClient
 from module_ssh.core.ssh_operations import SSHOperations
 
 # 创建路由器
-sshController = APIRouter(prefix="/ssh")
+sshController = APIRouter(prefix="/ssh", dependencies=[Depends(LoginService.get_current_user)])
 
 
 @sshController.post("/connect/test")
@@ -164,6 +166,23 @@ async def download_file(
     从远程服务器下载文件
     """
     try:
+        # 检查远程文件是否存在
+        import os
+        from utils.log_util import logger
+        
+        logger.info(f"开始下载文件: 远程路径={remote_path}, 本地路径={local_path}")
+        
+        # 确保本地目录存在
+        local_dir = os.path.dirname(local_path)
+        if local_dir and not os.path.exists(local_dir):
+            try:
+                logger.info(f"创建本地目录: {local_dir}")
+                os.makedirs(local_dir, exist_ok=True)
+            except Exception as dir_err:
+                logger.error(f"创建本地目录失败: {str(dir_err)}")
+                return ResponseUtil.error(msg=f"创建本地目录失败: {str(dir_err)}")
+        
+        # 执行下载
         result = ssh_operation(
             host=host,
             username=username,
@@ -175,10 +194,13 @@ async def download_file(
         )
         
         if result:
+            logger.info(f"文件下载成功: {local_path}")
             return ResponseUtil.success(msg="文件下载成功", data={"local_path": local_path})
         else:
-            return ResponseUtil.error(msg="文件下载失败")
+            logger.error(f"文件下载失败: 远程={remote_path}, 本地={local_path}")
+            return ResponseUtil.error(msg="文件下载失败，请检查远程文件是否存在")
     except Exception as e:
+        logger.error(f"文件下载异常: {str(e)}")
         return ResponseUtil.error(msg=f"文件下载失败: {str(e)}")
 
 
