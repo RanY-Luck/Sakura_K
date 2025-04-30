@@ -347,7 +347,7 @@ if __name__ == "__main__":
     try:
         host = "192.168.1.50"
         username = "root"
-        password = "Ranyong_123"
+        password = "123456"
 
         # 创建SSH操作实例
         ssh_ops = SSHOperations.from_credentials(host, username, password)
@@ -360,6 +360,7 @@ if __name__ == "__main__":
         output, error, status = ssh_ops.execute_command("ls -la")
         print(f"命令执行结果: {status}")
         print(output)
-
+        # 下载文件
+        ssh_ops.download_file(remote_path="/usr/local/1.jpeg", local_path="././assets/1.jpeg")
     except Exception as e:
         print(f"测试过程中发生错误: {str(e)}")

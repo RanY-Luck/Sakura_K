@@ -6,10 +6,9 @@
 # @File    : ssh_controller.py
 # @Software: PyCharm
 # @desc    : SSH客户端核心类
-import os
 import threading
 import paramiko
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 from utils.log_util import logger
 
 
