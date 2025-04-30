@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from starlette.background import BackgroundTask
 from typing import Any, Dict, Mapping, Optional
 from config.constant import HttpStatusConstant
+from utils.log_util import get_trace_id
 
 
 class ResponseUtil:
@@ -57,12 +58,21 @@ class ResponseUtil:
         if model_content is not None:
             result.update(model_content.model_dump(by_alias=True))
 
-        result.update({'success': True, 'time': datetime.now()})
+        # 添加trace_id到响应
+        result.update({'success': True, 'time': datetime.now(), 'trace_id': get_trace_id()})
+
+        # 确保headers存在
+        if headers is None:
+            headers = {}
+        
+        # 添加trace_id到响应头
+        headers_dict = dict(headers)
+        headers_dict['X-Trace-ID'] = get_trace_id()
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(result),
-            headers=headers,
+            headers=headers_dict,
             media_type=media_type,
             background=background,
         )
@@ -103,12 +113,21 @@ class ResponseUtil:
         if model_content is not None:
             result.update(model_content.model_dump(by_alias=True))
 
-        result.update({'success': False, 'time': datetime.now()})
+        # 添加trace_id到响应
+        result.update({'success': False, 'time': datetime.now(), 'trace_id': get_trace_id()})
+
+        # 确保headers存在
+        if headers is None:
+            headers = {}
+        
+        # 添加trace_id到响应头
+        headers_dict = dict(headers)
+        headers_dict['X-Trace-ID'] = get_trace_id()
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(result),
-            headers=headers,
+            headers=headers_dict,
             media_type=media_type,
             background=background,
         )
@@ -149,12 +168,21 @@ class ResponseUtil:
         if model_content is not None:
             result.update(model_content.model_dump(by_alias=True))
 
-        result.update({'success': False, 'time': datetime.now()})
+        # 添加trace_id到响应
+        result.update({'success': False, 'time': datetime.now(), 'trace_id': get_trace_id()})
+
+        # 确保headers存在
+        if headers is None:
+            headers = {}
+        
+        # 添加trace_id到响应头
+        headers_dict = dict(headers)
+        headers_dict['X-Trace-ID'] = get_trace_id()
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(result),
-            headers=headers,
+            headers=headers_dict,
             media_type=media_type,
             background=background,
         )
@@ -195,12 +223,21 @@ class ResponseUtil:
         if model_content is not None:
             result.update(model_content.model_dump(by_alias=True))
 
-        result.update({'success': False, 'time': datetime.now()})
+        # 添加trace_id到响应
+        result.update({'success': False, 'time': datetime.now(), 'trace_id': get_trace_id()})
+
+        # 确保headers存在
+        if headers is None:
+            headers = {}
+        
+        # 添加trace_id到响应头
+        headers_dict = dict(headers)
+        headers_dict['X-Trace-ID'] = get_trace_id()
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(result),
-            headers=headers,
+            headers=headers_dict,
             media_type=media_type,
             background=background,
         )
@@ -241,12 +278,21 @@ class ResponseUtil:
         if model_content is not None:
             result.update(model_content.model_dump(by_alias=True))
 
-        result.update({'success': False, 'time': datetime.now()})
+        # 添加trace_id到响应
+        result.update({'success': False, 'time': datetime.now(), 'trace_id': get_trace_id()})
+
+        # 确保headers存在
+        if headers is None:
+            headers = {}
+        
+        # 添加trace_id到响应头
+        headers_dict = dict(headers)
+        headers_dict['X-Trace-ID'] = get_trace_id()
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=jsonable_encoder(result),
-            headers=headers,
+            headers=headers_dict,
             media_type=media_type,
             background=background,
         )
@@ -269,6 +315,18 @@ class ResponseUtil:
         :param background: 可选，响应返回后执行的后台任务
         :return: 流式响应结果
         """
+        # 确保headers存在
+        if headers is None:
+            headers = {}
+        
+        # 添加trace_id到响应头
+        headers_dict = dict(headers)
+        headers_dict['X-Trace-ID'] = get_trace_id()
+
         return StreamingResponse(
-            status_code=status.HTTP_200_OK, content=data, headers=headers, media_type=media_type, background=background
+            status_code=status.HTTP_200_OK, 
+            content=data, 
+            headers=headers_dict, 
+            media_type=media_type, 
+            background=background
         )
