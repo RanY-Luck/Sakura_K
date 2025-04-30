@@ -18,12 +18,26 @@ class Span:
 
     def __init__(self, scope: Scope):
         self.scope = scope
+        self.trace_id = None
 
     async def request_before(self):
         """
         request_before: 处理header信息等, 如记录请求体信息
         """
-        TraceCtx.set_id()
+        # 生成或从请求头中获取trace_id
+        self.trace_id = self._get_trace_id_from_headers() or TraceCtx.set_id()
+
+    def _get_trace_id_from_headers(self):
+        """
+        从请求头中获取trace_id
+        """
+        if 'headers' in self.scope:
+            for name, value in self.scope['headers']:
+                if name.lower() == b'x-trace-id':
+                    trace_id = value.decode()
+                    TraceCtx.set_id_with_value(trace_id)
+                    return trace_id
+        return None
 
     async def request_after(self, message: Message):
         """
@@ -42,7 +56,34 @@ class Span:
             pass
         """
         if message['type'] == 'http.response.start':
-            message['headers'].append((b'request-id', TraceCtx.get_id().encode()))
+            # 添加trace_id到响应头
+            trace_id = TraceCtx.get_id()
+            message['headers'].append((b'x-trace-id', trace_id.encode()))
+            
+            # 确保内容类型是JSON的响应也包含trace_id
+            for name, value in message['headers']:
+                if name.lower() == b'content-type' and b'application/json' in value.lower():
+                    # 在response.body中处理JSON响应
+                    self.should_add_trace_to_json = True
+                    break
+        
+        elif message['type'] == 'http.response.body' and hasattr(self, 'should_add_trace_to_json'):
+            # 确保是JSON响应，并且有body
+            body = message.get('body', b'')
+            if body:
+                import json
+                try:
+                    # 尝试解析JSON
+                    data = json.loads(body)
+                    if isinstance(data, dict):
+                        # 添加trace_id到响应JSON
+                        data['trace_id'] = TraceCtx.get_id()
+                        # 更新响应body
+                        message['body'] = json.dumps(data).encode()
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    # 如果不是有效的JSON，则不做任何处理
+                    pass
+        
         return message
 
 

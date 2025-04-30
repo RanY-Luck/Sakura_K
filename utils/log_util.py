@@ -11,6 +11,7 @@ import sys
 import time
 import datetime
 import zipfile
+import uuid
 from loguru import logger
 from loguru import logger as _logger
 from typing import Dict
@@ -91,6 +92,8 @@ class LoggerInitializer:
         self.log_path = os.path.join(os.getcwd(), 'logs')
         self.__ensure_log_directory_exists()
         self.log_path_error = os.path.join(self.log_path, f'{time.strftime("%Y-%m-%d")}_error.log')
+        self.log_path_info = os.path.join(self.log_path, f'{time.strftime("%Y-%m-%d")}_info.log')
+        self.log_path_warning = os.path.join(self.log_path, f'{time.strftime("%Y-%m-%d")}_warning.log')
 
     def __ensure_log_directory_exists(self):
         """
@@ -104,7 +107,11 @@ class LoggerInitializer:
         """
         自定义日志过滤器，添加trace_id
         """
-        log['trace_id'] = TraceCtx.get_id()
+        trace_id = TraceCtx.get_id()
+        # 如果没有trace_id，生成一个新的
+        if not trace_id:
+            trace_id = TraceCtx.set_id()
+        log['trace_id'] = trace_id
         return log
 
     def init_log(self):
@@ -122,10 +129,35 @@ class LoggerInitializer:
         _logger.remove()
         # 移除后重新添加sys.stderr, 目的: 控制台输出与文件日志内容和结构一致
         _logger.add(sys.stderr, filter=self.__filter, format=format_str, enqueue=True)
+        
+        # 为每个日志级别添加单独的文件处理器
         _logger.add(
             self.log_path_error,
             filter=self.__filter,
             format=format_str,
+            level="ERROR",
+            rotation='50MB',
+            encoding='utf-8',
+            enqueue=True,
+            compression='zip',
+        )
+        
+        _logger.add(
+            self.log_path_info,
+            filter=self.__filter,
+            format=format_str,
+            level="INFO",
+            rotation='50MB',
+            encoding='utf-8',
+            enqueue=True,
+            compression='zip',
+        )
+        
+        _logger.add(
+            self.log_path_warning,
+            filter=self.__filter,
+            format=format_str,
+            level="WARNING",
             rotation='50MB',
             encoding='utf-8',
             enqueue=True,
@@ -138,3 +170,14 @@ class LoggerInitializer:
 # 初始化日志处理器
 log_initializer = LoggerInitializer()
 logger = log_initializer.init_log()
+
+
+def get_trace_id():
+    """
+    获取当前请求的trace_id，如果不存在则创建一个新的
+    返回：当前请求的trace_id
+    """
+    trace_id = TraceCtx.get_id()
+    if not trace_id:
+        trace_id = TraceCtx.set_id()
+    return trace_id

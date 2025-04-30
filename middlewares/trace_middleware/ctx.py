@@ -17,6 +17,14 @@ class TraceCtx:
         _id = uuid4().hex
         CTX_REQUEST_ID.set(_id)
         return _id
+    
+    @staticmethod
+    def set_id_with_value(trace_id: str):
+        """
+        使用指定的值设置trace_id
+        """
+        CTX_REQUEST_ID.set(trace_id)
+        return trace_id
 
     @staticmethod
     def get_id():
