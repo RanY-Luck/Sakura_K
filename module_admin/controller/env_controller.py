@@ -92,7 +92,7 @@ async def edit_api(
 @Log(title='环境', business_type=BusinessType.DELETE)
 async def delete_env(request: Request, env_ids: str, query_db: AsyncSession = Depends(get_db)):
     """
-    删除接口
+    删除环境
     """
     delete_env = DeleteEnvModel(envIds=env_ids)
     delete_api_result = await EnvService.delete_env_services(query_db, delete_env)
@@ -106,7 +106,7 @@ async def delete_env(request: Request, env_ids: str, query_db: AsyncSession = De
 )
 async def query_detail_api(request: Request, env_id: int, query_db: AsyncSession = Depends(get_db)):
     """
-    根据ID获取接口信息
+    根据ID获取环境信息
     """
     env_detail_result = await EnvService.env_detail_services(query_db, env_id)
     logger.info(f'获取env_id为{env_id}的信息成功')
