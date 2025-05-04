@@ -36,7 +36,7 @@ from module_admin.controller.testcase_controller import testcaseController
 from module_generator.controller.gen_controller import genController
 from module_website.controller.home_controller import homeRouter
 from module_ssh.controller.ssh_controller import sshController
-from module_admin.controller.info_controller import infoController
+from module_admin.controller.servermanage_controller import serverManageController
 
 # 控制器标签映射，用于自动注册时设置合适的标签
 controller_tags_mapping = {
@@ -65,7 +65,7 @@ controller_tags_mapping = {
     'envController': ['环境管理'],
     'testcaseController': ['测试用例管理'],
     'sshController': ['SSH远程操作'],
-    'infoController': ['服务器管理'],
+    'serverManageController': ['服务器管理'],
     'homeRouter': ['产品官网'],
 }
 
@@ -95,7 +95,7 @@ controller_list = [
     {'router': envController, 'tags': ['环境管理']},
     {'router': testcaseController, 'tags': ['测试用例管理']},
     {'router': sshController, 'tags': ['SSH远程操作']},
-    {'router': infoController, 'tags': ['服务器管理']},
+    {'router': serverManageController, 'tags': ['服务器管理']},
     {'router': homeRouter, 'tags': ['产品官网']},
 ]
 

@@ -25,7 +25,7 @@ class EnvDao:
         """
         根据id获取环境配置详细信息
         :param db: orm对象
-        :param env_id: 接口id
+        :param env_id: 环境id
         :return: 环境信息对象
         """
         env_info = (await db.execute(select(Env).where(Env.env_id == env_id))).scalars().first()
@@ -75,9 +75,9 @@ class EnvDao:
             .distinct()
             .order_by(Env.create_time.desc())
         )
-        robot_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
+        env_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
-        return robot_list
+        return env_list
 
     @classmethod
     async def add_env_dao(cls, db: AsyncSession, env: EnvModel):
