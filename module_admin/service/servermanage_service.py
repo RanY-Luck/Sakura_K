@@ -109,7 +109,7 @@ class SshService:
                 await query_db.rollback()
                 raise e
         else:
-            raise ServiceException(message='传入服务器D为空')
+            raise ServiceException(message='传入服务器ID为空')
 
     @classmethod
     async def ssh_detail_services(cls, query_db: AsyncSession, ssh_id: int):
@@ -117,8 +117,8 @@ class SshService:
         获取服务器详细信息service
 
         :param query_db: orm对象
-        :param ssh_id: 服务器D
-        :return: 服务器D对应的信息
+        :param ssh_id: 服务器ID
+        :return: 服务器ID对应的信息
         """
         ssh = await SshDao.get_ssh_detail_by_id(query_db, ssh_id=ssh_id)
         if ssh:
@@ -138,7 +138,7 @@ class SshService:
         """
         # 创建一个映射字典，将英文键映射到中文键
         mapping_dict = {
-            'sshId': '服务器D',
+            'sshId': '服务器编号',
             'sshName': '服务器名称',
             'sshHost': '服务器地址',
             'sshUsername': '服务器用户名',
