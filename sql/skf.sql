@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 04/05/2025 10:48:40
+ Date: 04/05/2025 11:59:06
 */
 
 SET NAMES utf8mb4;
@@ -274,26 +274,25 @@ DROP TABLE IF EXISTS `ssh_info`;
 CREATE TABLE `ssh_info`  (
   `ssh_id` int NOT NULL AUTO_INCREMENT COMMENT '服务器ID',
   `ssh_name` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '服务器名称',
-  `ssh_host` varchar(512) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '服务器地址',
-  `ssh_username` varchar(512) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '服务器用户名',
-  `ssh_password` varchar(512) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '服务器密码',
+  `ssh_host` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '服务器地址',
+  `ssh_username` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '服务器用户名',
+  `ssh_password` varchar(128) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '服务器密码',
   `ssh_port` int NULL DEFAULT NULL COMMENT '服务器端口',
   `create_by` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_by` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
   `remark` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '备注',
-  `del_flag` char(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
+  `del_flag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`ssh_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '服务器表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '服务器表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of ssh_info
 -- ----------------------------
-INSERT INTO `ssh_info` VALUES (1, 'ry', '192.168.1.1', 'ry', '123456', 22, NULL, '1996-02-10 18:40:39', 'admin', '2025-04-30 14:20:35', 'sint', '0');
-INSERT INTO `ssh_info` VALUES (2, '123', '192.168.1.50', 'root', 'Ranyong_123', 22, 'admin', '2025-04-30 14:20:55', 'admin', '2025-05-01 10:47:23', 'nas', '0');
-INSERT INTO `ssh_info` VALUES (3, 'string', 'string1', 'string1', 'string', 0, 'string', '2025-05-02 16:45:28', 'admin', '2025-05-04 10:31:27', 'string', '0');
-INSERT INTO `ssh_info` VALUES (5, '晏雪', '127.0.0.1', 'root', '123456', 22, 'admin', '2025-05-04 10:35:41', 'admin', '2025-05-04 10:35:41', NULL, '0');
+INSERT INTO `ssh_info` VALUES (1, '测试', '127.0.0.1', 'root', '123456', 22, 'admin', '2025-05-04 11:51:53', 'admin', '2025-05-04 11:57:36', NULL, NULL);
+INSERT INTO `ssh_info` VALUES (2, '测试2', '192.168.1.1', 'root', '123456', 22, 'admin', '2025-05-04 11:54:33', 'admin', '2025-05-04 11:54:33', NULL, NULL);
+INSERT INTO `ssh_info` VALUES (3, '测试3', '192.154.1.1', 'root', '123456', 22, 'admin', '2025-05-04 11:56:02', 'admin', '2025-05-04 11:57:39', '1234567890', NULL);
 
 -- ----------------------------
 -- Table structure for sys_config
@@ -614,7 +613,7 @@ CREATE TABLE `sys_logininfor`  (
   PRIMARY KEY (`info_id`) USING BTREE,
   INDEX `idx_sys_logininfor_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_logininfor_lt`(`login_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2181 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2183 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -893,6 +892,8 @@ INSERT INTO `sys_logininfor` VALUES (2177, 'admin', '', '内网IP', 'Chrome 135'
 INSERT INTO `sys_logininfor` VALUES (2178, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-01 10:07:51');
 INSERT INTO `sys_logininfor` VALUES (2179, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-01 10:49:10');
 INSERT INTO `sys_logininfor` VALUES (2180, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-04 10:17:30');
+INSERT INTO `sys_logininfor` VALUES (2181, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-04 10:50:17');
+INSERT INTO `sys_logininfor` VALUES (2182, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-04 11:38:21');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -1041,7 +1042,7 @@ INSERT INTO `sys_menu` VALUES (2032, '环境新增', 2030, 1, '', NULL, NULL, ''
 INSERT INTO `sys_menu` VALUES (2033, '环境编辑', 2030, 2, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:edit', '#', 'admin', '2024-10-31 22:09:46', 'admin', '2024-10-31 22:09:46', NULL);
 INSERT INTO `sys_menu` VALUES (2034, '环境删除', 2030, 3, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:remove', '#', 'admin', '2024-10-31 22:10:12', 'admin', '2024-10-31 22:10:12', NULL);
 INSERT INTO `sys_menu` VALUES (2035, 'AI管家', 0, 4, 'ai_chat', 'ai/chat/index', NULL, '', 1, 0, 'C', '0', '0', NULL, 'color', 'admin', '2025-04-17 10:47:11', 'admin', '2025-04-17 10:47:11', NULL);
-INSERT INTO `sys_menu` VALUES (2036, '服务器管理', 2007, 3, 'info', 'sshInfo/index', NULL, '', 1, 0, 'C', '0', '0', 'ssh:info:list', 'checkbox', 'admin', '2025-05-01 10:34:03', 'admin', '2025-05-01 10:42:24', NULL);
+INSERT INTO `sys_menu` VALUES (2036, '服务器管理', 2007, 3, 'servermanage', 'serverManage/index', NULL, '', 1, 0, 'C', '0', '0', 'ssh:info:list', 'checkbox', 'admin', '2025-05-01 10:34:03', 'admin', '2025-05-04 11:08:05', NULL);
 
 -- ----------------------------
 -- Table structure for sys_notice
@@ -1093,7 +1094,7 @@ CREATE TABLE `sys_oper_log`  (
   INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1348 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1360 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -1512,6 +1513,18 @@ INSERT INTO `sys_oper_log` VALUES (1344, '服务器', 1, 'module_admin.controlle
 INSERT INTO `sys_oper_log` VALUES (1345, '服务器', 5, 'module_admin.controller.servermanage_controller.export_ssh_list()', 'POST', 0, 'admin', '研发部门', '/ssh/sshInfo/export', '', '内网IP', '{}', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-05-04 10:35:59', 2);
 INSERT INTO `sys_oper_log` VALUES (1346, '服务器', 5, 'module_admin.controller.servermanage_controller.export_ssh_list()', 'POST', 1, 'admin', '研发部门', '/ssh/sshInfo/export', '', '内网IP', 'updateBy: string\nremark: string\nsshPassword: string\nsshId: 0\nendTime: string\ncreateTime: 2025-05-04T02:37:58.172Z\nsshPort: 0\npageSize: 10\nsshHost: string\nsshName: string\ncreateBy: string\nbeginTime: string\nupdateTime: 2025-05-04T02:37:58.172Z\ndelFlag: string\npageNum: 1\nsshUsername: string', '{\"code\": 500, \"msg\": \"time data \'string\' does not match format \'%Y-%m-%d\'\", \"success\": false, \"time\": \"2025-05-04T10:38:03.244866\", \"trace_id\": \"e4164f13d19c4882ad36660f8e8feff5\"}', 1, 'time data \'string\' does not match format \'%Y-%m-%d\'', '2025-05-04 10:38:03', 5);
 INSERT INTO `sys_oper_log` VALUES (1347, '服务器', 5, 'module_admin.controller.servermanage_controller.export_ssh_list()', 'POST', 1, 'admin', '研发部门', '/ssh/sshInfo/export', '', '内网IP', 'updateBy: string\nremark: string\nsshPassword: string\nsshId: 1\nendTime: \ncreateTime: 2025-05-02T16:45:28\nsshPort: 0\npageSize: 10\nsshHost: string\nsshName: string\ncreateBy: string\nbeginTime: \nupdateTime: 2025-05-04T10:31:27\ndelFlag: \npageNum: 1\nsshUsername: string', '{}', 1, '', '2025-05-04 10:39:39', 2);
+INSERT INTO `sys_oper_log` VALUES (1348, '菜单管理', 2, 'module_admin.controller.menu_controller.edit_system_menu()', 'PUT', 1, 'admin', '研发部门', '/system/menu', '', '内网IP', '{\"menuId\": 2036, \"menuName\": \"服务器管理\", \"parentId\": 2007, \"orderNum\": 3, \"path\": \"servermanage\", \"component\": \"serverManage/index\", \"query\": null, \"routeName\": \"\", \"isFrame\": 1, \"isCache\": 0, \"menuType\": \"C\", \"visible\": \"0\", \"status\": \"0\", \"perms\": \"ssh:info:list\", \"icon\": \"checkbox\", \"createBy\": \"admin\", \"createTime\": \"2025-05-01T10:34:03\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-01T10:42:24\", \"remark\": null}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-05-04T11:08:05.081986\", \"trace_id\": \"0a9ebb1b45314d77b1398aeb63cc2924\"}', 0, '', '2025-05-04 11:08:05', 1);
+INSERT INTO `sys_oper_log` VALUES (1349, '服务器', 5, 'module_admin.controller.servermanage_controller.export_ssh_list()', 'POST', 1, 'admin', '研发部门', '/ssh/sshInfo/export', '', '内网IP', 'pageNum: 1\npageSize: 10\nsshPort: 22', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-05-04 11:35:22', 3);
+INSERT INTO `sys_oper_log` VALUES (1350, '服务器', 3, 'module_admin.controller.servermanage_controller.delete_ssh()', 'DELETE', 1, 'admin', '研发部门', '/ssh/sshInfo/5', '', '内网IP', '{\"ssh_ids\": \"5\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-04T11:37:28.102047\", \"trace_id\": \"19a55224a85b4bb4a2bbca5825e172cb\"}', 0, '', '2025-05-04 11:37:28', 0);
+INSERT INTO `sys_oper_log` VALUES (1351, '服务器', 1, 'module_admin.controller.servermanage_controller.add_ssh()', 'POST', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshName\": \"测试新增\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\"}', '{\"code\": 200, \"msg\": \"新增服务器成功\", \"success\": true, \"time\": \"2025-05-04T11:39:08.217254\", \"trace_id\": \"1aa411263b93474fb86baf6e960bd278\"}', 0, '', '2025-05-04 11:39:08', 0);
+INSERT INTO `sys_oper_log` VALUES (1352, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshId\": 6, \"sshName\": \"测试新增\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\", \"createBy\": \"admin\", \"createTime\": \"2025-05-04T11:39:08\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-04T11:39:08\", \"remark\": null, \"delFlag\": null}', '{\"code\": 200, \"msg\": \"服务器:测试新增 更新成功\", \"success\": true, \"time\": \"2025-05-04T11:42:12.310855\", \"trace_id\": \"f79b88b7f5144cdf9599d657ae1944c8\"}', 0, '', '2025-05-04 11:42:12', 0);
+INSERT INTO `sys_oper_log` VALUES (1353, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshId\": 6, \"sshName\": \"测试新增\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\", \"createBy\": \"admin\", \"createTime\": \"2025-05-04T11:39:08\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-04T11:42:12\", \"remark\": null, \"delFlag\": null}', '{\"code\": 200, \"msg\": \"服务器:测试新增 更新成功\", \"success\": true, \"time\": \"2025-05-04T11:47:20.036210\", \"trace_id\": \"619befa9c3924a9a866d617f38b8cbd8\"}', 0, '', '2025-05-04 11:47:20', 0);
+INSERT INTO `sys_oper_log` VALUES (1354, '服务器', 1, 'module_admin.controller.servermanage_controller.add_ssh()', 'POST', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshName\": \"测试\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\"}', '{\"code\": 200, \"msg\": \"新增服务器成功\", \"success\": true, \"time\": \"2025-05-04T11:51:53.062582\", \"trace_id\": \"076b46c6e3af478a8e608c25b7c5648b\"}', 0, '', '2025-05-04 11:51:53', 0);
+INSERT INTO `sys_oper_log` VALUES (1355, '服务器', 1, 'module_admin.controller.servermanage_controller.add_ssh()', 'POST', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshName\": \"测试2\", \"sshHost\": \"192.168.1.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\"}', '{\"code\": 200, \"msg\": \"新增服务器成功\", \"success\": true, \"time\": \"2025-05-04T11:54:33.292260\", \"trace_id\": \"d02a1db6471347b5b7f3cc2dcaafbf33\"}', 0, '', '2025-05-04 11:54:33', 0);
+INSERT INTO `sys_oper_log` VALUES (1356, '服务器', 1, 'module_admin.controller.servermanage_controller.add_ssh()', 'POST', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshName\": \"测试3\", \"sshHost\": \"192.154.1.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\"}', '{\"code\": 200, \"msg\": \"新增服务器成功\", \"success\": true, \"time\": \"2025-05-04T11:56:02.005586\", \"trace_id\": \"d4d82e4c7b5f496f970c2c7d301679bc\"}', 0, '', '2025-05-04 11:56:02', 0);
+INSERT INTO `sys_oper_log` VALUES (1357, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshId\": 3, \"sshName\": \"测试3\", \"sshHost\": \"192.154.1.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\", \"createBy\": \"admin\", \"createTime\": \"2025-05-04T11:56:02\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-04T11:56:02\", \"remark\": \"1234567890\", \"delFlag\": null}', '{\"code\": 200, \"msg\": \"服务器:测试3 更新成功\", \"success\": true, \"time\": \"2025-05-04T11:56:18.457723\", \"trace_id\": \"ccc1c8e54931432fb2bd398ac9756ad9\"}', 0, '', '2025-05-04 11:56:18', 0);
+INSERT INTO `sys_oper_log` VALUES (1358, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshId\": 1, \"sshName\": \"测试\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": 22, \"createBy\": \"admin\", \"createTime\": \"2025-05-04T11:51:53\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-04T11:51:53\", \"remark\": null, \"delFlag\": null}', '{\"code\": 200, \"msg\": \"服务器:测试 更新成功\", \"success\": true, \"time\": \"2025-05-04T11:57:35.689624\", \"trace_id\": \"ecdab61179de4492997155f1abcbcf19\"}', 0, '', '2025-05-04 11:57:36', 0);
+INSERT INTO `sys_oper_log` VALUES (1359, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 1, 'admin', '研发部门', '/ssh/sshInfo', '', '内网IP', '{\"sshId\": 3, \"sshName\": \"测试3\", \"sshHost\": \"192.154.1.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": 22, \"createBy\": \"admin\", \"createTime\": \"2025-05-04T11:56:02\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-04T11:56:18\", \"remark\": \"1234567890\", \"delFlag\": null}', '{\"code\": 200, \"msg\": \"服务器:测试3 更新成功\", \"success\": true, \"time\": \"2025-05-04T11:57:39.132894\", \"trace_id\": \"05b0d9fb3b2740c19e3a6742c7f89a22\"}', 0, '', '2025-05-04 11:57:39', 0);
 
 -- ----------------------------
 -- Table structure for sys_post
@@ -1730,7 +1743,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-05-04 10:18:07', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-05-04 11:38:21', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'niangao', '年糕', '00', 'niangao@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '2', '127.0.0.1', '2024-08-13 18:18:19', 'admin', '2024-08-13 18:18:19', 'admin', '2024-09-20 22:45:06', '测试员');
 INSERT INTO `sys_user` VALUES (100, 100, 'ranyong', 'ranyong', '00', '', '', '0', '', '$2b$12$iPYmQp3jjdIrZBqyaf6loOITsuvUQost39wHqNzzBCTOge7cmNblW', '0', '0', '', NULL, 'admin', '2024-08-13 20:47:13', 'admin', '2024-08-15 11:04:07', NULL);
 INSERT INTO `sys_user` VALUES (101, 103, 'demo1', 'demo1', '00', '', '', '0', '', '$2b$12$bFu.K.grA9O/zrZ9aQTGzeE4PjKwRbXJMm9rgJpN8ZzT5Ri2LXsve', '0', '0', '', '2024-09-20 22:40:21', '', '2024-08-16 10:28:18', 'admin', '2024-09-20 22:44:56', NULL);
