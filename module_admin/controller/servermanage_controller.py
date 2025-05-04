@@ -137,6 +137,45 @@ async def query_detail_ssh(request: Request, ssh_id: int, query_db: AsyncSession
     return ResponseUtil.success(data=ssh_detail_result)
 
 
+@serverManageController.post('/copy/{ssh_id}', dependencies=[Depends(CheckUserInterfaceAuth('ssh:sshInfo:copy'))])
+@Log(title='服务器', business_type=BusinessType.INSERT)
+async def copy_ssh(
+        request: Request,
+        ssh_id: int,
+        query_db: AsyncSession = Depends(get_db),
+        current_user: CurrentUserModel = Depends(LoginService.get_current_user)
+):
+    """
+    复制服务器
+    """
+    # 获取原项目的信息
+    original_ssh = await SshService.ssh_detail_services(query_db, ssh_id)
+    if not original_ssh:
+        return ResponseUtil.error(msg="要复制的服务器不存在")
+    # 创建新项目对象，基于原项目的所有字段
+    new_ssh = original_ssh.copy(
+        update={
+            "ssh_name": f"{original_ssh.ssh_name}_copy",
+            "create_by": current_user.user.user_name,
+            "create_time": datetime.now(),
+            "update_by": current_user.user.user_name,
+            "update_time": datetime.now()
+        }
+    )
+
+    # 保存原服务器ID，用于在service中查找原项目
+    new_ssh.ssh_id = ssh_id
+
+    # 复制服务器
+    copy_ssh_result = await SshService.copy_ssh_services(query_db, new_ssh)
+    logger.info(copy_ssh_result.message)
+
+    if copy_ssh_result.is_success:
+        return ResponseUtil.success(msg=copy_ssh_result.message)
+    else:
+        return ResponseUtil.error(msg=copy_ssh_result.message)
+
+
 @serverManageController.post('/export', dependencies=[Depends(CheckUserInterfaceAuth('ssh:sshInfo:export'))])
 @Log(title='服务器', business_type=BusinessType.EXPORT)
 async def export_ssh_list(

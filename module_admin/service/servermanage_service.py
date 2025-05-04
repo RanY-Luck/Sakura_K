@@ -9,6 +9,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from exceptions.exception import ServiceException
+from module_admin.entity.do.servermanage_do import Ssh
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.dao.servermanage_dao import SshDao
 from module_admin.entity.vo.servermanage_vo import DeleteSshModel, SshModel, SshPageQueryModel
@@ -128,6 +129,44 @@ class SshService:
 
         return result
 
+    @classmethod
+    async def copy_ssh_services(cls, query_db: AsyncSession, new_ssh: SshModel):
+        """
+        复制service
+        :param query_db: orm对象
+        :param new_ssh: 新项目对象（Pydantic 模型）
+        :return: 复制服务器结果
+        """
+        try:
+            # 检查原项目是否存在
+            original_ssh_id = new_ssh.ssh_id
+            original_ssh = await cls.ssh_detail_services(query_db, original_ssh_id)
+            if not original_ssh:
+                result = dict(is_success=False, message='原服务器不存在')
+                return CrudResponseModel(**result)
+
+            # 将 Pydantic 模型转换为 SQLAlchemy 模型
+            new_ssh_dict = new_ssh.model_dump(exclude_unset=True)
+            new_ssh_dict.pop('ssh_id', None)  # 移除 project_id，依赖数据库自增
+
+            # 创建 SQLAlchemy 模型实例
+            db_ssh = Ssh(**new_ssh_dict)
+
+            # 添加新项目到数据库
+            query_db.add(db_ssh)
+
+            # 提交事务
+            await query_db.commit()
+
+            # 刷新新项目对象以获取数据库生成的主键等信息
+            await query_db.refresh(db_ssh)
+
+            result = dict(is_success=True, message=f'服务器:{new_ssh.ssh_name} 复制成功')
+            return CrudResponseModel(**result)
+        except Exception as e:
+            await query_db.rollback()
+            raise e
+
     @staticmethod
     async def export_ssh_list_services(ssh_list: List):
         """
@@ -148,8 +187,7 @@ class SshService:
             'createTime': '创建时间',
             'updateBy': '更新者',
             'updateTime': '更新时间',
-            'remark': '备注',
-            'delFlag': '删除标志',
+            'remark': '备注'
         }
         binary_data = ExcelUtil.export_list2excel(ssh_list, mapping_dict)
 
