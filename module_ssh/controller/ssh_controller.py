@@ -3,14 +3,13 @@
 # @Time    : 2024/4/29 22:00
 # @Author  : 冉勇
 # @Site    :
-# @File    : ssh_controller.py
+# @File    : servermanage_controller.py
 # @Software: PyCharm
 # @desc    : SSH操作控制器
 from typing import Optional
 from fastapi import APIRouter, UploadFile, File, Form, Body, Depends
 from utils.response_util import ResponseUtil
 from module_admin.service.login_service import LoginService
-from module_admin.aspect.interface_auth import CheckRoleInterfaceAuth, CheckUserInterfaceAuth
 from utils.ssh_operation import ssh_operation
 from module_ssh.core.ssh_client import SSHClient
 from module_ssh.core.ssh_operations import SSHOperations

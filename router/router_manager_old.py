@@ -33,7 +33,7 @@ from module_app.controller.app_login_controller import appLoginController
 from module_generator.controller.gen_controller import genController
 from module_website.controller.home_controller import homeRouter
 from module_ssh.controller.ssh_controller import sshController
-from module_admin.controller.info_controller import infoController
+from module_admin.controller.servermanage_controller import infoController
 
 # 加载路由列表
 controller_list = [
