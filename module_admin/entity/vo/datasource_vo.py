@@ -40,6 +40,7 @@ class DataSourceModel(BaseModel):
     validate_datasource_host = field_validator('datasource_host')(validate_string('datasource_host', 255))
     validate_datasource_port = field_validator('datasource_port')(validate_string('datasource_port', 10))
     validate_datasource_user = field_validator('datasource_user')(validate_string('datasource_user', 64))
+    validate_datasource_pwd = field_validator('datasource_pwd')(validate_string('datasource_pwd', 255))
 
     @NotBlank(field_name='datasource_name', message='数据源名称不能为空')
     @Size(field_name='datasource_name', min_length=0, max_length=20, message='数据源名称字符串长度不能超过20个字符')
@@ -107,4 +108,3 @@ class SourceInfo(BaseModel):
     datasource_port: int
     datasource_user: str
     datasource_pwd: str
-
