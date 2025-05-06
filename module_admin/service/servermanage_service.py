@@ -6,8 +6,11 @@
 # @File    : servermanage_service.py
 # @Software: PyCharm
 # @desc    : 服务器管理模块服务层
-from sqlalchemy.ext.asyncio import AsyncSession
+import paramiko
+import asyncio
+import socket
 from typing import List
+from sqlalchemy.ext.asyncio import AsyncSession
 from exceptions.exception import ServiceException
 from module_admin.entity.do.servermanage_do import Ssh
 from module_admin.entity.vo.common_vo import CrudResponseModel
@@ -16,10 +19,6 @@ from module_admin.entity.vo.servermanage_vo import DeleteSshModel, SshModel, Ssh
 from utils.common_util import CamelCaseUtil
 from utils.excel_util import ExcelUtil
 from utils.pwd_util import PwdUtil, hash_key
-from utils.ssh_operation import SSHConnection
-import paramiko
-import asyncio
-import socket
 
 
 class SshService:
@@ -216,14 +215,14 @@ class SshService:
         ssh = await SshDao.get_ssh_detail_by_id(query_db, ssh_id=ssh_id)
         if ssh is None:
             return CrudResponseModel(is_success=False, message=f'服务器{ssh_id}不存在')
-        
+
         result = SshModel(**CamelCaseUtil.transform_result(ssh))
-        
+
         # 最大重试次数
         max_retries = 2
         retry_count = 0
         last_error = None
-        
+
         # 尝试连接，如果失败则重试
         while retry_count <= max_retries:
             try:
@@ -241,7 +240,7 @@ class SshService:
                 # 创建SSHConnection实例
                 ssh_client = paramiko.SSHClient()
                 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                
+
                 # 设置连接参数
                 connect_kwargs = {
                     'hostname': ssh_info.ssh_host,
@@ -251,7 +250,7 @@ class SshService:
                     'allow_agent': False,
                     'look_for_keys': False
                 }
-                
+
                 if ssh_info.ssh_password:
                     connect_kwargs['password'] = ssh_info.ssh_password
                 # 连接服务器
@@ -264,14 +263,20 @@ class SshService:
                     system_info['os_info'] = stdout.read().decode('utf-8').strip()
                     if not system_info['os_info']:
                         # 尝试Windows系统命令
-                        stdin, stdout, stderr = ssh_client.exec_command('systeminfo | findstr /B /C:"OS Name" /C:"OS Version"', timeout=5)
+                        stdin, stdout, stderr = ssh_client.exec_command(
+                            'systeminfo | findstr /B /C:"OS Name" /C:"OS Version"',
+                            timeout=5
+                        )
                         system_info['os_info'] = stdout.read().decode('utf-8').strip()
                 except Exception:
                     system_info['os_info'] = "获取操作系统信息失败"
 
                 # 获取CPU信息
                 try:
-                    stdin, stdout, stderr = ssh_client.exec_command('cat /proc/cpuinfo | grep "model name" | head -1', timeout=5)
+                    stdin, stdout, stderr = ssh_client.exec_command(
+                        'cat /proc/cpuinfo | grep "model name" | head -1',
+                        timeout=5
+                    )
                     cpu_info = stdout.read().decode('utf-8').strip()
                     if cpu_info:
                         system_info['cpu_info'] = cpu_info.split(':')[1].strip() if ':' in cpu_info else cpu_info
@@ -294,7 +299,10 @@ class SshService:
                         system_info['memory_info'] = mem_info
                     else:
                         # 尝试Windows系统命令
-                        stdin, stdout, stderr = ssh_client.exec_command('wmic OS get TotalVisibleMemorySize /Value', timeout=5)
+                        stdin, stdout, stderr = ssh_client.exec_command(
+                            'wmic OS get TotalVisibleMemorySize /Value',
+                            timeout=5
+                        )
                         system_info['memory_info'] = stdout.read().decode('utf-8').strip()
                 except Exception:
                     system_info['memory_info'] = "获取内存信息失败"
@@ -307,14 +315,17 @@ class SshService:
                         system_info['disk_info'] = disk_info
                     else:
                         # 尝试Windows系统命令
-                        stdin, stdout, stderr = ssh_client.exec_command('wmic logicaldisk get DeviceID,Size,FreeSpace', timeout=5)
+                        stdin, stdout, stderr = ssh_client.exec_command(
+                            'wmic logicaldisk get DeviceID,Size,FreeSpace',
+                            timeout=5
+                        )
                         system_info['disk_info'] = stdout.read().decode('utf-8').strip()
                 except Exception:
                     system_info['disk_info'] = "获取磁盘信息失败"
 
                 # 关闭连接
                 ssh_client.close()
-                
+
                 # 返回成功结果
                 return CrudResponseModel(
                     is_success=True,
@@ -327,14 +338,14 @@ class SshService:
                         'system_info': system_info
                     }
                 )
-                
+
             except paramiko.AuthenticationException:
                 # 身份验证错误，不再重试
                 return CrudResponseModel(
                     is_success=False,
                     message=f'连接服务器 {result.ssh_name}({result.ssh_host}) 失败: 用户名或密码错误'
                 )
-                
+
             except paramiko.SSHException as e:
                 # SSH异常，可能是临时性问题，尝试重试
                 last_error = str(e)
@@ -343,7 +354,7 @@ class SshService:
                     await asyncio.sleep(1)  # 等待1秒后重试
                     continue
                 break
-                
+
             except socket.timeout:
                 # 连接超时，可能是网络问题，尝试重试
                 last_error = "连接超时"
@@ -352,7 +363,7 @@ class SshService:
                     await asyncio.sleep(1)  # 等待1秒后重试
                     continue
                 break
-                
+
             except Exception as e:
                 # 其他未预期的错误
                 last_error = str(e)
@@ -361,7 +372,7 @@ class SshService:
                     await asyncio.sleep(1)  # 等待1秒后重试
                     continue
                 break
-        
+
         # 所有重试都失败
         await query_db.rollback()  # 回滚数据库事务
         return CrudResponseModel(
@@ -373,4 +384,3 @@ class SshService:
                 'retry_count': retry_count
             }
         )
-

@@ -35,10 +35,6 @@ async def get_ssh_list(
 ):
     """
     获取服务器列表
-    :param request:
-    :param ssh_page_query:
-    :param query_db:
-    :return:
     """
     # 获取分页数据
     ssh_page_query_result = await SshService.get_ssh_list_services(
@@ -62,11 +58,6 @@ async def add_ssh(
 ):
     """
     新增服务器
-    :param request:
-    :param add_ssh:
-    :param query_db:
-    :param current_user:
-    :return:·
     """
     add_ssh.create_by = current_user.user.user_name
     add_ssh.create_time = datetime.now()
@@ -89,11 +80,6 @@ async def edit_ssh(
 ):
     """
     编辑服务器
-    :param request:
-    :param edit_ssh:
-    :param query_db:
-    :param current_user:
-    :return:
     """
     edit_ssh.update_by = current_user.user.user_name
     edit_ssh.update_time = datetime.now()
@@ -108,10 +94,6 @@ async def edit_ssh(
 async def delete_ssh(request: Request, ssh_ids: str, query_db: AsyncSession = Depends(get_db)):
     """
     删除服务器
-    :param request:
-    :param ssh_ids:
-    :param query_db:
-    :return:
     """
     delete_ssh = DeleteSshModel(sshIds=ssh_ids)
     delete_ssh_result = await SshService.delete_ssh_services(query_db, delete_ssh)
@@ -126,10 +108,6 @@ async def delete_ssh(request: Request, ssh_ids: str, query_db: AsyncSession = De
 async def query_detail_ssh(request: Request, ssh_id: int, query_db: AsyncSession = Depends(get_db)):
     """
     根据ID获取服务器信息
-    :param request:
-    :param ssh_id:
-    :param query_db:
-    :return:
     """
     ssh_detail_result = await SshService.ssh_detail_services(query_db, ssh_id)
     logger.info(f'获取ssh_id为{ssh_id}的信息成功')
@@ -185,34 +163,25 @@ async def export_ssh_list(
 ):
     """
     导出服务器信息
-    :param request:
-    :param ssh_page_query:
-    :param query_db:
-    :return:
     """
     # 获取全量数据
     ssh_query_result = await SshService.get_ssh_list_services(query_db, ssh_page_query, is_page=False)
     ssh_export_result = await SshService.export_ssh_list_services(ssh_query_result)
-    logger.info('导出成功')
+    logger.info('服务器导出成功')
 
     return ResponseUtil.streaming(data=bytes2file_response(ssh_export_result))
 
 
-@serverManageController.get(
-    '/test/{ssh_id}', dependencies=[Depends(CheckUserInterfaceAuth('ssh:sshInfo:query'))]
+@serverManageController.post(
+    '/{ssh_id}', dependencies=[Depends(CheckUserInterfaceAuth('ssh:sshInfo:test'))]
 )
 async def test_ssh_connection(request: Request, ssh_id: int, query_db: AsyncSession = Depends(get_db)):
     """
     测试SSH连接并获取服务器信息
-    :param request: 请求对象
-    :param ssh_id: 服务器ID
-    :param query_db: 数据库会话
-    :return: 连接测试结果和服务器信息
     """
     test_result = await SshService.ssh_client_services(query_db, ssh_id)
     if test_result.is_success:
         logger.info(f'服务器{ssh_id}连接测试成功')
     else:
         logger.error(f'服务器{ssh_id}连接测试失败: {test_result.message}')
-    
     return ResponseUtil.success(data=test_result)
