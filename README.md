@@ -150,8 +150,18 @@ Commands that may modify the data set are disabled, because this instance is con
 if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error."
 
 解决办法
+# (临时解决)
 redis-cli -h 127.0.0.1 -p 6379
 CONFIG SET stop-writes-on-bgsave-error no
+# (永久解决)
+# 找到redis.conf配置文件(例如我的redis安装到/etc目录下)
+sudo vim /etc/redis/redis.conf
+# 找到并修改这一行
+stop-writes-on-bgsave-error yes
+# 改为
+stop-writes-on-bgsave-error no
+# 重启redis
+sudo systemctl restart redis
 ```
 
 # 其他操作
