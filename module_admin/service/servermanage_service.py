@@ -12,10 +12,14 @@ from exceptions.exception import ServiceException
 from module_admin.entity.do.servermanage_do import Ssh
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.dao.servermanage_dao import SshDao
-from module_admin.entity.vo.servermanage_vo import DeleteSshModel, SshModel, SshPageQueryModel
+from module_admin.entity.vo.servermanage_vo import DeleteSshModel, SshModel, SshPageQueryModel, SshInfo
 from utils.common_util import CamelCaseUtil
 from utils.excel_util import ExcelUtil
 from utils.pwd_util import PwdUtil, hash_key
+from utils.ssh_operation import SSHConnection
+import paramiko
+import asyncio
+import socket
 
 
 class SshService:
@@ -199,3 +203,174 @@ class SshService:
         binary_data = ExcelUtil.export_list2excel(ssh_list, mapping_dict)
 
         return binary_data
+
+    @classmethod
+    async def ssh_client_services(cls, query_db: AsyncSession, ssh_id: int):
+        """
+        测试连接服务器service
+        :param query_db: orm对象
+        :param ssh_id: 服务器id
+        :return: 服务器连接测试结果, 包含系统信息和连接状态
+        """
+        # 查询服务器信息
+        ssh = await SshDao.get_ssh_detail_by_id(query_db, ssh_id=ssh_id)
+        if ssh is None:
+            return CrudResponseModel(is_success=False, message=f'服务器{ssh_id}不存在')
+        
+        result = SshModel(**CamelCaseUtil.transform_result(ssh))
+        
+        # 最大重试次数
+        max_retries = 2
+        retry_count = 0
+        last_error = None
+        
+        # 尝试连接，如果失败则重试
+        while retry_count <= max_retries:
+            try:
+                # 解密密码
+                decrypt_password = None
+                if result.ssh_password:
+                    decrypt_password = PwdUtil.decrypt(hash_key=hash_key, hashed_password=result.ssh_password)
+                # 创建SshInfo对象
+                ssh_info = SshInfo(
+                    ssh_host=result.ssh_host,
+                    ssh_username=result.ssh_username,
+                    ssh_port=result.ssh_port,
+                    ssh_password=decrypt_password
+                )
+                # 创建SSHConnection实例
+                ssh_client = paramiko.SSHClient()
+                ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                
+                # 设置连接参数
+                connect_kwargs = {
+                    'hostname': ssh_info.ssh_host,
+                    'username': ssh_info.ssh_username,
+                    'port': ssh_info.ssh_port,
+                    'timeout': 10,  # 设置超时时间
+                    'allow_agent': False,
+                    'look_for_keys': False
+                }
+                
+                if ssh_info.ssh_password:
+                    connect_kwargs['password'] = ssh_info.ssh_password
+                # 连接服务器
+                ssh_client.connect(**connect_kwargs)
+                # 获取系统信息
+                system_info = {}
+                # 获取操作系统信息
+                try:
+                    stdin, stdout, stderr = ssh_client.exec_command('uname -a', timeout=5)
+                    system_info['os_info'] = stdout.read().decode('utf-8').strip()
+                    if not system_info['os_info']:
+                        # 尝试Windows系统命令
+                        stdin, stdout, stderr = ssh_client.exec_command('systeminfo | findstr /B /C:"OS Name" /C:"OS Version"', timeout=5)
+                        system_info['os_info'] = stdout.read().decode('utf-8').strip()
+                except Exception:
+                    system_info['os_info'] = "获取操作系统信息失败"
+
+                # 获取CPU信息
+                try:
+                    stdin, stdout, stderr = ssh_client.exec_command('cat /proc/cpuinfo | grep "model name" | head -1', timeout=5)
+                    cpu_info = stdout.read().decode('utf-8').strip()
+                    if cpu_info:
+                        system_info['cpu_info'] = cpu_info.split(':')[1].strip() if ':' in cpu_info else cpu_info
+                    else:
+                        # 尝试Windows系统命令
+                        stdin, stdout, stderr = ssh_client.exec_command('wmic cpu get Name', timeout=5)
+                        output = stdout.read().decode('utf-8').strip()
+                        if output:
+                            lines = output.split('\n')
+                            if len(lines) > 1:
+                                system_info['cpu_info'] = lines[1].strip()
+                except Exception:
+                    system_info['cpu_info'] = "获取CPU信息失败"
+
+                # 获取内存信息
+                try:
+                    stdin, stdout, stderr = ssh_client.exec_command('free -h', timeout=5)
+                    mem_info = stdout.read().decode('utf-8').strip()
+                    if mem_info:
+                        system_info['memory_info'] = mem_info
+                    else:
+                        # 尝试Windows系统命令
+                        stdin, stdout, stderr = ssh_client.exec_command('wmic OS get TotalVisibleMemorySize /Value', timeout=5)
+                        system_info['memory_info'] = stdout.read().decode('utf-8').strip()
+                except Exception:
+                    system_info['memory_info'] = "获取内存信息失败"
+
+                # 获取磁盘信息
+                try:
+                    stdin, stdout, stderr = ssh_client.exec_command('df -h', timeout=5)
+                    disk_info = stdout.read().decode('utf-8').strip()
+                    if disk_info:
+                        system_info['disk_info'] = disk_info
+                    else:
+                        # 尝试Windows系统命令
+                        stdin, stdout, stderr = ssh_client.exec_command('wmic logicaldisk get DeviceID,Size,FreeSpace', timeout=5)
+                        system_info['disk_info'] = stdout.read().decode('utf-8').strip()
+                except Exception:
+                    system_info['disk_info'] = "获取磁盘信息失败"
+
+                # 关闭连接
+                ssh_client.close()
+                
+                # 返回成功结果
+                return CrudResponseModel(
+                    is_success=True,
+                    message=f'连接服务器 {result.ssh_name}({result.ssh_host}) 成功',
+                    result={
+                        'server_name': result.ssh_name,
+                        'server_host': result.ssh_host,
+                        'server_port': result.ssh_port,
+                        'username': result.ssh_username,
+                        'system_info': system_info
+                    }
+                )
+                
+            except paramiko.AuthenticationException:
+                # 身份验证错误，不再重试
+                return CrudResponseModel(
+                    is_success=False,
+                    message=f'连接服务器 {result.ssh_name}({result.ssh_host}) 失败: 用户名或密码错误'
+                )
+                
+            except paramiko.SSHException as e:
+                # SSH异常，可能是临时性问题，尝试重试
+                last_error = str(e)
+                retry_count += 1
+                if retry_count <= max_retries:
+                    await asyncio.sleep(1)  # 等待1秒后重试
+                    continue
+                break
+                
+            except socket.timeout:
+                # 连接超时，可能是网络问题，尝试重试
+                last_error = "连接超时"
+                retry_count += 1
+                if retry_count <= max_retries:
+                    await asyncio.sleep(1)  # 等待1秒后重试
+                    continue
+                break
+                
+            except Exception as e:
+                # 其他未预期的错误
+                last_error = str(e)
+                retry_count += 1
+                if retry_count <= max_retries:
+                    await asyncio.sleep(1)  # 等待1秒后重试
+                    continue
+                break
+        
+        # 所有重试都失败
+        await query_db.rollback()  # 回滚数据库事务
+        return CrudResponseModel(
+            is_success=False,
+            message=f'连接服务器 {result.ssh_name}({result.ssh_host}) 失败: {last_error}',
+            result={
+                'server_name': result.ssh_name,
+                'server_host': result.ssh_host,
+                'retry_count': retry_count
+            }
+        )
+

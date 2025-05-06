@@ -196,3 +196,23 @@ async def export_ssh_list(
     logger.info('导出成功')
 
     return ResponseUtil.streaming(data=bytes2file_response(ssh_export_result))
+
+
+@serverManageController.get(
+    '/test/{ssh_id}', dependencies=[Depends(CheckUserInterfaceAuth('ssh:sshInfo:query'))]
+)
+async def test_ssh_connection(request: Request, ssh_id: int, query_db: AsyncSession = Depends(get_db)):
+    """
+    测试SSH连接并获取服务器信息
+    :param request: 请求对象
+    :param ssh_id: 服务器ID
+    :param query_db: 数据库会话
+    :return: 连接测试结果和服务器信息
+    """
+    test_result = await SshService.ssh_client_services(query_db, ssh_id)
+    if test_result.is_success:
+        logger.info(f'服务器{ssh_id}连接测试成功')
+    else:
+        logger.error(f'服务器{ssh_id}连接测试失败: {test_result.message}')
+    
+    return ResponseUtil.success(data=test_result)
