@@ -36,6 +36,8 @@ class SshModel(BaseModel):
     # 校验表单
     validate_ssh_name = field_validator('ssh_name')(validate_string('ssh_name', 20))
     validate_ssh_host = field_validator('ssh_host')(validate_string('ssh_host', 128))
+    validate_ssh_username = field_validator('ssh_username')(validate_string('ssh_username', 128))
+    validate_ssh_password = field_validator('ssh_password')(validate_string('ssh_password', 128))
 
     @Xss(field_name='ssh_name', message='服务器名称不能包含脚本字符')
     @NotBlank(field_name='ssh_name', message='服务器名称不能为空')
@@ -49,9 +51,23 @@ class SshModel(BaseModel):
     def get_ssh_host(self):
         return self.ssh_host
 
+    @Xss(field_name='ssh_username', message='服务器用户名不能包含脚本字符')
+    @NotBlank(field_name='ssh_username', message='服务器用户名不能为空')
+    @Size(field_name='ssh_username', max_length=128, message='服务器用户名不能超过128个字符')
+    def get_ssh_username(self):
+        return self.ssh_username
+
+    @Xss(field_name='ssh_password', message='服务器密码不能包含脚本字符')
+    @NotBlank(field_name='ssh_password', message='服务器密码不能为空')
+    @Size(field_name='ssh_password', max_length=128, message='服务器密码不能超过128个字符')
+    def get_ssh_password(self):
+        return self.ssh_password
+
     def validate_fields(self):
         self.get_ssh_name()
         self.get_ssh_host()
+        self.get_ssh_username()
+        self.get_ssh_password()
 
 
 class SshQueryModel(SshModel):
