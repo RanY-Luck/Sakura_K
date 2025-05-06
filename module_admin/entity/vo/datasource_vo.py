@@ -108,18 +108,3 @@ class SourceInfo(BaseModel):
     datasource_user: str
     datasource_pwd: str
 
-
-# 数据源排除密码
-class SourceExcludePasswords(BaseModel):
-    datasourceId: int
-    datasourceName: str
-    datasourceType: str
-    datasourceHost: str
-    datasourcePort: str
-    datasourceUser: str
-    datasourcePwd: str
-    createBy: Optional[str] = None
-    createTime: Optional[datetime] = None
-    updateBy: Optional[str] = None
-    updateTime: Optional[datetime] = None
-    remark: Optional[str] = None
