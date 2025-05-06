@@ -34,12 +34,12 @@ class SshModel(BaseModel):
     del_flag: Optional[str] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
 
     # 校验表单
-    validate_env_name = field_validator('ssh_name')(validate_string('ssh_name', 10))
-    validate_env_url = field_validator('ssh_host')(validate_string('ssh_host', 128))
+    validate_ssh_name = field_validator('ssh_name')(validate_string('ssh_name', 20))
+    validate_ssh_host = field_validator('ssh_host')(validate_string('ssh_host', 128))
 
     @Xss(field_name='ssh_name', message='服务器名称不能包含脚本字符')
     @NotBlank(field_name='ssh_name', message='服务器名称不能为空')
-    @Size(field_name='ssh_name', max_length=10, message='服务器名称不能超过10个字符')
+    @Size(field_name='ssh_name', max_length=20, message='服务器名称不能超过20个字符')
     def get_ssh_name(self):
         return self.ssh_name
 
