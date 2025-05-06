@@ -7,10 +7,10 @@
 # @Desc     : 环境表类型-pydantic模型
 from typing import Optional
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field,field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 from pydantic_validation_decorator import NotBlank, Xss, Size
-from module_admin.annotation.pydantic_annotation import as_query,validate_string
+from module_admin.annotation.pydantic_annotation import as_query, validate_string
 
 
 class SshModel(BaseModel):
@@ -78,3 +78,11 @@ class DeleteSshModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel)
 
     ssh_ids: str = Field(description='需要删除的服务器主键')
+
+
+# 服务器信息
+class SshInfo(BaseModel):
+    ssh_host: str
+    ssh_username: str
+    ssh_password: str
+    ssh_port: int

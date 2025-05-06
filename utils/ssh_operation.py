@@ -534,9 +534,9 @@ if __name__ == "__main__":
     os.environ["SSH_HOST"] = "192.168.1.50"
     os.environ["SSH_USERNAME"] = "root"
     os.environ["SSH_PASSWORD"] = "123456"
-    host = os.getenv("SSH_HOST")  # 虚拟机IP地址
-    username = os.getenv("SSH_USERNAME")  # 虚拟机用户名
-    password = os.getenv("SSH_PASSWORD")  # 虚拟机密码
+    host = os.getenv("SSH_HOST")  # 服务器IP地址
+    username = os.getenv("SSH_USERNAME")  # 服务器用户名
+    password = os.getenv("SSH_PASSWORD")  # 服务器密码
 
     # 使用类接口的示例
     try:
