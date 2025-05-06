@@ -17,7 +17,7 @@ class Ssh(BaseModel):
     __table_args__ = ({'comment': '服务器表'})
 
     ssh_id = Column(Integer, primary_key=True, autoincrement=True, comment='服务器ID')
-    ssh_name = Column(String(10), nullable=False, comment='服务器名称')
+    ssh_name = Column(String(20), nullable=False, comment='服务器名称')
     ssh_host = Column(String(128), nullable=False, comment='服务器地址')
     ssh_username = Column(String(128), nullable=True, comment='服务器用户名')
     ssh_password = Column(String(128), nullable=True, comment='服务器密码')
