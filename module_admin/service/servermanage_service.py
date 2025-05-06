@@ -15,6 +15,7 @@ from module_admin.dao.servermanage_dao import SshDao
 from module_admin.entity.vo.servermanage_vo import DeleteSshModel, SshModel, SshPageQueryModel
 from utils.common_util import CamelCaseUtil
 from utils.excel_util import ExcelUtil
+from utils.pwd_util import PwdUtil, hash_key
 
 
 class SshService:
@@ -79,6 +80,12 @@ class SshService:
                     result = dict(is_success=False, message=f'服务器:{page_object.ssh_name} 已存在')
                     return CrudResponseModel(**result)
             try:
+                # 在这里对密码进行加密
+                if 'ssh_password' in edit_ssh and edit_ssh['ssh_password']:
+                    edit_ssh['ssh_password'] = PwdUtil.encrypt(
+                        hash_key=hash_key,
+                        plain_password=page_object.ssh_password
+                    )
                 await SshDao.edit_ssh_dao(query_db, edit_ssh)
                 await query_db.commit()
                 result = dict(is_success=True, message=f'服务器:{ssh_info.ssh_name} 更新成功')
