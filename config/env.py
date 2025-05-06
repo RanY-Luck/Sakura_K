@@ -213,7 +213,7 @@ class GetConfig:
 
 PROJECT_DESCRIPTION: str = """
 🎉 sakura_k 管理员接口汇总 🎉
-本项目基于Fastapi与Vue3+Typescript+Vite4+element-plus的基础项目 前端基于vue-element-plus-admin框架开发
+本项目基于Fastapi与Vue3+JavaScript+Vite4+element-plus的基础项目 前端基于vue-element-plus-admin框架开发
 #### Description/说明
 <details>
 <summary>点击展开/Click to expand</summary>
