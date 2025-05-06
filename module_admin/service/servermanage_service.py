@@ -58,6 +58,12 @@ class SshService:
             result = dict(is_success=False, message=f'服务器:{page_object.ssh_name} 已存在')
         else:
             try:
+                # 在这里对密码进行加密
+                if hasattr(page_object, 'ssh_password') and page_object.ssh_password:
+                    page_object.ssh_password = PwdUtil.encrypt(
+                        hash_key=hash_key,
+                        plain_password=page_object.ssh_password
+                    )
                 await SshDao.add_ssh_dao(query_db, page_object)
                 await query_db.commit()
                 result = dict(is_success=True, message='新增服务器成功')
