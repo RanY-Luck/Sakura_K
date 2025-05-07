@@ -3,16 +3,18 @@
 # @Time    : 2024/4/29 22:00
 # @Author  : 冉勇
 # @Site    :
-# @File    : servermanage_controller.py
+# @File    : ssh_controller.py
 # @Software: PyCharm
 # @desc    : SSH操作控制器
-from typing import Optional
 from fastapi import APIRouter, UploadFile, File, Form, Body, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils.response_util import ResponseUtil
 from module_admin.service.login_service import LoginService
 from utils.ssh_operation import ssh_operation
 from module_ssh.core.ssh_client import SSHClient
 from module_ssh.core.ssh_operations import SSHOperations
+from config.get_db import get_db
+from module_ssh.service.ssh_service import get_ssh_connection_details
 
 # 创建路由器
 sshController = APIRouter(prefix="/ssh", dependencies=[Depends(LoginService.get_current_user)])
@@ -20,22 +22,24 @@ sshController = APIRouter(prefix="/ssh", dependencies=[Depends(LoginService.get_
 
 @sshController.post("/connect/test")
 async def test_ssh_connection(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口")
+        ssh_id: int = Body(..., description="SSH服务器ID"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     测试SSH连接
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+        host, username, password, port = connection_details
         success, error = SSHClient.test_connection(
             host=host,
             username=username,
             password=password,
             port=port
         )
-
         if success:
             return ResponseUtil.success(msg="连接成功")
         else:
@@ -46,17 +50,22 @@ async def test_ssh_connection(
 
 @sshController.post("/command/execute")
 async def execute_command(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
+        ssh_id: int = Body(..., description="SSH服务器ID"),
         command: str = Body(..., description="要执行的命令"),
-        timeout: int = Body(60, description="命令超时时间(秒)")
+        timeout: int = Body(60, description="命令超时时间(秒)"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     执行SSH命令
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         ssh_ops = SSHOperations.from_credentials(
             host=host,
             username=username,
@@ -79,17 +88,22 @@ async def execute_command(
 
 @sshController.post("/script/execute")
 async def execute_script(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
+        ssh_id: int = Body(..., description="SSH服务器ID"),
         script_content: str = Body(..., description="脚本内容"),
-        timeout: int = Body(60, description="脚本超时时间(秒)")
+        timeout: int = Body(60, description="脚本超时时间(秒)"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     执行SSH脚本
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         ssh_ops = SSHOperations.from_credentials(
             host=host,
             username=username,
@@ -112,17 +126,22 @@ async def execute_script(
 
 @sshController.post("/file/upload")
 async def upload_file(
-        host: str = Form(..., description="主机地址"),
-        username: str = Form(..., description="用户名"),
-        password: Optional[str] = Form(None, description="密码"),
-        port: int = Form(22, description="SSH端口"),
+        ssh_id: int = Form(..., description="SSH服务器ID"),
         remote_path: str = Form(..., description="远程路径"),
-        file: UploadFile = File(..., description="要上传的文件")
+        file: UploadFile = File(..., description="要上传的文件"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     上传文件到远程服务器
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         # 保存上传的文件到临时目录
         import tempfile
         import os
@@ -158,17 +177,22 @@ async def upload_file(
 
 @sshController.post("/file/download")
 async def download_file(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
+        ssh_id: int = Body(..., description="SSH服务器ID"),
         remote_path: str = Body(..., description="远程文件路径"),
-        local_path: str = Body(..., description="本地保存路径")
+        local_path: str = Body(..., description="本地保存路径"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     从远程服务器下载文件
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         # 检查远程文件是否存在
         import os
         from utils.log_util import logger
@@ -209,17 +233,22 @@ async def download_file(
 
 @sshController.post("/text/write")
 async def write_text(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
+        ssh_id: int = Body(..., description="SSH服务器ID"),
         remote_path: str = Body(..., description="远程文件路径"),
-        content: str = Body(..., description="要写入的文本内容")
+        content: str = Body(..., description="要写入的文本内容"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     写入文本到远程文件
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         result = ssh_operation(
             host=host,
             username=username,
@@ -240,16 +269,21 @@ async def write_text(
 
 @sshController.post("/text/read")
 async def read_text(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
-        remote_path: str = Body(..., description="远程文件路径")
+        ssh_id: int = Body(..., description="SSH服务器ID"),
+        remote_path: str = Body(..., description="远程文件路径"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     读取远程文件文本内容
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         content = ssh_operation(
             host=host,
             username=username,
@@ -269,16 +303,21 @@ async def read_text(
 
 @sshController.post("/dir/list")
 async def list_directory(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
-        remote_path: str = Body(..., description="远程目录路径")
+        ssh_id: int = Body(..., description="SSH服务器ID"),
+        remote_path: str = Body(..., description="远程目录路径"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     列出远程目录内容
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         files = ssh_operation(
             host=host,
             username=username,
@@ -295,16 +334,21 @@ async def list_directory(
 
 @sshController.post("/dir/make")
 async def make_directory(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
-        remote_path: str = Body(..., description="要创建的远程目录路径")
+        ssh_id: int = Body(..., description="SSH服务器ID"),
+        remote_path: str = Body(..., description="要创建的远程目录路径"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     创建远程目录
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         result = ssh_operation(
             host=host,
             username=username,
@@ -324,16 +368,21 @@ async def make_directory(
 
 @sshController.post("/file/remove")
 async def remove_file(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
-        remote_path: str = Body(..., description="要删除的远程文件路径")
+        ssh_id: int = Body(..., description="SSH服务器ID"),
+        remote_path: str = Body(..., description="要删除的远程文件路径"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     删除远程文件
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         result = ssh_operation(
             host=host,
             username=username,
@@ -353,17 +402,22 @@ async def remove_file(
 
 @sshController.post("/dir/remove")
 async def remove_directory(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
+        ssh_id: int = Body(..., description="SSH服务器ID"),
         remote_path: str = Body(..., description="要删除的远程目录路径"),
-        recursive: bool = Body(False, description="是否递归删除目录内容")
+        recursive: bool = Body(False, description="是否递归删除目录内容"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     删除远程目录
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         if recursive:
             ssh_ops = SSHOperations.from_credentials(
                 host=host,
@@ -392,16 +446,21 @@ async def remove_directory(
 
 @sshController.post("/file/info")
 async def get_file_info(
-        host: str = Body(..., description="主机地址"),
-        username: str = Body(..., description="用户名"),
-        password: Optional[str] = Body(None, description="密码"),
-        port: int = Body(22, description="SSH端口"),
-        remote_path: str = Body(..., description="远程文件路径")
+        ssh_id: int = Body(..., description="SSH服务器ID"),
+        remote_path: str = Body(..., description="远程文件路径"),
+        query_db: AsyncSession = Depends(get_db)
 ):
     """
     获取远程文件信息
     """
     try:
+        # 获取SSH连接详情
+        connection_details = await get_ssh_connection_details(query_db, ssh_id)
+        if not connection_details:
+            return ResponseUtil.error(msg=f"未找到ID为{ssh_id}的SSH服务器信息")
+
+        host, username, password, port = connection_details
+
         ssh_ops = SSHOperations.from_credentials(
             host=host,
             username=username,

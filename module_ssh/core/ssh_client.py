@@ -3,7 +3,7 @@
 # @Time    : 2024/4/29 22:00
 # @Author  : 冉勇
 # @Site    :
-# @File    : servermanage_controller.py
+# @File    : ssh_client.py
 # @Software: PyCharm
 # @desc    : SSH客户端核心类
 import threading
