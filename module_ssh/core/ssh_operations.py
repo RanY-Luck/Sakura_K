@@ -3,7 +3,7 @@
 # @Time    : 2024/4/29 22:00
 # @Author  : 冉勇
 # @Site    :
-# @File    : servermanage_controller.py
+# @File    : ssh_operations.py
 # @Software: PyCharm
 # @desc    : SSH操作类，提供文件传输等功能
 import os
