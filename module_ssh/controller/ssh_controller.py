@@ -294,7 +294,7 @@ async def read_text(
         )
 
         if content is not None:
-            return ResponseUtil.success(data={"content": content})
+            return ResponseUtil.success(data={"output": content})
         else:
             return ResponseUtil.error(msg="读取文件内容失败")
     except Exception as e:
@@ -326,8 +326,7 @@ async def list_directory(
             remote_path=remote_path,
             port=port
         )
-
-        return ResponseUtil.success(data={"files": files})
+        return ResponseUtil.success(data={"output": files})
     except Exception as e:
         return ResponseUtil.error(msg=f"列出目录内容失败: {str(e)}")
 
@@ -477,8 +476,7 @@ async def get_file_info(
                 file_info['atime'] = datetime.datetime.fromtimestamp(file_info['atime']).strftime('%Y-%m-%d %H:%M:%S')
             if 'mtime' in file_info:
                 file_info['mtime'] = datetime.datetime.fromtimestamp(file_info['mtime']).strftime('%Y-%m-%d %H:%M:%S')
-
-            return ResponseUtil.success(data={"file_info": file_info})
+            return ResponseUtil.success(data={"output": file_info})
         else:
             return ResponseUtil.error(msg="获取文件信息失败")
     except Exception as e:
