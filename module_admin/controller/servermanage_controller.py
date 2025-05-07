@@ -22,7 +22,7 @@ from utils.log_util import logger
 from utils.page_util import PageResponseModel
 from utils.response_util import ResponseUtil
 
-serverManageController = APIRouter(prefix='/ssh/sshInfo', dependencies=[Depends(LoginService.get_current_user)])
+serverManageController = APIRouter(prefix='/servermanage', dependencies=[Depends(LoginService.get_current_user)])
 
 
 @serverManageController.get(
