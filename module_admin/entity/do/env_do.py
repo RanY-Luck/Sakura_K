@@ -17,7 +17,7 @@ class Env(BaseModel):
     __table_args__ = ({'comment': '环境表'})
 
     env_id = Column(Integer, primary_key=True, autoincrement=True, comment='环境ID')
-    env_name = Column(String(10), nullable=False, comment='环境名称', index=True)
+    env_name = Column(String(20), nullable=False, comment='环境名称', index=True)
     env_url = Column(String(512), nullable=False, comment='环境地址')
     env_variables = Column(JSON, nullable=True, comment='环境变量')
     env_headers = Column(JSON, nullable=True, comment='环境请求头')

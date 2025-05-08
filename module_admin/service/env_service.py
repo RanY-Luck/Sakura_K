@@ -6,9 +6,12 @@
 # @File    : env_service.py
 # @Software: PyCharm
 # @desc    : 环境管理模块服务层
+from typing import List
+
 from module_admin.dao.env_dao import *
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from utils.common_util import CamelCaseUtil
+from utils.excel_util import ExcelUtil
 
 
 class EnvService:
@@ -120,3 +123,66 @@ class EnvService:
         result = EnvModel(**CamelCaseUtil.transform_result(env))
 
         return result
+
+    @classmethod
+    async def copy_env_services(cls, query_db: AsyncSession, new_env: EnvModel):
+        """
+        复制service
+        :param query_db: orm对象
+        :param new_env: 新环境对象（Pydantic 模型）
+        :return: 复制环境结果
+        """
+        try:
+            # 检查原项目是否存在
+            original_env_id = new_env.env_id
+            original_env = await cls.env_detail_services(query_db, original_env_id)
+            if not original_env:
+                result = dict(is_success=False, message='原环境不存在')
+                return CrudResponseModel(**result)
+
+            # 将 Pydantic 模型转换为 SQLAlchemy 模型
+            new_env_dict = new_env.model_dump(exclude_unset=True)
+            new_env_dict.pop('env_id', None)  # 移除 env_id，依赖数据库自增
+
+            # 创建 SQLAlchemy 模型实例
+            db_env = Env(**new_env_dict)
+
+            # 添加新环境到数据库
+            query_db.add(db_env)
+
+            # 提交事务
+            await query_db.commit()
+
+            # 刷新新环境对象以获取数据库生成的主键等信息
+            await query_db.refresh(db_env)
+
+            result = dict(is_success=True, message=f'环境:{new_env.env_name} 复制成功')
+            return CrudResponseModel(**result)
+        except Exception as e:
+            await query_db.rollback()
+            raise e
+
+    @staticmethod
+    async def export_env_list_services(env_list: List):
+        """
+        导出环境信息service
+
+        :param env_list: 服务器信息列表
+        :return: 服务器信息对应excel的二进制数据
+        """
+        # 创建一个映射字典，将英文键映射到中文键
+        mapping_dict = {
+            'envId': '环境编号',
+            'envName': '环境名称',
+            'envUrl': '环境地址',
+            'envVariables': '环境变量',
+            'envHeaders': '环境请求头',
+            'createBy': '创建者',
+            'createTime': '创建时间',
+            'updateBy': '更新者',
+            'updateTime': '更新时间',
+            'remark': '备注'
+        }
+        binary_data = ExcelUtil.export_list2excel(env_list, mapping_dict)
+
+        return binary_data

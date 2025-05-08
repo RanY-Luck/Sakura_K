@@ -34,12 +34,12 @@ class EnvModel(BaseModel):
     remark: Optional[str] = Field(default=None, description='备注')
 
     # 校验表单
-    validate_env_name = field_validator('env_name')(validate_string('env_name', 10))
+    validate_env_name = field_validator('env_name')(validate_string('env_name', 20))
     validate_env_url = field_validator('env_url')(validate_string('env_url', 512))
 
     @Xss(field_name='env_name', message='环境名称不能包含脚本字符')
     @NotBlank(field_name='env_name', message='环境名称不能为空')
-    @Size(field_name='env_name', max_length=10, message='环境名称不能超过10个字符')
+    @Size(field_name='env_name', max_length=20, message='环境名称不能超过20个字符')
     def get_env_name(self):
         return self.get_env_name
 
