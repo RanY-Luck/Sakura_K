@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 08/05/2025 09:30:42
+ Date: 08/05/2025 16:42:09
 */
 
 SET NAMES utf8mb4;
@@ -50,7 +50,7 @@ CREATE TABLE `api_info`  (
 -- ----------------------------
 -- Records of api_info
 -- ----------------------------
-INSERT INTO `api_info` VALUES (2, '查询倾角图表', 1, 'POST', '/api/admin/packetInfo/getDevicePacketChart', '0', 'P1', '[\"123\", \"456\"]', 0, '[]', '{\"endTime\": \"2025-04-29 23:59:59\", \"groupId\": 7779, \"startTime\": \"2025-04-23 00:00:00\"}', '{\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fZGV2IiwidXNlcklkIjoiMjc2IiwibmFtZSI6IuWGieWLhyIsImlkIjoiVkw1UElxZGMiLCJleHAiOjE3NDYxNzg3MTV9.ECmD7sdk04F-9VxPFHgrVraC5OLAXUzVqEdtg4DxtlB5hwdXDwKfR3B3n_OcaJyxzeBrycMSBG3gBg2K-vQz4zRqU7ggpbhe8vspol21pnHj2orH2VyHSTXg2sbLkU_1Y-DS4HAEVHPntkbosvNz1olWolucG7PmWD_xEdGFW2A\"}', '\"string\"', '2025-05-07 01:46:46', '0', 'string', '2025-04-29 14:43:56', 'admin', '2025-05-07 09:46:46', 'string', NULL);
+INSERT INTO `api_info` VALUES (2, '查询倾角图表', 1, 'POST', '/api/admin/packetInfo/getDevicePacketChart', '0', 'P1', '[\"123\", \"456\"]', 0, '[]', '{\"endTime\": \"2025-04-29 23:59:59\", \"groupId\": 7779, \"startTime\": \"2025-04-23 00:00:00\"}', '{}', '\"string\"', '2025-05-08 06:14:38', '0', 'string', '2025-04-29 14:43:56', 'admin', '2025-05-08 14:14:38', 'string', NULL);
 INSERT INTO `api_info` VALUES (3, '百度一下', 19, 'GET', 'www.baidu.com', '0', 'P0', '[]', 0, '[]', '{}', '{}', '\"\"', '2025-04-30 08:02:30', '0', 'admin', '2025-04-29 16:04:52', 'admin', '2025-04-30 16:02:30', '', NULL);
 
 -- ----------------------------
@@ -102,25 +102,25 @@ INSERT INTO `data_source` VALUES (1, '本地数据库', 'mysql', '127.0.0.1', '3
 DROP TABLE IF EXISTS `env_info`;
 CREATE TABLE `env_info`  (
   `env_id` int NOT NULL AUTO_INCREMENT COMMENT '环境ID',
-  `env_name` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '环境名称',
-  `env_url` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '环境地址',
+  `env_name` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '环境名称',
+  `env_url` varchar(512) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '环境地址',
   `env_variables` json NULL COMMENT '环境变量',
   `env_headers` json NULL COMMENT '环境请求头',
-  `create_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '创建者',
+  `create_by` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '创建者',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
-  `update_by` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '更新者',
+  `update_by` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '更新者',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
-  `remark` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
-  `del_flag` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
+  `remark` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `del_flag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`env_id`) USING BTREE,
   INDEX `ix_env_info_env_name`(`env_name` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 102 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '环境表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '环境表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of env_info
 -- ----------------------------
-INSERT INTO `env_info` VALUES (1, '测试环境', 'https://beidoulab.club:5557/', '{}', '{}', 'admin', '2024-10-30 22:54:51', 'admin', '2025-05-06 18:14:59', '测试服', NULL);
-INSERT INTO `env_info` VALUES (2, '正式环境', 'https://convercomm.com/', '{}', '{}', 'admin', '2024-10-30 22:56:38', 'admin', '2025-05-06 18:14:55', '正式服', NULL);
+INSERT INTO `env_info` VALUES (1, '测试环境', 'https://beidoulab.club:5557/', '{}', '{}', 'admin', '2024-10-30 22:54:51', 'admin', '2025-05-08 15:41:23', '测试服', NULL);
+INSERT INTO `env_info` VALUES (2, '正式环境', 'https://convercomm.com/', '{}', '{\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAwMSIsInVzZXJJZCI6IjU4MCIsIm5hbWUiOiJyYW5fMDAwMSIsImlkIjoid2RDVkNsbzMiLCJleHAiOjE3NDc1MzU2NjB9.dL-M4PX7l6TplZmnlDCqY9Jbq7rq8k_os0-PSFabKLal_1ByTc4UM6t1vuSOXuI2mPPq_ieRm5O8dEOHriM05t1PoyOhzYCnviUo3WIzH5u54fouLF1ReE23J0girZ3hIFiUJlsiR1tL3X2BCrip_7gc9yi417V4TnidErbziM0\"}', 'admin', '2024-10-30 22:56:38', 'admin', '2025-05-06 18:14:55', '正式服', NULL);
 
 -- ----------------------------
 -- Table structure for gen_table
@@ -491,7 +491,7 @@ INSERT INTO `sys_job` VALUES (3, '系统默认（多参）', 'default', 'default
 INSERT INTO `sys_job` VALUES (4, '系统默认异步（无参）', 'default', 'default', 'module_task.scheduler_test.async_job', '', '', '0/10 * * * * ?', '1', '1', '1', 'admin', '2024-11-14 11:19:00', 'admin', '2024-11-14 11:19:48', NULL);
 INSERT INTO `sys_job` VALUES (5, '系统默认异步（有参）', 'default', 'default', 'module_task.scheduler_test.async_job', 'test', '', '0/15 * * * * ?', '1', '1', '1', 'admin', '2024-11-14 11:21:03', 'admin', '2024-11-14 11:21:43', NULL);
 INSERT INTO `sys_job` VALUES (6, '系统默认异步（多参）', 'default', 'default', 'module_task.scheduler_test.async_job', 'new', '{\"test\":111}', '0/20 * * * * ?', '1', '1', '1', 'admin', '2024-11-14 11:25:48', 'admin', '2024-11-14 11:26:09', NULL);
-INSERT INTO `sys_job` VALUES (7, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log.log', '', '', '0 0 0 * * ?', '1', '1', '0', 'admin', '2024-08-06 10:50:16', 'admin', '2024-08-23 00:24:19', '');
+INSERT INTO `sys_job` VALUES (7, '打包、删除日志', 'redis', 'processpool', 'module_task.scheduler_log.log', '', '', '0 0 0 * * ?', '1', '1', '0', 'admin', '2024-08-06 10:50:16', 'admin', '2025-05-08 09:46:19', '');
 
 -- ----------------------------
 -- Table structure for sys_job_log
@@ -511,7 +511,7 @@ CREATE TABLE `sys_job_log`  (
   `exception_info` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '异常信息',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 234 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 246 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_job_log
@@ -611,6 +611,18 @@ INSERT INTO `sys_job_log` VALUES (230, '打包、删除日志', 'default', 'defa
 INSERT INTO `sys_job_log` VALUES (231, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-07 00:00:04', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-05-06_error.log\'', '2025-05-07 00:00:04');
 INSERT INTO `sys_job_log` VALUES (232, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 00:00:00', '0', '', '2025-05-08 00:00:00');
 INSERT INTO `sys_job_log` VALUES (233, '打包、删除日志', 'default', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 00:00:00', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-05-07_error.log\'', '2025-05-08 00:00:00');
+INSERT INTO `sys_job_log` VALUES (234, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:39:03', '0', '', '2025-05-08 09:39:04');
+INSERT INTO `sys_job_log` VALUES (235, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:39:06 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:39:06', '0', '', '2025-05-08 09:39:07');
+INSERT INTO `sys_job_log` VALUES (236, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:39:06 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:39:06', '0', '', '2025-05-08 09:39:07');
+INSERT INTO `sys_job_log` VALUES (237, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:39:06 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:39:06', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-05-07_error.log\'', '2025-05-08 09:39:07');
+INSERT INTO `sys_job_log` VALUES (238, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:43:46', '0', '', '2025-05-08 09:43:46');
+INSERT INTO `sys_job_log` VALUES (239, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:44:29 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:44:29', '0', '', '2025-05-08 09:44:29');
+INSERT INTO `sys_job_log` VALUES (240, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:44:29 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:44:29', '0', '', '2025-05-08 09:44:29');
+INSERT INTO `sys_job_log` VALUES (241, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:44:29 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:44:29', '0', '', '2025-05-08 09:44:29');
+INSERT INTO `sys_job_log` VALUES (242, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:46:18', '0', '', '2025-05-08 09:46:19');
+INSERT INTO `sys_job_log` VALUES (243, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:46:35 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:46:35', '0', '', '2025-05-08 09:46:36');
+INSERT INTO `sys_job_log` VALUES (244, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:46:35 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:46:35', '0', '', '2025-05-08 09:46:36');
+INSERT INTO `sys_job_log` VALUES (245, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:46:35 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:46:35', '0', '', '2025-05-08 09:46:36');
 
 -- ----------------------------
 -- Table structure for sys_logininfor
@@ -629,7 +641,7 @@ CREATE TABLE `sys_logininfor`  (
   PRIMARY KEY (`info_id`) USING BTREE,
   INDEX `idx_sys_logininfor_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_logininfor_lt`(`login_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2196 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2201 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -923,6 +935,11 @@ INSERT INTO `sys_logininfor` VALUES (2192, 'admin', '', '内网IP', 'Chrome 135'
 INSERT INTO `sys_logininfor` VALUES (2193, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-07 17:01:52');
 INSERT INTO `sys_logininfor` VALUES (2194, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-07 17:03:13');
 INSERT INTO `sys_logininfor` VALUES (2195, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-08 09:25:57');
+INSERT INTO `sys_logininfor` VALUES (2196, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-08 10:48:01');
+INSERT INTO `sys_logininfor` VALUES (2197, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-08 11:48:09');
+INSERT INTO `sys_logininfor` VALUES (2198, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-08 14:07:18');
+INSERT INTO `sys_logininfor` VALUES (2199, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-08 15:31:32');
+INSERT INTO `sys_logininfor` VALUES (2200, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-08 16:18:48');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -1124,7 +1141,7 @@ CREATE TABLE `sys_oper_log`  (
   INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1456 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1474 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -1651,6 +1668,24 @@ INSERT INTO `sys_oper_log` VALUES (1452, '服务器', 3, 'module_admin.controlle
 INSERT INTO `sys_oper_log` VALUES (1453, '服务器', 1, 'module_admin.controller.servermanage_controller.copy_ssh()', 'POST', 1, 'admin', '研发部门', '/servermanage/copy/5', '', '内网IP', '{\"ssh_id\": \"5\"}', '{\"code\": 200, \"msg\": \"服务器:Ubantu服务器_copy 复制成功\", \"success\": true, \"time\": \"2025-05-07T10:20:38.525908\", \"trace_id\": \"08174424f69c458e857b5435f2facfe7\"}', 0, '', '2025-05-07 10:20:39', 1);
 INSERT INTO `sys_oper_log` VALUES (1454, '服务器', 3, 'module_admin.controller.servermanage_controller.delete_ssh()', 'DELETE', 1, 'admin', '研发部门', '/servermanage/8', '', '内网IP', '{\"ssh_ids\": \"8\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-07T10:20:45.848387\", \"trace_id\": \"e40ac0dccc92479088f2497b425e8cd1\"}', 0, '', '2025-05-07 10:20:46', 0);
 INSERT INTO `sys_oper_log` VALUES (1455, '菜单管理', 1, 'module_admin.controller.menu_controller.add_system_menu()', 'POST', 1, 'admin', '研发部门', '/system/menu', '', '内网IP', '{\"parentId\": 0, \"menuName\": \"服务器操作\", \"icon\": \"bug\", \"menuType\": \"C\", \"orderNum\": 5, \"isFrame\": 1, \"isCache\": 0, \"visible\": \"0\", \"status\": \"0\", \"path\": \"ssh\", \"component\": \"ssh/maintain\"}', '{\"code\": 200, \"msg\": \"新增成功\", \"success\": true, \"time\": \"2025-05-07T10:44:03.874284\", \"trace_id\": \"1c410e39d1064c78bb90c56c681f22df\"}', 0, '', '2025-05-07 10:44:04', 1);
+INSERT INTO `sys_oper_log` VALUES (1456, '定时任务', 2, 'module_admin.controller.job_controller.edit_system_job()', 'PUT', 1, 'admin', '研发部门', '/monitor/job', '', '内网IP', '{\"jobId\": 7, \"jobName\": \"打包、删除日志\", \"jobGroup\": \"redis\", \"jobExecutor\": \"default\", \"invokeTarget\": \"module_task.scheduler_log.log\", \"jobArgs\": \"\", \"jobKwargs\": \"\", \"cronExpression\": \"0 0 0 * * ?\", \"misfirePolicy\": \"1\", \"concurrent\": \"1\", \"status\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2024-08-06T10:50:16\", \"updateBy\": \"admin\", \"updateTime\": \"2024-08-23T00:24:19\", \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-05-08T09:39:03.865819\", \"trace_id\": \"7034a0313a8646f29359771d13d66be3\"}', 0, '', '2025-05-08 09:39:04', 3);
+INSERT INTO `sys_oper_log` VALUES (1457, '定时任务', 2, 'module_admin.controller.job_controller.execute_system_job()', 'PUT', 1, 'admin', '研发部门', '/monitor/job/run', '', '内网IP', '{\"jobId\": 7, \"jobGroup\": \"redis\"}', '{\"code\": 200, \"msg\": \"执行成功\", \"success\": true, \"time\": \"2025-05-08T09:39:06.690463\", \"trace_id\": \"a89fd45528f443ed872d32cf2794592e\"}', 0, '', '2025-05-08 09:39:07', 1);
+INSERT INTO `sys_oper_log` VALUES (1458, '定时任务', 2, 'module_admin.controller.job_controller.edit_system_job()', 'PUT', 1, 'admin', '研发部门', '/monitor/job', '', '内网IP', '{\"jobId\": 7, \"jobName\": \"打包、删除日志\", \"jobGroup\": \"redis\", \"jobExecutor\": \"default\", \"invokeTarget\": \"module_task.scheduler_log.log\", \"jobArgs\": \"\", \"jobKwargs\": \"\", \"cronExpression\": \"0 0 0 * * ?\", \"misfirePolicy\": \"1\", \"concurrent\": \"1\", \"status\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2024-08-06T10:50:16\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-08T09:39:04\", \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-05-08T09:43:46.076746\", \"trace_id\": \"516a88ef1f6643f29dd6f2b0945f179e\"}', 0, '', '2025-05-08 09:43:46', 2);
+INSERT INTO `sys_oper_log` VALUES (1459, '定时任务', 2, 'module_admin.controller.job_controller.execute_system_job()', 'PUT', 1, 'admin', '研发部门', '/monitor/job/run', '', '内网IP', '{\"jobId\": 7, \"jobGroup\": \"redis\"}', '{\"code\": 200, \"msg\": \"执行成功\", \"success\": true, \"time\": \"2025-05-08T09:44:29.290657\", \"trace_id\": \"6eb32d3815de48c3a82e2d19e749e6d2\"}', 0, '', '2025-05-08 09:44:29', 2);
+INSERT INTO `sys_oper_log` VALUES (1460, '定时任务', 2, 'module_admin.controller.job_controller.edit_system_job()', 'PUT', 1, 'admin', '研发部门', '/monitor/job', '', '内网IP', '{\"jobId\": 7, \"jobName\": \"打包、删除日志\", \"jobGroup\": \"redis\", \"jobExecutor\": \"processpool\", \"invokeTarget\": \"module_task.scheduler_log.log\", \"jobArgs\": \"\", \"jobKwargs\": \"\", \"cronExpression\": \"0 0 0 * * ?\", \"misfirePolicy\": \"1\", \"concurrent\": \"1\", \"status\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2024-08-06T10:50:16\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-08T09:43:46\", \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-05-08T09:46:18.682856\", \"trace_id\": \"5e8d56ca7cea40d7ba4e9ae0674e0699\"}', 0, '', '2025-05-08 09:46:19', 3);
+INSERT INTO `sys_oper_log` VALUES (1461, '定时任务', 2, 'module_admin.controller.job_controller.execute_system_job()', 'PUT', 1, 'admin', '研发部门', '/monitor/job/run', '', '内网IP', '{\"jobId\": 7, \"jobGroup\": \"redis\"}', '{\"code\": 200, \"msg\": \"执行成功\", \"success\": true, \"time\": \"2025-05-08T09:46:35.575908\", \"trace_id\": \"625e9b14fa99405e90507337c8211996\"}', 0, '', '2025-05-08 09:46:36', 1);
+INSERT INTO `sys_oper_log` VALUES (1462, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiId\": 2, \"apiName\": \"查询倾角图表\", \"projectId\": 1, \"apiMethod\": \"POST\", \"apiUrl\": \"/api/admin/packetInfo/getDevicePacketChart\", \"apiStatus\": \"0\", \"apiLevel\": \"P1\", \"apiTags\": [\"123\", \"456\"], \"requestDataType\": \"0\", \"requestParams\": [], \"requestData\": {\"endTime\": \"2025-04-29 23:59:59\", \"groupId\": 7779, \"startTime\": \"2025-04-23 00:00:00\"}, \"requestHeaders\": {}, \"cookie\": \"string\", \"lastRunStatus\": \"0\", \"lastRunTime\": \"2025-05-08T06:14:11.928Z\", \"createBy\": \"string\", \"createTime\": \"2025-04-29T14:43:56\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-07T09:46:46\", \"remark\": \"string\"}', '{\"code\": 200, \"msg\": \"接口:查询倾角图表 更新成功\", \"success\": true, \"time\": \"2025-05-08T14:14:12.041229\", \"trace_id\": \"6afd22c2254c4be2873e300e97a41bb2\"}', 0, '', '2025-05-08 14:14:12', 0);
+INSERT INTO `sys_oper_log` VALUES (1463, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiId\": 2, \"apiName\": \"查询倾角图表\", \"projectId\": 1, \"apiMethod\": \"POST\", \"apiUrl\": \"/api/admin/packetInfo/getDevicePacketChart\", \"apiStatus\": \"0\", \"apiLevel\": \"P1\", \"apiTags\": [\"123\", \"456\"], \"requestDataType\": \"0\", \"requestParams\": [], \"requestData\": {\"endTime\": \"2025-04-29 23:59:59\", \"groupId\": 7779, \"startTime\": \"2025-04-23 00:00:00\"}, \"requestHeaders\": {}, \"cookie\": \"string\", \"lastRunStatus\": \"0\", \"lastRunTime\": \"2025-05-08T06:14:37.929Z\", \"createBy\": \"string\", \"createTime\": \"2025-04-29T14:43:56\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-07T09:46:46\", \"remark\": \"string\"}', '{\"code\": 200, \"msg\": \"接口:查询倾角图表 更新成功\", \"success\": true, \"time\": \"2025-05-08T14:14:37.959561\", \"trace_id\": \"a988372d6e7845a38ad02ccb611e443e\"}', 0, '', '2025-05-08 14:14:38', 0);
+INSERT INTO `sys_oper_log` VALUES (1464, '环境', 1, 'module_admin.controller.env_controller.add_env()', 'POST', 1, 'admin', '研发部门', '/env/envInfo', '', '内网IP', '{\"envName\": \"asdas\", \"envUrl\": \"www.baidu.com\", \"envId\": null, \"envHeaders\": {}, \"envVariables\": {}, \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"新增环境成功\", \"success\": true, \"time\": \"2025-05-08T14:44:09.488191\", \"trace_id\": \"cb6116a9fdd349faa92d13b19c033500\"}', 0, '', '2025-05-08 14:44:09', 1);
+INSERT INTO `sys_oper_log` VALUES (1465, '环境', 2, 'module_admin.controller.env_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/env/envInfo', '', '内网IP', '{\"envName\": \"测试环境\", \"envUrl\": \"https://beidoulab.club:5557/\", \"envHeaders\": {}, \"envVariables\": {}, \"remark\": \"测试服\", \"envId\": 1, \"createBy\": \"admin\", \"createTime\": \"2024-10-30T22:54:51\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-06T18:14:59\"}', '{\"code\": 200, \"msg\": \"接口:测试环境 更新成功\", \"success\": true, \"time\": \"2025-05-08T15:41:22.586390\", \"trace_id\": \"90d57ff5e7874f3784c98dee07057313\"}', 0, '', '2025-05-08 15:41:23', 0);
+INSERT INTO `sys_oper_log` VALUES (1466, '服务器', 1, 'module_admin.controller.env_controller.copy_env()', 'POST', 0, 'admin', '研发部门', '/env/envInfo/copy/1', '', '内网IP', '{\"env_id\": \"1\"}', '{\"code\": 200, \"msg\": \"环境:测试环境_copy 复制成功\", \"success\": true, \"time\": \"2025-05-08T16:25:29.876586\", \"trace_id\": \"b5a113778672418caef8093918edb4b9\"}', 0, '', '2025-05-08 16:25:30', 4);
+INSERT INTO `sys_oper_log` VALUES (1467, '服务器', 5, 'module_admin.controller.env_controller.export_ssh_list()', 'POST', 0, 'admin', '研发部门', '/env/envInfo/export', '', '内网IP', '{}', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-05-08 16:26:02', 29);
+INSERT INTO `sys_oper_log` VALUES (1468, '服务器', 5, 'module_admin.controller.servermanage_controller.export_ssh_list()', 'POST', 0, 'admin', '研发部门', '/servermanage/export', '', '内网IP', '{}', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-05-08 16:26:49', 2);
+INSERT INTO `sys_oper_log` VALUES (1469, '服务器', 1, 'module_admin.controller.env_controller.copy_env()', 'POST', 1, 'admin', '研发部门', '/env/envInfo/copy/103', '', '内网IP', '{\"env_id\": \"103\"}', '{\"code\": 500, \"msg\": \"(asyncmy.errors.DataError) (1406, \\\"Data too long for column \'env_name\' at row 1\\\")\\n[SQL: INSERT INTO env_info (env_name, env_url, env_variables, env_headers, create_by, create_time, update_by, update_time, remark, del_flag) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)]\\n[parameters: (\'测试环境_copy_copy\', \'https://beidoulab.club:5557/\', \'{}\', \'{}\', \'admin\', datetime.datetime(2025, 5, 8, 16, 35, 3, 736198), \'admin\', datetime.datetime(2025, 5, 8, 16, 35, 3, 736198), \'测试服\', None)]\\n(Background on this error at: https://sqlalche.me/e/20/9h9h)\", \"success\": false, \"time\": \"2025-05-08T16:35:04.058778\", \"trace_id\": \"82e86058a8b94abc8d0c719f5023e6a8\"}', 1, '(asyncmy.errors.DataError) (1406, \"Data too long for column \'env_name\' at row 1\")\n[SQL: INSERT INTO env_info (env_name, env_url, env_variables, env_headers, create_by, create_time, update_by, update_time, remark, del_flag) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)]\n[parameters: (\'测试环境_copy_copy\', \'https://beidoulab.club:5557/\', \'{}\', \'{}\', \'admin\', datetime.datetime(2025, 5, 8, 16, 35, 3, 736198), \'admin\', datetime.datetime(2025, 5, 8, 16, 35, 3, 736198), \'测试服\', None)]\n(Background on this error at: https://sqlalche.me/e/20/9h9h)', '2025-05-08 16:35:04', 32);
+INSERT INTO `sys_oper_log` VALUES (1470, '服务器', 1, 'module_admin.controller.env_controller.copy_env()', 'POST', 1, 'admin', '研发部门', '/env/envInfo/copy/102', '', '内网IP', '{\"env_id\": \"102\"}', '{\"code\": 200, \"msg\": \"环境:asdas_copy 复制成功\", \"success\": true, \"time\": \"2025-05-08T16:35:15.238729\", \"trace_id\": \"55b5d34a56d948e9b47b8a6b7745f600\"}', 0, '', '2025-05-08 16:35:15', 1);
+INSERT INTO `sys_oper_log` VALUES (1471, '服务器', 5, 'module_admin.controller.env_controller.export_ssh_list()', 'POST', 1, 'admin', '研发部门', '/env/envInfo/export', '', '内网IP', 'pageNum: 1\npageSize: 10', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-05-08 16:39:11', 2);
+INSERT INTO `sys_oper_log` VALUES (1472, '服务器', 1, 'module_admin.controller.env_controller.copy_env()', 'POST', 1, 'admin', '研发部门', '/env/envInfo/copy/2', '', '内网IP', '{\"env_id\": \"2\"}', '{\"code\": 200, \"msg\": \"环境:正式环境_copy 复制成功\", \"success\": true, \"time\": \"2025-05-08T16:40:23.732995\", \"trace_id\": \"8e1b1f70ae2d4b82bf5534cc5c7bd5cf\"}', 0, '', '2025-05-08 16:40:24', 1);
+INSERT INTO `sys_oper_log` VALUES (1473, '环境', 3, 'module_admin.controller.env_controller.delete_env()', 'DELETE', 1, 'admin', '研发部门', '/env/envInfo/3', '', '内网IP', '{\"env_ids\": \"3\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-08T16:40:26.158250\", \"trace_id\": \"3f30a83ee39d4b40bb0683be0068dcee\"}', 0, '', '2025-05-08 16:40:26', 0);
 
 -- ----------------------------
 -- Table structure for sys_post
@@ -1869,7 +1904,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-05-08 09:25:57', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-05-08 16:18:49', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'niangao', '年糕', '00', 'niangao@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '2', '127.0.0.1', '2024-08-13 18:18:19', 'admin', '2024-08-13 18:18:19', 'admin', '2024-09-20 22:45:06', '测试员');
 INSERT INTO `sys_user` VALUES (100, 100, 'ranyong', 'ranyong', '00', '', '', '0', '', '$2b$12$iPYmQp3jjdIrZBqyaf6loOITsuvUQost39wHqNzzBCTOge7cmNblW', '0', '0', '', NULL, 'admin', '2024-08-13 20:47:13', 'admin', '2024-08-15 11:04:07', NULL);
 INSERT INTO `sys_user` VALUES (101, 103, 'demo1', 'demo1', '00', '', '', '0', '', '$2b$12$bFu.K.grA9O/zrZ9aQTGzeE4PjKwRbXJMm9rgJpN8ZzT5Ri2LXsve', '0', '0', '', '2024-09-20 22:40:21', '', '2024-08-16 10:28:18', 'admin', '2024-09-20 22:44:56', NULL);
