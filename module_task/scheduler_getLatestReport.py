@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : scheduler_getLatestReport.py
 # @Software: PyCharm
-# @desc    : 1分钟监控一次正式服上报数据
+# @desc    : 监控正式服上报数据
 import requests
 import json
 from datetime import datetime
@@ -19,7 +19,7 @@ AT_MOBILES = ["13206269804", "15112673242"]
 
 def monitor_api():
     """监控接口是否有数据上报"""
-    url = "https://www.convercomm.com/api/admin/openapi/getLatestReport?pwd=CEmA2ynTA6%29ia&minutes=1"
+    url = "https://www.convercomm.com/api/admin/openapi/getLatestReport?pwd=CEmA2ynTA6%29ia&minutes=15"
 
     payload = {}
     headers = {
@@ -40,12 +40,12 @@ def monitor_api():
         # 解析响应
         try:
             data = json.loads(response.text)
-            # logging.info(f"响应数据: {data}")
 
             # 检查API返回的状态码
             if "statusCode" in data:
                 if data["statusCode"] == 500:
-                    error_msg = f"无数据上报: {data.get('data', '无符合条件数据')}"
+                    error_msg = f"无数据上报: {data.get('data')}"
+                    print("error_msg-->", error_msg)
                     return False, error_msg
                 elif data["statusCode"] == 200:
                     return True, "数据上报正常"
@@ -55,6 +55,7 @@ def monitor_api():
             else:
                 error_msg = "响应中缺少statusCode字段"
                 return False, error_msg
+
         except json.JSONDecodeError:
             error_msg = "响应不是有效的JSON格式"
             return False, error_msg
@@ -74,7 +75,7 @@ def send_webhook_notification(success, message):
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     title = "❌ 异动通正式服数据上报异常警报"
-    content = f"[{current_time}] 警报：{message}"
+    content = f"[{current_time}] 数据上报警报：{message}"
 
     # 构建通知消息
     headers = {"Content-Type": "application/json"}
@@ -83,7 +84,6 @@ def send_webhook_notification(success, message):
     send_data = {
         "msgtype": "text",
         "text": {
-            ""
             "content": f"{title}\n{content}\n请相关同事注意检查。",
             "mentioned_mobile_list": AT_MOBILES
         }
@@ -91,12 +91,14 @@ def send_webhook_notification(success, message):
     requests.post(url=WEBHOOK, headers=headers, json=send_data)
 
 
-if __name__ == "__main__":
-    # 监控API
-    success, result = monitor_api()
-    # 控制台输出结果
-    if success:
-        pass
-    else:
-        # 只在异常时发送企业微信通知
-        send_webhook_notification(success, result)
+# if __name__ == "__main__":
+#     # 监控API
+#     success, result = monitor_api()
+#
+#     # 控制台输出结果
+#     if success:
+#         print("✓ API数据上报正常")
+#     else:
+#         print(f"✗ API数据上报异常: {result}")
+#         # 只在异常时发送企业微信通知
+#         send_webhook_notification(success, result)

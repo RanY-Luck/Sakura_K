@@ -6,4 +6,4 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 # @desc    :
-from . import scheduler_test, scheduler_log,scheduler_getLatestReport
+from . import scheduler_test, scheduler_log, scheduler_getLatestReportScript
