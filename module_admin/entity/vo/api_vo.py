@@ -8,11 +8,9 @@
 # @desc    : 接口表类型-pydantic模型
 from datetime import datetime
 from typing import List, Optional, Any, Literal
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 from pydantic_validation_decorator import Xss, NotBlank, Size
-
 from module_admin.annotation.pydantic_annotation import as_form, as_query, validate_string
 
 

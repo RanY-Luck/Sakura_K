@@ -53,7 +53,7 @@ class TestCaseModel(BaseModel):
     testcase_name: Optional[str] = Field(default=None, description='测试用例名称')
     project_id: Optional[int] = Field(default=None, description='项目ID')
     testcase_list: Optional[List] = Field(default=[], description='测试用例数组')
-
+    del_flag: Optional[Literal['0', '1']] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
     update_by: Optional[str] = Field(default=None, description='更新者')
