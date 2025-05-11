@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    : 项目表类型-pydantic模型
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
@@ -29,7 +29,7 @@ class ProjectModel(BaseModel):
     dev_user: Optional[str] = Field(default=None, description='开发人员')
     publish_app: Optional[str] = Field(default=None, description='发布应用')
     simple_desc: Optional[str] = Field(default=None, description='简要描述')
-
+    del_flag: Optional[Literal['0', '1']] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
     update_by: Optional[str] = Field(default=None, description='更新者')

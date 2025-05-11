@@ -29,12 +29,12 @@ class BaseModel(Base):
     __abstract__ = True
     __mapper_args__ = {"eager_defaults": True}  # 防止 insert 插入后不刷新
 
+    del_flag = Column(String(1), nullable=True, default='0', comment='删除标志（0代表存在 1代表删除）')
     create_by = Column(String(64), nullable=True, default='', comment='创建者')
     create_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='创建时间')
     update_by = Column(String(64), nullable=True, default='', comment='更新者')
     update_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='更新时间')
     remark = Column(String(100), nullable=True, default=None, comment='备注')
-    del_flag = Column(String(1), nullable=True, default='0', comment='删除标志（0代表存在 1代表删除）')
 
     @staticmethod
     def get_current_time():

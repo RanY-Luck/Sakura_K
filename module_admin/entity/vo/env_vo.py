@@ -6,7 +6,7 @@
 # @Software : PyCharm
 # @Desc     : 环境表类型-pydantic模型
 from datetime import datetime
-from typing import Optional, Any
+from typing import Optional, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
@@ -26,7 +26,7 @@ class EnvModel(BaseModel):
     env_url: Optional[str] = Field(default=None, description='环境地址')
     env_variables: Optional[Any] = Field(default=None, description='环境变量')
     env_headers: Optional[Any] = Field(default=None, description='环境请求头')
-
+    del_flag: Optional[Literal['0', '1']] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
     update_by: Optional[str] = Field(default=None, description='更新者')

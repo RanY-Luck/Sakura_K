@@ -6,7 +6,7 @@
 # @File    : datasource_vo.py
 # @Software: PyCharm
 # @desc    : 数据源配置表类型--pydantic模型
-from typing import Optional
+from typing import Optional, Literal
 from datetime import datetime
 from pydantic import ConfigDict, Field
 from pydantic.alias_generators import to_camel
@@ -28,7 +28,7 @@ class DataSourceModel(BaseModel):
     datasource_port: Optional[str] = Field(default=None, description='数据源端口')
     datasource_user: Optional[str] = Field(default=None, description='数据源用户名')
     datasource_pwd: Optional[str] = Field(default=None, description='数据源密码')
-
+    del_flag: Optional[Literal['0', '1']] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
     update_by: Optional[str] = Field(default=None, description='更新者')

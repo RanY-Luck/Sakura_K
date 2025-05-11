@@ -5,7 +5,7 @@
 # @File     : servermanage_vo.py
 # @Software : PyCharm
 # @Desc     : 环境表类型-pydantic模型
-from typing import Optional
+from typing import Optional, Literal
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
@@ -25,13 +25,12 @@ class SshModel(BaseModel):
     ssh_username: Optional[str] = Field(default=None, description='服务器用户名')
     ssh_password: Optional[str] = Field(default=None, description='服务器密码')
     ssh_port: Optional[int] = Field(default=None, description='服务器端口')
-
+    del_flag: Optional[Literal['0', '1']] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
     update_by: Optional[str] = Field(default=None, description='更新者')
     update_time: Optional[datetime] = Field(default=None, description='更新时间')
     remark: Optional[str] = Field(default=None, description='备注')
-    del_flag: Optional[str] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
 
     # 校验表单
     validate_ssh_name = field_validator('ssh_name')(validate_string('ssh_name', 20))
