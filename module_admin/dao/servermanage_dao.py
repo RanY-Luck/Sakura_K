@@ -59,7 +59,8 @@ class SshDao:
         """
         query = (
             select(Ssh)
-            .where(
+                .where(
+                Ssh.del_flag == '0',
                 Ssh.ssh_id == query_object.ssh_id if query_object.ssh_id is not None else True,
                 Ssh.ssh_name.like(f'%{query_object.ssh_name}%') if query_object.ssh_name else True,
                 Ssh.ssh_host.like(f'%{query_object.ssh_host}%') if query_object.ssh_host else True,
@@ -71,8 +72,8 @@ class SshDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-            .order_by(Ssh.create_time.desc())
-            .distinct()
+                .order_by(Ssh.create_time.desc())
+                .distinct()
         )
         ssh_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
@@ -137,4 +138,8 @@ class SshDao:
         :param ssh: 服务器对象
         :return:
         """
-        await db.execute(delete(Ssh).where(Ssh.ssh_id.in_([ssh.ssh_id])))
+        await db.execute(
+            update(Ssh)
+                .where(Ssh.ssh_id == ssh.ssh_id)
+                .values(del_flag='1', update_by=ssh.update_by, update_time=ssh.update_time)
+        )

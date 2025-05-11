@@ -66,6 +66,7 @@ class ApiDao:
             select(Api, Project)
             .join(Project, Api.project_id == Project.project_id)
             .where(
+                Api.del_flag == '0',
                 Api.api_id == query_object.api_id if query_object.api_id is not None else True,
                 Api.api_name.like(f'%{query_object.api_name}%') if query_object.api_name else True,
                 Api.api_status == query_object.api_status if query_object.api_status else True,
@@ -121,4 +122,8 @@ class ApiDao:
         :param api: 接口对象
         :return:
         """
-        await db.execute(delete(Api).where(Api.api_id.in_([api.api_id])))
+        await db.execute(
+            update(Api)
+                .where(Api.api_id == api.api_id)
+                .values(del_flag='1', update_by=api.update_by, update_time=api.update_time)
+        )

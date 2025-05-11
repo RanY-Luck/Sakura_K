@@ -71,6 +71,7 @@ class TestCaseDao:
             select(TestCase, Project)
                 .join(Project, TestCase.project_id == Project.project_id)
                 .where(
+                TestCase.del_flag == '0',
                 TestCase.testcase_id == query_object.testcase_id if query_object.testcase_id is not None else True,
                 TestCase.testcase_name.like(f'%{query_object.testcase_name}%') if query_object.testcase_name else True,
                 TestCase.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
@@ -124,7 +125,11 @@ class TestCaseDao:
         :param testcase: 测试用例对象
         :return:
         """
-        await db.execute(delete(TestCase).where(TestCase.testcase_id.in_([testcase.testcase_id])))
+        await db.execute(
+            update(TestCase)
+                .where(TestCase.testcase_id == testcase.testcase_id)
+                .values(del_flag='1', update_by=testcase.update_by, update_time=testcase.update_time)
+        )
 
     @classmethod
     async def get_testcase_and_api_list(

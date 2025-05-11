@@ -31,7 +31,7 @@ class ProjectDao:
         """
         project_info = (await db.execute(
             select(Project)
-            .where(Project.project_id == project_id)
+                .where(Project.project_id == project_id)
         )).scalars().first()
 
         return project_info
@@ -46,7 +46,7 @@ class ProjectDao:
         """
         project_info = (await db.execute(
             select(Project)
-            .where(
+                .where(
                 Project.project_name == project.project_name if project.project_name else True
             )
         )).scalars().first()
@@ -65,7 +65,8 @@ class ProjectDao:
         """
         query = (
             select(Project)
-            .where(
+                .where(
+                Project.del_flag == '0',
                 Project.project_id == query_object.project_id if query_object.project_id is not None else True,
                 Project.project_name.like(f'%{query_object.project_name}%') if query_object.project_name else True,
                 Project.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
@@ -76,8 +77,8 @@ class ProjectDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-            .distinct()
-            .order_by(Project.create_time.desc())
+                .distinct()
+                .order_by(Project.create_time.desc())
         )
         project_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
@@ -119,6 +120,7 @@ class ProjectDao:
         :return:
         """
         await db.execute(
-            delete(Project)
-            .where(Project.project_id.in_([project.project_id]))
+            update(Project)
+                .where(Project.project_id == project.project_id)
+                .values(del_flag='1', update_by=project.update_by, update_time=project.update_time)
         )

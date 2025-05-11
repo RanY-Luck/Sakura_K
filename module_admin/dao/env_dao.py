@@ -61,7 +61,7 @@ class EnvDao:
         """
         query = (
             select(Env)
-            .where(
+                .where(
                 Env.del_flag == '0',
                 Env.env_id == query_object.env_id if query_object.env_id is not None else True,
                 Env.env_name.like(f'%{query_object.env_name}%') if query_object.env_name else True,
@@ -73,8 +73,8 @@ class EnvDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-            .distinct()
-            .order_by(Env.create_time.desc())
+                .distinct()
+                .order_by(Env.create_time.desc())
         )
         env_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
 
@@ -110,12 +110,10 @@ class EnvDao:
             [env]
         )
 
-
     @classmethod
     async def delete_env_dao(cls, db: AsyncSession, env: EnvModel):
         """
         删除环境数据库操作
-
         :param db: orm对象
         :param env: 环境对象
         :return:
