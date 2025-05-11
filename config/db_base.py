@@ -5,7 +5,7 @@
 # @Site    : 
 # @File    : db_base.py
 # @Software: PyCharm
-# @desc    :
+# @desc    : 公共 ORM 模型
 """
 这里介绍下alembic，他的作用是：
 1、创建、修改和删除数据库表结构；
@@ -34,7 +34,7 @@ class BaseModel(Base):
     update_by = Column(String(64), nullable=True, default='', comment='更新者')
     update_time = Column(DateTime, nullable=True, default=datetime.now, onupdate=datetime.now, comment='更新时间')
     remark = Column(String(100), nullable=True, default=None, comment='备注')
-    del_flag = Column(String(1), nullable=True, default=None, comment='删除标志（0代表存在 2代表删除）')
+    del_flag = Column(String(1), nullable=True, default=None, comment='删除标志（0代表存在 1代表删除）')
 
     @staticmethod
     def get_current_time():
