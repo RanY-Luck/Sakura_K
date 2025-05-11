@@ -67,6 +67,7 @@ class RobotDao:
         query = (
             select(Robot)
                 .where(
+                Robot.del_flag == '0',
                 Robot.robot_id == query_object.robot_id if query_object.robot_id is not None else True,
                 Robot.robot_name.like(f'%{query_object.robot_name}%') if query_object.robot_name else True,
                 Robot.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
@@ -120,6 +121,7 @@ class RobotDao:
         :return:
         """
         await db.execute(
-            delete(Robot)
-                .where(Robot.robot_id.in_([robot.robot_id]))
+            update(Robot)
+                .where(Robot.robot_id == robot.robot_id)
+                .values(del_flag='1', update_by=robot.update_by, update_time=robot.update_time)
         )

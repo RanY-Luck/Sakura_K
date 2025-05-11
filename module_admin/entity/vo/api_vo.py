@@ -7,7 +7,7 @@
 # @Software: PyCharm
 # @desc    : 接口表类型-pydantic模型
 from datetime import datetime
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
@@ -58,7 +58,7 @@ class ApiQueryModel(BaseModel):
     cookie: Optional[Any] = Field(default=None, description='Cookie')
     last_run_time: Optional[datetime] = Field(default=None, description='最后执行时间')
     last_run_status: Optional[str] = Field(default=None, description='最后执行状态(0正常 1失败)')
-
+    del_flag: Optional[Literal['0', '1']] = Field(default=None, description='删除标志（0代表存在 1代表删除）')
     create_by: Optional[str] = Field(default=None, description='创建者')
     create_time: Optional[datetime] = Field(default=None, description='创建时间')
     update_by: Optional[str] = Field(default=None, description='更新者')
