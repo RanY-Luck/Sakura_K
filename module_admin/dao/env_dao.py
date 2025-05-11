@@ -62,6 +62,7 @@ class EnvDao:
         query = (
             select(Env)
             .where(
+                Env.del_flag == '0',
                 Env.env_id == query_object.env_id if query_object.env_id is not None else True,
                 Env.env_name.like(f'%{query_object.env_name}%') if query_object.env_name else True,
                 Env.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
@@ -109,12 +110,18 @@ class EnvDao:
             [env]
         )
 
+
     @classmethod
     async def delete_env_dao(cls, db: AsyncSession, env: EnvModel):
         """
         删除环境数据库操作
+
         :param db: orm对象
-        :param env: 接口对象
+        :param env: 环境对象
         :return:
         """
-        await db.execute(delete(Env).where(Env.env_id.in_([env.env_id])))
+        await db.execute(
+            update(Env)
+                .where(Env.env_id == env.env_id)
+                .values(del_flag='1', update_by=env.update_by, update_time=env.update_time)
+        )
