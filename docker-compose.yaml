@@ -1,0 +1,80 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: sakura_nginx
+    restart: always
+    ports:
+      - "9088:9088"
+      - "443:443" # 添加 HTTPS 端口映射(需要时打开)
+    volumes:
+      - ./docker_env/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /usr/local/web:/usr/local/web:ro
+      - ./docker_env/nginx/ssl:/etc/nginx/ssl:ro  # 映射 SSL 证书目录(需要时打开)
+    depends_on:
+      sakura_k:
+        condition: service_started
+
+  sakura_k:
+    container_name: 'sakura_k'
+    restart: always
+    env_file:
+      - .env.docker
+    ports:
+      - "9099:9099"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - HTTP_TIMEOUT=600
+    environment:
+      TZ: "Asia/Shanghai"
+      REDIS_HOST: redis
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Ranyong_520
+      MYSQL_DATABASE: skf
+      MYSQL_PORT: 3306
+    volumes:
+      - ../sakura_k:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+  redis:
+    image: redis:7.0.11
+    container_name: sakura_redis
+    restart: always
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes  # 启用 AOF 持久化
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mysql:
+    image: mysql:8.0.33
+    container_name: sakura_mysql
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      TZ: "Asia/Shanghai"
+      MYSQL_ROOT_PASSWORD: Ranyong_520
+      MYSQL_DATABASE: skf
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  mysql_data:
+  redis_data:
