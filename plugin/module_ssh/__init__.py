@@ -11,8 +11,8 @@ LastEditTime: 2025-04-29 22:37:54
 
 __version__ = '1.0.0'
 
-from module_ssh.core.ssh_client import SSHClient
-from module_ssh.core.ssh_operations import SSHOperations
+from plugin.module_ssh.core.ssh_client import SSHClient
+from plugin.module_ssh.core.ssh_operations import SSHOperations
 
 # 方便直接导入常用类
 __all__ = ['SSHClient', 'SSHOperations'] 

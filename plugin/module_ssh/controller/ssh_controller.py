@@ -11,10 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from utils.response_util import ResponseUtil
 from module_admin.service.login_service import LoginService
 from utils.ssh_operation import ssh_operation
-from module_ssh.core.ssh_client import SSHClient
-from module_ssh.core.ssh_operations import SSHOperations
+from plugin.module_ssh.core.ssh_client import SSHClient
+from plugin.module_ssh.core.ssh_operations import SSHOperations
 from config.get_db import get_db
-from module_ssh.service.ssh_service import get_ssh_connection_details
+from plugin.module_ssh.service.ssh_service import get_ssh_connection_details
 
 # 创建路由器
 sshController = APIRouter(prefix="/ssh", dependencies=[Depends(LoginService.get_current_user)])

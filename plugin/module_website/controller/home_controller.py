@@ -9,7 +9,7 @@ from fastapi import Request, APIRouter
 from fastapi.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 from config.get_db import get_db
-from module_website.utils import format_date
+from plugin.module_website.utils import format_date
 from utils.response_util import ResponseUtil
 
 homeRouter = APIRouter()

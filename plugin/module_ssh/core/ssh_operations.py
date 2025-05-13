@@ -9,7 +9,7 @@
 import os
 from utils.log_util import logger
 from typing import List, Optional, Callable, Dict, Any, Tuple
-from module_ssh.core.ssh_client import SSHClient
+from plugin.module_ssh.core.ssh_client import SSHClient
 
 
 class SSHOperations:

@@ -58,8 +58,6 @@ def auto_discover_controllers():
     module_dirs = [
         'module_admin',
         'module_app',
-        'module_website',
-        'module_ssh',
         'module_generator',
         'plugin'  # 添加plugin目录
     ]
@@ -88,7 +86,7 @@ def auto_discover_controllers():
                     if not filename.endswith('_controller.py'):
                         continue
 
-                    # 构建模块导入路径
+                    # 构建模块导入路径 - 修改这里以使用正确的导入路径
                     module_path = f"{module_dir}.{plugin_module}.controller.{filename[:-3]}"
                     try:
                         # 动态导入模块
