@@ -40,6 +40,7 @@ controller_tags_mapping = {
     'sshController': ['SSH远程操作'],
     'serverManageController': ['服务器管理'],
     'homeRouter': ['产品官网'],
+    'pluginController': ['插件管理'],
 }
 
 app_controllers = [

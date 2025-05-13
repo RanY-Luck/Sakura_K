@@ -11,6 +11,7 @@ import zipfile
 import shutil
 from urllib.parse import urlparse
 from utils.log_util import logger
+from tqdm import tqdm
 
 
 def download_github_repo(repo_url: str) -> bool:
@@ -34,17 +35,29 @@ def download_github_repo(repo_url: str) -> bool:
         temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
         os.makedirs(temp_dir, exist_ok=True)
         # 下载ZIP文件
-        print(f"下载 {repo_name}...")
+        logger.info(f"下载 {repo_name}...")
         response = requests.get(zip_url, stream=True)
         response.raise_for_status()
 
+        # 获取文件总大小
+        total_size = int(response.headers.get('content-length', 0))
+        
         zip_path = os.path.join(temp_dir, f"{repo_name}.zip")
         with open(zip_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
+            with tqdm(
+                total=total_size,
+                unit='B',
+                unit_scale=True,
+                unit_divisor=1024,
+                desc=f"下载 {repo_name}",
+                ncols=100
+            ) as pbar:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        pbar.update(len(chunk))
         # 解压缩ZIP文件
-        print(f"解压 {repo_name}...")
+        logger.info(f"解压 {repo_name}...")
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(temp_dir)
         # 在提取的文件中找到插件目录
@@ -81,7 +94,7 @@ def download_github_repo(repo_url: str) -> bool:
         logger.error("错误: 无效的ZIP文件")
         return False
     except Exception as e:
-        print(f"其他错误: {str(e)}")
+        logger.error(f"其他错误: {str(e)}")
         return False
 
 
