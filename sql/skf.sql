@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 08/05/2025 16:42:09
+ Date: 13/05/2025 09:32:46
 */
 
 SET NAMES utf8mb4;
@@ -50,8 +50,8 @@ CREATE TABLE `api_info`  (
 -- ----------------------------
 -- Records of api_info
 -- ----------------------------
-INSERT INTO `api_info` VALUES (2, '查询倾角图表', 1, 'POST', '/api/admin/packetInfo/getDevicePacketChart', '0', 'P1', '[\"123\", \"456\"]', 0, '[]', '{\"endTime\": \"2025-04-29 23:59:59\", \"groupId\": 7779, \"startTime\": \"2025-04-23 00:00:00\"}', '{}', '\"string\"', '2025-05-08 06:14:38', '0', 'string', '2025-04-29 14:43:56', 'admin', '2025-05-08 14:14:38', 'string', NULL);
-INSERT INTO `api_info` VALUES (3, '百度一下', 19, 'GET', 'www.baidu.com', '0', 'P0', '[]', 0, '[]', '{}', '{}', '\"\"', '2025-04-30 08:02:30', '0', 'admin', '2025-04-29 16:04:52', 'admin', '2025-04-30 16:02:30', '', NULL);
+INSERT INTO `api_info` VALUES (2, '查询倾角图表', 1, 'POST', '/api/admin/packetInfo/getDevicePacketChart', '0', 'P1', '[\"123\", \"456\"]', 0, '[]', '{\"endTime\": \"2025-04-29 23:59:59\", \"groupId\": 7779, \"startTime\": \"2025-04-23 00:00:00\"}', '{}', '\"string\"', '2025-05-08 06:14:38', '0', 'string', '2025-04-29 14:43:56', 'admin', '2025-05-08 14:14:38', 'string', '0');
+INSERT INTO `api_info` VALUES (3, '百度一下', 19, 'GET', 'www.baidu.com', '0', 'P0', '[]', 0, '[]', '{}', '{}', '\"\"', '2025-05-08 08:56:33', '0', 'admin', '2025-04-29 16:04:52', 'admin', '2025-05-08 16:56:33', '', '0');
 
 -- ----------------------------
 -- Table structure for apscheduler_jobs
@@ -114,13 +114,14 @@ CREATE TABLE `env_info`  (
   `del_flag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`env_id`) USING BTREE,
   INDEX `ix_env_info_env_name`(`env_name` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '环境表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '环境表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of env_info
 -- ----------------------------
 INSERT INTO `env_info` VALUES (1, '测试环境', 'https://beidoulab.club:5557/', '{}', '{}', 'admin', '2024-10-30 22:54:51', 'admin', '2025-05-08 15:41:23', '测试服', NULL);
-INSERT INTO `env_info` VALUES (2, '正式环境', 'https://convercomm.com/', '{}', '{\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAwMSIsInVzZXJJZCI6IjU4MCIsIm5hbWUiOiJyYW5fMDAwMSIsImlkIjoid2RDVkNsbzMiLCJleHAiOjE3NDc1MzU2NjB9.dL-M4PX7l6TplZmnlDCqY9Jbq7rq8k_os0-PSFabKLal_1ByTc4UM6t1vuSOXuI2mPPq_ieRm5O8dEOHriM05t1PoyOhzYCnviUo3WIzH5u54fouLF1ReE23J0girZ3hIFiUJlsiR1tL3X2BCrip_7gc9yi417V4TnidErbziM0\"}', 'admin', '2024-10-30 22:56:38', 'admin', '2025-05-06 18:14:55', '正式服', NULL);
+INSERT INTO `env_info` VALUES (2, '正式环境', 'https://convercomm.com/', '{}', '{\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAwMSIsInVzZXJJZCI6IjU4MCIsIm5hbWUiOiJyYW5fMDAwMSIsImlkIjoid2RDVkNsbzMiLCJleHAiOjE3NDc1MzU2NjB9.dL-M4PX7l6TplZmnlDCqY9Jbq7rq8k_os0-PSFabKLal_1ByTc4UM6t1vuSOXuI2mPPq_ieRm5O8dEOHriM05t1PoyOhzYCnviUo3WIzH5u54fouLF1ReE23J0girZ3hIFiUJlsiR1tL3X2BCrip_7gc9yi417V4TnidErbziM0\"}', 'admin', '2024-10-30 22:56:38', 'admin', '2025-05-08 17:54:09', '正式服', NULL);
+INSERT INTO `env_info` VALUES (5, '123', '123', '{}', '{}', 'admin', '2025-05-12 15:35:40', 'admin', '2025-05-12 15:35:40', '132', '0');
 
 -- ----------------------------
 -- Table structure for gen_table
@@ -235,19 +236,20 @@ CREATE TABLE `project_info`  (
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`project_id`) USING BTREE,
   INDEX `ix_project_info_project_name`(`project_name` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 47 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 48 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of project_info
 -- ----------------------------
-INSERT INTO `project_info` VALUES (1, '123123', 'string', 'string', 'string', 'string', 'string', NULL, 'string', '2024-09-15 09:00:39', 'admin', '2024-09-15 17:00:44', 'string');
-INSERT INTO `project_info` VALUES (2, '反无', '冉勇', '冉勇_测试', '冉勇_开发', 'web', '这是一个描述', NULL, 'admin', '2024-09-04 10:50:42', 'admin', '2024-09-04 10:50:42', '这是一个备注');
-INSERT INTO `project_info` VALUES (3, '异动通', '冉勇', '冉勇_测试', '冉勇_开发', 'web', '这是一个描述', NULL, 'admin', '2024-09-04 10:50:42', 'admin', '2024-09-10 21:54:43', '这是一个备注');
-INSERT INTO `project_info` VALUES (7, '冉勇', 'string', 'asda', 'string', 'string', 'string', NULL, 'admin', '2024-09-15 22:08:28', 'admin', '2024-09-15 22:09:03', 'string');
-INSERT INTO `project_info` VALUES (14, '！@#！#', '！@#！#', '！@#！#', '！@#！#', '！@#！#', '', NULL, 'admin', '2024-09-10 21:57:14', 'admin', '2024-09-10 21:57:14', '');
-INSERT INTO `project_info` VALUES (15, '1111111111', '2222222222', '4444444444', '3333333333', '5555555555', '9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999', NULL, 'admin', '2024-09-10 22:36:27', 'admin', '2024-09-10 22:36:27', '8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888');
-INSERT INTO `project_info` VALUES (17, '测试项目', '冉勇', '冉勇', '冉勇', 'web', '这是一个描述', NULL, 'admin', '2024-09-16 10:06:07', 'admin', '2024-09-20 22:31:33', '这是一个备注放放风1');
-INSERT INTO `project_info` VALUES (19, '测', '肉', '让', '人', 'web', '1', NULL, 'admin', '2025-04-22 14:41:09', 'admin', '2025-04-29 21:36:43', '2');
+INSERT INTO `project_info` VALUES (1, '123123', 'string', 'string', 'string', 'string', 'string', '0', 'string', '2024-09-15 09:00:39', 'admin', '2024-09-15 17:00:44', 'string');
+INSERT INTO `project_info` VALUES (2, '反无', '冉勇', '冉勇_测试', '冉勇_开发', 'web', '这是一个描述', '0', 'admin', '2024-09-04 10:50:42', 'admin', '2024-09-04 10:50:42', '这是一个备注');
+INSERT INTO `project_info` VALUES (3, '异动通', '冉勇', '冉勇_测试', '冉勇_开发', 'web', '这是一个描述', '0', 'admin', '2024-09-04 10:50:42', 'admin', '2024-09-10 21:54:43', '这是一个备注');
+INSERT INTO `project_info` VALUES (7, '冉勇', 'string', 'asda', 'string', 'string', 'string', '0', 'admin', '2024-09-15 22:08:28', 'admin', '2024-09-15 22:09:03', 'string');
+INSERT INTO `project_info` VALUES (14, '！@#！#', '！@#！#', '！@#！#', '！@#！#', '！@#！#', '', '0', 'admin', '2024-09-10 21:57:14', 'admin', '2024-09-10 21:57:14', '');
+INSERT INTO `project_info` VALUES (15, '1111111111', '2222222222', '4444444444', '3333333333', '5555555555', '9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999', '0', 'admin', '2024-09-10 22:36:27', 'admin', '2024-09-10 22:36:27', '8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888');
+INSERT INTO `project_info` VALUES (17, '测试项目', '冉勇', '冉勇', '冉勇', 'web', '这是一个描述', '0', 'admin', '2024-09-16 10:06:07', 'admin', '2024-09-20 22:31:33', '这是一个备注放放风1');
+INSERT INTO `project_info` VALUES (19, '测', '肉', '让', '人', 'web', '1', '0', 'admin', '2025-04-22 14:41:09', 'admin', '2025-04-29 21:36:43', '2');
+INSERT INTO `project_info` VALUES (47, '123', '123', '123', '123', '123', '', '1', 'admin', '2025-05-13 09:28:33', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for robot_conf
@@ -273,9 +275,9 @@ CREATE TABLE `robot_conf`  (
 -- ----------------------------
 -- Records of robot_conf
 -- ----------------------------
-INSERT INTO `robot_conf` VALUES (1, '企业微信机器人1', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=55e6d5bc-61fc-4d26-9615-01ab51c82801', 'Wx_bot', '**${name}**\n项目：${project_name}\n时间：${start_time} ～ ${end_date}\n共测试：${run_count}次\n通过数：${run_success_count}\n异常数：${run_err_count}\n失败数：${run_fail_count}\n测试通过率：${rate}%\n详细统计：[点击查看](${url})', '0', 'admin', '2024-09-28 17:35:47', 'admin', '2024-09-28 17:46:11', '这是一个备注', NULL);
-INSERT INTO `robot_conf` VALUES (2, '企业微信机器人2', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=55e6d5bc-61fc-4d26-9615-01ab51c82801', 'Wx_bot', '**${name}**\n项目：${project_name}\n时间：${start_time} ～ ${end_date}\n共测试：${run_count}次\n通过数：${run_success_count}\n异常数：${run_err_count}\n失败数：${run_fail_count}\n测试通过率：${rate}%\n详细统计：[点击查看](${url})', '1', 'admin', '2024-09-16 16:54:40', 'admin', '2024-09-28 17:36:19', '这是一个备注', NULL);
-INSERT INTO `robot_conf` VALUES (6, '企业微信机器人62', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=55e6d5bc-61fc-4d26-9615-01ab51c82801', 'Wx_bot', '**${name}**\n项目：${project_name}\n时间：${start_time} ～ ${end_date}\n共测试：${run_count}次\n通过数：${run_success_count}\n异常数：${run_err_count}\n失败数：${run_fail_count}\n测试通过率：${rate}%\n详细统计：[点击查看](${url})', '0', 'admin', '2024-09-29 17:16:45', 'admin', '2024-09-29 17:16:45', '这是一个备注', NULL);
+INSERT INTO `robot_conf` VALUES (1, '企业微信机器人1', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=55e6d5bc-61fc-4d26-9615-01ab51c82801', 'Wx_bot', '**${name}**\n项目：${project_name}\n时间：${start_time} ～ ${end_date}\n共测试：${run_count}次\n通过数：${run_success_count}\n异常数：${run_err_count}\n失败数：${run_fail_count}\n测试通过率：${rate}%\n详细统计：[点击查看](${url})', '0', 'admin', '2024-09-28 17:35:47', 'admin', '2024-09-28 17:46:11', '这是一个备注', '0');
+INSERT INTO `robot_conf` VALUES (2, '企业微信机器人2', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=55e6d5bc-61fc-4d26-9615-01ab51c82801', 'Wx_bot', '**${name}**\n项目：${project_name}\n时间：${start_time} ～ ${end_date}\n共测试：${run_count}次\n通过数：${run_success_count}\n异常数：${run_err_count}\n失败数：${run_fail_count}\n测试通过率：${rate}%\n详细统计：[点击查看](${url})', '1', 'admin', '2024-09-16 16:54:40', 'admin', '2024-09-28 17:36:19', '这是一个备注', '0');
+INSERT INTO `robot_conf` VALUES (6, '企业微信机器人62', 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=55e6d5bc-61fc-4d26-9615-01ab51c82801', 'Wx_bot', '**${name}**\n项目：${project_name}\n时间：${start_time} ～ ${end_date}\n共测试：${run_count}次\n通过数：${run_success_count}\n异常数：${run_err_count}\n失败数：${run_fail_count}\n测试通过率：${rate}%\n详细统计：[点击查看](${url})', '0', 'admin', '2024-09-29 17:16:45', 'admin', '2024-09-29 17:16:45', '这是一个备注', '0');
 
 -- ----------------------------
 -- Table structure for ssh_info
@@ -295,12 +297,18 @@ CREATE TABLE `ssh_info`  (
   `remark` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '备注',
   `del_flag` varchar(1) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NULL DEFAULT NULL COMMENT '删除标志（0代表存在 2代表删除）',
   PRIMARY KEY (`ssh_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '服务器表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci COMMENT = '服务器表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of ssh_info
 -- ----------------------------
+INSERT INTO `ssh_info` VALUES (1, 'demo1', '127.0.0.1', 'root', 'gAAAAABoIaX_xe9hk23ad5NQmUMsEkb19wn_u8CmJN1z4ZisTfymyFqw1TshfX03VlBOpRfHDHvowhohMNnTzrCy9O_LvLZE8g==', 22, 'deserunt elit irure', '2009-10-09 13:58:55', 'admin', '2025-05-12 15:40:48', 'cupidatat irure', '0');
 INSERT INTO `ssh_info` VALUES (5, 'Ubantu服务器', '192.168.1.50', 'root', 'gAAAAABoGcHfRToyOhEpldXXOfFXrH3ckFSx_sy9h1mOhwHBdsuptUfU3SM8pRrg58DVt5AAV6W2iqgZEkepWi2x3DEhfu--Yw==', 22, 'admin', '2025-05-06 16:01:35', 'admin', '2025-05-06 16:01:35', '这是一个备注', NULL);
+INSERT INTO `ssh_info` VALUES (9, 'demo1_copy', '127.0.0.1', 'root', 'gAAAAABoIaX_xe9hk23ad5NQmUMsEkb19wn_u8CmJN1z4ZisTfymyFqw1TshfX03VlBOpRfHDHvowhohMNnTzrCy9O_LvLZE8g==', 22, 'admin', '2025-05-12 15:43:13', NULL, NULL, 'cupidatat irure', '1');
+INSERT INTO `ssh_info` VALUES (10, 'demo1_copy', '127.0.0.1', 'root', 'gAAAAABoIaX_xe9hk23ad5NQmUMsEkb19wn_u8CmJN1z4ZisTfymyFqw1TshfX03VlBOpRfHDHvowhohMNnTzrCy9O_LvLZE8g==', 22, 'admin', '2025-05-12 15:44:11', NULL, NULL, 'cupidatat irure', '1');
+INSERT INTO `ssh_info` VALUES (11, 'demo1_copy', '127.0.0.1', 'root', 'gAAAAABoIabWLm8AvryrG_DyDdlHs_TJPtY4ZpzidxhyykkMeFZFpd6RDZGMwW3L-ZVMkGq_0biYDWe0i9z6JmElsBF4rpBztw==', 22, 'admin', '2025-05-12 15:44:15', 'admin', '2025-05-12 15:44:22', 'cupidatat irure123', '0');
+INSERT INTO `ssh_info` VALUES (12, '123', '123', '123', 'gAAAAABoIabc6CEgxTqkkDMLWbZblAGlgEif7P9-2M-QTyKaaxjdfqpEnpqwg9JuDZFQTaINGQc0gL2lgaVjAVFJR4XrsFv8oA==', 22, 'admin', '2025-05-12 15:44:31', NULL, NULL, NULL, '1');
+INSERT INTO `ssh_info` VALUES (13, 'demo1_copy_copy', '127.0.0.1', 'root', 'gAAAAABoIabWLm8AvryrG_DyDdlHs_TJPtY4ZpzidxhyykkMeFZFpd6RDZGMwW3L-ZVMkGq_0biYDWe0i9z6JmElsBF4rpBztw==', 22, 'admin', '2025-05-12 15:44:47', 'admin', '2025-05-12 15:44:47', 'cupidatat irure123', '0');
 
 -- ----------------------------
 -- Table structure for sys_config
@@ -511,7 +519,7 @@ CREATE TABLE `sys_job_log`  (
   `exception_info` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '异常信息',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`job_log_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 246 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 248 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '定时任务调度日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_job_log
@@ -623,6 +631,8 @@ INSERT INTO `sys_job_log` VALUES (242, '打包、删除日志', 'redis', 'defaul
 INSERT INTO `sys_job_log` VALUES (243, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:46:35 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:46:35', '0', '', '2025-05-08 09:46:36');
 INSERT INTO `sys_job_log` VALUES (244, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:46:35 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:46:35', '0', '', '2025-05-08 09:46:36');
 INSERT INTO `sys_job_log` VALUES (245, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'or[date[2025-05-08 09:46:35 CST], cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']]', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-08 09:46:35', '0', '', '2025-05-08 09:46:36');
+INSERT INTO `sys_job_log` VALUES (246, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobSubmissionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-13 00:00:00', '0', '', '2025-05-13 00:00:00');
+INSERT INTO `sys_job_log` VALUES (247, '打包、删除日志', 'redis', 'default', 'module_task.scheduler_log:log', '', '{}', 'cron[month=\'*\', day=\'*\', hour=\'0\', minute=\'0\', second=\'0\']', '事件类型: JobExecutionEvent, 任务ID: 7, 任务名称: 打包、删除日志, 执行于2025-05-13 00:00:00', '1', '[WinError 32] 另一个程序正在使用此文件，进程无法访问。: \'F:\\\\gitpush\\\\Sakura_K\\\\logs\\\\2025-05-12_error.log\'', '2025-05-13 00:00:00');
 
 -- ----------------------------
 -- Table structure for sys_logininfor
@@ -641,7 +651,7 @@ CREATE TABLE `sys_logininfor`  (
   PRIMARY KEY (`info_id`) USING BTREE,
   INDEX `idx_sys_logininfor_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_logininfor_lt`(`login_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2201 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2207 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -940,6 +950,12 @@ INSERT INTO `sys_logininfor` VALUES (2197, 'admin', '', '内网IP', 'Chrome 135'
 INSERT INTO `sys_logininfor` VALUES (2198, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-08 14:07:18');
 INSERT INTO `sys_logininfor` VALUES (2199, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-08 15:31:32');
 INSERT INTO `sys_logininfor` VALUES (2200, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-08 16:18:48');
+INSERT INTO `sys_logininfor` VALUES (2201, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-08 17:15:20');
+INSERT INTO `sys_logininfor` VALUES (2202, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-09 11:19:08');
+INSERT INTO `sys_logininfor` VALUES (2203, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-12 14:33:31');
+INSERT INTO `sys_logininfor` VALUES (2204, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-12 15:21:32');
+INSERT INTO `sys_logininfor` VALUES (2205, 'admin', '', '内网IP', 'Other', 'Other', '0', '登录成功', '2025-05-12 15:25:26');
+INSERT INTO `sys_logininfor` VALUES (2206, 'admin', '', '内网IP', 'Chrome 135', 'Windows 10', '0', '登录成功', '2025-05-13 09:27:25');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -1082,7 +1098,7 @@ INSERT INTO `sys_menu` VALUES (2026, '接口新增', 2024, 1, '', NULL, NULL, ''
 INSERT INTO `sys_menu` VALUES (2027, '接口编辑', 2024, 2, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'apitest:apiInfo:edit', '#', 'admin', '2024-10-15 11:43:55', 'admin', '2024-10-15 11:43:55', '');
 INSERT INTO `sys_menu` VALUES (2028, '接口删除', 2024, 3, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'apitest:apiInfo:remove', '#', 'admin', '2024-10-15 11:44:12', 'admin', '2024-10-15 11:44:12', '');
 INSERT INTO `sys_menu` VALUES (2029, '接口测试', 2024, 4, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'apitest:apiInfo:debug', '#', 'admin', '2024-10-15 11:44:29', 'admin', '2024-10-15 11:44:29', '');
-INSERT INTO `sys_menu` VALUES (2030, '环境管理', 2007, 2, 'env', 'envinfo/index', NULL, '', 1, 0, 'C', '0', '0', 'env:envInfo:list', 'cascader', 'admin', '2024-10-31 22:07:51', 'admin', '2024-10-31 22:07:51', NULL);
+INSERT INTO `sys_menu` VALUES (2030, '环境管理', 2007, 2, 'env', 'envInfo/index', NULL, '', 1, 0, 'C', '0', '0', 'env:envInfo:list', 'cascader', 'admin', '2024-10-31 22:07:51', 'admin', '2025-05-08 18:07:36', NULL);
 INSERT INTO `sys_menu` VALUES (2031, '环境查询', 2030, 0, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:query', '#', 'admin', '2024-10-31 22:08:38', 'admin', '2024-10-31 22:08:38', NULL);
 INSERT INTO `sys_menu` VALUES (2032, '环境新增', 2030, 1, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:add', '#', 'admin', '2024-10-31 22:09:29', 'admin', '2024-10-31 22:09:29', NULL);
 INSERT INTO `sys_menu` VALUES (2033, '环境编辑', 2030, 2, '', NULL, NULL, '', 1, 0, 'F', '0', '0', 'env:envInfo:edit', '#', 'admin', '2024-10-31 22:09:46', 'admin', '2024-10-31 22:09:46', NULL);
@@ -1141,7 +1157,7 @@ CREATE TABLE `sys_oper_log`  (
   INDEX `idx_sys_oper_log_bt`(`business_type` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_s`(`status` ASC) USING BTREE,
   INDEX `idx_sys_oper_log_ot`(`oper_time` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1474 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1496 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '操作日志记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_oper_log
@@ -1686,6 +1702,28 @@ INSERT INTO `sys_oper_log` VALUES (1470, '服务器', 1, 'module_admin.controlle
 INSERT INTO `sys_oper_log` VALUES (1471, '服务器', 5, 'module_admin.controller.env_controller.export_ssh_list()', 'POST', 1, 'admin', '研发部门', '/env/envInfo/export', '', '内网IP', 'pageNum: 1\npageSize: 10', '{\"code\": 200, \"message\": \"获取成功\"}', 0, '', '2025-05-08 16:39:11', 2);
 INSERT INTO `sys_oper_log` VALUES (1472, '服务器', 1, 'module_admin.controller.env_controller.copy_env()', 'POST', 1, 'admin', '研发部门', '/env/envInfo/copy/2', '', '内网IP', '{\"env_id\": \"2\"}', '{\"code\": 200, \"msg\": \"环境:正式环境_copy 复制成功\", \"success\": true, \"time\": \"2025-05-08T16:40:23.732995\", \"trace_id\": \"8e1b1f70ae2d4b82bf5534cc5c7bd5cf\"}', 0, '', '2025-05-08 16:40:24', 1);
 INSERT INTO `sys_oper_log` VALUES (1473, '环境', 3, 'module_admin.controller.env_controller.delete_env()', 'DELETE', 1, 'admin', '研发部门', '/env/envInfo/3', '', '内网IP', '{\"env_ids\": \"3\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-08T16:40:26.158250\", \"trace_id\": \"3f30a83ee39d4b40bb0683be0068dcee\"}', 0, '', '2025-05-08 16:40:26', 0);
+INSERT INTO `sys_oper_log` VALUES (1474, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiMethod\": \"GET\", \"apiName\": \"百度一下\", \"apiUrl\": \"www.baidu.com\", \"projectId\": 19, \"apiLevel\": \"P0\", \"apiTags\": [], \"requestData\": {}, \"requestDataType\": \"0\", \"requestHeaders\": {}, \"remark\": \"\", \"lastRunStatus\": \"0\", \"lastRunTime\": \"2025-04-30T08:02:30\", \"apiId\": 3, \"apiStatus\": \"0\", \"requestParams\": [], \"cookie\": \"\", \"createBy\": \"admin\", \"createTime\": \"2025-04-29T16:04:52\", \"updateBy\": \"admin\", \"updateTime\": \"2025-04-30T16:02:30\", \"params\": [], \"cookies\": []}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-05-08T16:56:28.564095\", \"trace_id\": \"47a4c67b69154fd79abcf62711be3a4f\"}', 0, '', '2025-05-08 16:56:29', 0);
+INSERT INTO `sys_oper_log` VALUES (1475, '接口', 2, 'module_admin.controller.api_controller.edit_api()', 'PUT', 1, 'admin', '研发部门', '/apitest/apiInfo', '', '内网IP', '{\"apiId\": 3, \"apiName\": \"百度一下\", \"projectId\": 19, \"apiMethod\": \"GET\", \"apiUrl\": \"www.baidu.com\", \"apiStatus\": \"0\", \"apiLevel\": \"P0\", \"apiTags\": [], \"requestDataType\": \"0\", \"requestParams\": [], \"requestData\": {}, \"requestHeaders\": {}, \"cookie\": \"\", \"lastRunStatus\": \"0\", \"lastRunTime\": \"2025-05-08T08:56:33.177Z\", \"createBy\": \"admin\", \"createTime\": \"2025-04-29T16:04:52\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-08T16:56:29\", \"remark\": \"\"}', '{\"code\": 200, \"msg\": \"接口:百度一下 更新成功\", \"success\": true, \"time\": \"2025-05-08T16:56:33.219795\", \"trace_id\": \"022c99e4beb24eb489e4fb3d965dc1d8\"}', 0, '', '2025-05-08 16:56:33', 2);
+INSERT INTO `sys_oper_log` VALUES (1476, '服务器', 1, 'module_admin.controller.env_controller.copy_env()', 'POST', 1, 'admin', '研发部门', '/env/envInfo/copy/2', '', '内网IP', '{\"env_id\": \"2\"}', '{\"code\": 200, \"msg\": \"环境:正式环境_copy 复制成功\", \"success\": true, \"time\": \"2025-05-08T17:11:54.098963\", \"trace_id\": \"f82c162255ed4dca96faa24826cfe070\"}', 0, '', '2025-05-08 17:11:54', 1);
+INSERT INTO `sys_oper_log` VALUES (1477, '环境', 3, 'module_admin.controller.env_controller.delete_env()', 'DELETE', 1, 'admin', '研发部门', '/env/envInfo/4', '', '内网IP', '{\"env_ids\": \"4\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-08T17:12:04.444227\", \"trace_id\": \"0ab645fd04c94b0bb27ba8c3877b6115\"}', 0, '', '2025-05-08 17:12:04', 0);
+INSERT INTO `sys_oper_log` VALUES (1478, '环境', 2, 'module_admin.controller.env_controller.edit_env()', 'PUT', 1, 'admin', '研发部门', '/env/envInfo', '', '内网IP', '{\"envName\": \"正式环境\", \"envUrl\": \"https://convercomm.com/\", \"envHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAwMSIsInVzZXJJZCI6IjU4MCIsIm5hbWUiOiJyYW5fMDAwMSIsImlkIjoid2RDVkNsbzMiLCJleHAiOjE3NDc1MzU2NjB9.dL-M4PX7l6TplZmnlDCqY9Jbq7rq8k_os0-PSFabKLal_1ByTc4UM6t1vuSOXuI2mPPq_ieRm5O8dEOHriM05t1PoyOhzYCnviUo3WIzH5u54fouLF1ReE23J0girZ3hIFiUJlsiR1tL3X2BCrip_7gc9yi417V4TnidErbziM0\"}, \"envVariables\": {}, \"remark\": \"正式服\", \"envId\": 2, \"createBy\": \"admin\", \"createTime\": \"2024-10-30T22:56:38\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-06T18:14:55\"}', '{\"code\": 200, \"msg\": \"接口:正式环境 更新成功\", \"success\": true, \"time\": \"2025-05-08T17:51:33.433021\", \"trace_id\": \"abb36f36f153424287a52f4716e5f220\"}', 0, '', '2025-05-08 17:51:33', 1);
+INSERT INTO `sys_oper_log` VALUES (1479, '环境', 2, 'module_admin.controller.env_controller.edit_env()', 'PUT', 1, 'admin', '研发部门', '/env/envInfo', '', '内网IP', '{\"envName\": \"正式环境\", \"envUrl\": \"https://convercomm.com/\", \"envHeaders\": {\"Authorization\": \"Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJyYW5fMDAwMSIsInVzZXJJZCI6IjU4MCIsIm5hbWUiOiJyYW5fMDAwMSIsImlkIjoid2RDVkNsbzMiLCJleHAiOjE3NDc1MzU2NjB9.dL-M4PX7l6TplZmnlDCqY9Jbq7rq8k_os0-PSFabKLal_1ByTc4UM6t1vuSOXuI2mPPq_ieRm5O8dEOHriM05t1PoyOhzYCnviUo3WIzH5u54fouLF1ReE23J0girZ3hIFiUJlsiR1tL3X2BCrip_7gc9yi417V4TnidErbziM0\"}, \"envVariables\": {}, \"remark\": \"正式服\", \"envId\": 2, \"createBy\": \"admin\", \"createTime\": \"2024-10-30T22:56:38\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-08T17:51:33\"}', '{\"code\": 200, \"msg\": \"接口:正式环境 更新成功\", \"success\": true, \"time\": \"2025-05-08T17:54:08.992198\", \"trace_id\": \"89dd6bfe2cb44b6bbd232ea9a6423ac1\"}', 0, '', '2025-05-08 17:54:09', 0);
+INSERT INTO `sys_oper_log` VALUES (1480, '菜单管理', 2, 'module_admin.controller.menu_controller.edit_system_menu()', 'PUT', 1, 'admin', '研发部门', '/system/menu', '', '内网IP', '{\"menuId\": 2030, \"menuName\": \"环境管理\", \"parentId\": 2007, \"orderNum\": 2, \"path\": \"env\", \"component\": \"envInfo/index\", \"query\": null, \"routeName\": \"\", \"isFrame\": 1, \"isCache\": 0, \"menuType\": \"C\", \"visible\": \"0\", \"status\": \"0\", \"perms\": \"env:envInfo:list\", \"icon\": \"cascader\", \"createBy\": \"admin\", \"createTime\": \"2024-10-31T22:07:51\", \"updateBy\": \"admin\", \"updateTime\": \"2024-10-31T22:07:51\", \"remark\": null}', '{\"code\": 200, \"msg\": \"更新成功\", \"success\": true, \"time\": \"2025-05-08T18:07:36.380673\", \"trace_id\": \"0f15bf6e16fd4d57a76276976a8066bf\"}', 0, '', '2025-05-08 18:07:36', 1);
+INSERT INTO `sys_oper_log` VALUES (1481, '服务器', 1, 'module_admin.controller.servermanage_controller.add_ssh()', 'POST', 0, 'admin', '研发部门', '/servermanage', '', '内网IP', '{\"sshId\": 1, \"sshName\": \"demo\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\", \"createBy\": \"deserunt elit irure\", \"createTime\": \"2009-10-09T13:58:54.876Z\", \"updateBy\": \"ea\", \"updateTime\": \"2009-10-09T13:58:54.876Z\", \"remark\": \"cupidatat irure\", \"delFlag\": \"0\"}', '{\"code\": 200, \"msg\": \"新增服务器成功\", \"success\": true, \"time\": \"2025-05-12T15:26:34.353929\", \"trace_id\": \"ee929ebd5373488887556b32369d0ba7\"}', 0, '', '2025-05-12 15:26:34', 3);
+INSERT INTO `sys_oper_log` VALUES (1482, '环境', 1, 'module_admin.controller.env_controller.add_env()', 'POST', 1, 'admin', '研发部门', '/env/envInfo', '', '内网IP', '{\"envName\": \"123\", \"envUrl\": \"123\", \"envHeaders\": {}, \"envVariables\": {}, \"remark\": \"132\"}', '{\"code\": 200, \"msg\": \"新增环境成功\", \"success\": true, \"time\": \"2025-05-12T15:35:39.919696\", \"trace_id\": \"888c87be9d3f4cb5bade22ab78173408\"}', 0, '', '2025-05-12 15:35:40', 1);
+INSERT INTO `sys_oper_log` VALUES (1483, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 0, 'admin', '研发部门', '/servermanage', '', '内网IP', '{\"sshId\": 1, \"sshName\": \"demo1\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\", \"createBy\": \"deserunt elit irure\", \"createTime\": \"2009-10-09T13:58:54.876Z\", \"updateBy\": \"ea\", \"updateTime\": \"2009-10-09T13:58:54.876Z\", \"remark\": \"cupidatat irure\", \"delFlag\": \"0\"}', '{\"code\": 200, \"msg\": \"服务器:demo 更新成功\", \"success\": true, \"time\": \"2025-05-12T15:40:38.700189\", \"trace_id\": \"3996166586d54f3a872fe7b965d40d1b\"}', 0, '', '2025-05-12 15:40:39', 2);
+INSERT INTO `sys_oper_log` VALUES (1484, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 0, 'admin', '研发部门', '/servermanage', '', '内网IP', '{\"sshId\": 1, \"sshName\": \"demo1\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"123456\", \"sshPort\": \"22\", \"createBy\": \"deserunt elit irure\", \"createTime\": \"2009-10-09T13:58:54.876Z\", \"updateBy\": \"ea\", \"updateTime\": \"2009-10-09T13:58:54.876Z\", \"remark\": \"cupidatat irure\", \"delFlag\": \"0\"}', '{\"code\": 200, \"msg\": \"服务器:demo1 更新成功\", \"success\": true, \"time\": \"2025-05-12T15:40:47.672421\", \"trace_id\": \"0dab39a0c0e646e98657e72cc918ce30\"}', 0, '', '2025-05-12 15:40:48', 0);
+INSERT INTO `sys_oper_log` VALUES (1485, '服务器', 1, 'module_admin.controller.servermanage_controller.copy_ssh()', 'POST', 1, 'admin', '研发部门', '/servermanage/copy/1', '', '内网IP', '{\"ssh_id\": \"1\"}', '{\"code\": 200, \"msg\": \"服务器:demo1_copy 复制成功\", \"success\": true, \"time\": \"2025-05-12T15:42:26.034414\", \"trace_id\": \"6225f1c698424f12925d517687252799\"}', 0, '', '2025-05-12 15:42:26', 3);
+INSERT INTO `sys_oper_log` VALUES (1486, '服务器', 3, 'module_admin.controller.servermanage_controller.delete_ssh()', 'DELETE', 1, 'admin', '研发部门', '/servermanage/9', '', '内网IP', '{\"ssh_ids\": \"9\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-12T15:43:13.457616\", \"trace_id\": \"46daadc315d84c52ab8784d5daba2db3\"}', 0, '', '2025-05-12 15:43:13', 2);
+INSERT INTO `sys_oper_log` VALUES (1487, '服务器', 1, 'module_admin.controller.servermanage_controller.copy_ssh()', 'POST', 1, 'admin', '研发部门', '/servermanage/copy/1', '', '内网IP', '{\"ssh_id\": \"1\"}', '{\"code\": 200, \"msg\": \"服务器:demo1_copy 复制成功\", \"success\": true, \"time\": \"2025-05-12T15:43:32.949758\", \"trace_id\": \"bf98071dd8064a7d8bd32a4bc37a466e\"}', 0, '', '2025-05-12 15:43:33', 0);
+INSERT INTO `sys_oper_log` VALUES (1488, '服务器', 3, 'module_admin.controller.servermanage_controller.delete_ssh()', 'DELETE', 1, 'admin', '研发部门', '/servermanage/10', '', '内网IP', '{\"ssh_ids\": \"10\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-12T15:44:11.224048\", \"trace_id\": \"9f2f04790467431eaf9df9730eac3945\"}', 0, '', '2025-05-12 15:44:11', 0);
+INSERT INTO `sys_oper_log` VALUES (1489, '服务器', 1, 'module_admin.controller.servermanage_controller.copy_ssh()', 'POST', 1, 'admin', '研发部门', '/servermanage/copy/1', '', '内网IP', '{\"ssh_id\": \"1\"}', '{\"code\": 200, \"msg\": \"服务器:demo1_copy 复制成功\", \"success\": true, \"time\": \"2025-05-12T15:44:14.690037\", \"trace_id\": \"575d88675e224d0ba85ece503db7c570\"}', 0, '', '2025-05-12 15:44:15', 3);
+INSERT INTO `sys_oper_log` VALUES (1490, '服务器', 2, 'module_admin.controller.servermanage_controller.edit_ssh()', 'PUT', 1, 'admin', '研发部门', '/servermanage', '', '内网IP', '{\"sshId\": 11, \"sshName\": \"demo1_copy\", \"sshHost\": \"127.0.0.1\", \"sshUsername\": \"root\", \"sshPassword\": \"******\", \"sshPort\": 22, \"delFlag\": \"0\", \"createBy\": \"admin\", \"createTime\": \"2025-05-12T15:44:15\", \"updateBy\": \"admin\", \"updateTime\": \"2025-05-12T15:44:15\", \"remark\": \"cupidatat irure123\"}', '{\"code\": 200, \"msg\": \"服务器:demo1_copy 更新成功\", \"success\": true, \"time\": \"2025-05-12T15:44:22.345177\", \"trace_id\": \"cbd25813f7c9442fbedcbf6c912c19d0\"}', 0, '', '2025-05-12 15:44:22', 0);
+INSERT INTO `sys_oper_log` VALUES (1491, '服务器', 1, 'module_admin.controller.servermanage_controller.add_ssh()', 'POST', 1, 'admin', '研发部门', '/servermanage', '', '内网IP', '{\"sshName\": \"123\", \"sshHost\": \"123\", \"sshUsername\": \"123\", \"sshPassword\": \"123\", \"sshPort\": \"22\"}', '{\"code\": 200, \"msg\": \"新增服务器成功\", \"success\": true, \"time\": \"2025-05-12T15:44:28.431804\", \"trace_id\": \"599daaa4e2e1469dbfb7bb73a880f047\"}', 0, '', '2025-05-12 15:44:28', 0);
+INSERT INTO `sys_oper_log` VALUES (1492, '服务器', 3, 'module_admin.controller.servermanage_controller.delete_ssh()', 'DELETE', 1, 'admin', '研发部门', '/servermanage/12', '', '内网IP', '{\"ssh_ids\": \"12\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-12T15:44:30.825339\", \"trace_id\": \"7450e7c537b047048c631682c5629b10\"}', 0, '', '2025-05-12 15:44:31', 0);
+INSERT INTO `sys_oper_log` VALUES (1493, '服务器', 1, 'module_admin.controller.servermanage_controller.copy_ssh()', 'POST', 1, 'admin', '研发部门', '/servermanage/copy/11', '', '内网IP', '{\"ssh_id\": \"11\"}', '{\"code\": 200, \"msg\": \"服务器:demo1_copy_copy 复制成功\", \"success\": true, \"time\": \"2025-05-12T15:44:46.739064\", \"trace_id\": \"4b9655ef49174a728a0e23517956a010\"}', 0, '', '2025-05-12 15:44:47', 1);
+INSERT INTO `sys_oper_log` VALUES (1494, '项目管理', 1, 'module_admin.controller.project_controller.add_project()', 'POST', 1, 'admin', '研发部门', '/auto/project', '', '内网IP', '{\"projectName\": \"123\", \"responsibleName\": \"123\", \"testUser\": \"123\", \"devUser\": \"123\", \"publishApp\": \"123\"}', '{\"code\": 200, \"msg\": \"新增项目成功\", \"success\": true, \"time\": \"2025-05-13T09:28:29.089727\", \"trace_id\": \"8b2e2e563b724839b1024f97aea590d0\"}', 0, '', '2025-05-13 09:28:29', 1);
+INSERT INTO `sys_oper_log` VALUES (1495, '项目管理', 3, 'module_admin.controller.project_controller.delete_project()', 'DELETE', 1, 'admin', '研发部门', '/auto/project/47', '', '内网IP', '{\"project_ids\": \"47\"}', '{\"code\": 200, \"msg\": \"删除成功\", \"success\": true, \"time\": \"2025-05-13T09:28:32.610292\", \"trace_id\": \"b7cc970fcce445e5a89c9d889b3cb5e6\"}', 0, '', '2025-05-13 09:28:33', 1);
 
 -- ----------------------------
 -- Table structure for sys_post
@@ -1904,7 +1942,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-05-08 16:18:49', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '超级管理员', '00', 'ranyong@163.com', '15888888888', '0', '/profile/avatar/2025/04/17/avatar_20250417101058A609.png', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '172.0.29.1', '2025-05-13 09:27:25', 'admin', '2024-08-13 18:18:19', 'admin', '2025-04-17 10:11:00', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'niangao', '年糕', '00', 'niangao@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '2', '127.0.0.1', '2024-08-13 18:18:19', 'admin', '2024-08-13 18:18:19', 'admin', '2024-09-20 22:45:06', '测试员');
 INSERT INTO `sys_user` VALUES (100, 100, 'ranyong', 'ranyong', '00', '', '', '0', '', '$2b$12$iPYmQp3jjdIrZBqyaf6loOITsuvUQost39wHqNzzBCTOge7cmNblW', '0', '0', '', NULL, 'admin', '2024-08-13 20:47:13', 'admin', '2024-08-15 11:04:07', NULL);
 INSERT INTO `sys_user` VALUES (101, 103, 'demo1', 'demo1', '00', '', '', '0', '', '$2b$12$bFu.K.grA9O/zrZ9aQTGzeE4PjKwRbXJMm9rgJpN8ZzT5Ri2LXsve', '0', '0', '', '2024-09-20 22:40:21', '', '2024-08-16 10:28:18', 'admin', '2024-09-20 22:44:56', NULL);
