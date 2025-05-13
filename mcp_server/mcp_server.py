@@ -29,6 +29,7 @@ async def query_weather(city: str) -> str:
     """
     输入指定城市的英文名称，返回今日天气查询结果。
     :param city: 城市名称（需使用英文）
+    :param ctx: MCP上下文对象，用于日志记录和进度报告
     :return: 格式化后的天气信息
     """
     try:
@@ -42,6 +43,7 @@ async def query_weather(city: str) -> str:
         return f"查询天气时出错: {str(e)}"
 
 
+@mcp.resource("weather://health")
 async def health_check():
     """服务健康检查"""
     try:
