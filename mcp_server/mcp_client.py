@@ -39,7 +39,7 @@ class MCPClient:
         # 从环境变量获取配置
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.base_url = os.getenv("OPENAI_API_URL")
-        self.model = os.getenv("OPENAI_API_MODEL", "gpt-3.5-turbo")
+        self.model = os.getenv("OPENAI_API_MODEL")
         self.retry_attempts = retry_attempts
         self.retry_delay = retry_delay
         self.connection_timeout = float(os.getenv("MCP_CONNECTION_TIMEOUT", "30.0"))
