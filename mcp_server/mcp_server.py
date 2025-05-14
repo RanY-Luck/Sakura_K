@@ -13,6 +13,8 @@ from typing import Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
 from tool_weather import WeatherTool
 from utils.log_util import logger
+# 导入Text2SQL服务模块
+from mcp_text2sql import text_to_sql, describe_table, insert_sample_data, init_db_pool, cleanup as sql_cleanup
 
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraMcpServer")
@@ -212,7 +214,7 @@ async def list_ollama_models() -> str:
         return f"获取模型列表出错: {str(e)}"
 
 
-@mcp.resource("weather://health")
+@mcp.resource("sakura://health")
 async def health_check():
     """服务健康检查"""
     try:
@@ -226,12 +228,29 @@ async def health_check():
             ollama_status = "error" not in result
         except:
             ollama_status = False
+            
+        # 测试SQL数据库连接是否可用
+        db_status = False
+        try:
+            # 重用text2sql模块中的数据库连接池
+            from mcp_text2sql import db_pool
+            if db_pool:
+                async with db_pool.acquire() as conn:
+                    async with conn.cursor() as cursor:
+                        await cursor.execute("SELECT 1")
+                        db_status = True
+            else:
+                # 尝试初始化连接池
+                db_status = await init_db_pool()
+        except:
+            db_status = False
 
         return {
-            "status": "ok" if (api_status and ollama_status) else "degraded",
+            "status": "ok" if (api_status and ollama_status and db_status) else "degraded",
             "services": {
                 "weather": "ok" if api_status else "error",
-                "ollama": "ok" if ollama_status else "error"
+                "ollama": "ok" if ollama_status else "error",
+                "sql_database": "ok" if db_status else "error"
             },
             "timestamp": time.time(),
             "service": "SakuraMcpServer",
@@ -246,30 +265,60 @@ async def health_check():
         }
 
 
+# 注册Text2SQL服务工具
+@mcp.tool()
+@validate_tool
+async def sql_query(query: str) -> Dict[str, Any]:
+    """
+    将自然语言转换为SQL查询并执行
+    :param query: 自然语言查询，例如"查询所有男性学生"
+    :return: 包含SQL查询和执行结果的字典
+    """
+    return await text_to_sql(query)
+
+@mcp.tool()
+@validate_tool
+async def get_table_info() -> Dict[str, Any]:
+    """
+    获取数据库表结构信息
+    :return: 表结构信息
+    """
+    return await describe_table()
+
+@mcp.tool()
+@validate_tool
+async def add_sample_data(count: int = 10) -> Dict[str, Any]:
+    """
+    向数据库添加示例数据
+    :param count: 要添加的数据条数
+    :return: 操作结果
+    """
+    return await insert_sample_data(count)
+
+
 # 清理资源函数
 async def cleanup():
-    """在服务器关闭时清理资源"""
-    try:
-        await ollama_client.close()
-        logger.info("Ollama客户端已关闭")
-    except Exception as e:
-        logger.error(f"关闭Ollama客户端时出错: {str(e)}")
+    """清理资源"""
+    # 关闭Ollama客户端
+    await ollama_client.close()
+    
+    # 关闭SQL服务资源
+    await sql_cleanup()
 
 
-if __name__ == '__main__':
-    # 支持多种传输方法
-    transport = os.getenv("MCP_TRANSPORT", "stdio")
-    port = int(os.getenv("MCP_PORT", 8000))
+# 初始化服务器
+async def init_server():
+    """初始化服务器"""
+    # 初始化SQL数据库连接
+    await init_db_pool()
+    logger.info("MCP服务初始化完成")
 
-    try:
-        if transport == "http":
-            mcp.run(transport='http', port=port)
-        elif transport == "websocket":
-            mcp.run(transport='websocket', port=port)
-        else:
-            # 默认使用stdio
-            mcp.run(transport='stdio')
-    except KeyboardInterrupt:
-        logger.info("服务器手动关闭")
-    except Exception as e:
-        logger.error(f"服务器运行出错: {str(e)}")
+
+# 服务器启动入口点
+if __name__ == "__main__":
+    # 注册事件
+    # mcp.on_start(init_server)
+    # mcp.on_shutdown(cleanup)
+    
+    # 启动服务器
+    mcp.run()
