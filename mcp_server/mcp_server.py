@@ -13,7 +13,12 @@ from typing import Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
 from tool_weather import WeatherTool
 from utils.log_util import logger
-from mcp_text2sql import text_to_sql, describe_table, insert_sample_data, init_db_pool, cleanup as sql_cleanup
+from mcp_text2sql import (
+    text_to_sql, text_to_sql_sse, 
+    query, query_sse,
+    describe_table, insert_sample_data, 
+    init_db_pool, cleanup as sql_cleanup
+)
 
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraMcpServer")
@@ -274,6 +279,18 @@ async def sql_query(query: str) -> Dict[str, Any]:
     """
     return await text_to_sql(query)
 
+
+@mcp.tool()
+@validate_tool
+async def execute_sql(sql: str) -> Dict[str, Any]:
+    """
+    直接执行SQL查询语句
+    :param sql: SQL查询语句
+    :return: 查询结果
+    """
+    return await query(sql)
+
+
 @mcp.tool()
 @validate_tool
 async def get_table_info() -> Dict[str, Any]:
@@ -282,6 +299,7 @@ async def get_table_info() -> Dict[str, Any]:
     :return: 表结构信息
     """
     return await describe_table()
+
 
 @mcp.tool()
 @validate_tool
