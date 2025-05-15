@@ -4,7 +4,7 @@
 # @Author   : 冉勇
 # @File     : mcp_server.py
 # @Software : PyCharm
-# @Desc     :
+# @Desc     : MCP服务
 import os
 import time
 import json
@@ -13,7 +13,6 @@ from typing import Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
 from tool_weather import WeatherTool
 from utils.log_util import logger
-# 导入Text2SQL服务模块
 from mcp_text2sql import text_to_sql, describe_table, insert_sample_data, init_db_pool, cleanup as sql_cleanup
 
 # 初始化 MCP 服务器
@@ -123,7 +122,6 @@ async def query_weather(city: str) -> str:
     """
     输入指定城市的英文名称，返回今日天气查询结果。
     :param city: 城市名称（需使用英文）
-    :param ctx: MCP上下文对象，用于日志记录和进度报告
     :return: 格式化后的天气信息
     """
     try:
@@ -317,8 +315,8 @@ async def init_server():
 # 服务器启动入口点
 if __name__ == "__main__":
     # 注册事件
-    # mcp.on_start(init_server)
-    # mcp.on_shutdown(cleanup)
+    mcp.on_start(init_server)
+    mcp.on_shutdown(cleanup)
     
     # 启动服务器
     mcp.run()

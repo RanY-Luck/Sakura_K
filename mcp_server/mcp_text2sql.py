@@ -5,12 +5,10 @@
 # @File     : mcp_text2sql.py
 # @Software : PyCharm
 # @Desc     : MCP服务 - 自然语言转SQL查询服务
-
 import os
 import time
-import asyncio
 import aiomysql
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List
 from mcp.server.fastmcp import FastMCP
 from utils.log_util import logger
 
