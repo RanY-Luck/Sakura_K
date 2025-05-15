@@ -19,7 +19,6 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 
-
 class MCPClientError(Exception):
     """MCP客户端自定义异常"""
     pass
@@ -35,7 +34,7 @@ class MCPClient:
         :param retry_delay: 重试延迟（秒）
         """
         self.exit_stack = AsyncExitStack()
-        
+
         # 从环境变量获取配置
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.base_url = os.getenv("OPENAI_API_URL")
@@ -43,23 +42,23 @@ class MCPClient:
         self.retry_attempts = retry_attempts
         self.retry_delay = retry_delay
         self.connection_timeout = float(os.getenv("MCP_CONNECTION_TIMEOUT", "30.0"))
-        
+
         # 验证API密钥
         if not self.openai_api_key:
             raise ValueError("❌ 未找到 OpenAI API Key，请在 .env 文件中设置 OPENAI_API_KEY")
-        
+
         # 初始化OpenAI客户端，添加超时设置
         self.client = AsyncOpenAI(
-            api_key=self.openai_api_key, 
+            api_key=self.openai_api_key,
             base_url=self.base_url,
             timeout=45.0  # 设置较长的超时时间
         )
-        
+
         # MCP会话
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
         self.messages: List[Dict[str, Any]] = []
-        
+
         # 连接状态
         self.is_connected = False
         self.connect_time = None
@@ -94,23 +93,23 @@ class MCPClient:
             args=[server_script_path, f'--env={args.env}'],
             env={"PYTHONPATH": project_root}
         )
-        
+
         # 为Windows设置正确的事件循环策略
         if sys.platform == 'win32':
             asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-        
+
         try:
             # 设置连接超时
             connect_task = self._connect_with_timeout(server_params)
             await asyncio.wait_for(connect_task, timeout=self.connection_timeout)
-            
+
             # 列出服务器工具
             await self._list_available_tools()
-            
+
             self.is_connected = True
             self.connect_time = time.time()
             logger.info(f"成功连接到MCP服务器: {server_script_path}")
-            
+
         except asyncio.TimeoutError:
             await self.cleanup()
             raise MCPClientError(f"连接MCP服务器超时，请检查服务器是否正常运行: {server_script_path}")
@@ -137,7 +136,7 @@ class MCPClient:
         """获取并存储服务器可用工具"""
         if not self.session:
             raise MCPClientError("未连接到MCP服务器")
-            
+
         response = await self.session.list_tools()
         self.available_tools = response.tools
         logger.info(f"服务器工具: {[tool.name for tool in self.available_tools]}")
@@ -190,17 +189,17 @@ class MCPClient:
                     tools=available_tools,
                     timeout=30.0
                 )
-                
+
                 # 处理流式响应
                 is_tool_call = False
                 tool_name = None
                 tool_args = ''
                 tool_call_id = None
                 content = ''
-                
+
                 # 提示AI正在思考
                 yield f'🤖 '
-                
+
                 async for chunk in response:
                     # 处理工具调用
                     if chunk.choices and chunk.choices[0].delta.tool_calls:
@@ -229,7 +228,7 @@ class MCPClient:
                             }
                         )
                         pass
-                
+
                 # 如果需要调用工具
                 if is_tool_call:
                     try:
@@ -239,16 +238,16 @@ class MCPClient:
                         except json.JSONDecodeError:
                             yield f"\n⚠️ 工具参数格式错误: {tool_args}"
                             return
-                            
+
                         # 执行工具
                         yield f"\n⏳ 正在执行工具..."
                         result = await self._call_tool_with_retry(tool_name, tool_args_dict)
-                        
+
                         # 检查结果
                         if "error" in result:
                             yield f"\n❌ 工具执行失败: {result['error']}"
                             return
-                        
+
                         # 将工具调用和结果添加到消息历史
                         self.messages.append(
                             {
@@ -264,7 +263,7 @@ class MCPClient:
                                 }]
                             }
                         )
-                        
+
                         # 添加工具响应
                         tool_content = result.get("content", [{"text": "工具未返回内容"}])[0].text
                         self.messages.append(
@@ -274,17 +273,17 @@ class MCPClient:
                                 "tool_call_id": tool_call_id,
                             }
                         )
-                        
+
                         # 使用工具结果让模型生成最终回答
                         yield f"\n📊 工具执行结果：\n{tool_content}\n\n🤖 AI解析结果：\n"
-                        
+
                         # 创建新的聊天补全
                         result_response = await self.client.chat.completions.create(
                             model=self.model,
                             messages=self.messages,
                             stream=True,
                         )
-                        
+
                         # 流式处理最终结果
                         result_content = ''
                         async for chunk in result_response:
@@ -292,7 +291,7 @@ class MCPClient:
                                 content_piece = chunk.choices[0].delta.content
                                 result_content += content_piece
                                 yield content_piece
-                        
+
                         # 添加最终回答到消息历史
                         self.messages.append(
                             {
@@ -303,14 +302,14 @@ class MCPClient:
                     except Exception as e:
                         yield f"\n❌ 工具处理出错: {str(e)}"
                         logger.error(f"工具处理错误: {str(e)}")
-                        
+
                 # 处理成功，跳出重试循环
                 break
-                
+
             except Exception as e:
-                logger.error(f"处理查询出错 (尝试 {attempt+1}/{self.retry_attempts}): {str(e)}")
+                logger.error(f"处理查询出错 (尝试 {attempt + 1}/{self.retry_attempts}): {str(e)}")
                 if attempt < self.retry_attempts - 1:
-                    yield f"\n⚠️ 处理请求时出错，正在重试... ({attempt+1}/{self.retry_attempts})"
+                    yield f"\n⚠️ 处理请求时出错，正在重试... ({attempt + 1}/{self.retry_attempts})"
                     await asyncio.sleep(self.retry_delay)
                 else:
                     yield f"\n❌ 处理请求失败: {str(e)}"
@@ -328,7 +327,7 @@ class MCPClient:
                 result = await self.session.call_tool(tool_name, args)
                 return result.__dict__
             except Exception as e:
-                logger.error(f"工具调用失败 (尝试 {attempt+1}/{self.retry_attempts}): {str(e)}")
+                logger.error(f"工具调用失败 (尝试 {attempt + 1}/{self.retry_attempts}): {str(e)}")
                 if attempt < self.retry_attempts - 1:
                     await asyncio.sleep(self.retry_delay)
                 else:
