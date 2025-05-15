@@ -7,6 +7,8 @@
 # @Desc     : MCP服务 - 自然语言转SQL查询服务
 import os
 import time
+import asyncio
+import json
 import aiomysql
 from typing import Dict, Any, List, AsyncGenerator
 from mcp.server.fastmcp import FastMCP
@@ -140,6 +142,87 @@ async def text_to_sql(query: str) -> Dict[str, Any]:
         return {"error": f"查询执行失败: {str(e)}"}
 
 
+@mcp.tool()
+async def text_to_sql_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
+    """
+    将自然语言查询转换为SQL查询并执行，支持SSE（Server-Sent Events）模式流式返回结果
+    :param query: 自然语言查询，例如"查询所有男性学生"
+    :return: 流式返回查询结果
+    """
+    try:
+        if not db_pool:
+            await init_db_pool()
+            if not db_pool:
+                yield {"error": "数据库连接失败"}
+                return
+        
+        # 使用自定义推理函数生成SQL
+        start_time = time.time()
+        sql_query = await generate_sql_query(query)
+        
+        # 先返回SQL查询语句
+        yield {
+            "type": "sql_generated",
+            "sql_query": sql_query,
+            "timestamp": time.time()
+        }
+        
+        # 统计结果总数
+        total_rows = 0
+        processed_rows = 0
+        
+        # 执行SQL查询并流式返回结果
+        async for batch_result in execute_query_streaming(sql_query, batch_size=5):  # 减小批次大小以更频繁更新
+            if "error" in batch_result:
+                yield batch_result
+                return
+            
+            if "metadata" in batch_result:
+                total_rows = batch_result["metadata"]["total_rows"]
+                # 返回元数据
+                yield {
+                    "type": "metadata",
+                    "columns": batch_result["metadata"]["columns"],
+                    "total_rows": total_rows,
+                    "timestamp": time.time()
+                }
+                continue
+                
+            if "batch" in batch_result:
+                # 更新计数
+                batch_size = len(batch_result["batch"])
+                processed_rows += batch_size
+                
+                # 返回批次数据
+                yield {
+                    "type": "data_batch",
+                    "batch": batch_result["batch"],
+                    "batch_size": batch_size,
+                    "processed_rows": processed_rows,
+                    "total_rows": total_rows,
+                    "progress": f"{(processed_rows / total_rows * 100) if total_rows > 0 else 0:.1f}%",
+                    "is_last_batch": batch_result.get("is_last_batch", False),
+                    "timestamp": time.time()
+                }
+        
+        # 查询结束，返回摘要信息
+        execution_time = time.time() - start_time
+        logger.info(f"SSE查询执行成功: '{query}' => '{sql_query}', 耗时: {execution_time:.2f}秒, 共{total_rows}条记录")
+        
+        yield {
+            "type": "summary",
+            "sql_query": sql_query,
+            "total_rows": total_rows,
+            "execution_time": f"{execution_time:.2f}秒",
+            "completed": True,
+            "timestamp": time.time()
+        }
+    except Exception as e:
+        error_msg = f"SSE查询执行失败: {str(e)}"
+        logger.error(error_msg)
+        yield {"type": "error", "error": error_msg, "timestamp": time.time()}
+
+
 async def generate_sql_query(query: str) -> str:
     """
     使用预定义的规则和模板生成SQL查询
@@ -246,11 +329,24 @@ async def execute_query_streaming(sql_query: str, batch_size: int = 10) -> Async
                 results = await cursor.fetchall()
                 total_rows = len(results)
                 
+                # 先返回元数据
+                yield {
+                    "metadata": {
+                        "columns": columns,
+                        "total_rows": total_rows,
+                        "sql_query": sql_query
+                    }
+                }
+                
                 # 批量处理结果
                 for i in range(0, total_rows, batch_size):
                     batch = results[i:i+batch_size]
                     if not batch:
                         break
+                    
+                    # 添加少量延迟以模拟实际网络环境中的流式传输（仅用于演示）
+                    if i > 0:  # 第一批立即返回，之后的批次添加少量延迟
+                        await asyncio.sleep(0.1)
                     
                     # 转换批次为可序列化格式
                     serializable_batch = []
@@ -303,6 +399,120 @@ async def execute_query(sql_query: str) -> List[Dict[str, Any]]:
                         serializable_row[key] = value
                 serializable_results.append(serializable_row)
             return serializable_results
+
+
+@mcp.tool()
+async def query(query: str) -> Dict[str, Any]:
+    """
+    直接执行SQL查询语句
+    :param query: SQL查询语句
+    :return: 查询结果
+    """
+    try:
+        if not db_pool:
+            await init_db_pool()
+            if not db_pool:
+                return {"error": "数据库连接失败"}
+        
+        # 记录查询开始时间
+        start_time = time.time()
+        
+        # 执行SQL查询
+        results = await execute_query(query)
+        
+        # 记录执行时间
+        execution_time = time.time() - start_time
+        logger.info(f"直接SQL查询执行成功: '{query}', 耗时: {execution_time:.2f}秒")
+        
+        return {
+            "sql_query": query,
+            "results": results,
+            "execution_time": f"{execution_time:.2f}秒",
+            "row_count": len(results)
+        }
+    except Exception as e:
+        logger.error(f"直接SQL查询执行失败: {str(e)}")
+        return {"error": f"查询执行失败: {str(e)}"}
+
+
+@mcp.tool()
+async def query_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
+    """
+    直接执行SQL查询语句，支持SSE（Server-Sent Events）模式流式返回结果
+    :param query: SQL查询语句
+    :return: 流式返回查询结果
+    """
+    try:
+        if not db_pool:
+            await init_db_pool()
+            if not db_pool:
+                yield {"error": "数据库连接失败"}
+                return
+        
+        # 记录查询开始时间
+        start_time = time.time()
+        
+        # 先返回SQL查询语句
+        yield {
+            "type": "sql_generated",
+            "sql_query": query,
+            "timestamp": time.time()
+        }
+        
+        # 统计结果总数
+        total_rows = 0
+        processed_rows = 0
+        
+        # 执行SQL查询并流式返回结果
+        async for batch_result in execute_query_streaming(query, batch_size=5):
+            if "error" in batch_result:
+                yield batch_result
+                return
+            
+            if "metadata" in batch_result:
+                total_rows = batch_result["metadata"]["total_rows"]
+                # 返回元数据
+                yield {
+                    "type": "metadata",
+                    "columns": batch_result["metadata"]["columns"],
+                    "total_rows": total_rows,
+                    "timestamp": time.time()
+                }
+                continue
+                
+            if "batch" in batch_result:
+                # 更新计数
+                batch_size = len(batch_result["batch"])
+                processed_rows += batch_size
+                
+                # 返回批次数据
+                yield {
+                    "type": "data_batch",
+                    "batch": batch_result["batch"],
+                    "batch_size": batch_size,
+                    "processed_rows": processed_rows,
+                    "total_rows": total_rows,
+                    "progress": f"{(processed_rows / total_rows * 100) if total_rows > 0 else 0:.1f}%",
+                    "is_last_batch": batch_result.get("is_last_batch", False),
+                    "timestamp": time.time()
+                }
+        
+        # 查询结束，返回摘要信息
+        execution_time = time.time() - start_time
+        logger.info(f"SSE直接SQL查询执行成功: '{query}', 耗时: {execution_time:.2f}秒, 共{total_rows}条记录")
+        
+        yield {
+            "type": "summary",
+            "sql_query": query,
+            "total_rows": total_rows,
+            "execution_time": f"{execution_time:.2f}秒",
+            "completed": True,
+            "timestamp": time.time()
+        }
+    except Exception as e:
+        error_msg = f"SSE直接SQL查询执行失败: {str(e)}"
+        logger.error(error_msg)
+        yield {"type": "error", "error": error_msg, "timestamp": time.time()}
 
 
 @mcp.tool()
@@ -379,6 +589,13 @@ async def insert_sample_data(count: int = 10):
                 # 每10条或总数的10%报告一次进度，以较小者为准
                 report_frequency = min(10, max(1, count // 10))
                 
+                # 发送开始事件
+                yield {
+                    "type": "start", 
+                    "message": f"开始插入{count}条示例数据",
+                    "timestamp": time.time()
+                }
+                
                 for i in range(count):
                     # 生成随机数据
                     first_name = random.choice(first_names)
@@ -404,33 +621,44 @@ async def insert_sample_data(count: int = 10):
                         if (i + 1) % report_frequency == 0 or i == count - 1:
                             progress = (i + 1) / count * 100
                             yield {
+                                "type": "progress",
                                 "progress": f"{progress:.1f}%",
                                 "inserted_count": inserted_count,
                                 "total": count,
                                 "current": i + 1,
-                                "completed": i == count - 1
+                                "completed": i == count - 1,
+                                "timestamp": time.time()
                             }
                     except Exception as e:
                         logger.error(f"插入样本数据失败: {str(e)}")
                         yield {
+                            "type": "error",
                             "error": f"插入第{i+1}条数据时失败: {str(e)}",
                             "inserted_count": inserted_count,
                             "total": count,
                             "current": i + 1,
-                            "completed": True
+                            "completed": True,
+                            "timestamp": time.time()
                         }
                 
                 await conn.commit()
                 
                 yield {
+                    "type": "complete",
                     "success": True,
                     "inserted_count": inserted_count,
                     "message": f"成功插入{inserted_count}条示例数据",
-                    "completed": True
+                    "completed": True,
+                    "timestamp": time.time()
                 }
     except Exception as e:
         logger.error(f"插入示例数据失败: {str(e)}")
-        yield {"error": f"插入示例数据失败: {str(e)}", "completed": True}
+        yield {
+            "type": "error", 
+            "error": f"插入示例数据失败: {str(e)}", 
+            "completed": True,
+            "timestamp": time.time()
+        }
 
 
 @mcp.resource("sql://health")
@@ -458,10 +686,10 @@ async def health_check():
             },
             "timestamp": time.time(),
             "service": "SakuraText2SqlService",
-            "version": "1.8.1",  # 更新版本号
+            "version": "1.9.0",  # 更新版本号
             "database": DB_CONFIG["database"],
             "table": DB_CONFIG["table_name"],
-            "features": ["Streaming"]  # 添加功能列表
+            "features": ["Streaming", "SSE"]  # 添加SSE特性
         }
     except Exception as e:
         logger.error(f"健康检查失败: {str(e)}")
@@ -487,7 +715,7 @@ async def init_server():
     """初始化服务器"""
     # 初始化数据库连接池
     await init_db_pool()
-    logger.info("Text2SQL MCP服务初始化完成")
+    logger.info("Text2SQL MCP服务初始化完成 (支持SSE模式)")
 
 
 # 服务器启动入口点
