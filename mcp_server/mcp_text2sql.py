@@ -8,7 +8,7 @@
 import os
 import time
 import aiomysql
-from typing import Dict, Any, List
+from typing import Dict, Any, List, AsyncGenerator
 from mcp.server.fastmcp import FastMCP
 from utils.log_util import logger
 
@@ -102,7 +102,7 @@ async def ensure_database_and_table():
 @mcp.tool()
 async def text_to_sql(query: str) -> Dict[str, Any]:
     """
-    将自然语言查询转换为SQL查询并执行
+    将自然语言查询转换为SQL查询并执行，支持批量返回结果
     :param query: 自然语言查询，例如"查询所有男性学生"
     :return: 包含SQL查询和执行结果的字典
     """
@@ -117,7 +117,13 @@ async def text_to_sql(query: str) -> Dict[str, Any]:
         sql_query = await generate_sql_query(query)
         
         # 执行SQL查询
-        results = await execute_query(sql_query)
+        all_results = []
+        async for batch_result in execute_query_streaming(sql_query):
+            if "error" in batch_result:
+                return batch_result
+            
+            if "batch" in batch_result:
+                all_results.extend(batch_result["batch"])
         
         # 记录执行时间
         execution_time = time.time() - start_time
@@ -125,9 +131,9 @@ async def text_to_sql(query: str) -> Dict[str, Any]:
         
         return {
             "sql_query": sql_query,
-            "results": results,
+            "results": all_results,
             "execution_time": f"{execution_time:.2f}秒",
-            "row_count": len(results)
+            "row_count": len(all_results)
         }
     except Exception as e:
         logger.error(f"查询执行失败: {str(e)}")
@@ -217,6 +223,61 @@ async def generate_sql_query(query: str) -> str:
     return sql
 
 
+async def execute_query_streaming(sql_query: str, batch_size: int = 10) -> AsyncGenerator[Dict[str, Any], None]:
+    """
+    执行SQL查询并以流式方式返回结果
+    :param sql_query: SQL查询语句
+    :param batch_size: 每批次返回的记录数
+    :return: 流式查询结果
+    """
+    if not db_pool:
+        raise Exception("数据库连接池未初始化")
+    
+    try:
+        async with db_pool.acquire() as conn:
+            async with conn.cursor(aiomysql.DictCursor) as cursor:
+                # 执行查询
+                await cursor.execute(sql_query)
+                
+                # 获取列名
+                columns = [column[0] for column in cursor.description]
+                
+                # 一次性获取所有结果
+                results = await cursor.fetchall()
+                total_rows = len(results)
+                
+                # 批量处理结果
+                for i in range(0, total_rows, batch_size):
+                    batch = results[i:i+batch_size]
+                    if not batch:
+                        break
+                    
+                    # 转换批次为可序列化格式
+                    serializable_batch = []
+                    for row in batch:
+                        serializable_row = {}
+                        for key, value in row.items():
+                            # 处理日期和时间类型
+                            if hasattr(value, 'isoformat'):
+                                serializable_row[key] = value.isoformat()
+                            else:
+                                serializable_row[key] = value
+                        serializable_batch.append(serializable_row)
+                    
+                    # 判断是否为最后一批
+                    is_last_batch = (i + batch_size >= total_rows)
+                    
+                    yield {
+                        "batch": serializable_batch,
+                        "batch_size": len(batch),
+                        "total_rows": total_rows,
+                        "is_last_batch": is_last_batch
+                    }
+    except Exception as e:
+        logger.error(f"执行流式查询失败: {str(e)}")
+        yield {"error": f"执行查询失败: {str(e)}"}
+
+
 async def execute_query(sql_query: str) -> List[Dict[str, Any]]:
     """
     执行SQL查询并返回结果
@@ -286,17 +347,18 @@ async def describe_table() -> Dict[str, Any]:
 
 
 @mcp.tool()
-async def insert_sample_data(count: int = 10) -> Dict[str, Any]:
+async def insert_sample_data(count: int = 10):
     """
-    插入示例数据到students表
+    流式插入示例数据到students表
     :param count: 要插入的示例数据数量
-    :return: 插入结果
+    :return: 插入过程状态流
     """
     try:
         if not db_pool:
             await init_db_pool()
             if not db_pool:
-                return {"error": "数据库连接失败"}
+                yield {"error": "数据库连接失败"}
+                return
         
         # 样本数据生成
         import random
@@ -314,7 +376,10 @@ async def insert_sample_data(count: int = 10) -> Dict[str, Any]:
         inserted_count = 0
         async with db_pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                for _ in range(count):
+                # 每10条或总数的10%报告一次进度，以较小者为准
+                report_frequency = min(10, max(1, count // 10))
+                
+                for i in range(count):
                     # 生成随机数据
                     first_name = random.choice(first_names)
                     gender = random.choice(["男", "女"])
@@ -334,19 +399,38 @@ async def insert_sample_data(count: int = 10) -> Dict[str, Any]:
                                 VALUES (%s, %s, %s, %s, %s, %s, %s)"""
                         await cursor.execute(sql, (first_name, gender, dob_str, phone, address, grade_level, gpa))
                         inserted_count += 1
+                        
+                        # 报告进度
+                        if (i + 1) % report_frequency == 0 or i == count - 1:
+                            progress = (i + 1) / count * 100
+                            yield {
+                                "progress": f"{progress:.1f}%",
+                                "inserted_count": inserted_count,
+                                "total": count,
+                                "current": i + 1,
+                                "completed": i == count - 1
+                            }
                     except Exception as e:
                         logger.error(f"插入样本数据失败: {str(e)}")
+                        yield {
+                            "error": f"插入第{i+1}条数据时失败: {str(e)}",
+                            "inserted_count": inserted_count,
+                            "total": count,
+                            "current": i + 1,
+                            "completed": True
+                        }
                 
                 await conn.commit()
                 
-                return {
+                yield {
                     "success": True,
                     "inserted_count": inserted_count,
-                    "message": f"成功插入{inserted_count}条示例数据"
+                    "message": f"成功插入{inserted_count}条示例数据",
+                    "completed": True
                 }
     except Exception as e:
         logger.error(f"插入示例数据失败: {str(e)}")
-        return {"error": f"插入示例数据失败: {str(e)}"}
+        yield {"error": f"插入示例数据失败: {str(e)}", "completed": True}
 
 
 @mcp.resource("sql://health")
@@ -374,9 +458,10 @@ async def health_check():
             },
             "timestamp": time.time(),
             "service": "SakuraText2SqlService",
-            "version": "1.0.0",
+            "version": "1.8.1",  # 更新版本号
             "database": DB_CONFIG["database"],
-            "table": DB_CONFIG["table_name"]
+            "table": DB_CONFIG["table_name"],
+            "features": ["Streaming"]  # 添加功能列表
         }
     except Exception as e:
         logger.error(f"健康检查失败: {str(e)}")
