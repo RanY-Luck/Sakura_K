@@ -5,19 +5,30 @@
 # @File     : tool_weather.py
 # @Software : PyCharm
 # @Desc     :
+import os
 import json
 import httpx
 import time
 from utils.log_util import logger
 from typing import Any
+from dotenv import load_dotenv
+
+# 获取当前环境，默认为 'dev'
+ENV = os.getenv("ENV", "dev")
+
+# 根据环境加载对应的环境变量文件
+env_file = f".env.{ENV}"
+print(f"Loading environment from {env_file}")
+load_dotenv(env_file)
 
 
 class WeatherTool:
     # OpenWeather API 配置
-    OPENWEATHER_API_BASE = "https://api.openweathermap.org/data/2.5/weather"
-    API_KEY = "6f1b9451725bac291a46fd8e3fc5c430"  # 请替换为你自己的 OpenWeather API Key
+
+    OPENWEATHER_API_BASE = os.getenv("OPENWEATHER_API_BASE")
+    API_KEY = os.getenv("API_KEY")  # 请替换为你自己的 OpenWeather API Key
     USER_AGENT = "weather-app/1.0"
-    
+
     # 内存缓存，为每个城市存储 (数据, 时间戳)
     _cache = {}
     # 缓存有效期（秒）
@@ -37,12 +48,12 @@ class WeatherTool:
                 "units": "metric"
             }
             headers = {"User-Agent": cls.USER_AGENT}
-            
+
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    cls.OPENWEATHER_API_BASE, 
-                    params=params, 
-                    headers=headers, 
+                    cls.OPENWEATHER_API_BASE,
+                    params=params,
+                    headers=headers,
                     timeout=5.0
                 )
                 return response.status_code == 200
@@ -65,7 +76,7 @@ class WeatherTool:
             if current_time - timestamp < cls.CACHE_TTL:
                 logger.info(f"使用缓存数据: {city}, 缓存时间: {int(current_time - timestamp)}秒")
                 return data
-        
+
         # 缓存不存在或已过期，从API获取
         try:
             data = await cls._fetch_from_api(city)
@@ -94,9 +105,9 @@ class WeatherTool:
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.get(
-                    cls.OPENWEATHER_API_BASE, 
-                    params=params, 
-                    headers=headers, 
+                    cls.OPENWEATHER_API_BASE,
+                    params=params,
+                    headers=headers,
                     timeout=10.0
                 )
                 response.raise_for_status()
@@ -154,13 +165,13 @@ class WeatherTool:
             f"🌤 天气: {description}\n"
             f"🔄 数据刷新时间: {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
         )
-    
+
     @staticmethod
     def _get_wind_direction(degrees):
         """根据角度获取风向描述"""
         if degrees is None or degrees == "N/A":
             return "未知"
-            
+
         directions = [
             "北风", "东北风", "东风", "东南风",
             "南风", "西南风", "西风", "西北风"
@@ -172,7 +183,7 @@ class WeatherTool:
     def clear_cache(cls):
         """清除所有缓存数据"""
         cls._cache.clear()
-        
+
     @classmethod
     def get_cache_stats(cls):
         """获取缓存统计信息"""
