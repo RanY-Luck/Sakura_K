@@ -315,8 +315,8 @@ async def init_server():
 # 服务器启动入口点
 if __name__ == "__main__":
     # 注册事件
-    mcp.on_start(init_server)
-    mcp.on_shutdown(cleanup)
+    # mcp.on_start(init_server)
+    # mcp.on_shutdown(cleanup)
     
     # 启动服务器
     mcp.run()

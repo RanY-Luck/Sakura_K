@@ -16,7 +16,7 @@ dependencies = [
     "faker~=30.3.0",
     "fastapi[all]==0.115.8",
     "loguru==0.7.3",
-    "mcp==1.6.0",
+    "mcp==1.8.1",
     "openai==1.72.0",
     "openpyxl==3.1.5",
     "oss2==2.18.4",
