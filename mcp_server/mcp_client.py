@@ -19,6 +19,46 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
 
+# 自定义JSON编码器，用于处理特殊类型
+class CustomJSONEncoder(json.JSONEncoder):
+    """处理特殊类型的JSON编码器"""
+    def default(self, obj):
+        # 处理TextContent类型
+        if hasattr(obj, '__dict__') and 'text' in obj.__dict__:
+            return obj.text
+        # 处理其他自定义类型
+        elif hasattr(obj, '__dict__'):
+            return obj.__dict__
+        # 处理日期时间类型
+        elif hasattr(obj, 'isoformat'):
+            return obj.isoformat()
+        # 默认处理
+        return super().default(obj)
+
+
+# 安全的JSON转换函数
+def safe_json_dumps(obj: Any) -> str:
+    """
+    安全地将对象转换为JSON字符串
+    :param obj: 要转换的对象
+    :return: JSON字符串
+    """
+    try:
+        return json.dumps(obj, ensure_ascii=False, indent=2, cls=CustomJSONEncoder)
+    except Exception as e:
+        logger.error(f"JSON序列化失败: {str(e)}")
+        # 尝试转换为字符串
+        try:
+            if hasattr(obj, 'text'):
+                return obj.text
+            elif hasattr(obj, '__str__'):
+                return str(obj)
+            else:
+                return f"无法序列化的对象: {type(obj)}"
+        except:
+            return "无法序列化的对象"
+
+
 class MCPClientError(Exception):
     """MCP客户端自定义异常"""
     pass
@@ -248,6 +288,9 @@ class MCPClient:
                             yield f"\n❌ 工具执行失败: {result['error']}"
                             return
 
+                        # 格式化工具结果用于显示
+                        tool_content = self._format_tool_result(tool_name, result)
+
                         # 将工具调用和结果添加到消息历史
                         self.messages.append(
                             {
@@ -264,18 +307,22 @@ class MCPClient:
                             }
                         )
 
+                        # 将结果转换为字符串以添加到消息历史
+                        # 使用安全的JSON序列化
+                        result_str = safe_json_dumps(result)
+
                         # 添加工具响应
-                        tool_content = result.get("content", [{"text": "工具未返回内容"}])[0].text
                         self.messages.append(
                             {
                                 "role": "tool",
-                                "content": tool_content,
+                                "content": result_str,
                                 "tool_call_id": tool_call_id,
                             }
                         )
 
                         # 使用工具结果让模型生成最终回答
-                        yield f"\n📊 工具执行结果：\n{tool_content}\n\n🤖 AI解析结果：\n"
+                        # yield f"\n📊 工具执行结果：\n{tool_content}\n\n🤖 AI解析结果：\n"
+                        yield f"\n🤖 AI解析结果：\n"
 
                         # 创建新的聊天补全
                         result_response = await self.client.chat.completions.create(
@@ -325,7 +372,20 @@ class MCPClient:
         for attempt in range(self.retry_attempts):
             try:
                 result = await self.session.call_tool(tool_name, args)
-                return result.__dict__
+                # 解析结果对象为字典并安全处理
+                try:
+                    # 如果result已经是字典类型，直接返回
+                    if isinstance(result, dict):
+                        return result
+                    # 如果是特殊对象，尝试获取__dict__属性
+                    elif hasattr(result, '__dict__'):
+                        return result.__dict__
+                    # 其他情况返回对象的字符串表示
+                    else:
+                        return {"content": str(result)}
+                except Exception as e:
+                    logger.error(f"结果解析失败: {str(e)}")
+                    return {"error": f"结果处理失败: {str(e)}"}
             except Exception as e:
                 logger.error(f"工具调用失败 (尝试 {attempt + 1}/{self.retry_attempts}): {str(e)}")
                 if attempt < self.retry_attempts - 1:
@@ -370,6 +430,124 @@ class MCPClient:
             logger.info("MCP客户端资源已清理")
         except Exception as e:
             logger.error(f"清理资源时出错: {str(e)}")
+
+    def _format_tool_result(self, tool_name: str, result: Dict[str, Any]) -> str:
+        """
+        根据工具类型格式化结果
+        :param tool_name: 工具名称
+        :param result: 工具结果
+        :return: 格式化的结果字符串
+        """
+        # Text2SQL工具的特殊处理
+        if tool_name in ["sql_query", "execute_sql"]:
+            # 处理SQL查询结果
+            sql = result.get("sql_query", "未提供SQL")
+            execution_time = result.get("execution_time", "未知")
+            row_count = result.get("row_count", 0)
+            
+            formatted = f"📝 SQL查询: {sql}\n"
+            formatted += f"⏱️ 执行时间: {execution_time}\n"
+            formatted += f"📊 查询结果 ({row_count} 行):\n"
+            
+            # 格式化结果数据
+            results = result.get("results", [])
+            if results:
+                # 提取列名
+                columns = list(results[0].keys())
+                # 创建表头
+                formatted += "| " + " | ".join(columns) + " |\n"
+                formatted += "| " + " | ".join(["---" for _ in columns]) + " |\n"
+                
+                # 添加每一行数据
+                for row in results[:20]:  # 限制显示前20行
+                    formatted += "| " + " | ".join([str(row.get(col, "")) for col in columns]) + " |\n"
+                
+                if len(results) > 20:
+                    formatted += f"... 还有 {len(results) - 20} 行未显示\n"
+            else:
+                formatted += "没有返回数据\n"
+                
+            return formatted
+            
+        elif tool_name in ["get_table_info", "describe_table"]:
+            # 处理表结构信息
+            table_name = result.get("table_name", "未知表")
+            comment = result.get("comment", "")
+            row_count = result.get("row_count", 0)
+            
+            formatted = f"📋 表名: {table_name}"
+            if comment:
+                formatted += f" ({comment})"
+            formatted += f"\n📊 行数: {row_count}\n"
+            formatted += "📑 列结构:\n"
+            
+            # 格式化列信息
+            columns = result.get("columns", [])
+            if columns:
+                formatted += "| 名称 | 类型 | 可空 | 默认值 | 主键 | 备注 |\n"
+                formatted += "| --- | --- | --- | --- | --- | --- |\n"
+                
+                for col in columns:
+                    name = col.get("name", "")
+                    col_type = col.get("type", "")
+                    nullable = "是" if col.get("nullable", True) else "否"
+                    default = col.get("default", "") or ""
+                    is_primary = "✓" if col.get("is_primary", False) else ""
+                    comment = col.get("comment", "")
+                    
+                    formatted += f"| {name} | {col_type} | {nullable} | {default} | {is_primary} | {comment} |\n"
+            else:
+                formatted += "没有列信息\n"
+                
+            # 添加样本数据
+            sample_data = result.get("sample_data", [])
+            if sample_data:
+                formatted += "\n📝 样本数据:\n"
+                # 提取列名
+                columns = list(sample_data[0].keys())
+                # 创建表头
+                formatted += "| " + " | ".join(columns) + " |\n"
+                formatted += "| " + " | ".join(["---" for _ in columns]) + " |\n"
+                
+                # 添加每一行数据
+                for row in sample_data:
+                    formatted += "| " + " | ".join([str(row.get(col, "")) for col in columns]) + " |\n"
+                    
+            return formatted
+            
+        elif tool_name == "get_all_tables":
+            # 处理所有表信息
+            database = result.get("database", "未知数据库")
+            table_count = result.get("table_count", 0)
+            
+            formatted = f"🗃️ 数据库: {database}\n"
+            formatted += f"📊 表数量: {table_count}\n\n"
+            
+            # 格式化表信息
+            tables = result.get("tables", [])
+            if tables:
+                formatted += "| 表名 | 描述 | 行数 | 列数 |\n"
+                formatted += "| --- | --- | --- | --- |\n"
+                
+                for table in tables:
+                    name = table.get("table_name", "")
+                    comment = table.get("comment", "")
+                    row_count = table.get("row_count", 0)
+                    col_count = len(table.get("columns", []))
+                    
+                    formatted += f"| {name} | {comment} | {row_count} | {col_count} |\n"
+            else:
+                formatted += "没有表信息\n"
+                
+            return formatted
+            
+        # 默认处理（尝试JSON格式化）
+        else:
+            try:
+                return json.dumps(result, ensure_ascii=False, indent=2)
+            except:
+                # 如果无法JSON格式化，返回原始内容
+                return str(result)
 
 
 async def main(server_script_path: str) -> None:

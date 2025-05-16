@@ -733,7 +733,14 @@ class SqlValidator:
 
 async def load_database_metadata():
     """加载数据库元数据"""
-    return await MetadataManager.load_metadata()
+    try:
+        logger.info("开始加载数据库元数据")
+        metadata = await MetadataManager.load_metadata()
+        logger.info(f"元数据加载成功，发现 {len(metadata['tables'])} 个表")
+        return metadata
+    except Exception as e:
+        logger.error(f"元数据加载失败: {str(e)}", exc_info=True)
+        return {"tables": {}, "last_updated": 0, "error": str(e)}
 
 
 async def generate_sql_query(query: str) -> str:
@@ -1242,13 +1249,35 @@ async def describe_tables() -> Dict[str, Any]:
     :return: 所有表的结构信息
     """
     try:
+        # 检查数据库连接
         if not db_pool:
-            await init_db_pool()
-            if not db_pool:
-                return {"error": "数据库连接失败"}
+            logger.info(f"describe_tables: 数据库连接未初始化，尝试初始化")
+            initialized = await init_db_pool()
+            if not initialized or not db_pool:
+                logger.error(f"describe_tables: 数据库连接初始化失败")
+                return {"error": "数据库连接失败，请检查数据库配置和连接"}
         
-        # 从元数据中获取表信息
-        metadata = await load_database_metadata()
+        # 加载元数据（强制刷新）
+        try:
+            global db_metadata
+            db_metadata["last_updated"] = 0  # 强制刷新
+            metadata = await load_database_metadata()
+            
+            # 检查是否有表
+            if not metadata["tables"]:
+                logger.warning(f"describe_tables: 数据库中没有找到任何表")
+                return {
+                    "error": "数据库中没有表，请先创建表",
+                    "database": DB_CONFIG["database"],
+                    "table_count": 0
+                }
+                
+            # 日志：发现的表
+            table_list = list(metadata["tables"].keys())
+            logger.info(f"describe_tables: 在数据库中发现表: {table_list}")
+        except Exception as e:
+            logger.error(f"describe_tables: 加载元数据失败: {str(e)}")
+            return {"error": f"加载数据库元数据失败: {str(e)}"}
         
         tables_info = []
         for table_name, table_info in metadata["tables"].items():
@@ -1278,13 +1307,15 @@ async def describe_tables() -> Dict[str, Any]:
             
             tables_info.append(table_structure)
         
+        logger.info(f"describe_tables: 成功获取 {len(tables_info)} 个表的信息")
+        
         return {
             "database": DB_CONFIG["database"],
             "table_count": len(tables_info),
             "tables": tables_info
         }
     except Exception as e:
-        logger.error(f"获取表结构失败: {str(e)}")
+        logger.error(f"describe_tables: 获取表结构失败: {str(e)}", exc_info=True)
         return {"error": f"获取表结构失败: {str(e)}"}
 
 
@@ -1296,25 +1327,57 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
     :return: 表结构信息
     """
     try:
+        # 检查数据库连接
         if not db_pool:
-            await init_db_pool()
-            if not db_pool:
-                return {"error": "数据库连接失败"}
+            logger.info(f"describe_table: 数据库连接未初始化，尝试初始化")
+            initialized = await init_db_pool()
+            if not initialized or not db_pool:
+                logger.error(f"describe_table: 数据库连接初始化失败")
+                return {"error": "数据库连接失败，请检查数据库配置和连接"}
         
-        # 从元数据中获取表信息
-        metadata = await load_database_metadata()
+        # 日志：开始加载元数据
+        logger.info(f"describe_table: 开始加载数据库元数据，请求表名='{table_name}'")
+        
+        # 加载元数据（强制刷新）
+        try:
+            global db_metadata
+            db_metadata["last_updated"] = 0  # 强制刷新
+            metadata = await load_database_metadata()
+            
+            # 检查是否有表
+            if not metadata["tables"]:
+                logger.warning(f"describe_table: 数据库中没有找到任何表")
+                return {
+                    "error": "数据库中没有表，请先创建表",
+                    "database": DB_CONFIG["database"],
+                    "table_count": 0
+                }
+                
+            # 日志：发现的表
+            table_list = list(metadata["tables"].keys())
+            logger.info(f"describe_table: 在数据库中发现表: {table_list}")
+        except Exception as e:
+            logger.error(f"describe_table: 加载元数据失败: {str(e)}")
+            return {"error": f"加载数据库元数据失败: {str(e)}"}
         
         # 如果没有指定表名，使用第一个表
         if not table_name:
-            if not metadata["tables"]:
-                return {"error": "数据库中没有表"}
             table_name = next(iter(metadata["tables"].keys()))
+            logger.info(f"describe_table: 未指定表名，默认选择第一个表 '{table_name}'")
         
         # 检查表是否存在
         if table_name not in metadata["tables"]:
-            return {"error": f"表 '{table_name}' 不存在"}
+            available_tables = list(metadata["tables"].keys())
+            logger.warning(f"describe_table: 请求的表 '{table_name}' 不存在，可用表: {available_tables}")
+            return {
+                "error": f"表 '{table_name}' 不存在",
+                "available_tables": available_tables,
+                "database": DB_CONFIG["database"]
+            }
         
+        # 获取表信息
         table_info = metadata["tables"][table_name]
+        logger.info(f"describe_table: 成功获取表 '{table_name}' 的元数据")
         
         # 获取表的行数
         row_count = table_info.get("row_count", 0)
@@ -1324,6 +1387,7 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
             "table_name": table_name,
             "comment": table_info.get("comment", ""),
             "row_count": row_count,
+            "database": DB_CONFIG["database"],
             "columns": []
         }
         
@@ -1343,6 +1407,7 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
         # 如果有足够权限，尝试获取表的前5条记录作为示例
         sample_data = []
         try:
+            logger.info(f"describe_table: 尝试获取 '{table_name}' 的样本数据")
             async with db_pool.acquire() as conn:
                 async with conn.cursor(aiomysql.DictCursor) as cursor:
                     await cursor.execute(f"SELECT * FROM {table_name} LIMIT 5")
@@ -1356,14 +1421,17 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
                             else:
                                 sample_record[key] = value
                         sample_data.append(sample_record)
+            logger.info(f"describe_table: 成功获取 {len(sample_data)} 条样本数据")
         except Exception as e:
-            logger.warning(f"获取表 '{table_name}' 的样本数据失败: {str(e)}")
+            logger.warning(f"describe_table: 获取表 '{table_name}' 的样本数据失败: {str(e)}")
         
         table_structure["sample_data"] = sample_data
         
+        logger.info(f"describe_table: 成功处理表 '{table_name}' 的结构信息，包含 {len(table_structure['columns'])} 列")
+        
         return table_structure
     except Exception as e:
-        logger.error(f"获取表结构失败: {str(e)}")
+        logger.error(f"describe_table: 获取表结构失败: {str(e)}", exc_info=True)
         return {"error": f"获取表结构失败: {str(e)}"}
 
 
