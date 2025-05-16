@@ -25,6 +25,20 @@ from mcp_text2sql import (
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraMcpServer")
 
+# 服务器初始化标志
+db_initialized = False
+
+# 注册事件 - 在服务器启动前初始化数据库连接
+
+async def on_server_start():
+    """服务器启动事件处理"""
+    await init_server()
+
+# 注册事件 - 在服务器关闭时清理资源
+
+async def on_server_shutdown():
+    """服务器关闭事件处理"""
+    await cleanup()
 
 # 工具验证函数
 def validate_tool(func):
@@ -279,6 +293,11 @@ async def sql_query(query: str) -> Dict[str, Any]:
     :param query: 自然语言查询，例如"查询所有男性学生"
     :return: 包含SQL查询和执行结果的字典
     """
+    # 确保数据库已初始化
+    global db_initialized
+    if not db_initialized:
+        await init_server()
+    
     return await text_to_sql(query)
 
 
@@ -290,6 +309,11 @@ async def sql_query_stream(query: str):
     :param query: 自然语言查询，例如"查询所有男性学生"
     :return: 流式返回查询结果
     """
+    # 确保数据库已初始化
+    global db_initialized
+    if not db_initialized:
+        await init_server()
+        
     async for result in text_to_sql_sse(query):
         yield result
 
@@ -302,6 +326,11 @@ async def execute_sql(sql: str) -> Dict[str, Any]:
     :param sql: SQL查询语句
     :return: 查询结果
     """
+    # 确保数据库已初始化
+    global db_initialized
+    if not db_initialized:
+        await init_server()
+        
     return await query(sql)
 
 
@@ -313,7 +342,28 @@ async def get_table_info(table_name: str = "") -> Dict[str, Any]:
     :param table_name: 可选的表名，如果不提供则返回第一个表
     :return: 表结构信息
     """
-    return await describe_table(table_name)
+    # 确保数据库已初始化
+    global db_initialized
+    if not db_initialized:
+        await init_server()
+    
+    # 记录请求参数
+    logger.info(f"请求表信息: 表名='{table_name}'")
+    
+    # 尝试获取表信息
+    try:
+        result = await describe_table(table_name)
+        
+        # 记录结果状态
+        if "error" in result:
+            logger.error(f"获取表信息失败: {result['error']}")
+        else:
+            logger.info(f"获取表信息成功: 表名={result.get('table_name', '未知')}, 列数={len(result.get('columns', []))}")
+            
+        return result
+    except Exception as e:
+        logger.error(f"获取表信息异常: {str(e)}")
+        return {"error": f"获取表信息异常: {str(e)}"}
 
 
 @mcp.tool()
@@ -323,6 +373,11 @@ async def get_all_tables() -> Dict[str, Any]:
     获取数据库中所有表的结构信息
     :return: 所有表的结构信息
     """
+    # 确保数据库已初始化
+    global db_initialized
+    if not db_initialized:
+        await init_server()
+        
     return await describe_tables()
 
 
@@ -339,16 +394,24 @@ async def cleanup():
 # 初始化服务器
 async def init_server():
     """初始化服务器"""
+    global db_initialized
+    
     # 初始化SQL数据库连接
-    await init_db_pool()
+    try:
+        db_init_success = await init_db_pool()
+        if db_init_success:
+            db_initialized = True
+            logger.info("MCP服务数据库连接初始化成功")
+        else:
+            logger.error("MCP服务数据库连接初始化失败")
+    except Exception as e:
+        logger.error(f"数据库初始化错误: {str(e)}")
+    
     logger.info("MCP服务初始化完成")
 
 
 # 服务器启动入口点
 if __name__ == "__main__":
-    # 注册事件
-    # mcp.on_start(init_server)
-    # mcp.on_shutdown(cleanup)
-    
+    # 注册事件已经在上面使用装饰器完成
     # 启动服务器
     mcp.run()
