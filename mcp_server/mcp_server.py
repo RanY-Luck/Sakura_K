@@ -14,9 +14,11 @@ from mcp.server.fastmcp import FastMCP
 from tool_weather import WeatherTool
 from utils.log_util import logger
 from mcp_text2sql import (
-    text_to_sql, text_to_sql_sse, 
-    query, query_sse,
-    describe_table, insert_sample_data, 
+    text_to_sql,
+    text_to_sql_sse,
+    query,
+    describe_table,
+    describe_tables,
     init_db_pool, cleanup as sql_cleanup
 )
 
@@ -282,6 +284,18 @@ async def sql_query(query: str) -> Dict[str, Any]:
 
 @mcp.tool()
 @validate_tool
+async def sql_query_stream(query: str):
+    """
+    将自然语言转换为SQL查询并执行，以流式方式返回结果
+    :param query: 自然语言查询，例如"查询所有男性学生"
+    :return: 流式返回查询结果
+    """
+    async for result in text_to_sql_sse(query):
+        yield result
+
+
+@mcp.tool()
+@validate_tool
 async def execute_sql(sql: str) -> Dict[str, Any]:
     """
     直接执行SQL查询语句
@@ -293,23 +307,23 @@ async def execute_sql(sql: str) -> Dict[str, Any]:
 
 @mcp.tool()
 @validate_tool
-async def get_table_info() -> Dict[str, Any]:
+async def get_table_info(table_name: str = "") -> Dict[str, Any]:
     """
-    获取数据库表结构信息
+    获取指定数据库表的结构信息
+    :param table_name: 可选的表名，如果不提供则返回第一个表
     :return: 表结构信息
     """
-    return await describe_table()
+    return await describe_table(table_name)
 
 
 @mcp.tool()
 @validate_tool
-async def add_sample_data(count: int = 10) -> Dict[str, Any]:
+async def get_all_tables() -> Dict[str, Any]:
     """
-    向数据库添加示例数据
-    :param count: 要添加的数据条数
-    :return: 操作结果
+    获取数据库中所有表的结构信息
+    :return: 所有表的结构信息
     """
-    return await insert_sample_data(count)
+    return await describe_tables()
 
 
 # 清理资源函数
