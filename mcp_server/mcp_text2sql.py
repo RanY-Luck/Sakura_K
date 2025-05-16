@@ -10,9 +10,19 @@ import time
 import asyncio
 import json
 import aiomysql
-from typing import Dict, Any, List, AsyncGenerator
+import re
+from typing import Dict, Any, List, AsyncGenerator, Tuple, Optional
 from mcp.server.fastmcp import FastMCP
 from utils.log_util import logger
+from dotenv import load_dotenv
+
+# 获取当前环境，默认为 'dev'
+ENV = os.getenv("ENV", "dev")
+
+# 根据环境加载对应的环境变量文件
+env_file = f".env.{ENV}"
+print(f"Loading environment from {env_file}")
+load_dotenv(env_file)
 
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraText2SqlService")
@@ -35,15 +45,20 @@ CREATE TABLE IF NOT EXISTS students (
 
 # 数据库连接配置
 DB_CONFIG = {
-    "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
-    "user": os.getenv("MYSQL_USER", "root"),
-    "password": os.getenv("MYSQL_PASSWORD", "123456"),
-    "database": os.getenv("MYSQL_DATABASE", "test02"),
-    "table_name": os.getenv("MYSQL_TABLE", "students")
+    "host": os.getenv("MYSQL_HOST"),
+    "user": os.getenv("MYSQL_USER"),
+    "password": os.getenv("MYSQL_PASSWORD"),
+    "database": os.getenv("MYSQL_DATABASE"),
+    "table_name": os.getenv("MYSQL_TABLE")
 }
 
 # 数据库连接池
 db_pool = None
+# 数据库元数据缓存
+db_metadata = {
+    "tables": {},
+    "last_updated": 0
+}
 
 
 async def init_db_pool():
@@ -61,6 +76,8 @@ async def init_db_pool():
         
         # 创建数据库和表
         await ensure_database_and_table()
+        # 初始化加载元数据
+        await load_database_metadata()
         logger.info("数据库连接池初始化成功")
         return True
     except Exception as e:
@@ -90,15 +107,556 @@ async def ensure_database_and_table():
             # 选择数据库
             await cursor.execute(f"USE {DB_CONFIG['database']}")
             
-            # 检查表是否存在
-            await cursor.execute(f"SHOW TABLES LIKE '{DB_CONFIG['table_name']}'")
-            result = await cursor.fetchone()
-            if not result:
-                # 创建表
-                await cursor.execute(DB_SCHEMA)
-                logger.info(f"创建表: {DB_CONFIG['table_name']}")
+            # # 检查表是否存在
+            # await cursor.execute(f"SHOW TABLES LIKE '{DB_CONFIG['table_name']}'")
+            # result = await cursor.fetchone()
+            # if not result:
+            #     # 创建表
+            #     await cursor.execute(DB_SCHEMA)
+            #     logger.info(f"创建表: {DB_CONFIG['table_name']}")
     finally:
         conn.close()
+
+
+# ======================== 查询分析器与SQL生成的新流水线组件 ========================
+
+class MetadataManager:
+    """数据库元数据管理器"""
+    @staticmethod
+    async def load_metadata() -> Dict[str, Any]:
+        """加载数据库元数据"""
+        global db_metadata
+        
+        # 如果元数据已经加载且不超过10分钟，直接返回缓存
+        if db_metadata["last_updated"] > 0 and time.time() - db_metadata["last_updated"] < 600:
+            return db_metadata
+            
+        try:
+            if not db_pool:
+                await init_db_pool()
+                
+            tables = {}
+            async with db_pool.acquire() as conn:
+                async with conn.cursor() as cursor:
+                    # 获取所有表
+                    await cursor.execute("SHOW TABLES")
+                    all_tables = await cursor.fetchall()
+                    
+                    for table_row in all_tables:
+                        table_name = table_row[0]
+                        table_info = {
+                            "name": table_name,
+                            "columns": [],
+                            "column_types": {},
+                            "primary_key": None,
+                            "row_count": 0
+                        }
+                        
+                        # 获取表结构
+                        await cursor.execute(f"DESCRIBE {table_name}")
+                        columns = await cursor.fetchall()
+                        
+                        for col in columns:
+                            column_name = col[0]
+                            column_type = col[1]
+                            is_pk = col[3] == "PRI"
+                            
+                            table_info["columns"].append(column_name)
+                            table_info["column_types"][column_name] = {
+                                "type": column_type,
+                                "nullable": col[2] == "YES",
+                                "default": col[4],
+                                "extra": col[5]
+                            }
+                            
+                            if is_pk:
+                                table_info["primary_key"] = column_name
+                        
+                        # 获取行数
+                        await cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                        count_result = await cursor.fetchone()
+                        table_info["row_count"] = count_result[0] if count_result else 0
+                        
+                        tables[table_name] = table_info
+            
+            db_metadata = {
+                "tables": tables,
+                "last_updated": time.time()
+            }
+            
+            logger.info(f"数据库元数据加载成功: {len(tables)}个表")
+            return db_metadata
+            
+        except Exception as e:
+            logger.error(f"加载数据库元数据失败: {str(e)}")
+            return {"tables": {}, "last_updated": 0, "error": str(e)}
+    
+    @staticmethod
+    def get_table_info(table_name: str) -> Optional[Dict[str, Any]]:
+        """获取表的元数据信息"""
+        return db_metadata["tables"].get(table_name)
+    
+    @staticmethod
+    def get_column_info(table_name: str, column_name: str) -> Optional[Dict[str, Any]]:
+        """获取列的元数据信息"""
+        table_info = MetadataManager.get_table_info(table_name)
+        if not table_info:
+            return None
+        return table_info["column_types"].get(column_name)
+
+
+class QueryAnalyzer:
+    """查询分析器 - 将自然语言查询分解为结构化组件"""
+    
+    # 关键词映射表 - 将中文关键词映射到SQL组件
+    KEYWORDS = {
+        # 条件运算符
+        "等于": "=",
+        "不等于": "!=",
+        "大于": ">",
+        "小于": "<",
+        "大于等于": ">=",
+        "小于等于": "<=",
+        "包含": "LIKE",
+        "不包含": "NOT LIKE",
+        "开始于": "LIKE",
+        "结束于": "LIKE",
+        
+        # 逻辑运算符
+        "和": "AND",
+        "或者": "OR",
+        "但是": "AND",
+        "不是": "NOT",
+        
+        # 排序
+        "升序": "ASC",
+        "降序": "DESC",
+        "从小到大": "ASC",
+        "从大到小": "DESC",
+        "从高到低": "DESC",
+        "从低到高": "ASC",
+        
+        # 函数
+        "平均": "AVG",
+        "总和": "SUM",
+        "数量": "COUNT",
+        "最大值": "MAX",
+        "最小值": "MIN",
+        
+        # 其他
+        "分组": "GROUP BY",
+        "限制": "LIMIT",
+        "按": "ORDER BY",
+        "排序": "ORDER BY"
+    }
+    
+    # 字段映射表 - 常见字段的中文别名
+    FIELD_ALIASES = {
+        "学号": "student_id",
+        "姓名": "first_name",
+        "性别": "gender",
+        "生日": "date_of_birth",
+        "出生日期": "date_of_birth",
+        "电话": "phone_number",
+        "联系方式": "phone_number",
+        "地址": "address",
+        "住址": "address",
+        "年级": "grade_level",
+        "班级": "grade_level",
+        "成绩": "gpa",
+        "绩点": "gpa",
+        "GPA": "gpa",
+        "创建时间": "created_at",
+        "更新时间": "updated_at"
+    }
+    
+    # 表名映射表
+    TABLE_ALIASES = {
+        "学生": "students",
+        "学生表": "students",
+        "学员": "students"
+    }
+    
+    # 值映射表 - 特定词语到SQL值的映射
+    VALUE_ALIASES = {
+        "男": "'男'",
+        "女": "'女'",
+        "男性": "'男'",
+        "女性": "'女'"
+    }
+    
+    @staticmethod
+    def analyze(query: str) -> Dict[str, Any]:
+        """
+        分析自然语言查询，提取结构化组件
+        :param query: 自然语言查询
+        :return: 包含查询结构的字典
+        """
+        # 初始化查询结构
+        analysis = {
+            "select": ["*"],  # 默认选择所有字段
+            "from": DB_CONFIG["table_name"],  # 默认表名
+            "where": [],
+            "order_by": [],
+            "group_by": [],
+            "limit": None,
+            "aggregations": [],
+            "original_query": query,
+            "confidence": 0.7  # 初始置信度
+        }
+        
+        # 识别表名
+        for alias, table_name in QueryAnalyzer.TABLE_ALIASES.items():
+            if alias in query:
+                analysis["from"] = table_name
+                break
+        
+        # 检测字段选择
+        # 如果查询中包含"统计"、"计数"、"数一数"等词语，默认使用COUNT
+        if any(term in query for term in ["统计", "计数", "数一数", "多少个", "多少条"]):
+            analysis["select"] = ["COUNT(*)"]
+            analysis["aggregations"].append({"type": "COUNT", "field": "*"})
+        
+        # 检测是否包含特定的聚合函数
+        for agg_term, agg_func in [("平均", "AVG"), ("总和", "SUM"), ("数量", "COUNT"), 
+                                   ("最大", "MAX"), ("最小", "MIN"), ("最高", "MAX"), ("最低", "MIN")]:
+            if agg_term in query:
+                # 查找可能的字段
+                for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
+                    if field_alias in query and f"{agg_term}{field_alias}" in query:
+                        analysis["select"] = [f"{agg_func}({field_name})"]
+                        analysis["aggregations"].append({"type": agg_func, "field": field_name})
+                        break
+        
+        # 如果查询明确提到某些字段，则选择这些字段
+        selected_fields = []
+        for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
+            # 使用正则表达式确保是完整单词匹配
+            if re.search(rf'\b{field_alias}\b', query):
+                # 避免将条件中的字段添加到选择列表
+                # 简单启发式: 如果字段后面跟着条件操作词，则可能是条件而非选择
+                if not any(f"{field_alias}{cond}" in query for cond in ["大于", "小于", "等于"]):
+                    selected_fields.append(field_name)
+        
+        if selected_fields:
+            analysis["select"] = selected_fields
+        
+        # 检测WHERE条件
+        # 处理简单的等值条件
+        for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
+            # 检查是否包含特定值比较
+            for value_alias, sql_value in QueryAnalyzer.VALUE_ALIASES.items():
+                if f"{field_alias}{value_alias}" in query or f"{field_alias}是{value_alias}" in query:
+                    analysis["where"].append({
+                        "field": field_name,
+                        "operator": "=",
+                        "value": sql_value.strip("'")
+                    })
+            
+            # 处理数值比较
+            for cond_alias, operator in [("大于", ">"), ("小于", "<"), ("等于", "="), 
+                                        ("大于等于", ">="), ("小于等于", "<=")]:
+                if f"{field_alias}{cond_alias}" in query:
+                    # 尝试提取数值
+                    number_match = re.search(rf'{field_alias}{cond_alias}\s*(\d+(\.\d+)?)', query)
+                    if number_match:
+                        analysis["where"].append({
+                            "field": field_name,
+                            "operator": operator,
+                            "value": number_match.group(1)
+                        })
+        
+        # 检测ORDER BY
+        order_terms = ["排序", "按", "顺序"]
+        if any(term in query for term in order_terms):
+            direction = "DESC" if any(desc in query for desc in ["降序", "从大到小", "从高到低"]) else "ASC"
+            
+            # 查找可能的排序字段
+            for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
+                if f"按{field_alias}" in query or f"{field_alias}排序" in query:
+                    analysis["order_by"].append({"field": field_name, "direction": direction})
+                    break
+            
+            # 如果没有找到特定字段但有排序关键词，默认按ID或GPA排序
+            if not analysis["order_by"] and any(term in query for term in order_terms):
+                default_sort_field = "gpa" if "成绩" in query else "student_id"
+                analysis["order_by"].append({"field": default_sort_field, "direction": direction})
+        
+        # 检测LIMIT
+        limit_match = re.search(r'(?:限制|最多|前)\s*(\d+)\s*(?:条|个|项)', query)
+        if limit_match:
+            analysis["limit"] = int(limit_match.group(1))
+        else:
+            # 默认限制为100条记录
+            analysis["limit"] = 100
+        
+        # 如果是简单的统计查询，调整limit为不限制
+        if analysis["select"] == ["COUNT(*)"]:
+            analysis["limit"] = None
+        
+        # 调整置信度
+        # 越多的结构化元素被识别，置信度越高
+        confidence_factors = 0
+        if analysis["where"]:
+            confidence_factors += len(analysis["where"]) * 0.1
+        if analysis["order_by"]:
+            confidence_factors += 0.1
+        if analysis["select"] != ["*"]:
+            confidence_factors += 0.1
+        
+        analysis["confidence"] = min(0.7 + confidence_factors, 0.95)
+        
+        return analysis
+
+
+class SqlGenerator:
+    """SQL生成器 - 基于查询分析生成SQL语句"""
+    
+    @staticmethod
+    def generate(query_analysis: Dict[str, Any]) -> str:
+        """
+        基于查询分析生成SQL语句
+        :param query_analysis: 查询分析结果
+        :return: SQL语句
+        """
+        # 构建SELECT子句
+        select_clause = "SELECT " + ", ".join(query_analysis["select"])
+        
+        # 构建FROM子句
+        from_clause = f"FROM {query_analysis['from']}"
+        
+        # 构建WHERE子句
+        where_clause = ""
+        if query_analysis["where"]:
+            conditions = []
+            for condition in query_analysis["where"]:
+                # 处理不同的操作符类型
+                if condition["operator"] == "LIKE":
+                    # 对LIKE条件进行特殊处理
+                    value = f"'%{condition['value']}%'"
+                    conditions.append(f"{condition['field']} LIKE {value}")
+                else:
+                    # 对字符串值添加引号
+                    value = condition["value"]
+                    if isinstance(value, str) and not value.isdigit() and not value.startswith("'"):
+                        value = f"'{value}'"
+                    conditions.append(f"{condition['field']} {condition['operator']} {value}")
+            
+            where_clause = "WHERE " + " AND ".join(conditions)
+        
+        # 构建GROUP BY子句
+        group_by_clause = ""
+        if query_analysis["group_by"]:
+            group_by_clause = "GROUP BY " + ", ".join(query_analysis["group_by"])
+        
+        # 构建ORDER BY子句
+        order_by_clause = ""
+        if query_analysis["order_by"]:
+            order_terms = []
+            for order in query_analysis["order_by"]:
+                order_terms.append(f"{order['field']} {order['direction']}")
+            order_by_clause = "ORDER BY " + ", ".join(order_terms)
+        
+        # 构建LIMIT子句
+        limit_clause = ""
+        if query_analysis["limit"] is not None:
+            limit_clause = f"LIMIT {query_analysis['limit']}"
+        
+        # 组合所有子句
+        sql_parts = [select_clause, from_clause]
+        
+        if where_clause:
+            sql_parts.append(where_clause)
+        
+        if group_by_clause:
+            sql_parts.append(group_by_clause)
+        
+        if order_by_clause:
+            sql_parts.append(order_by_clause)
+        
+        if limit_clause:
+            sql_parts.append(limit_clause)
+        
+        return " ".join(sql_parts)
+
+
+class SqlValidator:
+    """SQL验证器 - 验证生成的SQL语句的有效性和安全性"""
+    
+    @staticmethod
+    def validate(sql: str, metadata: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """
+        验证SQL语句的有效性和安全性
+        :param sql: SQL语句
+        :param metadata: 数据库元数据
+        :return: (是否有效, 错误消息)
+        """
+        # 检查是否包含危险操作
+        dangerous_keywords = ["DROP", "DELETE", "TRUNCATE", "UPDATE", "INSERT", "ALTER", "CREATE"]
+        for keyword in dangerous_keywords:
+            if re.search(rf'\b{keyword}\b', sql.upper()):
+                return False, f"SQL语句包含不允许的操作: {keyword}"
+        
+        # 解析SQL以验证字段和表名
+        try:
+            # 简单解析表名
+            table_match = re.search(r'FROM\s+(\w+)', sql, re.IGNORECASE)
+            if table_match:
+                table_name = table_match.group(1)
+                if table_name not in metadata["tables"]:
+                    return False, f"表名不存在: {table_name}"
+                
+                # 验证字段名
+                table_info = metadata["tables"][table_name]
+                
+                # 提取SELECT子句中的字段
+                select_clause = re.search(r'SELECT\s+(.*?)\s+FROM', sql, re.IGNORECASE)
+                if select_clause:
+                    fields = select_clause.group(1).strip()
+                    
+                    # 处理星号
+                    if fields == "*":
+                        pass  # 星号是有效的
+                    elif "COUNT(*)" in fields.upper() or "COUNT(1)" in fields.upper():
+                        pass  # COUNT(*) 和 COUNT(1) 是有效的
+                    else:
+                        # 验证每个字段
+                        for field in re.split(r',\s*', fields):
+                            # 移除函数包装，例如 MAX(field)
+                            field_clean = re.sub(r'\w+\((.*?)\)', r'\1', field).strip()
+                            
+                            # 跳过特殊情况，例如 COUNT(*)
+                            if field_clean == "*" or ".*" in field_clean:
+                                continue
+                                
+                            # 检查字段是否存在
+                            if field_clean not in table_info["columns"] and field_clean.lower() != "count(*)":
+                                # 检查是否是函数表达式
+                                if not re.match(r'^(AVG|SUM|COUNT|MAX|MIN)\([\w\*]+\)$', field, re.IGNORECASE):
+                                    return False, f"字段不存在: {field_clean}"
+            
+            # 如果以上检查没有问题，SQL语句暂时认为是有效的
+            return True, None
+            
+        except Exception as e:
+            return False, f"SQL语句解析失败: {str(e)}"
+
+
+async def load_database_metadata():
+    """加载数据库元数据"""
+    return await MetadataManager.load_metadata()
+
+
+async def generate_sql_query(query: str) -> str:
+    """
+    使用新的Text2SQL流水线生成SQL查询
+    :param query: 自然语言查询
+    :return: SQL查询语句
+    """
+    # 1. 加载/更新数据库元数据
+    metadata = await MetadataManager.load_metadata()
+    
+    # 2. 使用查询分析器分析查询
+    query_analysis = QueryAnalyzer.analyze(query)
+    logger.info(f"查询分析结果: {json.dumps(query_analysis, ensure_ascii=False)}")
+    
+    # 3. 使用SQL生成器生成SQL语句
+    sql = SqlGenerator.generate(query_analysis)
+    logger.info(f"生成的SQL: {sql}")
+    
+    # 4. 验证SQL语句
+    is_valid, error_message = SqlValidator.validate(sql, metadata)
+    
+    if not is_valid:
+        logger.error(f"SQL验证失败: {error_message}, 原始查询: {query}")
+        # 如果验证失败，回退到简单的SQL生成方式
+        sql = fallback_generate_sql_query(query)
+        logger.info(f"回退生成的SQL: {sql}")
+    
+    return sql
+
+
+def fallback_generate_sql_query(query: str) -> str:
+    """
+    简单关键词映射的回退SQL生成方法
+    :param query: 自然语言查询
+    :return: SQL查询语句
+    """
+    # 简单关键词映射
+    keywords = {
+        "男": "gender = '男'",
+        "男性": "gender = '男'",
+        "女": "gender = '女'",
+        "女性": "gender = '女'",
+        "学生": "students",
+        "GPA": "gpa",
+        "大于": ">",
+        "小于": "<",
+        "等于": "=",
+        "高于": ">",
+        "低于": "<",
+        "年级": "grade_level",
+        "电话": "phone_number",
+        "姓名": "first_name",
+        "地址": "address",
+        "生日": "date_of_birth",
+        "出生日期": "date_of_birth",
+        "按": "ORDER BY",
+        "排序": "ORDER BY",
+        "降序": "DESC",
+        "升序": "ASC",
+        "从高到低": "DESC",
+        "从低到高": "ASC",
+        "最近": "created_at >= NOW() - INTERVAL",
+        "限制": "LIMIT",
+        "最多": "LIMIT"
+    }
+    
+    # 默认查询
+    sql = "SELECT * FROM students"
+    
+    # 条件标志
+    has_where = False
+    
+    # 检查是否包含特定条件
+    for keyword, sql_part in keywords.items():
+        if keyword in query:
+            # 第一个条件使用WHERE，后续条件使用AND
+            if not has_where and any(kw in ["gender", "gpa", "grade_level", "address", "phone_number", "first_name", "date_of_birth"] for kw in sql_part.split()):
+                sql += f" WHERE {sql_part}"
+                has_where = True
+            # 排序条件
+            elif "ORDER BY" in sql_part and "ORDER BY" not in sql:
+                # 确定排序字段，默认为gpa
+                sort_field = "gpa"
+                if "姓名" in query:
+                    sort_field = "first_name"
+                elif "出生" in query or "生日" in query:
+                    sort_field = "date_of_birth"
+                elif "创建" in query:
+                    sort_field = "created_at"
+                
+                sql += f" ORDER BY {sort_field}"
+                # 添加排序方向
+                if "DESC" in sql_part or "从高到低" in query:
+                    sql += " DESC"
+                elif "ASC" in sql_part or "从低到高" in query:
+                    sql += " ASC"
+            # 限制条件
+            elif "LIMIT" in sql_part and "LIMIT" not in sql:
+                # 查找数字作为限制数量
+                import re
+                numbers = re.findall(r'\d+', query)
+                limit = 10  # 默认限制
+                if numbers:
+                    limit = numbers[0]
+                sql += f" LIMIT {limit}"
+    
+    # 如果没有检测到条件，返回所有学生
+    if sql == "SELECT * FROM students" and "所有" not in query:
+        sql += " LIMIT 100"  # 默认限制返回数量
+        
+    return sql
 
 
 @mcp.tool()
@@ -135,7 +693,8 @@ async def text_to_sql(query: str) -> Dict[str, Any]:
             "sql_query": sql_query,
             "results": all_results,
             "execution_time": f"{execution_time:.2f}秒",
-            "row_count": len(all_results)
+            "row_count": len(all_results),
+            "query_analysis": QueryAnalyzer.analyze(query)  # 返回查询分析结果
         }
     except Exception as e:
         logger.error(f"查询执行失败: {str(e)}")
@@ -221,89 +780,6 @@ async def text_to_sql_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
         error_msg = f"SSE查询执行失败: {str(e)}"
         logger.error(error_msg)
         yield {"type": "error", "error": error_msg, "timestamp": time.time()}
-
-
-async def generate_sql_query(query: str) -> str:
-    """
-    使用预定义的规则和模板生成SQL查询
-    :param query: 自然语言查询
-    :return: SQL查询语句
-    """
-    # 简单关键词映射
-    keywords = {
-        "男": "gender = '男'",
-        "男性": "gender = '男'",
-        "女": "gender = '女'",
-        "女性": "gender = '女'",
-        "学生": "students",
-        "GPA": "gpa",
-        "大于": ">",
-        "小于": "<",
-        "等于": "=",
-        "高于": ">",
-        "低于": "<",
-        "年级": "grade_level",
-        "电话": "phone_number",
-        "姓名": "first_name",
-        "地址": "address",
-        "生日": "date_of_birth",
-        "出生日期": "date_of_birth",
-        "按": "ORDER BY",
-        "排序": "ORDER BY",
-        "降序": "DESC",
-        "升序": "ASC",
-        "从高到低": "DESC",
-        "从低到高": "ASC",
-        "最近": "created_at >= NOW() - INTERVAL",
-        "限制": "LIMIT",
-        "最多": "LIMIT"
-    }
-    
-    # 默认查询
-    sql = "SELECT * FROM students"
-    
-    # 条件标志
-    has_where = False
-    
-    # 检查是否包含特定条件
-    for keyword, sql_part in keywords.items():
-        if keyword in query:
-            # 第一个条件使用WHERE，后续条件使用AND
-            if not has_where and any(kw in ["gender", "gpa", "grade_level", "address", "phone_number", "first_name", "date_of_birth"] for kw in sql_part.split()):
-                sql += f" WHERE {sql_part}"
-                has_where = True
-            # 排序条件
-            elif "ORDER BY" in sql_part and "ORDER BY" not in sql:
-                # 确定排序字段，默认为gpa
-                sort_field = "gpa"
-                if "姓名" in query:
-                    sort_field = "first_name"
-                elif "出生" in query or "生日" in query:
-                    sort_field = "date_of_birth"
-                elif "创建" in query:
-                    sort_field = "created_at"
-                
-                sql += f" ORDER BY {sort_field}"
-                # 添加排序方向
-                if "DESC" in sql_part or "从高到低" in query:
-                    sql += " DESC"
-                elif "ASC" in sql_part or "从低到高" in query:
-                    sql += " ASC"
-            # 限制条件
-            elif "LIMIT" in sql_part and "LIMIT" not in sql:
-                # 查找数字作为限制数量
-                import re
-                numbers = re.findall(r'\d+', query)
-                limit = 10  # 默认限制
-                if numbers:
-                    limit = numbers[0]
-                sql += f" LIMIT {limit}"
-    
-    # 如果没有检测到条件，返回所有学生
-    if sql == "SELECT * FROM students" and "所有" not in query:
-        sql += " LIMIT 100"  # 默认限制返回数量
-        
-    return sql
 
 
 async def execute_query_streaming(sql_query: str, batch_size: int = 10) -> AsyncGenerator[Dict[str, Any], None]:
@@ -549,7 +1025,7 @@ async def describe_table() -> Dict[str, Any]:
                         } for col in columns
                     ],
                     "row_count": count[0],
-                    "schema": DB_SCHEMA
+                    # "schema": DB_SCHEMA
                 }
     except Exception as e:
         logger.error(f"获取表结构失败: {str(e)}")
@@ -715,7 +1191,9 @@ async def init_server():
     """初始化服务器"""
     # 初始化数据库连接池
     await init_db_pool()
-    logger.info("Text2SQL MCP服务初始化完成 (支持SSE模式)")
+    # 预加载数据库元数据
+    await load_database_metadata()
+    logger.info("Text2SQL MCP服务初始化完成 (支持结构化查询分析)")
 
 
 # 服务器启动入口点
