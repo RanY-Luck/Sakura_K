@@ -25,7 +25,7 @@ load_dotenv(env_file)
 class WeatherTool:
     # OpenWeather API 配置
 
-    OPENWEATHER_API_BASE = os.getenv("OPENWEATHER_API_BASE")
+    OPENWEATHER_API_BASE = "https://api.openweathermap.org/data/2.5/weather"
     API_KEY = os.getenv("API_KEY")  # 请替换为你自己的 OpenWeather API Key
     USER_AGENT = "weather-app/1.0"
 
