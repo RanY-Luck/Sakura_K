@@ -27,14 +27,13 @@ load_dotenv(env_file)
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraText2SqlService")
 
-
-
 # 数据库连接配置
 DB_CONFIG = {
     "host": os.getenv("MYSQL_HOST"),
     "user": os.getenv("MYSQL_USER"),
     "password": os.getenv("MYSQL_PASSWORD"),
-    "database": os.getenv("MYSQL_DATABASE")
+    "database": os.getenv("MYSQL_DATABASE"),
+    "port": int(os.getenv("MYSQL_PORT"))
 }
 
 # 数据库连接池
@@ -51,74 +50,62 @@ async def init_db_pool():
     global db_pool
     try:
         # 创建连接池
+        logger.info(
+            f"尝试连接数据库: {DB_CONFIG['host']}:{DB_CONFIG['port']}, 用户: {DB_CONFIG['user']}, 数据库: {DB_CONFIG['database']}"
+        )
         db_pool = await aiomysql.create_pool(
             host=DB_CONFIG["host"],
             user=DB_CONFIG["user"],
             password=DB_CONFIG["password"],
             db=DB_CONFIG["database"],
+            port=DB_CONFIG["port"],
             autocommit=True
         )
-        
-        # 创建数据库
-        await ensure_database()
         # 初始化加载元数据
         await load_database_metadata()
         logger.info("数据库连接池初始化成功")
         return True
     except Exception as e:
         logger.error(f"数据库连接池初始化失败: {str(e)}")
+        logger.error(
+            f"连接参数: host={DB_CONFIG['host']}, port={DB_CONFIG['port']}, user={DB_CONFIG['user']}, database={DB_CONFIG['database']}"
+        )
         return False
-
-
-async def ensure_database():
-    """确保数据库存在"""
-    # 创建单独的连接用于初始化
-    conn = await aiomysql.connect(
-        host=DB_CONFIG["host"], 
-        user=DB_CONFIG["user"], 
-        password=DB_CONFIG["password"]
-    )
-    
-    try:
-        async with conn.cursor() as cursor:
-            # 检查数据库是否存在
-            await cursor.execute(f"SHOW DATABASES LIKE '{DB_CONFIG['database']}'")
-            result = await cursor.fetchone()
-            if not result:
-                # 创建数据库
-                await cursor.execute(f"CREATE DATABASE {DB_CONFIG['database']}")
-                logger.info(f"创建数据库: {DB_CONFIG['database']}")
-            
-            # 选择数据库
-            await cursor.execute(f"USE {DB_CONFIG['database']}")
-    finally:
-        conn.close()
 
 
 # ======================== 查询分析器与SQL生成的新流水线组件 ========================
 
 class MetadataManager:
     """数据库元数据管理器"""
+
     @staticmethod
     async def load_metadata() -> Dict[str, Any]:
         """加载数据库元数据"""
         global db_metadata
-        
+
         # 如果元数据已经加载且不超过10分钟，直接返回缓存
         if db_metadata["last_updated"] > 0 and time.time() - db_metadata["last_updated"] < 600:
             return db_metadata
-            
+
         try:
             if not db_pool:
                 await init_db_pool()
-                
+
             tables = {}
             async with db_pool.acquire() as conn:
                 async with conn.cursor() as cursor:
                     # 获取所有表
                     await cursor.execute("SHOW TABLES")
                     all_tables = await cursor.fetchall()
-                    
+
+                    # 限制处理的表数量
+                    max_tables = 100  # 最多处理100个表
+                    if len(all_tables) > max_tables:
+                        logger.warning(
+                            f"数据库包含 {len(all_tables)} 个表，超过限制 {max_tables}，将只处理前 {max_tables} 个表"
+                        )
+                        all_tables = all_tables[:max_tables]
+
                     for table_row in all_tables:
                         table_name = table_row[0]
                         table_info = {
@@ -129,84 +116,122 @@ class MetadataManager:
                             "row_count": 0,
                             "fields_zh": {}  # 存储字段的中文名称映射，用于后续查询分析
                         }
-                        
-                        # 获取表结构
-                        await cursor.execute(f"DESCRIBE {table_name}")
-                        columns = await cursor.fetchall()
-                        
-                        for col in columns:
-                            column_name = col[0]
-                            column_type = col[1]
-                            is_pk = col[3] == "PRI"
-                            
-                            table_info["columns"].append(column_name)
-                            table_info["column_types"][column_name] = {
-                                "type": column_type,
-                                "nullable": col[2] == "YES",
-                                "default": col[4],
-                                "extra": col[5]
+
+                        try:
+                            # 获取表结构
+                            await cursor.execute(f"DESCRIBE {table_name}")
+                            columns = await cursor.fetchall()
+
+                            for col in columns:
+                                column_name = col[0]
+                                column_type = col[1]
+                                is_pk = col[3] == "PRI"
+
+                                table_info["columns"].append(column_name)
+                                table_info["column_types"][column_name] = {
+                                    "type": column_type,
+                                    "nullable": col[2] == "YES",
+                                    "default": col[4],
+                                    "extra": col[5]
+                                }
+
+                                if is_pk:
+                                    table_info["primary_key"] = column_name
+
+                            # 获取行数
+                            try:
+                                await cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                                count_result = await cursor.fetchone()
+                                table_info["row_count"] = count_result[0] if count_result else 0
+                            except Exception as e:
+                                logger.warning(f"获取表 {table_name} 的行数失败: {str(e)}")
+                                table_info["row_count"] = 0
+                                table_info["count_error"] = str(e)
+
+                            # 获取表注释（可能包含表的中文名称）
+                            await cursor.execute(
+                                f"""
+                                SELECT table_comment 
+                                FROM information_schema.tables 
+                                WHERE table_schema = '{DB_CONFIG['database']}' 
+                                AND table_name = '{table_name}'
+                            """
+                            )
+                            table_comment = await cursor.fetchone()
+                            if table_comment and table_comment[0]:
+                                table_info["comment"] = table_comment[0]
+
+                            # 获取列注释（可能包含列的中文名称）
+                            # 限制处理的列数量，避免对大表消耗太多资源
+                            max_columns_for_comments = 100  # 最多处理100列的注释
+                            if len(table_info["columns"]) > max_columns_for_comments:
+                                logger.warning(
+                                    f"表 {table_name} 包含 {len(table_info['columns'])} 列，超过注释处理限制 {max_columns_for_comments}，将只处理部分列注释"
+                                )
+                                comment_columns = ", ".join(
+                                    [f"'{c}'" for c in table_info["columns"][:max_columns_for_comments]]
+                                )
+                                column_filter = f"AND column_name IN ({comment_columns})"
+                            else:
+                                column_filter = ""
+
+                            await cursor.execute(
+                                f"""
+                                SELECT column_name, column_comment
+                                FROM information_schema.columns
+                                WHERE table_schema = '{DB_CONFIG['database']}'
+                                AND table_name = '{table_name}'
+                                {column_filter}
+                            """
+                            )
+                            column_comments = await cursor.fetchall()
+                            if column_comments:
+                                table_info["column_comments"] = {}
+                                for col_name, col_comment in column_comments:
+                                    if col_comment:
+                                        table_info["column_comments"][col_name] = col_comment
+                                        # 尝试从注释中提取中文名称
+                                        if col_comment and any('\u4e00' <= c <= '\u9fff' for c in col_comment):
+                                            # 假设注释的第一个词是字段的中文名
+                                            zh_name = col_comment.split()[0] if ' ' in col_comment else col_comment
+                                            table_info["fields_zh"][zh_name] = col_name
+
+                            tables[table_name] = table_info
+                        except Exception as table_error:
+                            # 记录错误但继续处理其他表
+                            logger.warning(f"处理表 {table_name} 时出错，将跳过此表: {str(table_error)}")
+                            # 添加最小的表信息以便于调试
+                            tables[table_name] = {
+                                "name": table_name,
+                                "error": str(table_error),
+                                "is_error": True
                             }
-                            
-                            if is_pk:
-                                table_info["primary_key"] = column_name
-                        
-                        # 获取行数
-                        await cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
-                        count_result = await cursor.fetchone()
-                        table_info["row_count"] = count_result[0] if count_result else 0
-                        
-                        # 获取表注释（可能包含表的中文名称）
-                        await cursor.execute(f"""
-                            SELECT table_comment 
-                            FROM information_schema.tables 
-                            WHERE table_schema = '{DB_CONFIG['database']}' 
-                            AND table_name = '{table_name}'
-                        """)
-                        table_comment = await cursor.fetchone()
-                        if table_comment and table_comment[0]:
-                            table_info["comment"] = table_comment[0]
-                        
-                        # 获取列注释（可能包含列的中文名称）
-                        await cursor.execute(f"""
-                            SELECT column_name, column_comment
-                            FROM information_schema.columns
-                            WHERE table_schema = '{DB_CONFIG['database']}'
-                            AND table_name = '{table_name}'
-                        """)
-                        column_comments = await cursor.fetchall()
-                        if column_comments:
-                            table_info["column_comments"] = {}
-                            for col_name, col_comment in column_comments:
-                                if col_comment:
-                                    table_info["column_comments"][col_name] = col_comment
-                                    # 尝试从注释中提取中文名称
-                                    if col_comment and any('\u4e00' <= c <= '\u9fff' for c in col_comment):
-                                        # 假设注释的第一个词是字段的中文名
-                                        zh_name = col_comment.split()[0] if ' ' in col_comment else col_comment
-                                        table_info["fields_zh"][zh_name] = col_name
-                        
-                        tables[table_name] = table_info
-            
+
             db_metadata = {
                 "tables": tables,
-                "last_updated": time.time()
+                "last_updated": time.time(),
+                "total_tables_in_db": len(all_tables)  # 记录数据库中实际的表数量
             }
-            
+
             # 基于获取的元数据，动态更新字段别名映射
             QueryAnalyzer.update_field_mappings(db_metadata)
-            
-            logger.info(f"数据库元数据加载成功: {len(tables)}个表")
+
+            # 计算有效表数量（没有错误的表）
+            valid_tables = sum(1 for t in tables.values() if not t.get("is_error", False))
+            error_tables = sum(1 for t in tables.values() if t.get("is_error", False))
+
+            logger.info(f"数据库元数据加载成功: {len(tables)}个表 (有效: {valid_tables}, 错误: {error_tables})")
             return db_metadata
-            
+
         except Exception as e:
             logger.error(f"加载数据库元数据失败: {str(e)}")
             return {"tables": {}, "last_updated": 0, "error": str(e)}
-    
+
     @staticmethod
     def get_table_info(table_name: str) -> Optional[Dict[str, Any]]:
         """获取表的元数据信息"""
         return db_metadata["tables"].get(table_name)
-    
+
     @staticmethod
     def get_column_info(table_name: str, column_name: str) -> Optional[Dict[str, Any]]:
         """获取列的元数据信息"""
@@ -214,12 +239,12 @@ class MetadataManager:
         if not table_info:
             return None
         return table_info["column_types"].get(column_name)
-    
+
     @staticmethod
     def get_all_tables() -> List[str]:
         """获取所有表名"""
         return list(db_metadata["tables"].keys())
-    
+
     @staticmethod
     def get_table_zh_mappings() -> Dict[str, str]:
         """获取表的中文名称映射"""
@@ -234,7 +259,7 @@ class MetadataManager:
 
 class QueryAnalyzer:
     """查询分析器 - 将自然语言查询分解为结构化组件"""
-    
+
     # 关键词映射表 - 将中文关键词映射到SQL组件
     KEYWORDS = {
         # 条件运算符
@@ -248,13 +273,13 @@ class QueryAnalyzer:
         "不包含": "NOT LIKE",
         "开始于": "LIKE",
         "结束于": "LIKE",
-        
+
         # 逻辑运算符
         "和": "AND",
         "或者": "OR",
         "但是": "AND",
         "不是": "NOT",
-        
+
         # 排序
         "升序": "ASC",
         "降序": "DESC",
@@ -262,21 +287,21 @@ class QueryAnalyzer:
         "从大到小": "DESC",
         "从高到低": "DESC",
         "从低到高": "ASC",
-        
+
         # 函数
         "平均": "AVG",
         "总和": "SUM",
         "数量": "COUNT",
         "最大值": "MAX",
         "最小值": "MIN",
-        
+
         # 其他
         "分组": "GROUP BY",
         "限制": "LIMIT",
         "按": "ORDER BY",
         "排序": "ORDER BY"
     }
-    
+
     # 字段映射表 - 常见字段的中文别名（基础预设，将根据数据库元数据动态扩展）
     FIELD_ALIASES = {
         "学号": "student_id",
@@ -296,14 +321,14 @@ class QueryAnalyzer:
         "创建时间": "created_at",
         "更新时间": "updated_at"
     }
-    
+
     # 表名映射表（基础预设，将根据数据库元数据动态扩展）
     TABLE_ALIASES = {
         "学生": "students",
         "学生表": "students",
         "学员": "students"
     }
-    
+
     # 值映射表 - 特定词语到SQL值的映射
     VALUE_ALIASES = {
         "男": "'男'",
@@ -311,7 +336,7 @@ class QueryAnalyzer:
         "男性": "'男'",
         "女性": "'女'"
     }
-    
+
     @classmethod
     def update_field_mappings(cls, metadata: Dict[str, Any]):
         """
@@ -321,6 +346,10 @@ class QueryAnalyzer:
         # 更新表映射
         table_zh_mappings = {}
         for table_name, table_info in metadata["tables"].items():
+            # 跳过有错误的表
+            if table_info.get("is_error", False):
+                continue
+
             if "comment" in table_info and table_info["comment"]:
                 # 从表注释中提取可能的中文名称
                 comment = table_info["comment"]
@@ -331,10 +360,14 @@ class QueryAnalyzer:
                     # 添加带"表"后缀的映射
                     if not zh_name.endswith('表'):
                         table_zh_mappings[f"{zh_name}表"] = table_name
-        
+
         # 更新字段映射
         field_zh_mappings = {}
         for table_name, table_info in metadata["tables"].items():
+            # 跳过有错误的表
+            if table_info.get("is_error", False):
+                continue
+
             if "column_comments" in table_info:
                 for col_name, comment in table_info["column_comments"].items():
                     if comment and any('\u4e00' <= c <= '\u9fff' for c in comment):
@@ -345,12 +378,12 @@ class QueryAnalyzer:
                         # 同时记录不带表名的映射，用于简单查询
                         if zh_name not in cls.FIELD_ALIASES:
                             cls.FIELD_ALIASES[zh_name] = col_name
-        
+
         # 合并映射
         cls.TABLE_ALIASES.update(table_zh_mappings)
         logger.info(f"表名映射更新完成：{len(cls.TABLE_ALIASES)}个映射")
         logger.info(f"字段映射更新完成：{len(cls.FIELD_ALIASES)}个映射")
-    
+
     @staticmethod
     def identify_table(query: str) -> Tuple[str, float]:
         """
@@ -362,7 +395,7 @@ class QueryAnalyzer:
         for alias, table_name in QueryAnalyzer.TABLE_ALIASES.items():
             if alias in query:
                 return table_name, 0.9  # 高置信度
-        
+
         # 如果没有明确的表名，检查字段是否暗示了某个表
         table_mentions = {}
         for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
@@ -371,12 +404,12 @@ class QueryAnalyzer:
                 if "." in field_name:
                     table = field_name.split(".")[0]
                     table_mentions[table] = table_mentions.get(table, 0) + 1
-        
+
         # 选择提及最多的表
         if table_mentions:
             most_mentioned = max(table_mentions.items(), key=lambda x: x[1])
             return most_mentioned[0], 0.7  # 中等置信度
-        
+
         # 如果没有找到表名，获取所有表并检查哪个表具有查询中提到的字段
         all_tables = list(db_metadata["tables"].keys())
         if all_tables:
@@ -395,15 +428,15 @@ class QueryAnalyzer:
                         column_count += 1
                 if column_count > 0:
                     field_matches[table] = column_count
-            
+
             if field_matches:
                 best_match = max(field_matches.items(), key=lambda x: x[1])
                 return best_match[0], 0.65  # 略高的低等置信度
             return default_table, 0.5  # 很低的置信度
-        
+
         # 如果没有任何表，返回一个空字符串
         return "", 0.0
-    
+
     @staticmethod
     def analyze(query: str) -> Dict[str, Any]:
         """
@@ -413,7 +446,7 @@ class QueryAnalyzer:
         """
         # 识别查询中的表
         table_name, table_confidence = QueryAnalyzer.identify_table(query)
-        
+
         # 初始化查询结构
         analysis = {
             "select": ["*"],  # 默认选择所有字段
@@ -427,20 +460,20 @@ class QueryAnalyzer:
             "original_query": query,
             "confidence": table_confidence  # 初始置信度设置为表名识别的置信度
         }
-        
+
         # 如果没有找到表名，返回空分析结果
         if not table_name:
             analysis["error"] = "无法识别查询中的表名"
             return analysis
-        
+
         # 检测字段选择
         # 如果查询中包含"统计"、"计数"、"数一数"等词语，默认使用COUNT
         if any(term in query for term in ["统计", "计数", "数一数", "多少个", "多少条"]):
             analysis["select"] = ["COUNT(*)"]
             analysis["aggregations"].append({"type": "COUNT", "field": "*"})
-        
+
         # 检测是否包含特定的聚合函数
-        for agg_term, agg_func in [("平均", "AVG"), ("总和", "SUM"), ("数量", "COUNT"), 
+        for agg_term, agg_func in [("平均", "AVG"), ("总和", "SUM"), ("数量", "COUNT"),
                                    ("最大", "MAX"), ("最小", "MIN"), ("最高", "MAX"), ("最低", "MIN")]:
             if agg_term in query:
                 # 查找可能的字段
@@ -455,11 +488,11 @@ class QueryAnalyzer:
                             else:
                                 # 如果字段不属于识别的表，跳过
                                 continue
-                        
+
                         analysis["select"] = [f"{agg_func}({field_name})"]
                         analysis["aggregations"].append({"type": agg_func, "field": field_name})
                         break
-        
+
         # 如果查询明确提到某些字段，则选择这些字段
         selected_fields = []
         for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
@@ -473,7 +506,7 @@ class QueryAnalyzer:
                     else:
                         # 如果字段不属于识别的表，跳过
                         continue
-                
+
                 # 避免将条件中的字段添加到选择列表
                 # 简单启发式: 如果字段后面跟着条件操作词，则可能是条件而非选择
                 if not any(f"{field_alias}{cond}" in query for cond in ["大于", "小于", "等于"]):
@@ -481,10 +514,10 @@ class QueryAnalyzer:
                     table_info = db_metadata["tables"].get(table_name, {})
                     if field_name in table_info.get("columns", []):
                         selected_fields.append(field_name)
-        
+
         if selected_fields:
             analysis["select"] = selected_fields
-        
+
         # 检测WHERE条件
         # 处理简单的等值条件
         for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
@@ -496,39 +529,43 @@ class QueryAnalyzer:
                 else:
                     # 如果字段不属于识别的表，跳过
                     continue
-            
+
             # 检查字段是否在表中
             table_info = db_metadata["tables"].get(table_name, {})
             if field_name not in table_info.get("columns", []):
                 continue
-            
+
             # 检查是否包含特定值比较
             for value_alias, sql_value in QueryAnalyzer.VALUE_ALIASES.items():
                 if f"{field_alias}{value_alias}" in query or f"{field_alias}是{value_alias}" in query:
-                    analysis["where"].append({
-                        "field": field_name,
-                        "operator": "=",
-                        "value": sql_value.strip("'")
-                    })
-            
+                    analysis["where"].append(
+                        {
+                            "field": field_name,
+                            "operator": "=",
+                            "value": sql_value.strip("'")
+                        }
+                    )
+
             # 处理数值比较
-            for cond_alias, operator in [("大于", ">"), ("小于", "<"), ("等于", "="), 
-                                        ("大于等于", ">="), ("小于等于", "<=")]:
+            for cond_alias, operator in [("大于", ">"), ("小于", "<"), ("等于", "="),
+                                         ("大于等于", ">="), ("小于等于", "<=")]:
                 if f"{field_alias}{cond_alias}" in query:
                     # 尝试提取数值
                     number_match = re.search(rf'{field_alias}{cond_alias}\s*(\d+(\.\d+)?)', query)
                     if number_match:
-                        analysis["where"].append({
-                            "field": field_name,
-                            "operator": operator,
-                            "value": number_match.group(1)
-                        })
-        
+                        analysis["where"].append(
+                            {
+                                "field": field_name,
+                                "operator": operator,
+                                "value": number_match.group(1)
+                            }
+                        )
+
         # 检测ORDER BY
         order_terms = ["排序", "按", "顺序"]
         if any(term in query for term in order_terms):
             direction = "DESC" if any(desc in query for desc in ["降序", "从大到小", "从高到低"]) else "ASC"
-            
+
             # 查找可能的排序字段
             for field_alias, field_name in QueryAnalyzer.FIELD_ALIASES.items():
                 if f"按{field_alias}" in query or f"{field_alias}排序" in query:
@@ -540,13 +577,13 @@ class QueryAnalyzer:
                         else:
                             # 如果字段不属于识别的表，跳过
                             continue
-                    
+
                     # 检查字段是否在表中
                     table_info = db_metadata["tables"].get(table_name, {})
                     if field_name in table_info.get("columns", []):
                         analysis["order_by"].append({"field": field_name, "direction": direction})
                         break
-            
+
             # 如果没有找到特定字段但有排序关键词，选择第一个主键或ID列
             if not analysis["order_by"] and any(term in query for term in order_terms):
                 table_info = db_metadata["tables"].get(table_name, {})
@@ -557,7 +594,7 @@ class QueryAnalyzer:
                     # 尝试找到名为id的列
                     if "id" in table_info.get("columns", []):
                         analysis["order_by"].append({"field": "id", "direction": direction})
-        
+
         # 检测LIMIT
         limit_match = re.search(r'(?:限制|最多|前)\s*(\d+)\s*(?:条|个|项)', query)
         if limit_match:
@@ -565,11 +602,11 @@ class QueryAnalyzer:
         else:
             # 默认限制为100条记录
             analysis["limit"] = 100
-        
+
         # 如果是简单的统计查询，调整limit为不限制
         if analysis["select"] == ["COUNT(*)"]:
             analysis["limit"] = None
-        
+
         # 调整置信度
         # 越多的结构化元素被识别，置信度越高
         confidence_factors = 0
@@ -579,16 +616,16 @@ class QueryAnalyzer:
             confidence_factors += 0.1
         if analysis["select"] != ["*"]:
             confidence_factors += 0.1
-        
+
         # 最终置信度不应超过表名识别置信度+0.25
         analysis["confidence"] = min(analysis["table_confidence"] + confidence_factors, 0.95)
-        
+
         return analysis
 
 
 class SqlGenerator:
     """SQL生成器 - 基于查询分析生成SQL语句"""
-    
+
     @staticmethod
     def generate(query_analysis: Dict[str, Any]) -> str:
         """
@@ -599,17 +636,17 @@ class SqlGenerator:
         # 检查是否存在错误
         if "error" in query_analysis:
             return f"-- 分析错误: {query_analysis['error']}\nSELECT 1"
-        
+
         # 检查表名是否存在
         if not query_analysis["from"]:
             return "-- 无法识别表名\nSELECT 1"
-        
+
         # 构建SELECT子句
         select_clause = "SELECT " + ", ".join(query_analysis["select"])
-        
+
         # 构建FROM子句
         from_clause = f"FROM {query_analysis['from']}"
-        
+
         # 构建WHERE子句
         where_clause = ""
         if query_analysis["where"]:
@@ -626,14 +663,14 @@ class SqlGenerator:
                     if isinstance(value, str) and not value.isdigit() and not value.startswith("'"):
                         value = f"'{value}'"
                     conditions.append(f"{condition['field']} {condition['operator']} {value}")
-            
+
             where_clause = "WHERE " + " AND ".join(conditions)
-        
+
         # 构建GROUP BY子句
         group_by_clause = ""
         if query_analysis["group_by"]:
             group_by_clause = "GROUP BY " + ", ".join(query_analysis["group_by"])
-        
+
         # 构建ORDER BY子句
         order_by_clause = ""
         if query_analysis["order_by"]:
@@ -641,33 +678,33 @@ class SqlGenerator:
             for order in query_analysis["order_by"]:
                 order_terms.append(f"{order['field']} {order['direction']}")
             order_by_clause = "ORDER BY " + ", ".join(order_terms)
-        
+
         # 构建LIMIT子句
         limit_clause = ""
         if query_analysis["limit"] is not None:
             limit_clause = f"LIMIT {query_analysis['limit']}"
-        
+
         # 组合所有子句
         sql_parts = [select_clause, from_clause]
-        
+
         if where_clause:
             sql_parts.append(where_clause)
-        
+
         if group_by_clause:
             sql_parts.append(group_by_clause)
-        
+
         if order_by_clause:
             sql_parts.append(order_by_clause)
-        
+
         if limit_clause:
             sql_parts.append(limit_clause)
-        
+
         return " ".join(sql_parts)
 
 
 class SqlValidator:
     """SQL验证器 - 验证生成的SQL语句的有效性和安全性"""
-    
+
     @staticmethod
     def validate(sql: str, metadata: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
         """
@@ -679,13 +716,13 @@ class SqlValidator:
         # 检查SQL是否为错误占位符
         if sql == "SELECT 1":
             return False, "SQL生成失败，无法识别查询内容"
-        
+
         # 检查是否包含危险操作
         dangerous_keywords = ["DROP", "DELETE", "TRUNCATE", "UPDATE", "INSERT", "ALTER", "CREATE"]
         for keyword in dangerous_keywords:
             if re.search(rf'\b{keyword}\b', sql.upper()):
                 return False, f"SQL语句包含不允许的操作: {keyword}"
-        
+
         # 解析SQL以验证字段和表名
         try:
             # 简单解析表名
@@ -694,15 +731,18 @@ class SqlValidator:
                 table_name = table_match.group(1)
                 if table_name not in metadata["tables"]:
                     return False, f"表名不存在: {table_name}"
-                
-                # 验证字段名
+
+                # 检查表是否有错误
                 table_info = metadata["tables"][table_name]
-                
+                if table_info.get("is_error", False):
+                    return False, f"表 '{table_name}' 存在错误: {table_info.get('error', '未知错误')}"
+
+                # 验证字段名
                 # 提取SELECT子句中的字段
                 select_clause = re.search(r'SELECT\s+(.*?)\s+FROM', sql, re.IGNORECASE)
                 if select_clause:
                     fields = select_clause.group(1).strip()
-                    
+
                     # 处理星号
                     if fields == "*":
                         pass  # 星号是有效的
@@ -713,20 +753,20 @@ class SqlValidator:
                         for field in re.split(r',\s*', fields):
                             # 移除函数包装，例如 MAX(field)
                             field_clean = re.sub(r'\w+\((.*?)\)', r'\1', field).strip()
-                            
+
                             # 跳过特殊情况，例如 COUNT(*)
                             if field_clean == "*" or ".*" in field_clean:
                                 continue
-                                
+
                             # 检查字段是否存在
                             if field_clean not in table_info["columns"] and field_clean.lower() != "count(*)":
                                 # 检查是否是函数表达式
                                 if not re.match(r'^(AVG|SUM|COUNT|MAX|MIN)\([\w\*]+\)$', field, re.IGNORECASE):
                                     return False, f"字段不存在: {field_clean}"
-            
+
             # 如果以上检查没有问题，SQL语句暂时认为是有效的
             return True, None
-            
+
         except Exception as e:
             return False, f"SQL语句解析失败: {str(e)}"
 
@@ -751,24 +791,24 @@ async def generate_sql_query(query: str) -> str:
     """
     # 1. 加载/更新数据库元数据
     metadata = await MetadataManager.load_metadata()
-    
+
     # 2. 使用查询分析器分析查询
     query_analysis = QueryAnalyzer.analyze(query)
     logger.info(f"查询分析结果: {json.dumps(query_analysis, ensure_ascii=False)}")
-    
+
     # 3. 使用SQL生成器生成SQL语句
     sql = SqlGenerator.generate(query_analysis)
     logger.info(f"生成的SQL: {sql}")
-    
+
     # 4. 验证SQL语句
     is_valid, error_message = SqlValidator.validate(sql, metadata)
-    
+
     if not is_valid:
         logger.error(f"SQL验证失败: {error_message}, 原始查询: {query}")
         # 如果验证失败，回退到简单的SQL生成方式
         sql = fallback_generate_sql_query(query)
         logger.info(f"回退生成的SQL: {sql}")
-    
+
     return sql
 
 
@@ -780,22 +820,22 @@ def fallback_generate_sql_query(query: str) -> str:
     """
     # 获取数据库中的所有表
     all_tables = list(db_metadata["tables"].keys())
-    
+
     # 如果没有表，返回错误SQL
     if not all_tables:
         return "SELECT 1 -- 无法找到任何表"
-    
+
     # 尝试确定使用哪个表
     target_table = ""
     for table in all_tables:
         if table in query.lower():
             target_table = table
             break
-    
+
     # 如果没有找到明确的表名，使用第一个表
     if not target_table and all_tables:
         target_table = all_tables[0]
-    
+
     # 简单关键词映射
     keywords = {
         "男": "gender = '男'",
@@ -825,17 +865,17 @@ def fallback_generate_sql_query(query: str) -> str:
         "限制": "LIMIT",
         "最多": "LIMIT"
     }
-    
+
     # 默认查询
     sql = f"SELECT * FROM {target_table}"
-    
+
     # 条件标志
     has_where = False
-    
+
     # 检查表是否存在目标字段
     table_info = db_metadata["tables"].get(target_table, {})
     columns = table_info.get("columns", [])
-    
+
     # 检查是否包含特定条件
     for keyword, sql_part in keywords.items():
         if keyword in query:
@@ -853,7 +893,7 @@ def fallback_generate_sql_query(query: str) -> str:
             elif "ORDER BY" in sql_part and "ORDER BY" not in sql:
                 # 确定排序字段
                 sort_field = None
-                
+
                 # 尝试找到表中存在的可排序字段
                 candidates = ["id", "created_at", "updated_at"]
                 if "姓名" in query and "first_name" in columns:
@@ -873,7 +913,7 @@ def fallback_generate_sql_query(query: str) -> str:
                     # 如果没有找到候选字段，使用主键或第一列
                     if not sort_field:
                         sort_field = table_info.get("primary_key") or columns[0] if columns else "id"
-                
+
                 sql += f" ORDER BY {sort_field}"
                 # 添加排序方向
                 if "DESC" in sql_part or "从高到低" in query:
@@ -888,11 +928,11 @@ def fallback_generate_sql_query(query: str) -> str:
                 if numbers:
                     limit = numbers[0]
                 sql += f" LIMIT {limit}"
-    
+
     # 如果没有检测到条件，返回有限数量的记录
     if sql == f"SELECT * FROM {target_table}" and "所有" not in query:
         sql += " LIMIT 100"  # 默认限制返回数量
-        
+
     return sql
 
 
@@ -908,35 +948,47 @@ async def text_to_sql(query: str) -> Dict[str, Any]:
             await init_db_pool()
             if not db_pool:
                 return {"error": "数据库连接失败"}
-        
+
         # 使用自定义推理函数生成SQL
         start_time = time.time()
         sql_query = await generate_sql_query(query)
-        
-        # 执行SQL查询
+
+        # 执行SQL查询，但限制返回的结果数量
+        max_results = 100  # 限制最多返回100条记录
+        sql_with_limit = sql_query
+        if "LIMIT" not in sql_query.upper():
+            sql_with_limit = f"{sql_query} LIMIT {max_results}"
+
         all_results = []
-        async for batch_result in execute_query_streaming(sql_query):
+        async for batch_result in execute_query_streaming(sql_with_limit, batch_size=20):
             if "error" in batch_result:
                 return batch_result
-            
+
             if "batch" in batch_result:
                 all_results.extend(batch_result["batch"])
-        
+
         # 记录执行时间
         execution_time = time.time() - start_time
         logger.info(f"查询执行成功: '{query}' => '{sql_query}', 耗时: {execution_time:.2f}秒")
-        
+
         # 获取查询分析结果，但排除大型对象以保持响应简洁
         query_analysis = QueryAnalyzer.analyze(query)
         # 移除过大或敏感字段
         if "metadata" in query_analysis:
             del query_analysis["metadata"]
-        
+
+        # 如果结果太多，只返回部分并提示用户
+        result_truncated = False
+        if len(all_results) >= max_results:
+            result_truncated = True
+
         return {
             "sql_query": sql_query,
             "results": all_results,
             "execution_time": f"{execution_time:.2f}秒",
             "row_count": len(all_results),
+            "result_truncated": result_truncated,
+            "max_results": max_results,
             "query_analysis": query_analysis,
             "used_table": query_analysis.get("from", "")
         }
@@ -958,15 +1010,15 @@ async def text_to_sql_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
             if not db_pool:
                 yield {"error": "数据库连接失败"}
                 return
-        
+
         # 使用自定义推理函数生成SQL
         start_time = time.time()
         sql_query = await generate_sql_query(query)
-        
+
         # 获取查询分析结果
         query_analysis = QueryAnalyzer.analyze(query)
         used_table = query_analysis.get("from", "")
-        
+
         # 先返回SQL查询语句和分析结果
         yield {
             "type": "sql_generated",
@@ -975,33 +1027,46 @@ async def text_to_sql_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
             "confidence": query_analysis.get("confidence", 0),
             "timestamp": time.time()
         }
-        
+
+        # 限制返回的数据量
+        max_results = 500  # 最多返回500条记录
+        sql_with_limit = sql_query
+        if "LIMIT" not in sql_query.upper():
+            sql_with_limit = f"{sql_query} LIMIT {max_results}"
+
         # 统计结果总数
         total_rows = 0
         processed_rows = 0
-        
+
         # 执行SQL查询并流式返回结果
-        async for batch_result in execute_query_streaming(sql_query, batch_size=5):  # 减小批次大小以更频繁更新
+        async for batch_result in execute_query_streaming(sql_with_limit, batch_size=20):  # 增加批次大小以减少请求次数
             if "error" in batch_result:
                 yield batch_result
                 return
-            
+
             if "metadata" in batch_result:
                 total_rows = batch_result["metadata"]["total_rows"]
+                # 如果总行数超过限制，记录实际总数
+                actual_total = total_rows
+                if total_rows > max_results:
+                    total_rows = max_results
+
                 # 返回元数据
                 yield {
                     "type": "metadata",
                     "columns": batch_result["metadata"]["columns"],
                     "total_rows": total_rows,
+                    "actual_total": actual_total,
+                    "limited": actual_total > max_results,
                     "timestamp": time.time()
                 }
                 continue
-                
+
             if "batch" in batch_result:
                 # 更新计数
                 batch_size = len(batch_result["batch"])
                 processed_rows += batch_size
-                
+
                 # 返回批次数据
                 yield {
                     "type": "data_batch",
@@ -1010,21 +1075,29 @@ async def text_to_sql_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
                     "processed_rows": processed_rows,
                     "total_rows": total_rows,
                     "progress": f"{(processed_rows / total_rows * 100) if total_rows > 0 else 0:.1f}%",
-                    "is_last_batch": batch_result.get("is_last_batch", False),
+                    "is_last_batch": batch_result.get("is_last_batch", False) or processed_rows >= max_results,
                     "timestamp": time.time()
                 }
-        
+
+                # 如果达到最大结果限制，提前结束
+                if processed_rows >= max_results:
+                    break
+
         # 查询结束，返回摘要信息
         execution_time = time.time() - start_time
-        logger.info(f"SSE查询执行成功: '{query}' => '{sql_query}', 耗时: {execution_time:.2f}秒, 共{total_rows}条记录")
-        
+        logger.info(
+            f"SSE查询执行成功: '{query}' => '{sql_query}', 耗时: {execution_time:.2f}秒, 共{processed_rows}条记录"
+        )
+
         yield {
             "type": "summary",
             "sql_query": sql_query,
-            "total_rows": total_rows,
+            "total_rows": processed_rows,
             "execution_time": f"{execution_time:.2f}秒",
             "completed": True,
             "used_table": used_table,
+            "result_limited": processed_rows >= max_results,
+            "max_results": max_results,
             "timestamp": time.time()
         }
     except Exception as e:
@@ -1042,20 +1115,20 @@ async def execute_query_streaming(sql_query: str, batch_size: int = 10) -> Async
     """
     if not db_pool:
         raise Exception("数据库连接池未初始化")
-    
+
     try:
         async with db_pool.acquire() as conn:
             async with conn.cursor(aiomysql.DictCursor) as cursor:
                 # 执行查询
                 await cursor.execute(sql_query)
-                
+
                 # 获取列名
                 columns = [column[0] for column in cursor.description]
-                
+
                 # 一次性获取所有结果
                 results = await cursor.fetchall()
                 total_rows = len(results)
-                
+
                 # 先返回元数据
                 yield {
                     "metadata": {
@@ -1064,17 +1137,17 @@ async def execute_query_streaming(sql_query: str, batch_size: int = 10) -> Async
                         "sql_query": sql_query
                     }
                 }
-                
+
                 # 批量处理结果
                 for i in range(0, total_rows, batch_size):
-                    batch = results[i:i+batch_size]
+                    batch = results[i:i + batch_size]
                     if not batch:
                         break
-                    
+
                     # 添加少量延迟以模拟实际网络环境中的流式传输（仅用于演示）
                     if i > 0:  # 第一批立即返回，之后的批次添加少量延迟
                         await asyncio.sleep(0.1)
-                    
+
                     # 转换批次为可序列化格式
                     serializable_batch = []
                     for row in batch:
@@ -1086,10 +1159,10 @@ async def execute_query_streaming(sql_query: str, batch_size: int = 10) -> Async
                             else:
                                 serializable_row[key] = value
                         serializable_batch.append(serializable_row)
-                    
+
                     # 判断是否为最后一批
                     is_last_batch = (i + batch_size >= total_rows)
-                    
+
                     yield {
                         "batch": serializable_batch,
                         "batch_size": len(batch),
@@ -1109,7 +1182,7 @@ async def execute_query(sql_query: str) -> List[Dict[str, Any]]:
     """
     if not db_pool:
         raise Exception("数据库连接池未初始化")
-    
+
     async with db_pool.acquire() as conn:
         async with conn.cursor(aiomysql.DictCursor) as cursor:
             await cursor.execute(sql_query)
@@ -1140,17 +1213,17 @@ async def query(query: str) -> Dict[str, Any]:
             await init_db_pool()
             if not db_pool:
                 return {"error": "数据库连接失败"}
-        
+
         # 记录查询开始时间
         start_time = time.time()
-        
+
         # 执行SQL查询
         results = await execute_query(query)
-        
+
         # 记录执行时间
         execution_time = time.time() - start_time
         logger.info(f"直接SQL查询执行成功: '{query}', 耗时: {execution_time:.2f}秒")
-        
+
         return {
             "sql_query": query,
             "results": results,
@@ -1175,43 +1248,56 @@ async def query_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
             if not db_pool:
                 yield {"error": "数据库连接失败"}
                 return
-        
+
         # 记录查询开始时间
         start_time = time.time()
-        
+
         # 先返回SQL查询语句
         yield {
             "type": "sql_generated",
             "sql_query": query,
             "timestamp": time.time()
         }
-        
+
+        # 限制返回的数据量
+        max_results = 500  # 最多返回500条记录
+        sql_with_limit = query
+        if "LIMIT" not in query.upper():
+            sql_with_limit = f"{query} LIMIT {max_results}"
+
         # 统计结果总数
         total_rows = 0
         processed_rows = 0
-        
+
         # 执行SQL查询并流式返回结果
-        async for batch_result in execute_query_streaming(query, batch_size=5):
+        async for batch_result in execute_query_streaming(sql_with_limit, batch_size=20):
             if "error" in batch_result:
                 yield batch_result
                 return
-            
+
             if "metadata" in batch_result:
                 total_rows = batch_result["metadata"]["total_rows"]
+                # 如果总行数超过限制，记录实际总数
+                actual_total = total_rows
+                if total_rows > max_results:
+                    total_rows = max_results
+
                 # 返回元数据
                 yield {
                     "type": "metadata",
                     "columns": batch_result["metadata"]["columns"],
                     "total_rows": total_rows,
+                    "actual_total": actual_total,
+                    "limited": actual_total > max_results,
                     "timestamp": time.time()
                 }
                 continue
-                
+
             if "batch" in batch_result:
                 # 更新计数
                 batch_size = len(batch_result["batch"])
                 processed_rows += batch_size
-                
+
                 # 返回批次数据
                 yield {
                     "type": "data_batch",
@@ -1220,20 +1306,26 @@ async def query_sse(query: str) -> AsyncGenerator[Dict[str, Any], None]:
                     "processed_rows": processed_rows,
                     "total_rows": total_rows,
                     "progress": f"{(processed_rows / total_rows * 100) if total_rows > 0 else 0:.1f}%",
-                    "is_last_batch": batch_result.get("is_last_batch", False),
+                    "is_last_batch": batch_result.get("is_last_batch", False) or processed_rows >= max_results,
                     "timestamp": time.time()
                 }
-        
+
+                # 如果达到最大结果限制，提前结束
+                if processed_rows >= max_results:
+                    break
+
         # 查询结束，返回摘要信息
         execution_time = time.time() - start_time
-        logger.info(f"SSE直接SQL查询执行成功: '{query}', 耗时: {execution_time:.2f}秒, 共{total_rows}条记录")
-        
+        logger.info(f"SSE直接SQL查询执行成功: '{query}', 耗时: {execution_time:.2f}秒, 共{processed_rows}条记录")
+
         yield {
             "type": "summary",
             "sql_query": query,
-            "total_rows": total_rows,
+            "total_rows": processed_rows,
             "execution_time": f"{execution_time:.2f}秒",
             "completed": True,
+            "result_limited": processed_rows >= max_results,
+            "max_results": max_results,
             "timestamp": time.time()
         }
     except Exception as e:
@@ -1256,13 +1348,13 @@ async def describe_tables() -> Dict[str, Any]:
             if not initialized or not db_pool:
                 logger.error(f"describe_tables: 数据库连接初始化失败")
                 return {"error": "数据库连接失败，请检查数据库配置和连接"}
-        
+
         # 加载元数据（强制刷新）
         try:
             global db_metadata
             db_metadata["last_updated"] = 0  # 强制刷新
             metadata = await load_database_metadata()
-            
+
             # 检查是否有表
             if not metadata["tables"]:
                 logger.warning(f"describe_tables: 数据库中没有找到任何表")
@@ -1271,19 +1363,42 @@ async def describe_tables() -> Dict[str, Any]:
                     "database": DB_CONFIG["database"],
                     "table_count": 0
                 }
-                
+
             # 日志：发现的表
             table_list = list(metadata["tables"].keys())
             logger.info(f"describe_tables: 在数据库中发现表: {table_list}")
         except Exception as e:
             logger.error(f"describe_tables: 加载元数据失败: {str(e)}")
             return {"error": f"加载数据库元数据失败: {str(e)}"}
-        
+
         tables_info = []
+        error_tables = []
+
+        # 限制返回的表数量，避免响应过大
+        max_tables = 20
+        table_count = 0
+
         for table_name, table_info in metadata["tables"].items():
+            # 限制表的数量
+            if table_count >= max_tables:
+                break
+
+            table_count += 1
+
+            # 检查表是否有错误
+            if table_info.get("is_error", False):
+                error_tables.append(
+                    {
+                        "table_name": table_name,
+                        "error": table_info.get("error", "未知错误"),
+                        "is_error": True
+                    }
+                )
+                continue
+
             # 获取表的行数
             row_count = table_info.get("row_count", 0)
-            
+
             # 构建表的结构信息
             table_structure = {
                 "table_name": table_name,
@@ -1291,7 +1406,7 @@ async def describe_tables() -> Dict[str, Any]:
                 "row_count": row_count,
                 "columns": []
             }
-            
+
             # 添加列信息
             for column_name in table_info["columns"]:
                 column_type = table_info["column_types"].get(column_name, {})
@@ -1304,15 +1419,26 @@ async def describe_tables() -> Dict[str, Any]:
                     "comment": table_info.get("column_comments", {}).get(column_name, "")
                 }
                 table_structure["columns"].append(column_info)
-            
+
             tables_info.append(table_structure)
-        
-        logger.info(f"describe_tables: 成功获取 {len(tables_info)} 个表的信息")
-        
+
+        # 计算总表数
+        total_tables = len(metadata["tables"])
+        tables_truncated = total_tables > max_tables
+
+        logger.info(
+            f"describe_tables: 成功获取 {len(tables_info)} 个表的信息，{len(error_tables)} 个表有错误，总表数: {total_tables}"
+        )
+
         return {
             "database": DB_CONFIG["database"],
-            "table_count": len(tables_info),
-            "tables": tables_info
+            "table_count": total_tables,
+            "returned_table_count": len(tables_info) + len(error_tables),
+            "tables_truncated": tables_truncated,
+            "valid_table_count": len(tables_info),
+            "error_table_count": len(error_tables),
+            "tables": tables_info,
+            "error_tables": error_tables
         }
     except Exception as e:
         logger.error(f"describe_tables: 获取表结构失败: {str(e)}", exc_info=True)
@@ -1334,16 +1460,16 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
             if not initialized or not db_pool:
                 logger.error(f"describe_table: 数据库连接初始化失败")
                 return {"error": "数据库连接失败，请检查数据库配置和连接"}
-        
+
         # 日志：开始加载元数据
         logger.info(f"describe_table: 开始加载数据库元数据，请求表名='{table_name}'")
-        
+
         # 加载元数据（强制刷新）
         try:
             global db_metadata
             db_metadata["last_updated"] = 0  # 强制刷新
             metadata = await load_database_metadata()
-            
+
             # 检查是否有表
             if not metadata["tables"]:
                 logger.warning(f"describe_table: 数据库中没有找到任何表")
@@ -1352,36 +1478,54 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
                     "database": DB_CONFIG["database"],
                     "table_count": 0
                 }
-                
+
             # 日志：发现的表
             table_list = list(metadata["tables"].keys())
             logger.info(f"describe_table: 在数据库中发现表: {table_list}")
         except Exception as e:
             logger.error(f"describe_table: 加载元数据失败: {str(e)}")
             return {"error": f"加载数据库元数据失败: {str(e)}"}
-        
-        # 如果没有指定表名，使用第一个表
+
+        # 如果没有指定表名，使用第一个有效表
         if not table_name:
-            table_name = next(iter(metadata["tables"].keys()))
-            logger.info(f"describe_table: 未指定表名，默认选择第一个表 '{table_name}'")
-        
+            # 尝试找到第一个没有错误的表
+            for t_name, t_info in metadata["tables"].items():
+                if not t_info.get("is_error", False):
+                    table_name = t_name
+                    break
+
+            # 如果所有表都有错误，使用第一个表
+            if not table_name and metadata["tables"]:
+                table_name = next(iter(metadata["tables"].keys()))
+
+            logger.info(f"describe_table: 未指定表名，默认选择表 '{table_name}'")
+
         # 检查表是否存在
         if table_name not in metadata["tables"]:
             available_tables = list(metadata["tables"].keys())
             logger.warning(f"describe_table: 请求的表 '{table_name}' 不存在，可用表: {available_tables}")
             return {
                 "error": f"表 '{table_name}' 不存在",
-                "available_tables": available_tables,
+                "available_tables": available_tables[:10],  # 只返回前10个表名
                 "database": DB_CONFIG["database"]
             }
-        
+
         # 获取表信息
         table_info = metadata["tables"][table_name]
         logger.info(f"describe_table: 成功获取表 '{table_name}' 的元数据")
-        
+
+        # 检查表是否有错误
+        if table_info.get("is_error", False):
+            return {
+                "table_name": table_name,
+                "database": DB_CONFIG["database"],
+                "error": f"表 '{table_name}' 存在错误: {table_info.get('error', '未知错误')}",
+                "is_error": True
+            }
+
         # 获取表的行数
         row_count = table_info.get("row_count", 0)
-        
+
         # 构建表的结构信息
         table_structure = {
             "table_name": table_name,
@@ -1390,9 +1534,18 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
             "database": DB_CONFIG["database"],
             "columns": []
         }
-        
+
         # 添加列信息
-        for column_name in table_info["columns"]:
+        # 限制返回的列数量，如果列太多
+        max_columns = 50  # 最多返回50列
+        columns_truncated = False
+
+        column_list = table_info["columns"]
+        if len(column_list) > max_columns:
+            column_list = column_list[:max_columns]
+            columns_truncated = True
+
+        for column_name in column_list:
             column_type = table_info["column_types"].get(column_name, {})
             column_info = {
                 "name": column_name,
@@ -1403,14 +1556,23 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
                 "comment": table_info.get("column_comments", {}).get(column_name, "")
             }
             table_structure["columns"].append(column_info)
-        
-        # 如果有足够权限，尝试获取表的前5条记录作为示例
+
+        if columns_truncated:
+            table_structure["columns_truncated"] = True
+            table_structure["total_columns"] = len(table_info["columns"])
+
+        # 如果有足够权限，尝试获取表的前3条记录作为示例
         sample_data = []
         try:
             logger.info(f"describe_table: 尝试获取 '{table_name}' 的样本数据")
             async with db_pool.acquire() as conn:
                 async with conn.cursor(aiomysql.DictCursor) as cursor:
-                    await cursor.execute(f"SELECT * FROM {table_name} LIMIT 5")
+                    # 限制返回的列，如果列太多
+                    select_columns = "*"
+                    if columns_truncated:
+                        select_columns = ", ".join(column_list)
+
+                    await cursor.execute(f"SELECT {select_columns} FROM {table_name} LIMIT 3")
                     sample_records = await cursor.fetchall()
                     # 转换为可序列化格式
                     for record in sample_records:
@@ -1424,11 +1586,11 @@ async def describe_table(table_name: str = "") -> Dict[str, Any]:
             logger.info(f"describe_table: 成功获取 {len(sample_data)} 条样本数据")
         except Exception as e:
             logger.warning(f"describe_table: 获取表 '{table_name}' 的样本数据失败: {str(e)}")
-        
+
         table_structure["sample_data"] = sample_data
-        
+
         logger.info(f"describe_table: 成功处理表 '{table_name}' 的结构信息，包含 {len(table_structure['columns'])} 列")
-        
+
         return table_structure
     except Exception as e:
         logger.error(f"describe_table: 获取表结构失败: {str(e)}", exc_info=True)
@@ -1441,34 +1603,58 @@ async def health_check():
     try:
         # 测试数据库连接
         db_status = False
+        db_error = None
         if db_pool:
             try:
                 async with db_pool.acquire() as conn:
                     async with conn.cursor() as cursor:
                         await cursor.execute("SELECT 1")
                         db_status = True
-            except:
+            except Exception as e:
                 db_status = False
+                db_error = str(e)
         else:
             # 尝试初始化连接池
-            db_status = await init_db_pool()
-        
+            try:
+                db_status = await init_db_pool()
+                if not db_status:
+                    db_error = "数据库连接池初始化失败"
+            except Exception as e:
+                db_error = str(e)
+
         # 获取表的数量
         table_count = 0
+        valid_table_count = 0
+        error_table_count = 0
         if db_status:
             metadata = db_metadata
             table_count = len(metadata["tables"])
-        
+            # 统计有效表和错误表
+            valid_table_count = sum(1 for t in metadata["tables"].values() if not t.get("is_error", False))
+            error_table_count = sum(1 for t in metadata["tables"].values() if t.get("is_error", False))
+
+        # 构建连接信息（不包含敏感信息）
+        connection_info = {
+            "host": DB_CONFIG["host"],
+            "port": DB_CONFIG["port"],
+            "user": DB_CONFIG["user"],
+            "database": DB_CONFIG["database"]
+        }
+
         return {
             "status": "ok" if db_status else "error",
             "services": {
                 "database": "ok" if db_status else "error"
             },
+            "connection_info": connection_info,
+            "error": db_error,
             "timestamp": time.time(),
             "service": "SakuraText2SqlService",
             "version": "2.0.0",  # 更新版本号
             "database": DB_CONFIG["database"],
             "table_count": table_count,
+            "valid_table_count": valid_table_count,
+            "error_table_count": error_table_count,
             "features": ["Streaming", "SSE", "DynamicTableStructure"]  # 添加新特性
         }
     except Exception as e:
@@ -1506,6 +1692,6 @@ if __name__ == "__main__":
     # 注册事件
     mcp.on_start(init_server)
     mcp.on_shutdown(cleanup)
-    
+
     # 启动服务器
     mcp.run()
