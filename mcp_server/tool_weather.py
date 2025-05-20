@@ -26,7 +26,7 @@ class WeatherTool:
     # OpenWeather API 配置
 
     OPENWEATHER_API_BASE = "https://api.openweathermap.org/data/2.5/weather"
-    API_KEY = os.getenv("API_KEY")  # 请替换为你自己的 OpenWeather API Key
+    API_KEY = os.getenv("WEATHER_KEY")  # 请替换为你自己的 OpenWeather API Key
     USER_AGENT = "weather-app/1.0"
 
     # 内存缓存，为每个城市存储 (数据, 时间戳)
