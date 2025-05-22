@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plotly Graph</title>
+    <!-- 引入 Plotly.js 库 -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* 防止滚动条出现 */
+        }
+        #plotly-graph {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="plotly-graph"></div>
+    <script>
+        // 从 vanna_fig.js 文件加载 JSON 数据
+        fetch('vanna_fig.js')
+            .then(response => response.text())
+            .then(data => {
+                // 将 JSON 字符串解析为 JavaScript 对象
+                const fig = JSON.parse(data);
+                // 渲染 Plotly 图形
+                Plotly.newPlot('plotly-graph', fig.data, fig.layout);
+            })
+            .catch(error => console.error('Error loading vanna_fig.js:', error));
+    </script>
+</body>
+</html>
