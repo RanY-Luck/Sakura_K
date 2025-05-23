@@ -186,20 +186,22 @@ class VannaServer:
         try:
             training_data = self.vn.get_training_data()
             print(f"原始训练数据类型: {type(training_data)}")
-            
+
             # 为保存训练数据的问题-SQL对
             formatted_data = []
-            
+
             # 添加已训练的问题-SQL对到字典中
             if hasattr(self, '_trained_pairs') and self._trained_pairs:
                 for pair in self._trained_pairs:
-                    formatted_data.append({
-                        'type': 'question',
-                        'question': pair['question'],
-                        'sql': pair['sql']
-                    })
+                    formatted_data.append(
+                        {
+                            'type': 'question',
+                            'question': pair['question'],
+                            'sql': pair['sql']
+                        }
+                    )
                 print(f"已添加{len(self._trained_pairs)}个自定义训练对")
-            
+
             # 尝试将原始训练数据转换为标准格式
             if training_data:
                 if isinstance(training_data, list):
@@ -212,7 +214,7 @@ class VannaServer:
                     print("训练数据为字符串格式，无法解析为问题-SQL对")
                 else:
                     print(f"不支持的训练数据类型: {type(training_data)}")
-            
+
             print(f"格式化后训练数据数量: {len(formatted_data)}")
             return formatted_data
         except Exception as e:
@@ -242,24 +244,26 @@ class VannaServer:
             try:
                 training_data = self.vn.get_training_data()
                 print(f"训练数据类型: {type(training_data)}")
-                
+
                 # 检查训练数据格式并处理
                 if isinstance(training_data, list):
                     # 如果是列表，尝试遍历列表查找匹配项
                     for item in training_data:
-                        if isinstance(item, dict) and 'type' in item and item['type'] == 'question' and 'question' in item and item['question'] == question and 'sql' in item:
+                        if isinstance(item, dict) and 'type' in item and item[
+                            'type'] == 'question' and 'question' in item and item[
+                            'question'] == question and 'sql' in item:
                             # 找到完全匹配的训练数据
                             sql = item['sql']
                             print("使用严格匹配的训练SQL: ", sql)
                             df = self.vn.run_sql(sql)
-                            
+
                             # 如果需要可视化，则生成图表
                             if visualize:
                                 plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
                                 fig = self.vn.get_plotly_figure(plotly_code, df=df)
                             else:
                                 fig = None
-                                
+
                             print("这里是生成的sql语句： ", sql)
                             print("这里是生成的df： ", df)
                             print("这里是生成的fig： ", fig)
@@ -270,28 +274,68 @@ class VannaServer:
                         sql = training_data[question]['sql']
                         print("使用严格匹配的训练SQL: ", sql)
                         df = self.vn.run_sql(sql)
-                        
+
                         if visualize:
                             plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
                             fig = self.vn.get_plotly_figure(plotly_code, df=df)
                         else:
                             fig = None
-                            
+
                         print("这里是生成的sql语句： ", sql)
                         print("这里是生成的df： ", df)
                         print("这里是生成的fig： ", fig)
                         return sql, df, fig
+                # 处理 DataFrame 格式的训练数据
+                elif hasattr(training_data, 'to_dict') and callable(getattr(training_data, 'to_dict')):
+                    print("处理 DataFrame 格式的训练数据")
+                    # 遍历 DataFrame 查找匹配项
+                    if 'question' in training_data.columns and 'sql' in training_data.columns:
+                        matches = training_data[training_data['question'] == question]
+                        if not matches.empty:
+                            sql = matches.iloc[0]['sql']
+                            print("使用严格匹配的训练SQL: ", sql)
+                            df = self.vn.run_sql(sql)
+
+                            if visualize:
+                                plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
+                                fig = self.vn.get_plotly_figure(plotly_code, df=df)
+                            else:
+                                fig = None
+
+                            print("这里是生成的sql语句： ", sql)
+                            print("这里是生成的df： ", df)
+                            print("这里是生成的fig： ", fig)
+                            return sql, df, fig
+                    
+                # 检查本地训练对是否有匹配项
+                if hasattr(self, '_trained_pairs') and self._trained_pairs:
+                    for pair in self._trained_pairs:
+                        if pair['question'] == question:
+                            sql = pair['sql']
+                            print("使用本地存储的训练SQL: ", sql)
+                            df = self.vn.run_sql(sql)
+
+                            if visualize:
+                                plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
+                                fig = self.vn.get_plotly_figure(plotly_code, df=df)
+                            else:
+                                fig = None
+
+                            print("这里是生成的sql语句： ", sql)
+                            print("这里是生成的df： ", df)
+                            print("这里是生成的fig： ", fig)
+                            return sql, df, fig
                 else:
                     # 其他格式的训练数据，打印但不处理
                     print(f"不支持的训练数据格式: {type(training_data)}")
-                    
+
                 print("没有找到严格匹配的训练数据，将使用默认生成方式")
             except Exception as e:
                 import traceback
                 print(f"查找训练数据时出错: {e}")
                 print(traceback.format_exc())
                 print("将使用默认生成方式")
-        
+
         # 使用自定义 ask 函数处理问题
         sql, df, fig = ask(self.vn, question, visualize=visualize, auto_train=auto_train, *args, **kwargs)
         # fig.show()
@@ -313,7 +357,7 @@ class VannaServer:
         # 初始化训练对存储
         if not hasattr(self, '_trained_pairs'):
             self._trained_pairs = []
-            
+
         if question and sql:
             # 训练问答对，帮助模型理解如何将问题转换为 SQL
             self.vn.train(
@@ -321,10 +365,12 @@ class VannaServer:
                 sql=sql
             )
             # 保存问答对到本地记录
-            self._trained_pairs.append({
-                'question': question,
-                'sql': sql
-            })
+            self._trained_pairs.append(
+                {
+                    'question': question,
+                    'sql': sql
+                }
+            )
             print(f"已添加训练对: 问题='{question}', SQL='{sql}'")
         elif sql:
             # 单独添加 SQL 查询到训练数据中，有助于模型了解可能的查询模式
@@ -404,84 +450,36 @@ if __name__ == '__main__':
     # 创建 VannaServer 实例，使用 GITEE 作为提供商
     config = {"supplier": "GITEE"}
     server = VannaServer(config)
-    server.vn_train(
-        ddl="""CREATE TABLE `alarm` (
-  `id` bigint(50) NOT NULL AUTO_INCREMENT,
-  `imei` varchar(50) NOT NULL COMMENT 'imei',
-  `alarm_status` tinyint(1) DEFAULT NULL COMMENT '报警处理状态（未处理、处理中、已处理）',
-  `alarm_result` tinyint(1) DEFAULT NULL COMMENT '处理结果/设备状态（正常、修复、报警、拆除）',
-  `charge_man` varchar(512) DEFAULT NULL COMMENT '负责人',
-  `charge_phone` varchar(255) DEFAULT NULL COMMENT '电话号码',
-  `predict_complete_time` datetime DEFAULT NULL COMMENT '预计完成时间',
-  `real_complete_time` datetime DEFAULT NULL COMMENT '完成时间',
-  `danger_score` bigint(10) DEFAULT NULL COMMENT '危险评分',
-  `duration` int(10) DEFAULT NULL COMMENT '处理耗时（分钟）',
-  `fall_index` tinyint(1) DEFAULT NULL COMMENT '跌落报警',
-  `swing_index` tinyint(1) DEFAULT NULL COMMENT '摇摆报警',
-  `lean_index` decimal(10,5) DEFAULT NULL COMMENT '倾斜度数',
-  `alarm_desc` varchar(255) DEFAULT NULL COMMENT '报警细节描述',
-  `remark` varchar(512) DEFAULT NULL COMMENT '备注',
-  `handle_type` tinyint(2) DEFAULT NULL COMMENT '处理类型',
-  `crt_time` datetime DEFAULT NULL COMMENT '创建时间',
-  `crt_user` varchar(255) DEFAULT NULL COMMENT '创建人',
-  `crt_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
-  `crt_host` varchar(255) DEFAULT NULL COMMENT '创建主机',
-  `upd_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `upd_user` varchar(255) DEFAULT NULL COMMENT '更新人',
-  `upd_name` varchar(255) DEFAULT NULL COMMENT '更新姓名',
-  `upd_host` varchar(255) DEFAULT NULL COMMENT '更新主机',
-  `year` varchar(20) DEFAULT NULL COMMENT '冗余字段（年：yyyy）',
-  `month` varchar(20) DEFAULT NULL COMMENT '冗余字段（月：yyyy-MM）',
-  `day` varchar(255) DEFAULT NULL COMMENT '冗余字段（日：yyyy-MM-dd）',
-  `time` varchar(20) DEFAULT NULL COMMENT '冗余字段（时间：yyyy-MM-dd hh:mm）',
-  `danger_level` tinyint(1) DEFAULT NULL COMMENT '危险等级(1~29低级1 30~59中级2 60~100高级3 )',
-  `alarm_type_number` int(50) DEFAULT NULL COMMENT '报警类型10进制表示',
-  `lean_value` varchar(512) DEFAULT NULL COMMENT '倾斜报警值',
-  `distance_x_value` varchar(512) DEFAULT NULL COMMENT '三角位移报警值',
-  `distance_y_value` varchar(512) DEFAULT NULL COMMENT '三角沉降报警值',
-  `gap_value` varchar(512) DEFAULT NULL COMMENT '裂缝报警值',
-  `water_value` varchar(512) DEFAULT NULL COMMENT '水位报警值',
-  `gradienter_value` varchar(512) DEFAULT NULL COMMENT '水准仪沉降报警值',
-  `displacement_value` varchar(512) DEFAULT NULL COMMENT '位移报警值',
-  `deep_displacement_value` varchar(512) DEFAULT NULL COMMENT '深度位移报警值',
-  `rtk_distance_x_value` varchar(512) DEFAULT NULL COMMENT 'rtk位移报警值',
-  `rtk_distance_y_value` varchar(512) DEFAULT NULL COMMENT 'rtk沉降报警值',
-  `srx` varchar(512) DEFAULT NULL COMMENT '振动频率',
-  `sry` varchar(512) DEFAULT NULL COMMENT '振动幅度mm/s',
-  `total_alarm_type_number` int(50) DEFAULT NULL COMMENT '总报警类型',
-  `day_alarm_type_number` int(50) DEFAULT NULL COMMENT '日变化报警类型',
-  `month_alarm_type_number` int(50) DEFAULT NULL COMMENT '月变化报警类型',
-  `total_alarm_desc` varchar(512) DEFAULT NULL COMMENT '总报警描述',
-  `day_alarm_desc` varchar(512) DEFAULT NULL COMMENT '日变化报警描述',
-  `month_alarm_desc` varchar(512) DEFAULT NULL COMMENT '月变化报警描述',
-  `alarm_level` varchar(256) DEFAULT NULL COMMENT '报警等级json',
-  `device_alarm_level` tinyint(2) DEFAULT NULL COMMENT '设备报警等级',
-  `pre_device_alarm_level` tinyint(2) DEFAULT NULL COMMENT '设备原报警等级',
-  `update_level` tinyint(2) DEFAULT '0' COMMENT '报警等级升级数',
-  `data_id` char(10) NOT NULL DEFAULT '0000000000' COMMENT '数据标识',
-  `day_average_alarm_type_number` int(50) DEFAULT NULL COMMENT '日均报警类型',
-  `day_average_alarm_desc` varchar(512) DEFAULT NULL COMMENT '日均报警描述',
-  `rebar_stress_meter_value` varchar(512) DEFAULT NULL COMMENT '钢筋应力报警值',
-  `rebar_strain_gauge_value` varchar(512) DEFAULT NULL COMMENT '钢筋应变报警值',
-  `surface_strain_gauge_value` varchar(512) DEFAULT NULL COMMENT '表面应变报警值',
-  `wind_speed_direction_value` varchar(512) DEFAULT NULL COMMENT '风速风向报警值',
-  `vibration_value` varchar(20) DEFAULT NULL COMMENT '振动报警值',
-  `newest_time` datetime DEFAULT NULL COMMENT '最新预警时间',
-  `earth_pressure_meter_value` varchar(512) DEFAULT NULL COMMENT '土压力计报警值',
-  `rainfall_value` varchar(512) DEFAULT NULL COMMENT '雨量报警值',
-  `soil_value` varchar(512) DEFAULT NULL COMMENT '土壤报警值',
-  `slope_meter_value` varchar(50) DEFAULT NULL COMMENT '测斜仪报警值',
-  `water_pressure_meter_value` text COMMENT '水压力计报警值',
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `idx_imei_time` (`imei`,`crt_time`),
-  KEY `idx_did_time` (`data_id`,`crt_time`) USING BTREE,
-  KEY `idx_did_imei_time` (`data_id`,`imei`,`crt_time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1120753465950482441 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='警报表';"""
-    )
+
+#     server.vn_train(
+#         ddl="""
+#         CREATE TABLE `algorithm` (
+#   `id` int(11) NOT NULL AUTO_INCREMENT,
+#   `name` varchar(255) DEFAULT NULL COMMENT '算法名称',
+#   `type` tinyint(2) DEFAULT NULL COMMENT '类型',
+#   `identify_flag` varchar(255) DEFAULT NULL COMMENT '标识（与Java函数对应）',
+#   `remark` varchar(100) DEFAULT NULL COMMENT '备注',
+#   `crt_time` datetime DEFAULT NULL COMMENT '创建时间',
+#   `crt_user` varchar(255) DEFAULT NULL COMMENT '创建人',
+#   `crt_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+#   `crt_host` varchar(255) DEFAULT NULL COMMENT '创建主机',
+#   `upd_time` datetime DEFAULT NULL COMMENT '更新时间',
+#   `upd_user` varchar(255) DEFAULT NULL COMMENT '更新人',
+#   `upd_name` varchar(255) DEFAULT NULL COMMENT '更新姓名',
+#   `upd_host` varchar(255) DEFAULT NULL COMMENT '更新主机',
+#   `be_union` tinyint(4) DEFAULT NULL COMMENT '是否联合算法',
+#   PRIMARY KEY (`id`) USING BTREE
+# ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='算法表';
+#         """
+#     )
+
     # server.vn_train(documentation='"累计值"是指报告期内最新的一条数据减最旧的一条数据')
     # server.vn_train(sql='SELECT * FROM alarm WHERE imei = "BDA1220513100042";')
-    server.vn_train(question="查询'BDA1220513100042'设备的第一条预警",sql='SELECT * FROM alarm WHERE imei = "BDA1220513100042" LIMIT 1;')
+    server.vn_train(
+        question="查询沉降算法的第一条数据",
+        sql="SELECT * FROM algorithm WHERE name = '沉降算法' LIMIT 1;"
+    )
     # server.get_training_data()
     # server.schema_train()
     # 示例查询：
-    server.ask(question="查询'BDA1220513100042'设备的第一条预警", strict_match=True)
+    server.ask(question="查询沉降算法的第一条数据", strict_match=True)
