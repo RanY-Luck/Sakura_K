@@ -176,6 +176,130 @@ class VannaServer:
         # 执行训练计划
         self.vn.train(plan=plan)
 
+    def get_training_data(self):
+        """
+        获取当前训练数据，并确保其格式适合使用
+
+        Returns:
+            当前训练数据的列表或字典
+        """
+        try:
+            training_data = self.vn.get_training_data()
+            print(f"原始训练数据类型: {type(training_data)}")
+            
+            # 为保存训练数据的问题-SQL对
+            formatted_data = []
+            
+            # 添加已训练的问题-SQL对到字典中
+            if hasattr(self, '_trained_pairs') and self._trained_pairs:
+                for pair in self._trained_pairs:
+                    formatted_data.append({
+                        'type': 'question',
+                        'question': pair['question'],
+                        'sql': pair['sql']
+                    })
+                print(f"已添加{len(self._trained_pairs)}个自定义训练对")
+            
+            # 尝试将原始训练数据转换为标准格式
+            if training_data:
+                if isinstance(training_data, list):
+                    for item in training_data:
+                        if isinstance(item, dict):
+                            formatted_data.append(item)
+                        else:
+                            print(f"跳过不支持的训练数据项: {type(item)}")
+                elif isinstance(training_data, str):
+                    print("训练数据为字符串格式，无法解析为问题-SQL对")
+                else:
+                    print(f"不支持的训练数据类型: {type(training_data)}")
+            
+            print(f"格式化后训练数据数量: {len(formatted_data)}")
+            return formatted_data
+        except Exception as e:
+            import traceback
+            print(f"获取训练数据时出错: {e}")
+            print(traceback.format_exc())
+            return []
+
+    def ask(self, question, visualize=True, auto_train=True, strict_match=False, *args, **kwargs):
+        """
+        向 Vanna 提问并获取 SQL 结果及可视化
+
+        Args:
+            question: 用自然语言表达的问题
+            visualize: 是否生成可视化
+            auto_train: 是否自动训练成功的查询
+            strict_match: 是否严格使用训练数据中的SQL匹配（优先使用完全匹配的问题-SQL对）
+            *args, **kwargs: 传递给 ask 函数的额外参数
+
+        Returns:
+            sql: 生成的 SQL 查询
+            df: 查询结果数据框
+            fig: Plotly 可视化图表
+        """
+        # 如果启用严格匹配模式，尝试从训练数据中找到完全匹配的SQL
+        if strict_match:
+            try:
+                training_data = self.vn.get_training_data()
+                print(f"训练数据类型: {type(training_data)}")
+                
+                # 检查训练数据格式并处理
+                if isinstance(training_data, list):
+                    # 如果是列表，尝试遍历列表查找匹配项
+                    for item in training_data:
+                        if isinstance(item, dict) and 'type' in item and item['type'] == 'question' and 'question' in item and item['question'] == question and 'sql' in item:
+                            # 找到完全匹配的训练数据
+                            sql = item['sql']
+                            print("使用严格匹配的训练SQL: ", sql)
+                            df = self.vn.run_sql(sql)
+                            
+                            # 如果需要可视化，则生成图表
+                            if visualize:
+                                plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
+                                fig = self.vn.get_plotly_figure(plotly_code, df=df)
+                            else:
+                                fig = None
+                                
+                            print("这里是生成的sql语句： ", sql)
+                            print("这里是生成的df： ", df)
+                            print("这里是生成的fig： ", fig)
+                            return sql, df, fig
+                elif isinstance(training_data, dict):
+                    # 如果是字典，尝试直接从字典检索
+                    if question in training_data and 'sql' in training_data[question]:
+                        sql = training_data[question]['sql']
+                        print("使用严格匹配的训练SQL: ", sql)
+                        df = self.vn.run_sql(sql)
+                        
+                        if visualize:
+                            plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
+                            fig = self.vn.get_plotly_figure(plotly_code, df=df)
+                        else:
+                            fig = None
+                            
+                        print("这里是生成的sql语句： ", sql)
+                        print("这里是生成的df： ", df)
+                        print("这里是生成的fig： ", fig)
+                        return sql, df, fig
+                else:
+                    # 其他格式的训练数据，打印但不处理
+                    print(f"不支持的训练数据格式: {type(training_data)}")
+                    
+                print("没有找到严格匹配的训练数据，将使用默认生成方式")
+            except Exception as e:
+                import traceback
+                print(f"查找训练数据时出错: {e}")
+                print(traceback.format_exc())
+                print("将使用默认生成方式")
+        
+        # 使用自定义 ask 函数处理问题
+        sql, df, fig = ask(self.vn, question, visualize=visualize, auto_train=auto_train, *args, **kwargs)
+        # fig.show()
+        print("这里是生成的sql语句： ", sql)
+        print("这里是生成的df： ", df)
+        print("这里是生成的fig： ", fig)
+        return sql, df, fig
+
     def vn_train(self, question="", sql="", documentation="", ddl=""):
         """
         使用不同类型的输入训练 Vanna 模型
@@ -186,12 +310,22 @@ class VannaServer:
             documentation: 业务术语或定义的文档
             ddl: 数据定义语言语句（如 CREATE TABLE）
         """
+        # 初始化训练对存储
+        if not hasattr(self, '_trained_pairs'):
+            self._trained_pairs = []
+            
         if question and sql:
             # 训练问答对，帮助模型理解如何将问题转换为 SQL
             self.vn.train(
                 question=question,
                 sql=sql
             )
+            # 保存问答对到本地记录
+            self._trained_pairs.append({
+                'question': question,
+                'sql': sql
+            })
+            print(f"已添加训练对: 问题='{question}', SQL='{sql}'")
         elif sql:
             # 单独添加 SQL 查询到训练数据中，有助于模型了解可能的查询模式
             self.vn.train(sql=sql)
@@ -203,51 +337,6 @@ class VannaServer:
         if ddl:
             # 添加数据定义语言语句，帮助模型理解表结构
             self.vn.train(ddl=ddl)
-
-    def get_training_data(self):
-        """
-        获取当前训练数据
-
-        Returns:
-            当前训练数据的列表
-        """
-        training_data = self.vn.get_training_data()
-        print(training_data)
-        return training_data
-
-    def ask(self, question, visualize=True, auto_train=True, *args, **kwargs):
-        """
-        向 Vanna 提问并获取 SQL 结果及可视化
-
-        Args:
-            question: 用自然语言表达的问题
-            visualize: 是否生成可视化
-            auto_train: 是否自动训练成功的查询
-            *args, **kwargs: 传递给 ask 函数的额外参数
-
-        Returns:
-            sql: 生成的 SQL 查询
-            df: 查询结果数据框
-            fig: Plotly 可视化图表
-        """
-        # 下面是生成SQL、运行查询和创建可视化的原始实现
-        # sql = self.vn.generate_sql(question=question)
-        # print("这里是生成的sql语句： ", sql)
-        # df = self.vn.run_sql(sql)
-        # print("\n这里是查询的数据： ", df)
-        # plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
-        # print("\n这里是生成的plotly代码： ", plotly_code)
-        # figure = self.vn.get_plotly_figure(plotly_code, df=df)
-        # # figure.show()
-        # sql, df, fig = self.vn.ask(question, visualize=visualize, auto_train=auto_train)
-
-        # 使用自定义 ask 函数处理问题
-        sql, df, fig = ask(self.vn, question, visualize=visualize, auto_train=auto_train, *args, **kwargs)
-        # fig.show()
-        print("这里是生成的sql语句： ", sql)
-        print("这里是生成的df： ", df)
-        print("这里是生成的fig： ", fig)
-        return sql, df, fig
 
 
 def make_vanna_class(ChatClass=CustomChat):
@@ -395,4 +484,4 @@ if __name__ == '__main__':
     # server.get_training_data()
     # server.schema_train()
     # 示例查询：
-    server.ask(question="查询'BDA1220513100042'设备的第一条预警")
+    server.ask(question="查询'BDA1220513100042'设备的第一条预警", strict_match=True)
