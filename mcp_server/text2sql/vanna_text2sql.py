@@ -101,8 +101,7 @@ class VannaServer:
         supplier = config["supplier"]
         embedding_supplier = config["embedding_supplier"] if "embedding_supplier" in config else "SiliconFlow"
         vector_db_path = config["vector_db_path"] if "vector_db_path" in config else os.getenv(
-            "VECTOR_DB_PATH",
-            "../storage/chromadb"
+            "VECTOR_DB_PATH"
         )
         EmbeddingClass = config["EmbeddingClass"] if "EmbeddingClass" in config else SiliconflowEmbedding
         ChatClass = config["ChatClass"] if "ChatClass" in config else CustomChat
@@ -138,7 +137,7 @@ class VannaServer:
 
     def _copy_fig_html(self):
         """
-        复制图表 HTML 文件到输出目录，用于在浏览器中显示可视化结果
+        复制图表 HTML 文件 到输出目录，用于在浏览器中显示可视化结果
         """
         source_path = 'fig.html'
         target_dir = '../output/html'
@@ -171,11 +170,9 @@ class VannaServer:
         """
         # 查询数据库信息模式，获取所有表和列的元数据
         df_information_schema = self.vn.run_sql("SELECT * FROM INFORMATION_SCHEMA.COLUMNS")
-
         # 创建训练计划，将信息模式分解成 LLM 可以处理的小块
         plan = self.vn.get_training_plan_generic(df_information_schema)
         # print(plan)
-
         # 执行训练计划
         self.vn.train(plan=plan)
 
@@ -215,7 +212,7 @@ class VannaServer:
             当前训练数据的列表
         """
         training_data = self.vn.get_training_data()
-        # print(training_data)
+        print(training_data)
         return training_data
 
     def ask(self, question, visualize=True, auto_train=True, *args, **kwargs):
@@ -247,6 +244,9 @@ class VannaServer:
         # 使用自定义 ask 函数处理问题
         sql, df, fig = ask(self.vn, question, visualize=visualize, auto_train=auto_train, *args, **kwargs)
         # fig.show()
+        print("这里是生成的sql语句： ", sql)
+        print("这里是生成的df： ", df)
+        print("这里是生成的fig： ", fig)
         return sql, df, fig
 
 
@@ -315,6 +315,84 @@ if __name__ == '__main__':
     # 创建 VannaServer 实例，使用 GITEE 作为提供商
     config = {"supplier": "GITEE"}
     server = VannaServer(config)
+    server.vn_train(
+        ddl="""CREATE TABLE `alarm` (
+  `id` bigint(50) NOT NULL AUTO_INCREMENT,
+  `imei` varchar(50) NOT NULL COMMENT 'imei',
+  `alarm_status` tinyint(1) DEFAULT NULL COMMENT '报警处理状态（未处理、处理中、已处理）',
+  `alarm_result` tinyint(1) DEFAULT NULL COMMENT '处理结果/设备状态（正常、修复、报警、拆除）',
+  `charge_man` varchar(512) DEFAULT NULL COMMENT '负责人',
+  `charge_phone` varchar(255) DEFAULT NULL COMMENT '电话号码',
+  `predict_complete_time` datetime DEFAULT NULL COMMENT '预计完成时间',
+  `real_complete_time` datetime DEFAULT NULL COMMENT '完成时间',
+  `danger_score` bigint(10) DEFAULT NULL COMMENT '危险评分',
+  `duration` int(10) DEFAULT NULL COMMENT '处理耗时（分钟）',
+  `fall_index` tinyint(1) DEFAULT NULL COMMENT '跌落报警',
+  `swing_index` tinyint(1) DEFAULT NULL COMMENT '摇摆报警',
+  `lean_index` decimal(10,5) DEFAULT NULL COMMENT '倾斜度数',
+  `alarm_desc` varchar(255) DEFAULT NULL COMMENT '报警细节描述',
+  `remark` varchar(512) DEFAULT NULL COMMENT '备注',
+  `handle_type` tinyint(2) DEFAULT NULL COMMENT '处理类型',
+  `crt_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `crt_user` varchar(255) DEFAULT NULL COMMENT '创建人',
+  `crt_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
+  `crt_host` varchar(255) DEFAULT NULL COMMENT '创建主机',
+  `upd_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `upd_user` varchar(255) DEFAULT NULL COMMENT '更新人',
+  `upd_name` varchar(255) DEFAULT NULL COMMENT '更新姓名',
+  `upd_host` varchar(255) DEFAULT NULL COMMENT '更新主机',
+  `year` varchar(20) DEFAULT NULL COMMENT '冗余字段（年：yyyy）',
+  `month` varchar(20) DEFAULT NULL COMMENT '冗余字段（月：yyyy-MM）',
+  `day` varchar(255) DEFAULT NULL COMMENT '冗余字段（日：yyyy-MM-dd）',
+  `time` varchar(20) DEFAULT NULL COMMENT '冗余字段（时间：yyyy-MM-dd hh:mm）',
+  `danger_level` tinyint(1) DEFAULT NULL COMMENT '危险等级(1~29低级1 30~59中级2 60~100高级3 )',
+  `alarm_type_number` int(50) DEFAULT NULL COMMENT '报警类型10进制表示',
+  `lean_value` varchar(512) DEFAULT NULL COMMENT '倾斜报警值',
+  `distance_x_value` varchar(512) DEFAULT NULL COMMENT '三角位移报警值',
+  `distance_y_value` varchar(512) DEFAULT NULL COMMENT '三角沉降报警值',
+  `gap_value` varchar(512) DEFAULT NULL COMMENT '裂缝报警值',
+  `water_value` varchar(512) DEFAULT NULL COMMENT '水位报警值',
+  `gradienter_value` varchar(512) DEFAULT NULL COMMENT '水准仪沉降报警值',
+  `displacement_value` varchar(512) DEFAULT NULL COMMENT '位移报警值',
+  `deep_displacement_value` varchar(512) DEFAULT NULL COMMENT '深度位移报警值',
+  `rtk_distance_x_value` varchar(512) DEFAULT NULL COMMENT 'rtk位移报警值',
+  `rtk_distance_y_value` varchar(512) DEFAULT NULL COMMENT 'rtk沉降报警值',
+  `srx` varchar(512) DEFAULT NULL COMMENT '振动频率',
+  `sry` varchar(512) DEFAULT NULL COMMENT '振动幅度mm/s',
+  `total_alarm_type_number` int(50) DEFAULT NULL COMMENT '总报警类型',
+  `day_alarm_type_number` int(50) DEFAULT NULL COMMENT '日变化报警类型',
+  `month_alarm_type_number` int(50) DEFAULT NULL COMMENT '月变化报警类型',
+  `total_alarm_desc` varchar(512) DEFAULT NULL COMMENT '总报警描述',
+  `day_alarm_desc` varchar(512) DEFAULT NULL COMMENT '日变化报警描述',
+  `month_alarm_desc` varchar(512) DEFAULT NULL COMMENT '月变化报警描述',
+  `alarm_level` varchar(256) DEFAULT NULL COMMENT '报警等级json',
+  `device_alarm_level` tinyint(2) DEFAULT NULL COMMENT '设备报警等级',
+  `pre_device_alarm_level` tinyint(2) DEFAULT NULL COMMENT '设备原报警等级',
+  `update_level` tinyint(2) DEFAULT '0' COMMENT '报警等级升级数',
+  `data_id` char(10) NOT NULL DEFAULT '0000000000' COMMENT '数据标识',
+  `day_average_alarm_type_number` int(50) DEFAULT NULL COMMENT '日均报警类型',
+  `day_average_alarm_desc` varchar(512) DEFAULT NULL COMMENT '日均报警描述',
+  `rebar_stress_meter_value` varchar(512) DEFAULT NULL COMMENT '钢筋应力报警值',
+  `rebar_strain_gauge_value` varchar(512) DEFAULT NULL COMMENT '钢筋应变报警值',
+  `surface_strain_gauge_value` varchar(512) DEFAULT NULL COMMENT '表面应变报警值',
+  `wind_speed_direction_value` varchar(512) DEFAULT NULL COMMENT '风速风向报警值',
+  `vibration_value` varchar(20) DEFAULT NULL COMMENT '振动报警值',
+  `newest_time` datetime DEFAULT NULL COMMENT '最新预警时间',
+  `earth_pressure_meter_value` varchar(512) DEFAULT NULL COMMENT '土压力计报警值',
+  `rainfall_value` varchar(512) DEFAULT NULL COMMENT '雨量报警值',
+  `soil_value` varchar(512) DEFAULT NULL COMMENT '土壤报警值',
+  `slope_meter_value` varchar(50) DEFAULT NULL COMMENT '测斜仪报警值',
+  `water_pressure_meter_value` text COMMENT '水压力计报警值',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_imei_time` (`imei`,`crt_time`),
+  KEY `idx_did_time` (`data_id`,`crt_time`) USING BTREE,
+  KEY `idx_did_imei_time` (`data_id`,`imei`,`crt_time`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1120753465950482441 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC COMMENT='警报表';"""
+    )
+    # server.vn_train(documentation='"累计值"是指报告期内最新的一条数据减最旧的一条数据')
+    # server.vn_train(sql='SELECT * FROM alarm WHERE imei = "BDA1220513100042";')
+    server.vn_train(question="查询'BDA1220513100042'设备的第一条预警",sql='SELECT * FROM alarm WHERE imei = "BDA1220513100042" LIMIT 1;')
+    # server.get_training_data()
     # server.schema_train()
-    # 示例查询：按销售量降序排列的类别销售汇总
-    server.ask("查询sys_user表中有多少条数据")
+    # 示例查询：
+    server.ask(question="查询'BDA1220513100042'设备的第一条预警")

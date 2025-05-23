@@ -202,7 +202,7 @@ def ask_route():
 
         # 将Plotly图表保存为JS文件，以便在前端展示
         fig_js_path = '../output/html/vanna_fig.js'
-        fig_html_path = 'http://localhost:8000/html/vanna_fig.html'
+        fig_html_path = 'http://localhost:5000/html/vanna_fig.html'
         figure_json = pio.to_json(fig)
         with open(fig_js_path, 'w', encoding='utf-8') as f:
             f.write(figure_json)
