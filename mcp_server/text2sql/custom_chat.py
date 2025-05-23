@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Time     : 2025/5/22 17:01
+# @Author   : 冉勇
+# @File     : custom_chat.py
+# @Software : PyCharm
+# @Desc     : 重组Vanna聊天，适配多种模型
 import re
 from typing import List
 import pandas as pd
