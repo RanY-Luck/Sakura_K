@@ -1,12 +1,15 @@
 import os
 import shutil
 import plotly.io as pio
+import json
+import hashlib
 from chromadb import EmbeddingFunction, Documents, Embeddings
 from rewrite_ask import ask
 from siliconflow_api import SiliconflowEmbedding
 from custom_chat import CustomChat
 from vanna.chromadb import ChromaDB_VectorStore
 from dotenv import load_dotenv
+import pandas as pd
 
 # 加载环境变量
 load_dotenv()
@@ -88,6 +91,10 @@ class VannaServer:
         """
         self.config = config
         self.vn = self._initialize_vn()
+        # 初始化已训练表的记录
+        self.trained_tables = self._load_trained_tables()
+        # 初始化已训练文档记录
+        self.trained_docs = self._load_trained_docs()
 
     def _initialize_vn(self):
         """
@@ -134,6 +141,168 @@ class VannaServer:
         self._copy_fig_html()
 
         return vn
+
+    def _load_trained_tables(self):
+        """
+        加载已训练表记录
+        
+        Returns:
+            已训练表的记录字典
+        """
+        trained_tables_path = self._get_trained_tables_path()
+        if os.path.exists(trained_tables_path):
+            try:
+                with open(trained_tables_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"加载已训练表记录失败: {e}")
+                return {}
+        return {}
+
+    def _load_trained_docs(self):
+        """
+        加载已训练文档记录
+        
+        Returns:
+            已训练文档的记录字典
+        """
+        trained_docs_path = self._get_trained_docs_path()
+        if os.path.exists(trained_docs_path):
+            try:
+                with open(trained_docs_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"加载已训练文档记录失败: {e}")
+                return {}
+        return {}
+
+    def _save_trained_tables(self):
+        """
+        保存已训练表记录
+        """
+        trained_tables_path = self._get_trained_tables_path()
+        try:
+            os.makedirs(os.path.dirname(trained_tables_path), exist_ok=True)
+            with open(trained_tables_path, 'w', encoding='utf-8') as f:
+                json.dump(self.trained_tables, f, ensure_ascii=False, indent=2)
+            print(f"已保存训练表记录到 {trained_tables_path}")
+        except Exception as e:
+            print(f"保存训练表记录失败: {e}")
+
+    def _save_trained_docs(self):
+        """
+        保存已训练文档记录
+        """
+        trained_docs_path = self._get_trained_docs_path()
+        try:
+            os.makedirs(os.path.dirname(trained_docs_path), exist_ok=True)
+            with open(trained_docs_path, 'w', encoding='utf-8') as f:
+                json.dump(self.trained_docs, f, ensure_ascii=False, indent=2)
+            print(f"已保存训练文档记录到 {trained_docs_path}")
+        except Exception as e:
+            print(f"保存训练文档记录失败: {e}")
+
+    def _get_trained_tables_path(self):
+        """
+        获取已训练表记录文件路径
+        
+        Returns:
+            文件路径
+        """
+        vector_db_path = self.config.get("vector_db_path", os.getenv("VECTOR_DB_PATH", "./vector_db"))
+        return os.path.join(vector_db_path, "trained_tables.json")
+
+    def _get_trained_docs_path(self):
+        """
+        获取已训练文档记录文件路径
+        
+        Returns:
+            文件路径
+        """
+        vector_db_path = self.config.get("vector_db_path", os.getenv("VECTOR_DB_PATH", "./vector_db"))
+        return os.path.join(vector_db_path, "trained_docs.json")
+
+    def _table_hash(self, table_ddl):
+        """
+        计算表DDL的哈希值，用于判断表结构是否变化
+        
+        Args:
+            table_ddl: 表DDL语句
+            
+        Returns:
+            哈希字符串
+        """
+        # 移除可能变化但不影响结构的部分，如AUTO_INCREMENT值
+        normalized_ddl = table_ddl.replace("\n", " ").replace("\r", "")
+        # 计算哈希值
+        return hashlib.md5(normalized_ddl.encode('utf-8')).hexdigest()
+
+    def _doc_hash(self, documentation):
+        """
+        计算文档的哈希值，用于判断文档内容是否变化
+        
+        Args:
+            documentation: 文档内容
+            
+        Returns:
+            哈希字符串
+        """
+        # 规范化文档内容（去除额外空格）
+        normalized_doc = ' '.join(documentation.split())
+        # 计算哈希值
+        return hashlib.md5(normalized_doc.encode('utf-8')).hexdigest()
+
+    def train_table_ddl(self, table_ddl, force_retrain=False):
+        """
+        训练表DDL，会检查表是否已存在，避免重复训练
+        
+        Args:
+            table_ddl: 表DDL语句
+            force_retrain: 是否强制重新训练
+            
+        Returns:
+            是否进行了训练
+        """
+        # 提取表名
+        import re
+        table_name_match = re.search(r'CREATE TABLE\s+`([^`]+)`', table_ddl)
+        if not table_name_match:
+            print(f"无法从DDL中提取表名: {table_ddl[:100]}...")
+            return False
+
+        table_name = table_name_match.group(1)
+        table_hash = self._table_hash(table_ddl)
+
+        # 检查表是否已训练且结构未变化
+        if (not force_retrain and
+                table_name in self.trained_tables and
+                self.trained_tables[table_name].get('hash') == table_hash):
+            print(f"表 '{table_name}' 已训练过且结构未变化，跳过训练")
+            return False
+
+        # 训练表DDL
+        try:
+            print(f"训练表: {table_name}")
+            # 向训练添加表名标注
+            self.vn_train(documentation=f"表 `{table_name}` 的定义")
+            # 训练DDL语句
+            self.vn_train(ddl=table_ddl)
+
+            # 记录已训练表
+            self.trained_tables[table_name] = {
+                'hash': table_hash,
+                'timestamp': pd.Timestamp.now().isoformat()
+            }
+            # 每训练10个表保存一次记录
+            if len(self.trained_tables) % 10 == 0:
+                self._save_trained_tables()
+
+            return True
+        except Exception as e:
+            import traceback
+            print(f"训练表 '{table_name}' 出错: {e}")
+            print(traceback.format_exc())
+            return False
 
     def _copy_fig_html(self):
         """
@@ -203,17 +372,40 @@ class VannaServer:
                 print(f"已添加{len(self._trained_pairs)}个自定义训练对")
 
             # 尝试将原始训练数据转换为标准格式
-            if training_data:
-                if isinstance(training_data, list):
-                    for item in training_data:
-                        if isinstance(item, dict):
-                            formatted_data.append(item)
-                        else:
-                            print(f"跳过不支持的训练数据项: {type(item)}")
-                elif isinstance(training_data, str):
-                    print("训练数据为字符串格式，无法解析为问题-SQL对")
+            if isinstance(training_data, list):
+                for item in training_data:
+                    if isinstance(item, dict):
+                        formatted_data.append(item)
+                    else:
+                        print(f"跳过不支持的训练数据项: {type(item)}")
+            elif isinstance(training_data, pd.DataFrame):
+                # 正确处理 DataFrame 类型数据
+                if not training_data.empty:
+                    # 检查是否有必要的列
+                    columns = training_data.columns.tolist()
+                    print(f"DataFrame 包含列: {columns}")
+
+                    # 检查是否有 question 和 sql 列
+                    if 'question' in columns and 'sql' in columns:
+                        for _, row in training_data.iterrows():
+                            formatted_data.append(
+                                {
+                                    'type': 'question',
+                                    'question': row['question'],
+                                    'sql': row['sql']
+                                }
+                            )
+                        print(f"从 DataFrame 添加了 {len(training_data)} 个训练对")
+                    else:
+                        print(f"DataFrame 中没有找到 question 和 sql 列")
+                        # 尝试转换为适当的格式
+                        print(f"DataFrame 内容示例:\n{training_data.head()}")
                 else:
-                    print(f"不支持的训练数据类型: {type(training_data)}")
+                    print("训练数据 DataFrame 为空")
+            elif isinstance(training_data, str):
+                print("训练数据为字符串格式，无法解析为问题-SQL对")
+            else:
+                print(f"不支持的训练数据类型: {type(training_data)}")
 
             print(f"格式化后训练数据数量: {len(formatted_data)}")
             return formatted_data
@@ -244,7 +436,6 @@ class VannaServer:
             try:
                 training_data = self.vn.get_training_data()
                 print(f"训练数据类型: {type(training_data)}")
-
                 # 检查训练数据格式并处理
                 if isinstance(training_data, list):
                     # 如果是列表，尝试遍历列表查找匹配项
@@ -256,14 +447,12 @@ class VannaServer:
                             sql = item['sql']
                             print("使用严格匹配的训练SQL: ", sql)
                             df = self.vn.run_sql(sql)
-
                             # 如果需要可视化，则生成图表
                             if visualize:
                                 plotly_code = self.vn.generate_plotly_code(question=question, sql=sql, df_metadata=df)
                                 fig = self.vn.get_plotly_figure(plotly_code, df=df)
                             else:
                                 fig = None
-
                             print("这里是生成的sql语句： ", sql)
                             print("这里是生成的df： ", df)
                             print("这里是生成的fig： ", fig)
@@ -301,12 +490,10 @@ class VannaServer:
                                 fig = self.vn.get_plotly_figure(plotly_code, df=df)
                             else:
                                 fig = None
-
                             print("这里是生成的sql语句： ", sql)
                             print("这里是生成的df： ", df)
                             print("这里是生成的fig： ", fig)
                             return sql, df, fig
-                    
                 # 检查本地训练对是否有匹配项
                 if hasattr(self, '_trained_pairs') and self._trained_pairs:
                     for pair in self._trained_pairs:
@@ -320,7 +507,6 @@ class VannaServer:
                                 fig = self.vn.get_plotly_figure(plotly_code, df=df)
                             else:
                                 fig = None
-
                             print("这里是生成的sql语句： ", sql)
                             print("这里是生成的df： ", df)
                             print("这里是生成的fig： ", fig)
@@ -337,12 +523,28 @@ class VannaServer:
                 print("将使用默认生成方式")
 
         # 使用自定义 ask 函数处理问题
-        sql, df, fig = ask(self.vn, question, visualize=visualize, auto_train=auto_train, *args, **kwargs)
-        # fig.show()
-        print("这里是生成的sql语句： ", sql)
-        print("这里是生成的df： ", df)
-        print("这里是生成的fig： ", fig)
-        return sql, df, fig
+        try:
+            result = ask(self.vn, question, visualize=visualize, auto_train=auto_train, *args, **kwargs)
+
+            # 检查返回值
+            if result is None:
+                print("Ask函数返回None，创建默认返回值")
+                return f"-- 无法为问题'{question}'生成SQL", pd.DataFrame(), None
+
+            if isinstance(result, tuple) and len(result) == 3:
+                sql, df, fig = result
+                print("这里是生成的sql语句： ", sql)
+                print("这里是生成的df： ", df)
+                print("这里是生成的fig： ", fig)
+                return sql, df, fig
+            else:
+                print(f"Ask函数返回了意外的格式: {type(result)}")
+                return f"-- 无法为问题'{question}'生成SQL", pd.DataFrame(), None
+        except Exception as e:
+            import traceback
+            print(f"调用ask函数出错: {e}")
+            print(traceback.format_exc())
+            return f"-- 为问题'{question}'生成SQL时出错: {str(e)}", pd.DataFrame(), None
 
     def vn_train(self, question="", sql="", documentation="", ddl=""):
         """
@@ -377,12 +579,189 @@ class VannaServer:
             self.vn.train(sql=sql)
 
         if documentation:
-            # 添加业务术语或定义文档，帮助模型理解领域特定的概念
-            self.vn.train(documentation=documentation)
+            # 计算文档哈希值
+            doc_hash = self._doc_hash(documentation)
+            # 检查是否已经训练过该文档
+            if doc_hash in self.trained_docs:
+                print(f"文档已训练过，跳过训练: '{documentation[:50]}...'")
+            else:
+                # 添加业务术语或定义文档，帮助模型理解领域特定的概念
+                print(f"训练新文档: '{documentation[:50]}...'")
+                self.vn.train(documentation=documentation)
+                # 记录已训练的文档
+                self.trained_docs[doc_hash] = {
+                    'documentation': documentation[:100] + ("..." if len(documentation) > 100 else ""),
+                    'timestamp': pd.Timestamp.now().isoformat()
+                }
+                # 每训练5个文档保存一次记录
+                if len(self.trained_docs) % 5 == 0:
+                    self._save_trained_docs()
 
         if ddl:
             # 添加数据定义语言语句，帮助模型理解表结构
             self.vn.train(ddl=ddl)
+
+    def check_vector_store(self):
+        """
+        检查向量库中存储的数据情况
+        
+        Returns:
+            向量库中存储的数据统计信息
+        """
+        try:
+            # 获取向量库的所有集合
+            collections = self.vn.collection.list_collections()
+            print(f"向量库中的集合: {[c.name for c in collections]}")
+
+            # 检查每个集合中的数据量
+            stats = {}
+            for collection in collections:
+                coll = self.vn.collection.get_collection(name=collection.name)
+                count = coll.count()
+                stats[collection.name] = count
+                print(f"集合 '{collection.name}' 中有 {count} 条数据")
+
+                # 获取样本数据
+                if count > 0:
+                    try:
+                        sample = coll.peek(10)
+                        print(f"集合 '{collection.name}' 样本: {sample}")
+                    except:
+                        print(f"无法获取集合 '{collection.name}' 的样本数据")
+
+            return stats
+        except Exception as e:
+            import traceback
+            print(f"检查向量库时出错: {e}")
+            print(traceback.format_exc())
+            return None
+
+    def bulk_train_examples(self):
+        """
+        批量添加常见问题示例以增强向量库质量
+        """
+        # 添加通用SQL查询的例子
+        examples = [
+            {
+                "question": "统计所有表的行数",
+                "sql": """
+                SELECT 
+                    table_name, 
+                    table_rows
+                FROM 
+                    information_schema.tables
+                WHERE 
+                    table_schema = DATABASE()
+                ORDER BY 
+                    table_rows DESC;
+                """
+            },
+            {
+                "question": "显示表的所有列及其数据类型",
+                "sql": """
+                SELECT 
+                    column_name, 
+                    column_type, 
+                    is_nullable,
+                    column_comment
+                FROM 
+                    information_schema.columns
+                WHERE 
+                    table_schema = DATABASE()
+                    AND table_name = '{table_name}'
+                ORDER BY 
+                    ordinal_position;
+                """
+            },
+            {
+                "question": "查询某个表最新的10条记录",
+                "sql": """
+                SELECT 
+                    * 
+                FROM 
+                    {table_name} 
+                ORDER BY 
+                    id DESC 
+                LIMIT 10;
+                """
+            }
+        ]
+
+        print(f"开始批量添加{len(examples)}个训练示例...")
+
+        # 获取数据库中的表列表
+        try:
+            df_tables = self.vn.run_sql(
+                """
+                                SELECT 
+                                    table_name 
+                                FROM 
+                                    information_schema.tables 
+                                WHERE 
+                                    table_schema = DATABASE()
+                            """
+            )
+
+            tables = df_tables['table_name'].tolist()
+            print(f"数据库中有{len(tables)}个表")
+
+            # 为每个表生成特定的SQL训练对
+            total_added = 0
+            for i, table in enumerate(tables[:5]):  # 只选择前5个表进行示例训练
+                print(f"为表'{table}'创建训练示例...")
+
+                # 获取表的详细信息
+                df_columns = self.vn.run_sql(
+                    f"""
+                    SELECT 
+                        column_name, 
+                        column_type,
+                        column_comment
+                    FROM 
+                        information_schema.columns
+                    WHERE 
+                        table_schema = DATABASE()
+                        AND table_name = '{table}'
+                    ORDER BY 
+                        ordinal_position;
+                """
+                )
+
+                # 为每个通用示例创建表特定的训练对
+                for example in examples:
+                    # 替换表名占位符
+                    sql = example["sql"].format(table_name=table)
+                    # 创建特定于表的问题
+                    question = example["question"].replace("{table_name}", table)
+
+                    # 训练具体的问题-SQL对
+                    self.vn_train(question=question, sql=sql)
+                    total_added += 1
+
+                # 为该表创建一些字段特定的查询
+                if not df_columns.empty:
+                    # 选择前3个列作为示例
+                    sample_columns = df_columns['column_name'].tolist()[:3]
+                    for col in sample_columns:
+                        col_comment = df_columns[df_columns['column_name'] == col]['column_comment'].iloc[
+                            0] if 'column_comment' in df_columns.columns else ''
+                        if pd.notna(col_comment) and col_comment.strip():
+                            field_desc = col_comment
+                        else:
+                            field_desc = col
+
+                        # 创建字段特定的查询
+                        question = f"查询{table}表中{field_desc}为特定值的记录"
+                        sql = f"SELECT * FROM {table} WHERE {col} = '{{value}}' LIMIT 10;"
+                        self.vn_train(question=question, sql=sql)
+                        total_added += 1
+
+            print(f"成功添加了{total_added}个训练示例")
+
+        except Exception as e:
+            import traceback
+            print(f"批量添加训练示例时出错: {e}")
+            print(traceback.format_exc())
 
 
 def make_vanna_class(ChatClass=CustomChat):
@@ -451,35 +830,121 @@ if __name__ == '__main__':
     config = {"supplier": "GITEE"}
     server = VannaServer(config)
 
-#     server.vn_train(
-#         ddl="""
-#         CREATE TABLE `algorithm` (
-#   `id` int(11) NOT NULL AUTO_INCREMENT,
-#   `name` varchar(255) DEFAULT NULL COMMENT '算法名称',
-#   `type` tinyint(2) DEFAULT NULL COMMENT '类型',
-#   `identify_flag` varchar(255) DEFAULT NULL COMMENT '标识（与Java函数对应）',
-#   `remark` varchar(100) DEFAULT NULL COMMENT '备注',
-#   `crt_time` datetime DEFAULT NULL COMMENT '创建时间',
-#   `crt_user` varchar(255) DEFAULT NULL COMMENT '创建人',
-#   `crt_name` varchar(255) DEFAULT NULL COMMENT '创建人姓名',
-#   `crt_host` varchar(255) DEFAULT NULL COMMENT '创建主机',
-#   `upd_time` datetime DEFAULT NULL COMMENT '更新时间',
-#   `upd_user` varchar(255) DEFAULT NULL COMMENT '更新人',
-#   `upd_name` varchar(255) DEFAULT NULL COMMENT '更新姓名',
-#   `upd_host` varchar(255) DEFAULT NULL COMMENT '更新主机',
-#   `be_union` tinyint(4) DEFAULT NULL COMMENT '是否联合算法',
-#   PRIMARY KEY (`id`) USING BTREE
-# ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='算法表';
-#         """
-#     )
-
-    # server.vn_train(documentation='"累计值"是指报告期内最新的一条数据减最旧的一条数据')
-    # server.vn_train(sql='SELECT * FROM alarm WHERE imei = "BDA1220513100042";')
-    server.vn_train(
-        question="查询沉降算法的第一条数据",
-        sql="SELECT * FROM algorithm WHERE name = '沉降算法' LIMIT 1;"
-    )
-    # server.get_training_data()
+    # # 清理旧数据选项（默认不执行）
+    # clear_old_data = False
+    # if clear_old_data:
+    #     print("清理向量库中的旧数据...")
+    #     try:
+    #         # 获取所有集合
+    #         collections = server.vn.collection.list_collections()
+    #         for collection in collections:
+    #             # 删除集合
+    #             print(f"删除集合: {collection.name}")
+    #             server.vn.collection.delete_collection(name=collection.name)
+    #         print("已清理所有旧数据")
+    #     except Exception as e:
+    #         print(f"清理旧数据时出错: {e}")
+    #
+    # # 读取导出的SQL文件
+    # with open('bms.sql', 'r', encoding='utf-8') as f:
+    #     sql_content = f.read()
+    #
+    # # 将SQL内容按表划分
+    # import re
+    #
+    # # 使用更精确的正则表达式提取完整的表定义
+    # table_patterns = re.findall(r'(DROP TABLE IF EXISTS\s+`[^`]+`\s*;[\s\S]*?CREATE TABLE[\s\S]*?;)', sql_content)
+    #
+    # print(f"提取到{len(table_patterns)}个表定义")
+    #
+    # # 对每个表结构进行训练，使用新添加的方法检查是否重复
+    # total_trained = 0
+    # skipped = 0
+    # for i, table_ddl in enumerate(table_patterns):
+    #     if i < 5:  # 打印前5个表结构示例
+    #         print(f"处理第{i + 1}个表结构: {table_ddl[:100]}...")
+    #
+    #     # 使用新方法进行训练，该方法会检查是否已存在
+    #     if server.train_table_ddl(table_ddl):
+    #         total_trained += 1
+    #     else:
+    #         skipped += 1
+    #
+    # # 保存训练表记录
+    # server._save_trained_tables()
+    # print(f"总共处理了{len(table_patterns)}个表，训练了{total_trained}个，跳过了{skipped}个")
+    #
+    # # 验证训练数据存储情况
+    # try:
+    #     print("获取训练数据...")
+    #     training_data = server.get_training_data()
+    #
+    #     if isinstance(training_data, list):
+    #         print(f"训练后数据项数量: {len(training_data)}")
+    #
+    #         if training_data:
+    #             print(f"训练数据第一项: {training_data[0]}")
+    #     else:
+    #         print(f"训练数据类型: {type(training_data)}")
+    #
+    #     # 检查本地存储的训练对
+    #     if hasattr(server, '_trained_pairs') and server._trained_pairs:
+    #         print(f"本地存储的训练对: {len(server._trained_pairs)}")
+    #         print(f"示例: {server._trained_pairs[0] if server._trained_pairs else '无'}")
+    # except Exception as e:
+    #     print(f"获取训练数据时出错: {e}")
+    #     import traceback
+    #
+    #     print(traceback.format_exc())
+    #
+    # # 添加批量训练示例（可选，默认不执行）
+    # add_training_examples = True
+    # if add_training_examples:
+    #     try:
+    #         print("\n开始添加批量训练示例...")
+    #         server.bulk_train_examples()
+    #         print("批量训练示例添加完成")
+    #     except Exception as e:
+    #         print(f"添加批量训练示例出错: {e}")
+    #         import traceback
+    #
+    #         print(traceback.format_exc())
+    #
+    # # 最后执行schema训练
+    # print("开始执行schema训练...")
     # server.schema_train()
-    # 示例查询：
-    server.ask(question="查询沉降算法的第一条数据", strict_match=True)
+    # print("schema训练完成")
+    #
+    # # 检查向量库中的数据
+    # print("检查向量库中的数据...")
+    # server.check_vector_store()
+    # server.vn_train(
+    #     documentation="表split_table_info是一些拆表数据，每次查询时间需要来这个根据起始时间和结束时间并查询获取表名"
+    # )
+    #
+    # # 保存一个简单的示例SQL作为测试
+    # server.vn_train(
+    #     question="查询sys_file_info表的第一条记录",
+    #     sql="SELECT * FROM sys_file_info LIMIT 1;"
+    # )
+    #
+    # # 验证是否可以使用训练好的模型
+    # test_questions = [
+    #     "sys_file_info表有哪些字段？",
+    #     "file_name字段是什么含义？",
+    #     "查询sys_file_info表的第一条记录",
+    #     # "帮我查询设备号：BDA1220513100042的在上报类型描述数据,时间段为：2025-05-23 16:35:38,在表：packet_info_2025_11 中"
+    # ]
+    #
+    # print("\n测试向量库效果...")
+    # for question in test_questions:
+    #     print(f"\n问题: {question}")
+    #     try:
+    #         sql, df, _ = server.ask(question, visualize=False, strict_match=False)
+    #         print(f"生成的SQL: {sql}")
+    #         if not df.empty:
+    #             print(f"结果前5行:\n{df.head()}")
+    #     except Exception as e:
+    #         print(f"执行查询出错: {e}")
+
+    server.ask(question="预警表最新的一条数据", visualize=False, strict_match=False)

@@ -44,7 +44,7 @@ def ask(
         sql = vanna_instance.generate_sql(question=question, allow_llm_to_see_data=allow_llm_to_see_data)
     except Exception as e:
         print(e)
-        return None, None, None
+        return f"-- Error generating SQL: {str(e)}", pd.DataFrame(), None
 
     if print_results:
         try:
@@ -60,9 +60,9 @@ def ask(
         )
 
         if print_results:
-            return None
+            return sql, pd.DataFrame(), None
         else:
-            return sql, None, None
+            return sql, pd.DataFrame(), None
 
     try:
         df = vanna_instance.run_sql(sql)
@@ -77,6 +77,9 @@ def ask(
         if len(df) > 0 and auto_train:
             vanna_instance.add_question_sql(question=question, sql=sql)
 
+        # 初始化fig为None
+        fig = None
+        
         # Only generate plotly code if visualize is True
         if visualize:
             try:
@@ -98,7 +101,7 @@ def ask(
                 traceback.print_exc()
                 print("Couldn't run plotly code: ", e)
                 if print_results:
-                    return None
+                    return sql, df, None
                 else:
                     return sql, df, None
         else:
@@ -107,9 +110,11 @@ def ask(
     except Exception as e:
         print("Couldn't run sql: ", e)
         if print_results:
-            return None
+            return sql, pd.DataFrame(), None
         else:
-            return sql, None, None
+            return sql, pd.DataFrame(), None
+    
+    # 确保总是返回三元组
     return sql, df, fig
 
 
