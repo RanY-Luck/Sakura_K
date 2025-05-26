@@ -142,16 +142,11 @@ def vn_train_route():
 
 @app.route('/get_training_data', methods=['GET'])
 def get_training_data_route():
-    """
-    获取训练数据接口，返回模型当前的训练数据
-
-    Returns:
-        包含训练数据的JSON响应
-    """
+    """获取训练数据接口"""
     supplier = request.args.get('supplier', "")
     server = get_vn_instance(supplier)
 
-    @lru_cache(maxsize=128)  # 添加缓存机制，避免频繁重复请求
+    @lru_cache(maxsize=128)  # 添加缓存机制
     def cached_get_training_data():
         return server.get_training_data()
 
@@ -159,6 +154,7 @@ def get_training_data_route():
     logging.info("Fetched training data successfully")
 
     return jsonify(training_data), 200
+
 
 
 @app.route('/ask', methods=['POST'])
