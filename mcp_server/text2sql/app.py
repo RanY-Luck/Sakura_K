@@ -1,27 +1,18 @@
-# import base64
 import os
 import sys
-
 # 获取项目根目录路径
 project_root = os.path.abspath(os.path.dirname(__file__))
 # 将项目根目录添加到 sys.path
 sys.path.insert(0, project_root)
-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from siliconflow_api import SiliconflowEmbedding
 from vanna_text2sql import VannaServer
-import plotly.io as pio
-
 from functools import lru_cache
 from werkzeug.exceptions import BadRequest
-import logging
 from dotenv import load_dotenv
 
 # 加载环境变量文件
 load_dotenv()
-
-# 设置日志配置
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 创建Flask应用
 app = Flask(__name__)
@@ -32,6 +23,7 @@ class Config:
     """
     集中配置管理类，用于管理和提供应用程序的配置参数
     """
+
     def __init__(self, supplier):
         """
         初始化配置
@@ -126,7 +118,8 @@ def vn_train_route():
     # 验证至少有一个参数不为空
     if not any([question, sql, documentation, ddl, schema]):
         return jsonify(
-        {'error': 'At least one of the parameters (question, sql, documentation, ddl, schema) must be provided'}), 400
+            {'error': 'At least one of the parameters (question, sql, documentation, ddl, schema) must be provided'}
+        ), 400
 
     server = get_vn_instance(supplier)
     server.vn_train(question=question, sql=sql, documentation=documentation, ddl=ddl)
@@ -134,9 +127,8 @@ def vn_train_route():
         try:
             server.schema_train()
         except Exception as e:
-            logging.info(f"Error initializing vector store: {e}")
+            print(f"Error initializing vector store: {e}")
 
-    logging.info("Training completed successfully")
     return jsonify({'status': 'success'}), 200
 
 
@@ -151,10 +143,9 @@ def get_training_data_route():
         return server.get_training_data()
 
     training_data = cached_get_training_data()
-    logging.info("Fetched training data successfully")
+    print("Fetched training data successfully")
 
     return jsonify(training_data), 200
-
 
 
 @app.route('/ask', methods=['POST'])
@@ -184,42 +175,18 @@ def ask_route():
     try:
         # 调用Vanna服务处理问题
         sql, df, fig = server.ask(question=question, visualize=visualize, auto_train=auto_train)
-
         # 将DataFrame转换为JSON
         df_json = df.to_json(orient='records', force_ascii=False)
+        print("Query processed successfully")
 
-        # 将Plotly图表转换为JSON
-        # 注意：之前的base64编码方法会卡住，已禁用
-        # img_bytes = pio.to_image(fig, format="png", scale=2)
-        # img_base64 = base64.b64encode(img_bytes).decode('utf-8')
-        """
-        <img id="plotly-image" src="data:image/png;base64,{{ img_base64 }}" alt="Plotly Image">
-        """
-
-        # 将Plotly图表保存为JS文件，以便在前端展示
-        fig_js_path = '../output/html/vanna_fig.js'
-        fig_html_path = 'http://localhost:5000/html/vanna_fig.html'
-        figure_json = pio.to_json(fig)
-        with open(fig_js_path, 'w', encoding='utf-8') as f:
-            f.write(figure_json)
-        """
-          <div id="plotly-div"></div>
-          <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-          <script>
-              var fig_json = {{ fig_json }};
-              Plotly.newPlot('plotly-div', fig_json.data, fig_json.layout);
-          </script>
-        """
-
-        logging.info("Query processed successfully")
-        return jsonify({
-            'sql': sql,
-            'data': df_json,
-            # 'img_base64': img_base64,
-            'plotly_figure': fig_html_path
-        }), 200
+        return jsonify(
+            {
+                'sql': sql,
+                'data': df_json,
+            }
+        ), 200
     except Exception as e:
-        logging.error(f"Error processing request: {e}")
+        print(f"Error processing request: {e}")
         return jsonify({'error': str(e)}), 500
 
 
