@@ -40,3 +40,4 @@ vf_admin
 .venv
 mcp_server/output
 mcp_server/storage
+mcp_server/text2sql/bms.sql
