@@ -1,9 +1,5 @@
 import os
 import sys
-# 获取项目根目录路径
-project_root = os.path.abspath(os.path.dirname(__file__))
-# 将项目根目录添加到 sys.path
-sys.path.insert(0, project_root)
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from siliconflow_api import SiliconflowEmbedding
 from vanna_text2sql import VannaServer
@@ -11,9 +7,18 @@ from functools import lru_cache
 from werkzeug.exceptions import BadRequest
 from dotenv import load_dotenv
 
+# 获取当前环境，默认为 'dev'
+ENV = os.getenv("ENV", "dev")
+
+# 根据环境加载对应的环境变量文件
+env_file = f".env.{ENV}"
+print(f"Loading environment from {env_file}")
 # 加载环境变量文件
 load_dotenv()
-
+# 获取项目根目录路径
+project_root = os.path.abspath(os.path.dirname(__file__))
+# 将项目根目录添加到 sys.path
+sys.path.insert(0, project_root)
 # 创建Flask应用
 app = Flask(__name__)
 
@@ -41,11 +46,11 @@ class Config:
         self.supplier = supplier
         # MySQL数据库配置
         self.mysql_config = {
-            "host": os.getenv("DB_HOST"),
-            "dbname": os.getenv("DB_NAME"),
-            "user": os.getenv("DB_USER"),
-            "password": os.getenv("DB_PASSWORD"),
-            "port": int(os.getenv("DB_PORT"))
+            "host": os.getenv("DB_HOST1"),
+            "dbname": os.getenv("DB_NAME1"),
+            "user": os.getenv("DB_USER1"),
+            "password": os.getenv("DB_PASSWORD1"),
+            "port": int(os.getenv("DB_PORT1"))
         }
 
 
@@ -192,4 +197,4 @@ def ask_route():
 
 if __name__ == '__main__':
     # 启动Flask应用，监听所有网络接口的5000端口
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=os.getenv("TEXT2SQL_API_PORT"))
