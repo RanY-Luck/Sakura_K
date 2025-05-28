@@ -41,6 +41,7 @@ controller_tags_mapping = {
     'serverManageController': ['服务器管理'],
     'homeRouter': ['产品官网'],
     'pluginController': ['插件管理'],
+    'text2sqlController': ['文本转SQL'],
 }
 
 app_controllers = [
