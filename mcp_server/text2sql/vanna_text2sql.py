@@ -4,9 +4,9 @@ import plotly.io as pio
 import json
 import hashlib
 from chromadb import EmbeddingFunction, Documents, Embeddings
-from rewrite_ask import ask
-from siliconflow_api import SiliconflowEmbedding
-from custom_chat import CustomChat
+from mcp_server.text2sql.rewrite_ask import ask
+from mcp_server.text2sql.siliconflow_api import SiliconflowEmbedding
+from mcp_server.text2sql.custom_chat import CustomChat
 from vanna.chromadb import ChromaDB_VectorStore
 from dotenv import load_dotenv
 import pandas as pd
@@ -113,7 +113,7 @@ class VannaServer:
         EmbeddingClass = config["EmbeddingClass"] if "EmbeddingClass" in config else SiliconflowEmbedding
         ChatClass = config["ChatClass"] if "ChatClass" in config else CustomChat
         host = config["host"] if "host" in config else os.getenv("DB_HOST")
-        dbname = config["db_name"] if "db_name" in config else os.getenv("DB_NAME")
+        dbname = config["database"] if "database" in config else (config["db_name"] if "db_name" in config else os.getenv("DB_NAME"))
         user = config["user"] if "user" in config else os.getenv("DB_USER")
         password = config["password"] if "password" in config else os.getenv("DB_PASSWORD")
         port = config["port"] if "port" in config else int(os.getenv("DB_PORT"))
@@ -135,7 +135,14 @@ class VannaServer:
         vn = MyVanna(config)
 
         # 连接到 MySQL 数据库
-        vn.connect_to_mysql(host=host, dbname=dbname, user=user, password=password, port=port)
+        print(f"连接到MySQL数据库: host={host}, database={dbname}, user={user}, port={port}")
+        try:
+            # 尝试使用 database 参数
+            vn.connect_to_mysql(host=host, database=dbname, user=user, password=password, port=port)
+        except TypeError:
+            # 如果失败，尝试使用 dbname 参数
+            print("使用 database 参数连接失败，尝试使用 dbname 参数")
+            vn.connect_to_mysql(host=host, dbname=dbname, user=user, password=password, port=port)
 
         # 复制图表 HTML 文件
         self._copy_fig_html()
