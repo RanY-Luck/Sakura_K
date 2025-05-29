@@ -1,7 +1,7 @@
+import requests
 from types import SimpleNamespace
 from typing import Any, Union, List
 
-import requests
 
 
 def convert_to_namespace(obj: Any) -> Any:
@@ -132,6 +132,7 @@ class SiliconflowEmbedding:
             response.raise_for_status()
             return convert_to_namespace(response.json())
 
+
 # 使用示例
 if __name__ == "__main__":
     # 初始化客户端
@@ -149,5 +150,4 @@ if __name__ == "__main__":
         max_tokens=512,
         temperature=0.7
     )
-
     print(response)

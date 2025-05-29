@@ -1,20 +1,15 @@
 import os
-import shutil
-import plotly.io as pio
+import pandas as pd
 import json
 import hashlib
 from chromadb import EmbeddingFunction, Documents, Embeddings
-from mcp_server.text2sql.rewrite_ask import ask
-from mcp_server.text2sql.siliconflow_api import SiliconflowEmbedding
-from mcp_server.text2sql.custom_chat import CustomChat
+from rewrite_ask import ask
+from siliconflow_api import SiliconflowEmbedding
+from custom_chat import CustomChat
 from vanna.chromadb import ChromaDB_VectorStore
 from dotenv import load_dotenv
-import pandas as pd
 
-# 加载环境变量
 load_dotenv()
-# 设置显示后端为浏览器
-pio.renderers.default = 'browser'
 
 
 class CustomEmbeddingFunction(EmbeddingFunction[Documents]):
@@ -104,55 +99,50 @@ class VannaServer:
             初始化好的 Vanna 实例
         """
         config = self.config
-        # 获取各种配置参数，如果未提供则使用默认值或环境变量
         supplier = config["supplier"]
         embedding_supplier = config["embedding_supplier"] if "embedding_supplier" in config else "SiliconFlow"
-        vector_db_path = config["vector_db_path"] if "vector_db_path" in config else os.getenv(
-            "VECTOR_DB_PATH"
-        )
+        # 修复：为 vector_db_path 提供默认值
+        vector_db_path = config["vector_db_path"] if "vector_db_path" in config else os.getenv("VECTOR_DB_PATH")
         EmbeddingClass = config["EmbeddingClass"] if "EmbeddingClass" in config else SiliconflowEmbedding
         ChatClass = config["ChatClass"] if "ChatClass" in config else CustomChat
-        host = config["host"] if "host" in config else os.getenv("DB_HOST")
-        dbname = config["database"] if "database" in config else (config["db_name"] if "db_name" in config else os.getenv("DB_NAME"))
-        user = config["user"] if "user" in config else os.getenv("DB_USER")
-        password = config["password"] if "password" in config else os.getenv("DB_PASSWORD")
-        port = config["port"] if "port" in config else int(os.getenv("DB_PORT"))
+        host = config["host"] if "host" in config else os.getenv("DB_HOST1")
+        dbname = config["db_name"] if "db_name" in config else os.getenv("DB_NAME1")
+        user = config["user"] if "user" in config else os.getenv("DB_USER1")
+        password = config["password"] if "password" in config else os.getenv("DB_PASSWORD1")
+        port = config["port"] if "port" in config else int(os.getenv("DB_PORT1"))
 
         # 创建向量数据库存储目录
         os.makedirs(vector_db_path, exist_ok=True)
 
         # 配置嵌入功能
-        config = {"api_key": os.getenv(f"{embedding_supplier}_EMBEDDING_API_KEY"),
-                  "model": os.getenv(f"{embedding_supplier}_EMBEDDING_MODEL"), "embedding_client": EmbeddingClass}
+        embedding_config = {
+            "api_key": os.getenv(f"{embedding_supplier}_EMBEDDING_API_KEY"),
+            "model": os.getenv(f"{embedding_supplier}_EMBEDDING_MODEL"),
+            "embedding_client": EmbeddingClass
+        }
 
         # 配置 Vanna 实例
-        config = {"api_key": os.getenv(f"{supplier}_API_KEY"), "model": os.getenv(f"{supplier}_CHAT_MODEL"),
-                  "api_base": os.getenv(f"{supplier}_API_BASE"),
-                  "path": vector_db_path, "embedding_function": CustomEmbeddingFunction(config)}
+        vanna_config = {
+            "api_key": os.getenv(f"{supplier}_API_KEY"),
+            "model": os.getenv(f"{supplier}_CHAT_MODEL"),
+            "api_base": os.getenv(f"{supplier}_API_BASE"),
+            "path": vector_db_path,
+            "embedding_function": CustomEmbeddingFunction(embedding_config)
+        }
 
         # 创建自定义 Vanna 类并实例化
         MyVanna = make_vanna_class(ChatClass=ChatClass)
-        vn = MyVanna(config)
+        vn = MyVanna(vanna_config)
 
         # 连接到 MySQL 数据库
-        print(f"连接到MySQL数据库: host={host}, database={dbname}, user={user}, port={port}")
-        try:
-            # 尝试使用 database 参数
-            vn.connect_to_mysql(host=host, database=dbname, user=user, password=password, port=port)
-        except TypeError:
-            # 如果失败，尝试使用 dbname 参数
-            print("使用 database 参数连接失败，尝试使用 dbname 参数")
-            vn.connect_to_mysql(host=host, dbname=dbname, user=user, password=password, port=port)
-
-        # 复制图表 HTML 文件
-        self._copy_fig_html()
+        vn.connect_to_mysql(host=host, dbname=dbname, user=user, password=password, port=port)
 
         return vn
 
     def _load_trained_tables(self):
         """
         加载已训练表记录
-        
+
         Returns:
             已训练表的记录字典
         """
@@ -169,7 +159,7 @@ class VannaServer:
     def _load_trained_docs(self):
         """
         加载已训练文档记录
-        
+
         Returns:
             已训练文档的记录字典
         """
@@ -212,7 +202,7 @@ class VannaServer:
     def _get_trained_tables_path(self):
         """
         获取已训练表记录文件路径
-        
+
         Returns:
             文件路径
         """
@@ -222,7 +212,7 @@ class VannaServer:
     def _get_trained_docs_path(self):
         """
         获取已训练文档记录文件路径
-        
+
         Returns:
             文件路径
         """
@@ -232,10 +222,10 @@ class VannaServer:
     def _table_hash(self, table_ddl):
         """
         计算表DDL的哈希值，用于判断表结构是否变化
-        
+
         Args:
             table_ddl: 表DDL语句
-            
+
         Returns:
             哈希字符串
         """
@@ -247,10 +237,10 @@ class VannaServer:
     def _doc_hash(self, documentation):
         """
         计算文档的哈希值，用于判断文档内容是否变化
-        
+
         Args:
             documentation: 文档内容
-            
+
         Returns:
             哈希字符串
         """
@@ -262,11 +252,11 @@ class VannaServer:
     def train_table_ddl(self, table_ddl, force_retrain=False):
         """
         训练表DDL，会检查表是否已存在，避免重复训练
-        
+
         Args:
             table_ddl: 表DDL语句
             force_retrain: 是否强制重新训练
-            
+
         Returns:
             是否进行了训练
         """
@@ -310,34 +300,6 @@ class VannaServer:
             print(f"训练表 '{table_name}' 出错: {e}")
             print(traceback.format_exc())
             return False
-
-    def _copy_fig_html(self):
-        """
-        复制图表 HTML 文件 到输出目录，用于在浏览器中显示可视化结果
-        """
-        source_path = 'fig.html'
-        target_dir = '../output/html'
-        target_path = os.path.join(target_dir, 'vanna_fig.html')
-
-        # 检查目标文件是否存在
-        if os.path.exists(target_path):
-            print(f"Target file {target_path} already exists. Skipping copy.")
-            return
-
-        # 确保源文件存在
-        if not os.path.exists(source_path):
-            print(f"Source file {source_path} does not exist.")
-            return
-
-        # 创建目标目录（如果不存在）
-        os.makedirs(target_dir, exist_ok=True)
-
-        # 复制文件
-        try:
-            shutil.copy(source_path, target_path)
-            print(f"Successfully copied {source_path} to {target_path}")
-        except Exception as e:
-            print(f"Failed to copy {source_path} to {target_path}: {e}")
 
     def schema_train(self):
         """
@@ -611,7 +573,7 @@ class VannaServer:
     def check_vector_store(self):
         """
         检查向量库中存储的数据情况
-        
+
         Returns:
             向量库中存储的数据统计信息
         """
@@ -635,7 +597,6 @@ class VannaServer:
                         print(f"集合 '{collection.name}' 样本: {sample}")
                     except:
                         print(f"无法获取集合 '{collection.name}' 的样本数据")
-
             return stats
         except Exception as e:
             import traceback

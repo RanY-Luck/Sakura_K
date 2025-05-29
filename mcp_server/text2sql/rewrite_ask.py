@@ -1,9 +1,9 @@
+import io
 import traceback
-from typing import Union, Tuple
 import pandas as pd
 import plotly
+from typing import Union, Tuple
 from PIL import Image as PILImage
-import io
 
 
 def ask(
