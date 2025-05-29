@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import json
+import traceback
 import hashlib
 from chromadb import EmbeddingFunction, Documents, Embeddings
 from rewrite_ask import ask
@@ -8,8 +9,39 @@ from siliconflow_api import SiliconflowEmbedding
 from custom_chat import CustomChat
 from vanna.chromadb import ChromaDB_VectorStore
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+
+def load_env_file():
+    """
+    加载环境变量文件，优先加载.env.dev文件
+    如果存在APP_ENV环境变量，则加载对应的环境文件
+    """
+    # 获取运行环境变量
+    app_env = os.environ.get('APP_ENV', 'dev')
+
+    # 确定环境文件路径
+    env_files = [
+        f".env.{app_env}",  # 优先加载指定环境
+        ".env.dev"  # 其次加载开发环境
+    ]
+
+    # 获取项目根目录
+    project_root = Path(__file__).parent.parent.parent.absolute()
+
+    # 尝试加载环境文件
+    for env_file in env_files:
+        env_path = project_root / env_file
+        if env_path.exists():
+            print(f"加载环境文件: {env_path}")
+            load_dotenv(dotenv_path=str(env_path))
+            return
+
+    print("警告: 未找到任何环境文件，使用默认环境变量")
+
+
+# 加载环境变量
+load_env_file()
 
 
 class CustomEmbeddingFunction(EmbeddingFunction[Documents]):
@@ -77,14 +109,15 @@ class VannaServer:
     负责初始化 Vanna 实例、连接数据库、训练模型和处理问题。
     """
 
-    def __init__(self, config):
+    def __init__(self, config=None):
         """
         初始化 VannaServer 实例
 
         Args:
             config: 包含各种配置参数的字典，如供应商、嵌入模型、数据库连接信息等
         """
-        self.config = config
+        # 确保配置存在
+        self.config = config or {}
         self.vn = self._initialize_vn()
         # 初始化已训练表的记录
         self.trained_tables = self._load_trained_tables()
@@ -99,17 +132,25 @@ class VannaServer:
             初始化好的 Vanna 实例
         """
         config = self.config
-        supplier = config["supplier"]
-        embedding_supplier = config["embedding_supplier"] if "embedding_supplier" in config else "SiliconFlow"
-        # 修复：为 vector_db_path 提供默认值
-        vector_db_path = config["vector_db_path"] if "vector_db_path" in config else os.getenv("VECTOR_DB_PATH")
-        EmbeddingClass = config["EmbeddingClass"] if "EmbeddingClass" in config else SiliconflowEmbedding
-        ChatClass = config["ChatClass"] if "ChatClass" in config else CustomChat
-        host = config["host"] if "host" in config else os.getenv("DB_HOST1")
-        dbname = config["db_name"] if "db_name" in config else os.getenv("DB_NAME1")
-        user = config["user"] if "user" in config else os.getenv("DB_USER1")
-        password = config["password"] if "password" in config else os.getenv("DB_PASSWORD1")
-        port = config["port"] if "port" in config else int(os.getenv("DB_PORT1"))
+        # 从配置或环境变量获取参数
+        supplier = config.get("supplier", os.getenv("TEXT2SQL_SUPPLIER", "GITEE"))
+        embedding_supplier = config.get("embedding_supplier", os.getenv("TEXT2SQL_EMBEDDING_SUPPLIER", "SiliconFlow"))
+        vector_db_path = config.get("vector_db_path", os.getenv("VECTOR_DB_PATH", "vector_db"))
+
+        # 确保向量存储路径是绝对路径
+        if not os.path.isabs(vector_db_path):
+            vector_db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), vector_db_path)
+
+        # 配置类
+        EmbeddingClass = config.get("EmbeddingClass", SiliconflowEmbedding)
+        ChatClass = config.get("ChatClass", CustomChat)
+
+        # 数据库配置
+        host = config.get("host", os.getenv("DB_HOST1"))
+        dbname = config.get("db_name", os.getenv("DB_NAME1"))
+        user = config.get("user", os.getenv("DB_USER1"))
+        password = config.get("password", os.getenv("DB_PASSWORD1"))
+        port = config.get("port", int(os.getenv("DB_PORT1", "3306")))
 
         # 创建向量数据库存储目录
         os.makedirs(vector_db_path, exist_ok=True)
@@ -135,7 +176,10 @@ class VannaServer:
         vn = MyVanna(vanna_config)
 
         # 连接到 MySQL 数据库
-        vn.connect_to_mysql(host=host, dbname=dbname, user=user, password=password, port=port)
+        if all([host, dbname, user, password]):
+            vn.connect_to_mysql(host=host, dbname=dbname, user=user, password=password, port=port)
+        else:
+            print("警告: 数据库连接信息不完整，请检查环境变量或配置")
 
         return vn
 
@@ -206,7 +250,16 @@ class VannaServer:
         Returns:
             文件路径
         """
-        vector_db_path = self.config.get("vector_db_path", os.getenv("VECTOR_DB_PATH", "./vector_db"))
+        # 获取向量数据库路径
+        vector_db_path = self.config.get("vector_db_path", os.getenv("VECTOR_DB_PATH", "vector_db"))
+
+        # 确保路径是绝对路径
+        if not os.path.isabs(vector_db_path):
+            vector_db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), vector_db_path)
+
+        # 确保目录存在
+        os.makedirs(vector_db_path, exist_ok=True)
+
         return os.path.join(vector_db_path, "trained_tables.json")
 
     def _get_trained_docs_path(self):
@@ -216,7 +269,16 @@ class VannaServer:
         Returns:
             文件路径
         """
-        vector_db_path = self.config.get("vector_db_path", os.getenv("VECTOR_DB_PATH", "./vector_db"))
+        # 获取向量数据库路径
+        vector_db_path = self.config.get("vector_db_path", os.getenv("VECTOR_DB_PATH", "vector_db"))
+
+        # 确保路径是绝对路径
+        if not os.path.isabs(vector_db_path):
+            vector_db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), vector_db_path)
+
+        # 确保目录存在
+        os.makedirs(vector_db_path, exist_ok=True)
+
         return os.path.join(vector_db_path, "trained_docs.json")
 
     def _table_hash(self, table_ddl):
@@ -794,125 +856,144 @@ def make_vanna_class(ChatClass=CustomChat):
 
 # 使用示例
 if __name__ == '__main__':
-    # 创建 VannaServer 实例，使用 GITEE 作为提供商
-    config = {"supplier": "GITEE"}
-    server = VannaServer(config)
+    try:
+        # 创建 VannaServer 实例，使用环境变量配置
+        config = {}
+        # 如果需要指定供应商，可以通过配置或环境变量设置
+        supplier = "GITEE"
+        if supplier:
+            config["supplier"] = supplier
 
-    # # 清理旧数据选项（默认不执行）
-    # clear_old_data = False
-    # if clear_old_data:
-    #     print("清理向量库中的旧数据...")
-    #     try:
-    #         # 获取所有集合
-    #         collections = server.vn.collection.list_collections()
-    #         for collection in collections:
-    #             # 删除集合
-    #             print(f"删除集合: {collection.name}")
-    #             server.vn.collection.delete_collection(name=collection.name)
-    #         print("已清理所有旧数据")
-    #     except Exception as e:
-    #         print(f"清理旧数据时出错: {e}")
-    #
-    # # 读取导出的SQL文件
-    # with open('bms.sql', 'r', encoding='utf-8') as f:
-    #     sql_content = f.read()
-    #
-    # # 将SQL内容按表划分
-    # import re
-    #
-    # # 使用更精确的正则表达式提取完整的表定义
-    # table_patterns = re.findall(r'(DROP TABLE IF EXISTS\s+`[^`]+`\s*;[\s\S]*?CREATE TABLE[\s\S]*?;)', sql_content)
-    #
-    # print(f"提取到{len(table_patterns)}个表定义")
-    #
-    # # 对每个表结构进行训练，使用新添加的方法检查是否重复
-    # total_trained = 0
-    # skipped = 0
-    # for i, table_ddl in enumerate(table_patterns):
-    #     if i < 5:  # 打印前5个表结构示例
-    #         print(f"处理第{i + 1}个表结构: {table_ddl[:100]}...")
-    #
-    #     # 使用新方法进行训练，该方法会检查是否已存在
-    #     if server.train_table_ddl(table_ddl):
-    #         total_trained += 1
-    #     else:
-    #         skipped += 1
-    #
-    # # 保存训练表记录
-    # server._save_trained_tables()
-    # print(f"总共处理了{len(table_patterns)}个表，训练了{total_trained}个，跳过了{skipped}个")
-    #
-    # # 验证训练数据存储情况
-    # try:
-    #     print("获取训练数据...")
-    #     training_data = server.get_training_data()
-    #
-    #     if isinstance(training_data, list):
-    #         print(f"训练后数据项数量: {len(training_data)}")
-    #
-    #         if training_data:
-    #             print(f"训练数据第一项: {training_data[0]}")
-    #     else:
-    #         print(f"训练数据类型: {type(training_data)}")
-    #
-    #     # 检查本地存储的训练对
-    #     if hasattr(server, '_trained_pairs') and server._trained_pairs:
-    #         print(f"本地存储的训练对: {len(server._trained_pairs)}")
-    #         print(f"示例: {server._trained_pairs[0] if server._trained_pairs else '无'}")
-    # except Exception as e:
-    #     print(f"获取训练数据时出错: {e}")
-    #     import traceback
-    #
-    #     print(traceback.format_exc())
-    #
-    # # 添加批量训练示例（可选，默认不执行）
-    # add_training_examples = True
-    # if add_training_examples:
-    #     try:
-    #         print("\n开始添加批量训练示例...")
-    #         server.bulk_train_examples()
-    #         print("批量训练示例添加完成")
-    #     except Exception as e:
-    #         print(f"添加批量训练示例出错: {e}")
-    #         import traceback
-    #
-    #         print(traceback.format_exc())
-    #
-    # # 最后执行schema训练
-    # print("开始执行schema训练...")
-    # server.schema_train()
-    # print("schema训练完成")
-    #
-    # # 检查向量库中的数据
-    # print("检查向量库中的数据...")
-    # server.check_vector_store()
-    # server.vn_train(
-    #     documentation="表split_table_info是一些拆表数据，每次查询时间需要来这个根据起始时间和结束时间并查询获取表名"
-    # )
-    #
-    # # 保存一个简单的示例SQL作为测试
-    # server.vn_train(
-    #     question="查询sys_file_info表的第一条记录",
-    #     sql="SELECT * FROM sys_file_info LIMIT 1;"
-    # )
-    #
-    # # 验证是否可以使用训练好的模型
-    # test_questions = [
-    #     "sys_file_info表有哪些字段？",
-    #     "file_name字段是什么含义？",
-    #     "查询sys_file_info表的第一条记录",
-    #     # "帮我查询设备号：BDA1220513100042的在上报类型描述数据,时间段为：2025-05-23 16:35:38,在表：packet_info_2025_11 中"
-    # ]
-    #
-    # print("\n测试向量库效果...")
-    # for question in test_questions:
-    #     print(f"\n问题: {question}")
-    #     try:
-    #         sql, df, _ = server.ask(question, visualize=False, strict_match=False)
-    #         print(f"生成的SQL: {sql}")
-    #         if not df.empty:
-    #             print(f"结果前5行:\n{df.head()}")
-    #     except Exception as e:
-    #         print(f"执行查询出错: {e}")
+        print(f"初始化 VannaServer，使用配置: {config}")
+        server = VannaServer(config)
 
-    server.ask(question="预警表最新的一条数据", visualize=False, strict_match=False)
+        # # 示例：测试查询
+        # test_questions = [
+        #     "预警表最新的一条数据"
+        # ]
+        #
+        # print("\n测试向量库效果...")
+        # for question in test_questions:
+        #     print(f"\n问题: {question}")
+        #     try:
+        #         sql, df, _ = server.ask(question, visualize=False, strict_match=False)
+        #         print(f"生成的SQL: {sql}")
+        #         if not df.empty:
+        #             print(f"结果前5行:\n{df.head()}")
+        #         else:
+        #             print("查询结果为空")
+        #     except Exception as e:
+        #         import traceback
+        #         print(f"执行查询出错: {e}")
+        #         print(traceback.format_exc())
+
+        # 清理旧数据选项（默认不执行）
+        clear_old_data = False
+        if clear_old_data:
+            print("清理向量库中的旧数据...")
+            try:
+                # 获取所有集合
+                collections = server.vn.collection.list_collections()
+                for collection in collections:
+                    # 删除集合
+                    print(f"删除集合: {collection.name}")
+                    server.vn.collection.delete_collection(name=collection.name)
+                print("已清理所有旧数据")
+            except Exception as e:
+                print(f"清理旧数据时出错: {e}")
+
+        # 读取导出的SQL文件
+        with open('bms.sql', 'r', encoding='utf-8') as f:
+            sql_content = f.read()
+
+        # 将SQL内容按表划分
+        import re
+
+        # 使用更精确的正则表达式提取完整的表定义
+        table_patterns = re.findall(r'(DROP TABLE IF EXISTS\s+`[^`]+`\s*;[\s\S]*?CREATE TABLE[\s\S]*?;)', sql_content)
+
+        print(f"提取到{len(table_patterns)}个表定义")
+
+        # 对每个表结构进行训练，使用新添加的方法检查是否重复
+        total_trained = 0
+        skipped = 0
+        for i, table_ddl in enumerate(table_patterns):
+            if i < 5:  # 打印前5个表结构示例
+                print(f"处理第{i + 1}个表结构: {table_ddl[:100]}...")
+
+            # 使用新方法进行训练，该方法会检查是否已存在
+            if server.train_table_ddl(table_ddl):
+                total_trained += 1
+            else:
+                skipped += 1
+
+        # 保存训练表记录
+        server._save_trained_tables()
+        print(f"总共处理了{len(table_patterns)}个表，训练了{total_trained}个，跳过了{skipped}个")
+
+        # 验证训练数据存储情况
+        try:
+            print("获取训练数据...")
+            training_data = server.get_training_data()
+
+            if isinstance(training_data, list):
+                print(f"训练后数据项数量: {len(training_data)}")
+                if training_data:
+                    print(f"训练数据第一项: {training_data[0]}")
+            else:
+                print(f"训练数据类型: {type(training_data)}")
+            # 检查本地存储的训练对
+            if hasattr(server, '_trained_pairs') and server._trained_pairs:
+                print(f"本地存储的训练对: {len(server._trained_pairs)}")
+                print(f"示例: {server._trained_pairs[0] if server._trained_pairs else '无'}")
+        except Exception as e:
+            print(f"获取训练数据时出错: {e}")
+            print(traceback.format_exc())
+
+        # 添加批量训练示例（可选，默认不执行）
+        add_training_examples = True
+        if add_training_examples:
+            try:
+                print("\n开始添加批量训练示例...")
+                server.bulk_train_examples()
+                print("批量训练示例添加完成")
+            except Exception as e:
+                print(f"添加批量训练示例出错: {e}")
+                print(traceback.format_exc())
+        # 最后执行schema训练
+        print("开始执行schema训练...")
+        server.schema_train()
+        print("schema训练完成")
+
+        # 检查向量库中的数据
+        print("检查向量库中的数据...")
+        server.check_vector_store()
+        server.vn_train(
+            documentation="表split_table_info是一些拆表数据，每次查询时间需要来这个根据起始时间和结束时间并查询获取表名"
+        )
+        # 保存一个简单的示例SQL作为测试
+        server.vn_train(
+            question="查询sys_file_info表的第一条记录",
+            sql="SELECT * FROM sys_file_info LIMIT 1;"
+        )
+        # 验证是否可以使用训练好的模型
+        test_questions = [
+            "sys_file_info表有哪些字段？",
+            "file_name字段是什么含义？",
+            "查询sys_file_info表的第一条记录",
+            # "帮我查询设备号：BDA1220513100042的在上报类型描述数据,时间段为：2025-05-23 16:35:38,在表：packet_info_2025_11 中"
+        ]
+        print("\n测试向量库效果...")
+        for question in test_questions:
+            print(f"\n问题: {question}")
+            try:
+                sql, df, _ = server.ask(question, visualize=False, strict_match=False)
+                print(f"生成的SQL: {sql}")
+                if not df.empty:
+                    print(f"结果前5行:\n{df.head()}")
+            except Exception as e:
+                print(f"执行查询出错: {e}")
+        server.ask(question="预警表最新的一条数据", visualize=False, strict_match=False)
+    except Exception as e:
+        print(f"程序执行出错: {e}")
+        print(traceback.format_exc())
