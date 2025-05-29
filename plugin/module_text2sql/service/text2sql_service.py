@@ -7,9 +7,15 @@
 # @Software: PyCharm
 # @desc    : 文本转SQL服务层
 import os
+import sys
 from typing import Dict, List, Any
 from utils.log_util import logger
 from mcp_server.text2sql.vanna_text2sql import VannaServer
+from mcp_server.text2sql.siliconflow_api import SiliconflowEmbedding
+from plugin.module_text2sql.config import Text2SqlConfig
+
+# 添加父级目录到Python路径，确保能够导入text2sql模块和配置
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
 
 class Text2SqlService:
@@ -30,38 +36,19 @@ class Text2SqlService:
             VannaServer实例
         """
         if not supplier:
-            supplier = os.getenv("SUPPLIER", "GITEE")
+            supplier = Text2SqlConfig.DEFAULT_SUPPLIER
 
         if supplier not in cls._vn_instances:
             logger.info(f"创建新的VannaServer实例，提供商: {supplier}")
             try:
-                # 获取数据库配置
-                db_host = os.getenv("DB_HOST1")
-                db_name = os.getenv("DB_NAME1")
-                db_user = os.getenv("DB_USER1")
-                db_password = os.getenv("DB_PASSWORD1")
-                db_port = os.getenv("DB_PORT1")
-
-                # 记录数据库连接信息
-                logger.info(f"数据库连接参数: host={db_host}, database={db_name}, user={db_user}, port={db_port}")
-
-                # 构建配置，包含多种参数命名方式以确保兼容性
-                config = {
-                    "supplier": supplier,
-                    "embedding_supplier": "SiliconFlow",
-                    "vector_db_path": os.getenv("VECTOR_DB_PATH"),
-                    "host": db_host,
-                    "database": db_name,  # 新版参数名
-                    "db_name": db_name,  # 旧版参数名
-                    "dbname": db_name,  # 另一种可能的参数名
-                    "user": db_user,
-                    "password": db_password,
-                    "port": int(db_port)  # 确保端口是整数
-                }
+                # 获取配置
+                config = Text2SqlConfig.get_vanna_config(supplier)
+                config["EmbeddingClass"] = SiliconflowEmbedding  # 添加嵌入类
 
                 # 创建VannaServer实例
                 cls._vn_instances[supplier] = VannaServer(config)
                 logger.info(f"VannaServer实例创建成功: {supplier}")
+
             except Exception as e:
                 logger.error(f"创建VannaServer实例失败: {str(e)}")
                 raise Exception(f"初始化Text2SQL服务失败: {str(e)}")
@@ -150,7 +137,6 @@ class Text2SqlService:
     async def ask_service(
             cls,
             question: str,
-            visualize: bool = True,
             auto_train: bool = True,
             supplier: str = ""
     ) -> Dict[str, Any]:
@@ -159,7 +145,6 @@ class Text2SqlService:
         
         Args:
             question: 自然语言问题
-            visualize: 是否生成可视化
             auto_train: 是否自动训练成功的查询
             supplier: AI服务提供商
             
@@ -177,7 +162,6 @@ class Text2SqlService:
             logger.info(f"处理问题: {question}")
             sql, df, fig = server.ask(
                 question=question,
-                visualize=visualize,
                 auto_train=auto_train
             )
 
@@ -189,11 +173,6 @@ class Text2SqlService:
                 'sql': sql,
                 'data': df_json
             }
-
-            # 如果生成了可视化，添加到结果中
-            if fig:
-                # 可以在这里处理图表，例如保存为HTML或转换为base64
-                pass
 
             logger.info(f"问题处理成功: {question}")
             return result

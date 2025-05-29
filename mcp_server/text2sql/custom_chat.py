@@ -6,8 +6,8 @@
 # @Software : PyCharm
 # @Desc     : 重组Vanna聊天，适配多种模型
 import re
-from typing import List
 import pandas as pd
+from typing import List
 from vanna.base import VannaBase
 from openai import OpenAI
 

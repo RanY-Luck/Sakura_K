@@ -9,12 +9,11 @@ from dotenv import load_dotenv
 
 # 获取当前环境，默认为 'dev'
 ENV = os.getenv("ENV", "dev")
-
 # 根据环境加载对应的环境变量文件
 env_file = f".env.{ENV}"
 print(f"Loading environment from {env_file}")
 # 加载环境变量文件
-load_dotenv()
+load_dotenv(env_file)
 # 获取项目根目录路径
 project_root = os.path.abspath(os.path.dirname(__file__))
 # 将项目根目录添加到 sys.path
@@ -40,11 +39,14 @@ class Config:
         self.embedding_supplier = "SiliconFlow"
         # 嵌入类，用于将文本转换为向量
         self.EmbeddingClass = SiliconflowEmbedding
-        # 向量数据库路径
-        self.vector_db_path = os.getenv("VECTOR_DB_PATH")
+
+        # 向量数据库路径 - 提供默认值
+        self.vector_db_path = os.getenv("VECTOR_DB_PATH") or os.path.join(os.path.dirname(__file__), "vector_db")
+
         # AI服务提供商
         self.supplier = supplier
-        # MySQL数据库配置
+
+        # MySQL数据库配置 - 为所有字段提供默认值
         self.mysql_config = {
             "host": os.getenv("DB_HOST1"),
             "dbname": os.getenv("DB_NAME1"),
