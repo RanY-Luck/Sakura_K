@@ -20,7 +20,7 @@ class TrainRequest(BaseModel):
     sql: str = ""
     documentation: str = ""
     ddl: str = ""
-    schema: bool = False
+    include_schema: bool = False  # Renamed from 'schema' to avoid conflict
 
 
 class AskRequest(BaseModel):
