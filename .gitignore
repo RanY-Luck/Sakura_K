@@ -41,3 +41,4 @@ vf_admin
 mcp_server/output
 mcp_server/storage
 mcp_server/text2sql/bms.sql
+plugin/module_text2sql/storage/chromadb
