@@ -888,111 +888,111 @@ if __name__ == '__main__':
         #         print(traceback.format_exc())
 
         # 清理旧数据选项（默认不执行）
-        clear_old_data = False
-        if clear_old_data:
-            print("清理向量库中的旧数据...")
-            try:
-                # 获取所有集合
-                collections = server.vn.collection.list_collections()
-                for collection in collections:
-                    # 删除集合
-                    print(f"删除集合: {collection.name}")
-                    server.vn.collection.delete_collection(name=collection.name)
-                print("已清理所有旧数据")
-            except Exception as e:
-                print(f"清理旧数据时出错: {e}")
-
-        # 读取导出的SQL文件
-        with open('bms.sql', 'r', encoding='utf-8') as f:
-            sql_content = f.read()
-
-        # 将SQL内容按表划分
-        import re
-
-        # 使用更精确的正则表达式提取完整的表定义
-        table_patterns = re.findall(r'(DROP TABLE IF EXISTS\s+`[^`]+`\s*;[\s\S]*?CREATE TABLE[\s\S]*?;)', sql_content)
-
-        print(f"提取到{len(table_patterns)}个表定义")
-
-        # 对每个表结构进行训练，使用新添加的方法检查是否重复
-        total_trained = 0
-        skipped = 0
-        for i, table_ddl in enumerate(table_patterns):
-            if i < 5:  # 打印前5个表结构示例
-                print(f"处理第{i + 1}个表结构: {table_ddl[:100]}...")
-
-            # 使用新方法进行训练，该方法会检查是否已存在
-            if server.train_table_ddl(table_ddl):
-                total_trained += 1
-            else:
-                skipped += 1
-
-        # 保存训练表记录
-        server._save_trained_tables()
-        print(f"总共处理了{len(table_patterns)}个表，训练了{total_trained}个，跳过了{skipped}个")
-
-        # 验证训练数据存储情况
-        try:
-            print("获取训练数据...")
-            training_data = server.get_training_data()
-
-            if isinstance(training_data, list):
-                print(f"训练后数据项数量: {len(training_data)}")
-                if training_data:
-                    print(f"训练数据第一项: {training_data[0]}")
-            else:
-                print(f"训练数据类型: {type(training_data)}")
-            # 检查本地存储的训练对
-            if hasattr(server, '_trained_pairs') and server._trained_pairs:
-                print(f"本地存储的训练对: {len(server._trained_pairs)}")
-                print(f"示例: {server._trained_pairs[0] if server._trained_pairs else '无'}")
-        except Exception as e:
-            print(f"获取训练数据时出错: {e}")
-            print(traceback.format_exc())
-
-        # 添加批量训练示例（可选，默认不执行）
-        add_training_examples = True
-        if add_training_examples:
-            try:
-                print("\n开始添加批量训练示例...")
-                server.bulk_train_examples()
-                print("批量训练示例添加完成")
-            except Exception as e:
-                print(f"添加批量训练示例出错: {e}")
-                print(traceback.format_exc())
-        # 最后执行schema训练
-        print("开始执行schema训练...")
-        server.schema_train()
-        print("schema训练完成")
-
-        # 检查向量库中的数据
-        print("检查向量库中的数据...")
-        server.check_vector_store()
-        server.vn_train(
-            documentation="表split_table_info是一些拆表数据，每次查询时间需要来这个根据起始时间和结束时间并查询获取表名"
-        )
-        # 保存一个简单的示例SQL作为测试
-        server.vn_train(
-            question="查询sys_file_info表的第一条记录",
-            sql="SELECT * FROM sys_file_info LIMIT 1;"
-        )
-        # 验证是否可以使用训练好的模型
-        test_questions = [
-            "sys_file_info表有哪些字段？",
-            "file_name字段是什么含义？",
-            "查询sys_file_info表的第一条记录",
-            # "帮我查询设备号：BDA1220513100042的在上报类型描述数据,时间段为：2025-05-23 16:35:38,在表：packet_info_2025_11 中"
-        ]
-        print("\n测试向量库效果...")
-        for question in test_questions:
-            print(f"\n问题: {question}")
-            try:
-                sql, df, _ = server.ask(question, visualize=False, strict_match=False)
-                print(f"生成的SQL: {sql}")
-                if not df.empty:
-                    print(f"结果前5行:\n{df.head()}")
-            except Exception as e:
-                print(f"执行查询出错: {e}")
+        # clear_old_data = False
+        # if clear_old_data:
+        #     print("清理向量库中的旧数据...")
+        #     try:
+        #         # 获取所有集合
+        #         collections = server.vn.collection.list_collections()
+        #         for collection in collections:
+        #             # 删除集合
+        #             print(f"删除集合: {collection.name}")
+        #             server.vn.collection.delete_collection(name=collection.name)
+        #         print("已清理所有旧数据")
+        #     except Exception as e:
+        #         print(f"清理旧数据时出错: {e}")
+        #
+        # # 读取导出的SQL文件
+        # with open('bms.sql', 'r', encoding='utf-8') as f:
+        #     sql_content = f.read()
+        #
+        # # 将SQL内容按表划分
+        # import re
+        #
+        # # 使用更精确的正则表达式提取完整的表定义
+        # table_patterns = re.findall(r'(DROP TABLE IF EXISTS\s+`[^`]+`\s*;[\s\S]*?CREATE TABLE[\s\S]*?;)', sql_content)
+        #
+        # print(f"提取到{len(table_patterns)}个表定义")
+        #
+        # # 对每个表结构进行训练，使用新添加的方法检查是否重复
+        # total_trained = 0
+        # skipped = 0
+        # for i, table_ddl in enumerate(table_patterns):
+        #     if i < 5:  # 打印前5个表结构示例
+        #         print(f"处理第{i + 1}个表结构: {table_ddl[:100]}...")
+        #
+        #     # 使用新方法进行训练，该方法会检查是否已存在
+        #     if server.train_table_ddl(table_ddl):
+        #         total_trained += 1
+        #     else:
+        #         skipped += 1
+        #
+        # # 保存训练表记录
+        # server._save_trained_tables()
+        # print(f"总共处理了{len(table_patterns)}个表，训练了{total_trained}个，跳过了{skipped}个")
+        #
+        # # 验证训练数据存储情况
+        # try:
+        #     print("获取训练数据...")
+        #     training_data = server.get_training_data()
+        #
+        #     if isinstance(training_data, list):
+        #         print(f"训练后数据项数量: {len(training_data)}")
+        #         if training_data:
+        #             print(f"训练数据第一项: {training_data[0]}")
+        #     else:
+        #         print(f"训练数据类型: {type(training_data)}")
+        #     # 检查本地存储的训练对
+        #     if hasattr(server, '_trained_pairs') and server._trained_pairs:
+        #         print(f"本地存储的训练对: {len(server._trained_pairs)}")
+        #         print(f"示例: {server._trained_pairs[0] if server._trained_pairs else '无'}")
+        # except Exception as e:
+        #     print(f"获取训练数据时出错: {e}")
+        #     print(traceback.format_exc())
+        #
+        # # 添加批量训练示例（可选，默认不执行）
+        # add_training_examples = True
+        # if add_training_examples:
+        #     try:
+        #         print("\n开始添加批量训练示例...")
+        #         server.bulk_train_examples()
+        #         print("批量训练示例添加完成")
+        #     except Exception as e:
+        #         print(f"添加批量训练示例出错: {e}")
+        #         print(traceback.format_exc())
+        # # 最后执行schema训练
+        # print("开始执行schema训练...")
+        # server.schema_train()
+        # print("schema训练完成")
+        #
+        # # 检查向量库中的数据
+        # print("检查向量库中的数据...")
+        # server.check_vector_store()
+        # server.vn_train(
+        #     documentation="表split_table_info是一些拆表数据，每次查询时间需要来这个根据起始时间和结束时间并查询获取表名"
+        # )
+        # # 保存一个简单的示例SQL作为测试
+        # server.vn_train(
+        #     question="查询sys_file_info表的第一条记录",
+        #     sql="SELECT * FROM sys_file_info LIMIT 1;"
+        # )
+        # # 验证是否可以使用训练好的模型
+        # test_questions = [
+        #     "sys_file_info表有哪些字段？",
+        #     "file_name字段是什么含义？",
+        #     "查询sys_file_info表的第一条记录",
+        #     # "帮我查询设备号：BDA1220513100042的在上报类型描述数据,时间段为：2025-05-23 16:35:38,在表：packet_info_2025_11 中"
+        # ]
+        # print("\n测试向量库效果...")
+        # for question in test_questions:
+        #     print(f"\n问题: {question}")
+        #     try:
+        #         sql, df, _ = server.ask(question, visualize=False, strict_match=False)
+        #         print(f"生成的SQL: {sql}")
+        #         if not df.empty:
+        #             print(f"结果前5行:\n{df.head()}")
+        #     except Exception as e:
+        #         print(f"执行查询出错: {e}")
         server.ask(question="预警表最新的一条数据", visualize=False, strict_match=False)
     except Exception as e:
         print(f"程序执行出错: {e}")
