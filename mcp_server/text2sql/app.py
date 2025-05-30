@@ -112,9 +112,6 @@ def vn_train_route():
         训练结果的JSON响应
     """
     data = request.json
-    # required_fields = ['question', 'sql']
-    # validate_input(data, required_fields)
-
     supplier = data.get('supplier', "")
     question = data.get('question', '')
     sql = data.get('sql', '')
