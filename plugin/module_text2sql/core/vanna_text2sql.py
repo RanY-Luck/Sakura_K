@@ -474,20 +474,20 @@ class VannaServer:
         try:
             db_name = self.vn.config.get("database", "unknown")
             db_hash = hashlib.md5(db_name.encode()).hexdigest()
-            
+
             # 检查是否已经训练过该数据库架构
             if db_hash in self.schema_trained and not force_retrain:
                 last_trained = self.schema_trained[db_hash].get("last_trained", "未知时间")
                 print(f"数据库架构已训练过(于 {last_trained}), 跳过训练")
                 return True
-                
+
             # 查询数据库信息模式，获取所有表和列的元数据
             df_information_schema = self.vn.run_sql("SELECT * FROM INFORMATION_SCHEMA.COLUMNS")
             # 创建训练计划，将信息模式分解成 LLM 可以处理的小块
             plan = self.vn.get_training_plan_generic(df_information_schema)
             # 执行训练计划
             self.vn.train(plan=plan)
-            
+
             # 记录训练时间
             import datetime
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -497,7 +497,7 @@ class VannaServer:
                 "tables_count": len(df_information_schema)
             }
             self._save_schema_trained()
-            
+
             print(f"成功训练数据库 '{db_name}' 架构，包含 {len(df_information_schema)} 行模式数据")
             return True
         except Exception as e:
@@ -615,7 +615,7 @@ class VannaServer:
             if question and sql:
                 # 计算问题-SQL对的哈希值
                 pair_hash = self._pair_hash(question, sql)
-                
+
                 # 检查是否已经训练过该问题-SQL对
                 if pair_hash not in self.trained_pairs:
                     self.vn.add_question_sql(question=question, sql=sql)
@@ -692,21 +692,21 @@ class VannaServer:
         if not table_ddls:
             print("没有提供表DDL进行训练")
             return 0, 0
-            
+
         # 统计训练结果
         trained_count = 0
         skipped_count = 0
-        
+
         # 批量处理表DDL
         for table_ddl in table_ddls:
             if self.train_table_ddl(table_ddl, force_retrain):
                 trained_count += 1
             else:
                 skipped_count += 1
-                
+
         print(f"批量训练完成: 成功训练 {trained_count} 个表, 跳过 {skipped_count} 个表")
         return trained_count, skipped_count
-        
+
     def bulk_train_pairs(self, question_sql_pairs, force_retrain=False):
         """
         批量训练问题-SQL对
@@ -721,24 +721,24 @@ class VannaServer:
         if not question_sql_pairs:
             print("没有提供问题-SQL对进行训练")
             return 0, 0
-            
+
         # 统计训练结果
         trained_count = 0
         skipped_count = 0
-        
+
         # 批量处理问题-SQL对
         for pair in question_sql_pairs:
             question = pair.get('question', '')
             sql = pair.get('sql', '')
-            
+
             if not question or not sql:
                 print("跳过无效的问题-SQL对")
                 skipped_count += 1
                 continue
-                
+
             # 计算问题-SQL对的哈希值
             pair_hash = self._pair_hash(question, sql)
-            
+
             # 检查是否需要训练
             if pair_hash not in self.trained_pairs or force_retrain:
                 try:
@@ -754,14 +754,14 @@ class VannaServer:
             else:
                 print(f"问题已存在，跳过: {question[:50]}...")
                 skipped_count += 1
-                
+
         # 保存训练记录
         if trained_count > 0:
             self._save_trained_pairs()
-            
+
         print(f"批量训练完成: 成功训练 {trained_count} 个问题-SQL对, 跳过 {skipped_count} 个")
         return trained_count, skipped_count
-        
+
     def bulk_train_docs(self, docs, force_retrain=False):
         """
         批量训练文档
@@ -776,19 +776,19 @@ class VannaServer:
         if not docs:
             print("没有提供文档进行训练")
             return 0, 0
-            
+
         # 统计训练结果
         trained_count = 0
         skipped_count = 0
-        
+
         # 批量处理文档
         for doc in docs:
             if not doc:
                 skipped_count += 1
                 continue
-                
+
             doc_hash = self._doc_hash(doc)
-            
+
             # 检查是否需要训练
             if doc_hash not in self.trained_docs or force_retrain:
                 try:
@@ -801,11 +801,11 @@ class VannaServer:
             else:
                 print(f"文档已存在，跳过: {self.trained_docs[doc_hash]}")
                 skipped_count += 1
-                
+
         # 保存训练记录
         if trained_count > 0:
             self._save_trained_docs()
-            
+
         print(f"批量训练完成: 成功训练 {trained_count} 个文档, 跳过 {skipped_count} 个")
         return trained_count, skipped_count
 
@@ -832,20 +832,20 @@ class VannaServer:
                     "sql": "SELECT * FROM warn_info WHERE warn_level = 'high' ORDER BY warn_time DESC LIMIT 20;"
                 }
             ]
-            
+
             # 添加示例文档
             example_docs = [
                 "预警表warn_info存储系统中所有的预警信息，包括预警时间(warn_time)、预警类型(warn_type)、预警级别(warn_level)等字段",
                 "表split_table_info是拆表数据，查询时需要根据起始时间和结束时间获取表名",
                 "系统日志存储在sys_log表中，包含操作时间(operation_time)、操作用户(username)、操作类型(operation_type)等信息"
             ]
-            
+
             # 批量训练问题-SQL对
             pairs_trained, pairs_skipped = self.bulk_train_pairs(example_pairs)
-            
+
             # 批量训练文档
             docs_trained, docs_skipped = self.bulk_train_docs(example_docs)
-            
+
             print(f"批量训练示例完成: 训练了 {pairs_trained} 个问题-SQL对，{docs_trained} 个文档")
             return True
         except Exception as e:
@@ -986,7 +986,7 @@ if __name__ == '__main__':
             except Exception as e:
                 print(f"添加批量训练示例出错: {e}")
                 print(traceback.format_exc())
-                
+
         # 执行schema训练，如果之前已训练过则会跳过
         print("开始执行schema训练...")
         server.schema_train(force_retrain=False)
@@ -995,18 +995,18 @@ if __name__ == '__main__':
         # 检查向量库中的数据
         print("检查向量库中的数据...")
         server.check_vector_store()
-        
+
         # 添加单个文档示例（无需重复添加相同内容）
         server.vn_train(
             documentation="表split_table_info是一些拆表数据，每次查询时间需要来这个根据起始时间和结束时间并查询获取表名"
         )
-        
+
         # 添加单个问题-SQL对示例（无需重复添加相同内容）
         server.vn_train(
             question="查询sys_file_info表的第一条记录",
             sql="SELECT * FROM sys_file_info LIMIT 1;"
         )
-        
+
         # 验证是否可以使用训练好的模型
         test_questions = [
             "sys_file_info表有哪些字段？",
@@ -1025,7 +1025,7 @@ if __name__ == '__main__':
                     print("查询结果为空")
             except Exception as e:
                 print(f"执行查询出错: {e}")
-                
+
         # 测试一个简单的问题
         try:
             print("\n测试问题: 预警表最新的一条数据")

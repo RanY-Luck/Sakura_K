@@ -2804,7 +2804,7 @@ requires-dist = [
     { name = "paramiko", specifier = "==3.5.1" },
     { name = "passlib", extras = ["bcrypt"], specifier = "==1.7.4" },
     { name = "pillow", specifier = "==11.1.0" },
-    { name = "plotly", specifier = ">=6.1.0" },
+    { name = "plotly", specifier = "==6.1.0" },
     { name = "psutil", specifier = "==7.0.0" },
     { name = "psycopg2-binary", specifier = "==2.9.9" },
     { name = "pydantic-validation-decorator", specifier = "==0.1.4" },

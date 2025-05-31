@@ -4,7 +4,7 @@
 # @Author   : 冉勇
 # @File     : tool_weather.py
 # @Software : PyCharm
-# @Desc     :
+# @Desc     : 天气查询MCP
 import os
 import json
 import httpx
