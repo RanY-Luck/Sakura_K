@@ -359,29 +359,30 @@ async def text2sql_ask(
     try:
         if not question:
             return {"success": False, "message": "问题不能为空"}
-
+            
         # 打印请求信息，便于调试
         logger.info(f"接收到问题请求: {question}")
         logger.info(f"供应商: {supplier or '默认'}")
-
+        
         # 调用服务处理问题
         sql, df, fig = text2sql_service.ask(
             question=question,
             auto_train=auto_train,
             supplier=supplier
         )
-
+        
         logger.info(f"生成SQL: {sql}")
         logger.info(f"结果数据行数: {len(df)}")
-
-        # 将DataFrame转换为JSON
-        df_json = df.to_json(orient='records', force_ascii=False)
-
+        
+        # 将DataFrame转换为记录列表
+        records = df.to_dict(orient='records')
+        logger.info(f"转换后的数据: {records}")
+        
         return {
             "success": True,
             "data": {
                 "sql": sql,
-                "data": df_json
+                "data": records
             }
         }
     except Exception as e:
