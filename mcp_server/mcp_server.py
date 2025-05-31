@@ -7,42 +7,17 @@
 # @Desc     : MCP服务
 import os
 import time
-import json
 import aiohttp
-import base64
-import io
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional
 from mcp.server.fastmcp import FastMCP
 from tool_weather import WeatherTool
 from utils.log_util import logger
-from mcp_text2sql import (
-    text_to_sql,
-    text_to_sql_sse,
-    query,
-    describe_table,
-    describe_tables,
-    init_db_pool, cleanup as sql_cleanup
-)
 
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraMcpServer")
 
 # 服务器初始化标志
 db_initialized = False
-
-
-# 注册事件 - 在服务器启动前初始化数据库连接
-
-async def on_server_start():
-    """服务器启动事件处理"""
-    await init_server()
-
-
-# 注册事件 - 在服务器关闭时清理资源
-
-async def on_server_shutdown():
-    """服务器关闭事件处理"""
-    await cleanup()
 
 
 # 工具验证函数
@@ -253,28 +228,11 @@ async def health_check():
         except:
             ollama_status = False
 
-        # 测试SQL数据库连接是否可用
-        db_status = False
-        try:
-            # 重用text2sql模块中的数据库连接池
-            from mcp_text2sql import db_pool
-            if db_pool:
-                async with db_pool.acquire() as conn:
-                    async with conn.cursor() as cursor:
-                        await cursor.execute("SELECT 1")
-                        db_status = True
-            else:
-                # 尝试初始化连接池
-                db_status = await init_db_pool()
-        except:
-            db_status = False
-
         return {
-            "status": "ok" if (api_status and ollama_status and db_status) else "degraded",
+            "status": "ok" if (api_status and ollama_status) else "degraded",
             "services": {
                 "weather": "ok" if api_status else "error",
                 "ollama": "ok" if ollama_status else "error",
-                "sql_database": "ok" if db_status else "error"
             },
             "timestamp": time.time(),
             "service": "SakuraMcpServer",
@@ -289,130 +247,10 @@ async def health_check():
         }
 
 
-# 注册Text2SQL服务工具
-@mcp.tool()
-@validate_tool
-async def sql_query(query: str) -> Dict[str, Any]:
-    """
-    将自然语言转换为SQL查询并执行
-    :param query: 自然语言查询，例如"查询所有男性学生"
-    :return: 包含SQL查询和执行结果的字典
-    """
-    # 确保数据库已初始化
-    global db_initialized
-    if not db_initialized:
-        await init_server()
-
-    return await text_to_sql(query)
-
-
-@mcp.tool()
-@validate_tool
-async def sql_query_stream(query: str):
-    """
-    将自然语言转换为SQL查询并执行，以流式方式返回结果
-    :param query: 自然语言查询，例如"查询所有男性学生"
-    :return: 流式返回查询结果
-    """
-    # 确保数据库已初始化
-    global db_initialized
-    if not db_initialized:
-        await init_server()
-
-    async for result in text_to_sql_sse(query):
-        yield result
-
-
-@mcp.tool()
-@validate_tool
-async def execute_sql(sql: str) -> Dict[str, Any]:
-    """
-    直接执行SQL查询语句
-    :param sql: SQL查询语句
-    :return: 查询结果
-    """
-    # 确保数据库已初始化
-    global db_initialized
-    if not db_initialized:
-        await init_server()
-
-    return await query(sql)
-
-
-@mcp.tool()
-@validate_tool
-async def get_table_info(table_name: str = "") -> Dict[str, Any]:
-    """
-    获取指定数据库表的结构信息
-    :param table_name: 可选的表名，如果不提供则返回第一个表
-    :return: 表结构信息
-    """
-    # 确保数据库已初始化
-    global db_initialized
-    if not db_initialized:
-        await init_server()
-
-    # 记录请求参数
-    logger.info(f"请求表信息: 表名='{table_name}'")
-
-    # 尝试获取表信息
-    try:
-        result = await describe_table(table_name)
-
-        # 记录结果状态
-        if "error" in result:
-            logger.error(f"获取表信息失败: {result['error']}")
-        else:
-            logger.info(
-                f"获取表信息成功: 表名={result.get('table_name', '未知')}, 列数={len(result.get('columns', []))}"
-            )
-
-        return result
-    except Exception as e:
-        logger.error(f"获取表信息异常: {str(e)}")
-        return {"error": f"获取表信息异常: {str(e)}"}
-
-
-@mcp.tool()
-@validate_tool
-async def get_all_tables() -> Dict[str, Any]:
-    """
-    获取数据库中所有表的结构信息
-    :return: 所有表的结构信息
-    """
-    # 确保数据库已初始化
-    global db_initialized
-    if not db_initialized:
-        await init_server()
-
-    return await describe_tables()
-
-
-# 清理资源函数
-async def cleanup():
-    """清理资源"""
-    # 关闭Ollama客户端
-    await ollama_client.close()
-
-    # 关闭SQL服务资源
-    await sql_cleanup()
-
-
 # 初始化服务器
 async def init_server():
     """初始化服务器"""
     global db_initialized
-
-    # 初始化SQL数据库连接
-    try:
-        db_init_success = await init_db_pool()
-        if db_init_success:
-            db_initialized = True
-            logger.info("MCP服务数据库连接初始化成功")
-        else:
-            logger.error("MCP服务数据库连接初始化失败")
-    except Exception as e:
-        logger.error(f"数据库初始化错误: {str(e)}")
 
     logger.info("MCP服务初始化完成")
 

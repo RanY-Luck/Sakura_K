@@ -5,7 +5,6 @@
 # @File     : ai_websocket.py
 # @Software : PyCharm
 # @Desc     : 封装websocket请求
-import os
 import time
 import asyncio
 from utils.log_util import logger
