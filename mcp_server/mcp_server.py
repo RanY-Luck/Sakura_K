@@ -7,14 +7,21 @@
 # @Desc     : MCP服务
 import os
 import time
+import json
 import aiohttp
 from typing import Dict, Any, Optional
+from fastapi import WebSocket
 from mcp.server.fastmcp import FastMCP
 from tool_weather import WeatherTool
 from utils.log_util import logger
+from plugin.module_text2sql.service.text2sql_service import Text2SQLService
+from plugin.module_text2sql.entity.vo.text2sql_vo import TrainRequest, AskRequest
 
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraMcpServer")
+
+# 初始化Text2SQL服务
+text2sql_service = Text2SQLService()
 
 # 服务器初始化标志
 db_initialized = False
@@ -288,6 +295,141 @@ async def generate_text(
     except Exception as e:
         logger.error(f"Ollama模型生成失败: {str(e)}")
         return f"生成文本时出错: {str(e)}"
+
+
+@mcp.tool()
+@validate_tool
+async def text2sql_train(
+        supplier: str = "",
+        question: str = "",
+        sql: str = "",
+        documentation: str = "",
+        ddl: str = "",
+        db_schema: str = ""
+) -> Dict[str, Any]:
+    """
+    训练Text2SQL模型
+    
+    :param supplier: AI服务提供商
+    :param question: 问题示例
+    :param sql: SQL示例
+    :param documentation: 文档
+    :param ddl: 数据定义语言
+    :param db_schema: 数据库模式
+    :return: 包含训练结果的字典
+    """
+    try:
+        # 验证至少有一个参数不为空
+        if not any([question, sql, documentation, ddl, db_schema]):
+            return {"success": False, "message": "至少需要提供一个参数(question, sql, documentation, ddl, db_schema)"}
+
+        success = text2sql_service.train(
+            supplier=supplier,
+            question=question,
+            sql=sql,
+            documentation=documentation,
+            ddl=ddl,
+            schema=db_schema
+        )
+
+        return {
+            "success": success,
+            "message": "训练成功" if success else "训练失败"
+        }
+    except Exception as e:
+        logger.error(f"训练模型失败: {str(e)}")
+        return {"success": False, "message": f"训练异常: {str(e)}"}
+
+
+@mcp.tool()
+@validate_tool
+async def text2sql_ask(
+        question: str,
+        auto_train: bool = True,
+        supplier: str = ""
+) -> Dict[str, Any]:
+    """
+    提问接口，将自然语言问题转换为SQL查询并执行
+    
+    :param question: 自然语言问题
+    :param auto_train: 是否自动训练成功的查询
+    :param supplier: AI服务提供商
+    :return: 包含SQL和结果数据的字典
+    """
+    try:
+        if not question:
+            return {"success": False, "message": "问题不能为空"}
+
+        # 打印请求信息，便于调试
+        logger.info(f"接收到问题请求: {question}")
+        logger.info(f"供应商: {supplier or '默认'}")
+
+        # 调用服务处理问题
+        sql, df, fig = text2sql_service.ask(
+            question=question,
+            auto_train=auto_train,
+            supplier=supplier
+        )
+
+        logger.info(f"生成SQL: {sql}")
+        logger.info(f"结果数据行数: {len(df)}")
+
+        # 将DataFrame转换为JSON
+        df_json = df.to_json(orient='records', force_ascii=False)
+
+        return {
+            "success": True,
+            "data": {
+                "sql": sql,
+                "data": df_json
+            }
+        }
+    except Exception as e:
+        logger.error(f"处理问题失败: {str(e)}")
+        return {"success": False, "message": f"处理问题失败: {str(e)}"}
+
+
+@mcp.tool()
+@validate_tool
+async def text2sql_schema_train(supplier: str = "") -> Dict[str, Any]:
+    """
+    训练数据库模式
+    
+    :param supplier: AI服务提供商
+    :return: 包含训练结果的字典
+    """
+    try:
+        vn_instance = text2sql_service.get_vn_instance(supplier)
+        success = vn_instance.schema_train()
+        return {
+            "success": success,
+            "message": "数据库模式训练成功" if success else "数据库模式训练失败"
+        }
+    except Exception as e:
+        logger.error(f"训练数据库模式失败: {str(e)}")
+        return {"success": False, "message": f"训练数据库模式失败: {str(e)}"}
+
+
+@mcp.resource("sakura://text2sql/training_data/{supplier}")
+async def get_training_data(supplier: str = ""):
+    """
+    获取训练数据
+    
+    :param supplier: AI服务提供商
+    :return: 包含训练数据的字典
+    """
+    try:
+        training_data = text2sql_service.get_training_data(supplier)
+        return {
+            "status": "ok",
+            "data": training_data
+        }
+    except Exception as e:
+        logger.error(f"获取训练数据失败: {str(e)}")
+        return {
+            "status": "error",
+            "message": f"获取训练数据失败: {str(e)}"
+        }
 
 
 # 服务器启动入口点
