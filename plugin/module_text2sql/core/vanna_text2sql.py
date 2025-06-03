@@ -206,8 +206,30 @@ class VannaServer:
             vn.connect_to_mysql(host=host, dbname=dbname, user=user, password=password, port=port)
         else:
             print("警告: 数据库连接信息不完整，请检查环境变量或配置")
+            
+        # 加载已训练数据到Vanna实例
+        self._load_trained_data_to_vn(vn)
 
         return vn
+        
+    def _load_trained_data_to_vn(self, vn):
+        """
+        将已训练的数据加载到Vanna实例
+        
+        Args:
+            vn: Vanna实例
+        """
+        # 确保已加载训练记录
+        trained_tables = self._load_trained_tables()
+        trained_docs = self._load_trained_docs()
+        trained_pairs = self._load_trained_pairs()
+        
+        # 将训练记录传递给vn实例
+        vn.trained_tables = trained_tables
+        vn.trained_docs = trained_docs
+        vn.trained_pairs = trained_pairs
+        
+        print(f"已加载训练记录到Vanna实例: {len(trained_tables)}个表, {len(trained_docs)}个文档, {len(trained_pairs)}个问题-SQL对")
 
     def _load_trained_tables(self):
         """
@@ -513,6 +535,7 @@ class VannaServer:
         """
         # 获取Vanna实例的配置信息
         config = self.vn.get_config()
+        print("获取到的配置信息:", config)
 
         # 初始化结果字典
         result = {
@@ -523,36 +546,57 @@ class VannaServer:
             }
         }
 
-        # 获取向量存储中的所有文档
-        if hasattr(self.vn, "vector_store") and self.vn.vector_store is not None:
-            if hasattr(self.vn.vector_store, "get_all_documents"):
-                all_documents = self.vn.vector_store.get_all_documents()
-
-                # 分类文档
-                for doc in all_documents:
-                    doc_type = doc.get("type")
-                    if doc_type == "question_sql":
-                        # 问题-SQL对
-                        question = doc.get("question", "")
-                        sql = doc.get("sql", "")
-                        if question and sql:
-                            result["training_data"]["question_sql"].append(
-                                {
-                                    "question": question,
-                                    "sql": sql
-                                }
-                            )
-                    elif doc_type == "ddl":
-                        # DDL语句
-                        ddl = doc.get("ddl", "")
-                        if ddl:
-                            result["training_data"]["ddl"].append(ddl)
-                    elif doc_type == "documentation":
-                        # 文档说明
-                        documentation = doc.get("documentation", "")
-                        if documentation:
-                            result["training_data"]["documentation"].append(documentation)
-
+        try:
+            # 直接调用vn实例的get_all_documents方法
+            print("尝试直接调用vn实例的get_all_documents方法")
+            all_documents = self.vn.get_all_documents()
+            print(f"获取到文档数量: {len(all_documents)}")
+            
+            if not all_documents:
+                print("警告: 未获取到任何文档")
+            
+            # 输出前几个文档的结构，帮助调试
+            for i, doc in enumerate(all_documents[:3]):
+                print(f"文档 {i+1} 结构:", doc)
+                print(f"文档 {i+1} 类型:", doc.get("type", "未知类型"))
+            
+            # 分类文档
+            for doc in all_documents:
+                doc_type = doc.get("type")
+                if doc_type == "question_sql":
+                    # 问题-SQL对
+                    question = doc.get("question", "")
+                    sql = doc.get("sql", "")
+                    if question and sql:
+                        result["training_data"]["question_sql"].append(
+                            {
+                                "question": question,
+                                "sql": sql
+                            }
+                        )
+                elif doc_type == "ddl":
+                    # DDL语句
+                    ddl = doc.get("ddl", "")
+                    if ddl:
+                        result["training_data"]["ddl"].append(ddl)
+                elif doc_type == "documentation":
+                    # 文档说明
+                    documentation = doc.get("documentation", "")
+                    if documentation:
+                        result["training_data"]["documentation"].append(documentation)
+                else:
+                    print(f"警告: 未知文档类型 '{doc_type}'")
+            
+            # 统计各类型数据
+            print(f"处理后问题-SQL对数量: {len(result['training_data']['question_sql'])}")
+            print(f"处理后DDL数量: {len(result['training_data']['ddl'])}")
+            print(f"处理后文档数量: {len(result['training_data']['documentation'])}")
+            
+        except Exception as e:
+            print(f"获取文档时出错: {str(e)}")
+            import traceback
+            traceback.print_exc()
+        
         # 如果配置中包含数据库连接信息，添加到结果中
         db_config = {}
         for key in ["host", "user", "password", "port", "database"]:
@@ -873,6 +917,92 @@ def make_vanna_class(ChatClass=CustomChat):
             """初始化Vanna实例"""
             ChromaDB_VectorStore.__init__(self, config=config)
             ChatClass.__init__(self, config=config)
+            self._config = config or {}
+
+        def get_config(self):
+            """
+            获取实例的配置信息
+            
+            Returns:
+                配置信息字典
+            """
+            return self._config
+            
+        def get_all_documents(self):
+            """
+            获取向量存储中的所有文档
+            
+            Returns:
+                所有文档的列表
+            """
+            try:
+                # 如果父类已实现此方法，则调用父类方法
+                if hasattr(ChromaDB_VectorStore, "get_all_documents") and callable(getattr(ChromaDB_VectorStore, "get_all_documents")):
+                    print("使用父类的get_all_documents方法")
+                    return ChromaDB_VectorStore.get_all_documents(self)
+                
+                print("使用自定义的get_all_documents方法")
+                documents = []
+                
+                # 尝试从已训练的数据中获取文档
+                if hasattr(self, "_collection") and self._collection is not None:
+                    try:
+                        # 尝试获取所有ID和元数据
+                        results = self._collection.get()
+                        if results and isinstance(results, dict):
+                            ids = results.get("ids", [])
+                            metadatas = results.get("metadatas", [])
+                            
+                            # 组合ID和元数据
+                            if ids and metadatas and len(ids) == len(metadatas):
+                                for i in range(len(ids)):
+                                    doc_id = ids[i]
+                                    metadata = metadatas[i] or {}
+                                    # 添加ID到元数据
+                                    metadata["id"] = doc_id
+                                    documents.append(metadata)
+                            
+                            print(f"从集合中获取到 {len(documents)} 个文档")
+                    except Exception as e:
+                        print(f"从集合获取文档时出错: {str(e)}")
+                        import traceback
+                        traceback.print_exc()
+                else:
+                    print("警告: 集合未初始化")
+                
+                # 如果已训练的表格、文档和问题-SQL对数据可用，添加到结果中
+                if hasattr(self, "trained_tables") and self.trained_tables:
+                    for table_hash, table_name in self.trained_tables.items():
+                        documents.append({
+                            "type": "ddl",
+                            "id": table_hash,
+                            "ddl": f"CREATE TABLE {table_name} (...)",
+                        })
+                
+                if hasattr(self, "trained_docs") and self.trained_docs:
+                    for doc_hash, doc_preview in self.trained_docs.items():
+                        documents.append({
+                            "type": "documentation",
+                            "id": doc_hash,
+                            "documentation": doc_preview,
+                        })
+                
+                if hasattr(self, "trained_pairs") and self.trained_pairs:
+                    for pair_hash, pair_data in self.trained_pairs.items():
+                        documents.append({
+                            "type": "question_sql",
+                            "id": pair_hash,
+                            "question": pair_data.get("question", ""),
+                            "sql": pair_data.get("sql", ""),
+                        })
+                
+                return documents
+                
+            except Exception as e:
+                print(f"获取所有文档时出错: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                return []
 
         def is_sql_valid(self, sql: str) -> bool:
             """
