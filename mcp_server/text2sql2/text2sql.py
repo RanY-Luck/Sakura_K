@@ -12,20 +12,20 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-# Configuración de OpenAI
+# OpenAI配置
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY environment variable is not set")
-OPENAI_MODEL = os.getenv('OPENAI_MODEL')
-OPENAI_API_URL = os.getenv('OPENAI_API_URL')
+OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')  # 添加默认值
+OPENAI_API_URL = os.getenv('OPENAI_API_URL', 'https://api.openai.com/v1')  # 添加默认值
 OPENAI_TIMEOUT = 60  # 增加超时时间到60秒
 
 # MySQL 配置
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = os.getenv('DB_PORT')  # MySQL默认端口
-DB_NAME = os.getenv('DB_NAME')
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')  # 添加默认值
+DB_PORT = os.getenv('DB_PORT')  # 添加默认值
+DB_NAME = os.getenv('DB_NAME')  # 添加默认值
+DB_USER = os.getenv('DB_USER')  # 添加默认值
+DB_PASSWORD = os.getenv('DB_PASSWORD')  # 添加默认值
 
 
 class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
