@@ -467,6 +467,11 @@ class MCPClient:
             else:
                 formatted += "没有返回数据\n"
                 
+            # 添加AI生成的数据总结（如果有）
+            summary = result.get("summary", "")
+            if summary:
+                formatted += f"\n📈 数据总结:\n{summary}\n"
+                
             return formatted
             
         elif tool_name in ["get_table_info", "describe_table"]:
@@ -539,6 +544,25 @@ class MCPClient:
             else:
                 formatted += "没有表信息\n"
                 
+            return formatted
+            
+        elif tool_name in ["train_sql_example", "train_database_schema", "train_with_examples", "run_full_training"]:
+            # 处理训练结果
+            success = result.get("success", False)
+            message = result.get("message", "未知结果")
+            
+            if success:
+                formatted = f"✅ 训练成功: {message}\n"
+            else:
+                formatted = f"❌ 训练失败: {message}\n"
+                
+            # 添加训练数据详情（如果有）
+            data = result.get("data", {})
+            if data and isinstance(data, dict):
+                formatted += "\n训练数据详情:\n"
+                for key, value in data.items():
+                    formatted += f"- {key}: {value}\n"
+                    
             return formatted
             
         # 默认处理（尝试JSON格式化）
