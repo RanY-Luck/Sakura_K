@@ -11,7 +11,6 @@ import pandas as pd
 from functools import lru_cache
 from plugin.module_text2sql.core.vanna_text2sql import VannaServer
 
-
 # 存储不同的 VannaServer 实例
 vn_instances = {}
 
@@ -33,8 +32,6 @@ class Text2SQLService:
         Returns:
             对应提供商的VannaServer实例
         """
-        if supplier == "":
-            supplier = os.getenv("SUPPLIER", "GITEE")
         if supplier not in vn_instances:
             # 配置类
             config = {
@@ -50,8 +47,10 @@ class Text2SQLService:
             vn_instances[supplier] = VannaServer(config)
         return vn_instances[supplier]
 
-    def train(self, supplier: str = "", question: str = "", sql: str = "", 
-              documentation: str = "", ddl: str = "", schema: bool = False) -> bool:
+    def train(
+            self, supplier: str = "", question: str = "", sql: str = "",
+            documentation: str = "", ddl: str = "", schema: bool = False
+    ) -> bool:
         """
         训练Text2SQL模型
 
@@ -77,7 +76,7 @@ class Text2SQLService:
             return False
 
     @lru_cache(maxsize=128)
-    def get_training_data(self, supplier: str = "") -> Dict[str, Any]:
+    def get_training_data(self) -> Dict[str, Any]:
         """
         获取训练数据
 
@@ -87,11 +86,13 @@ class Text2SQLService:
         Returns:
             训练数据字典
         """
-        server = self.get_vn_instance(supplier)
+        server = self.get_vn_instance()
         return server.get_training_data()
 
-    def ask(self, question: str, visualize: bool = True, 
-            auto_train: bool = True, supplier: str = "") -> Tuple[str, pd.DataFrame, Any]:
+    def ask(
+            self, question: str, visualize: bool = True,
+            auto_train: bool = True, supplier: str = ""
+    ) -> Tuple[str, pd.DataFrame, Any]:
         """
         处理自然语言问题，生成SQL并执行
 
@@ -109,4 +110,4 @@ class Text2SQLService:
             question=question,
             visualize=visualize,
             auto_train=auto_train
-        ) 
+        )

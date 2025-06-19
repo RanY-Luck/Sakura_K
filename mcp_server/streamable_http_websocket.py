@@ -85,13 +85,14 @@ class MCPWebSocketManager:
             finally:
                 del self.mcp_clients[client_id]
     
-    async def connect_mcp(self, client_id: str, server_url: str) -> Dict[str, Any]:
+    async def connect_mcp(self, client_id: str, server_url: str, tools_path: str = None) -> Dict[str, Any]:
         """
         连接到MCP服务器
         
         Args:
             client_id: 客户端ID
             server_url: MCP服务器URL
+            tools_path: 自定义工具API路径（可选）
             
         Returns:
             连接结果
@@ -104,71 +105,239 @@ class MCPWebSocketManager:
             # 使用aiohttp连接
             import aiohttp
             
-            # 创建HTTP会话
-            http_session = aiohttp.ClientSession()
+            # 创建HTTP会话，设置超时
+            timeout = aiohttp.ClientTimeout(total=10)  # 10秒总超时
+            http_session = aiohttp.ClientSession(timeout=timeout)
             
-            # 尝试直接获取工具列表，跳过健康检查
-            try:
-                async with http_session.get(f"{server_url}/tools") as response:
-                    if response.status != 200:
-                        # 尝试另一个常见端点
-                        async with http_session.get(f"{server_url}/api/tools") as alt_response:
-                            if alt_response.status != 200:
-                                raise Exception(f"无法获取工具列表，状态码: {response.status}")
-                            tools_data = await alt_response.json()
-                    else:
-                        tools_data = await response.json()
+            # 尝试获取工具列表
+            tools = []
+            tools_found = False
+            connection_error = None
+            
+            # 定义可能的API路径
+            if tools_path is None:
+                paths_to_try = [
+                    "/ws/chat",       # 添加WebSocket聊天API路径
+                    "/tools", 
+                    "/api/tools", 
+                    "/v1/tools", 
+                    "/api/v1/tools", 
+                    "/mcp/tools", 
+                    "/mcp/api/tools"
+                ]
+            else:
+                paths_to_try = [tools_path]
+                
+            # 尝试所有可能的路径
+            for path in paths_to_try:
+                try:
+                    full_url = f"{server_url}{path}"
+                    logger.info(f"尝试从 {full_url} 获取工具列表")
                     
-                    available_tools = tools_data.get("tools", [])
-                    tools = [{"name": tool.get("name"), "description": tool.get("description", "")} 
-                            for tool in available_tools]
-                    logger.info(f"服务器工具: {[tool.get('name') for tool in available_tools]}")
-            except Exception as e:
-                # 如果无法获取工具列表，尝试直接创建会话
-                logger.warning(f"无法获取工具列表: {str(e)}，将创建空工具列表")
-                tools = []
+                    # 对于/ws/chat路径使用WebSocket连接
+                    if path == "/ws/chat":
+                        try:
+                            # 尝试使用WebSocket连接
+                            import websockets
+                            
+                            # 将http://替换为ws://，https://替换为wss://
+                            ws_url = full_url.replace("http://", "ws://").replace("https://", "wss://")
+                            logger.info(f"尝试WebSocket连接: {ws_url}")
+                            
+                            async with websockets.connect(ws_url) as websocket:
+                                # 发送工具列表请求
+                                await websocket.send(json.dumps({"type": "list_tools"}))
+                                
+                                # 接收响应
+                                response = await websocket.recv()
+                                tools_data = json.loads(response)
+                                
+                                if "tools" in tools_data:
+                                    available_tools = tools_data.get("tools", [])
+                                    tools = [{"name": tool.get("name"), "description": tool.get("description", "")} 
+                                            for tool in available_tools]
+                                    logger.info(f"成功从WebSocket {ws_url} 获取到 {len(tools)} 个工具")
+                                    tools_found = True
+                                    connection_error = None
+                                    break
+                        except ImportError:
+                            logger.warning("未安装websockets库，无法使用WebSocket连接")
+                            connection_error = "未安装websockets库，无法使用WebSocket连接"
+                        except Exception as e:
+                            logger.warning(f"WebSocket连接失败: {str(e)}")
+                            connection_error = f"WebSocket连接失败: {str(e)}"
+                    else:
+                        # 使用HTTP连接
+                        async with http_session.get(full_url) as response:
+                            if response.status == 200:
+                                tools_data = await response.json()
+                                available_tools = tools_data.get("tools", [])
+                                tools = [{"name": tool.get("name"), "description": tool.get("description", "")} 
+                                        for tool in available_tools]
+                                logger.info(f"成功从 {full_url} 获取到 {len(tools)} 个工具")
+                                tools_found = True
+                                connection_error = None
+                                break
+                            else:
+                                logger.warning(f"请求 {full_url} 返回状态码: {response.status}")
+                                if not connection_error:
+                                    connection_error = f"服务器返回状态码: {response.status}"
+                except aiohttp.ClientConnectorError as e:
+                    logger.warning(f"连接到 {full_url} 失败: {str(e)}")
+                    if not connection_error:
+                        connection_error = f"连接错误: {str(e)}"
+                except aiohttp.ClientError as e:
+                    logger.warning(f"HTTP客户端错误: {str(e)}")
+                    if not connection_error:
+                        connection_error = f"HTTP客户端错误: {str(e)}"
+                except asyncio.TimeoutError:
+                    logger.warning(f"连接 {full_url} 超时")
+                    if not connection_error:
+                        connection_error = "连接超时，请检查服务器地址和端口是否正确"
+                except Exception as e:
+                    logger.warning(f"尝试路径 {path} 失败: {str(e)}")
+                    if not connection_error:
+                        connection_error = str(e)
             
-            # 创建简单的会话
+            if not tools_found:
+                if connection_error:
+                    logger.warning(f"无法连接到MCP服务器: {connection_error}")
+                    await http_session.close()
+                    return {
+                        "status": "error",
+                        "message": f"无法连接到MCP服务器: {connection_error}",
+                        "error_type": "connection_error"
+                    }
+                else:
+                    logger.warning(f"无法在任何路径获取工具列表，将创建空工具列表")
+            
+            # 创建简单的会话类
             class SimpleSession:
                 def __init__(self, http_session, server_url):
                     self.http_session = http_session
                     self.server_url = server_url
+                    self.api_paths = {
+                        "tools": next((p for p in paths_to_try if tools_found), "/tools")
+                    }
+                    # 记录是否使用WebSocket
+                    self.use_websocket = self.api_paths["tools"] == "/ws/chat"
+                    self.ws_connection = None
                 
                 async def initialize(self):
-                    pass
+                    if self.use_websocket:
+                        import websockets
+                        ws_url = self.server_url.replace("http://", "ws://").replace("https://", "wss://") + "/ws/chat"
+                        self.ws_connection = await websockets.connect(ws_url)
                 
                 async def list_tools(self):
-                    async with self.http_session.get(f"{self.server_url}/tools") as response:
-                        if response.status != 200:
-                            raise Exception(f"无法获取工具列表，状态码: {response.status}")
+                    if self.use_websocket:
+                        if not self.ws_connection:
+                            await self.initialize()
                         
-                        return await response.json()
+                        await self.ws_connection.send(json.dumps({"type": "list_tools"}))
+                        response = await self.ws_connection.recv()
+                        return json.loads(response)
+                    else:
+                        api_path = self.api_paths.get("tools", "/tools")
+                        try:
+                            async with self.http_session.get(f"{self.server_url}{api_path}") as response:
+                                if response.status != 200:
+                                    raise Exception(f"无法获取工具列表，状态码: {response.status}")
+                                
+                                return await response.json()
+                        except Exception as e:
+                            logger.error(f"获取工具列表失败: {str(e)}")
+                            raise
                 
                 async def call_tool(self, tool_name, args):
-                    async with self.http_session.post(
-                        f"{self.server_url}/tools/{tool_name}",
-                        json=args
-                    ) as response:
-                        if response.status not in (200, 201):
-                            raise Exception(f"工具调用失败，状态码: {response.status}")
+                    if self.use_websocket:
+                        if not self.ws_connection:
+                            await self.initialize()
                         
-                        return await response.json()
+                        # 使用WebSocket调用工具
+                        request = {
+                            "type": "call_tool",
+                            "tool": tool_name,
+                            "args": args
+                        }
+                        await self.ws_connection.send(json.dumps(request))
+                        response = await self.ws_connection.recv()
+                        return json.loads(response)
+                    else:
+                        # 尝试不同的工具调用路径
+                        potential_paths = [
+                            f"/tools/{tool_name}",
+                            f"/api/tools/{tool_name}",
+                            f"{self.api_paths.get('tools', '/tools')}/{tool_name}"
+                        ]
+                        
+                        last_error = None
+                        for path in potential_paths:
+                            try:
+                                async with self.http_session.post(
+                                    f"{self.server_url}{path}",
+                                    json=args
+                                ) as response:
+                                    if response.status in (200, 201):
+                                        return await response.json()
+                                    last_error = f"工具调用失败，状态码: {response.status}"
+                            except Exception as e:
+                                last_error = str(e)
+                        
+                        raise Exception(f"所有尝试都失败: {last_error}")
                 
                 async def stream_tool(self, tool_name, args):
-                    async with self.http_session.post(
-                        f"{self.server_url}/tools/{tool_name}/stream",
-                        json=args
-                    ) as response:
-                        if response.status != 200:
-                            raise Exception(f"流式工具调用失败，状态码: {response.status}")
+                    if self.use_websocket:
+                        if not self.ws_connection:
+                            await self.initialize()
                         
-                        async for line in response.content:
-                            if line.strip():
-                                try:
-                                    data = json.loads(line)
-                                    yield data
-                                except json.JSONDecodeError:
-                                    yield line.decode('utf-8')
+                        # 使用WebSocket流式调用工具
+                        request = {
+                            "type": "stream_tool",
+                            "tool": tool_name,
+                            "args": args
+                        }
+                        await self.ws_connection.send(json.dumps(request))
+                        
+                        # 持续接收流式响应
+                        while True:
+                            response = await self.ws_connection.recv()
+                            data = json.loads(response)
+                            
+                            # 如果是结束标记，退出循环
+                            if data.get("type") == "stream_end":
+                                break
+                                
+                            yield data
+                    else:
+                        # 尝试不同的流式工具调用路径
+                        potential_paths = [
+                            f"/tools/{tool_name}/stream",
+                            f"/api/tools/{tool_name}/stream",
+                            f"{self.api_paths.get('tools', '/tools')}/{tool_name}/stream"
+                        ]
+                        
+                        last_error = None
+                        for path in potential_paths:
+                            try:
+                                async with self.http_session.post(
+                                    f"{self.server_url}{path}",
+                                    json=args
+                                ) as response:
+                                    if response.status == 200:
+                                        async for line in response.content:
+                                            if line.strip():
+                                                try:
+                                                    data = json.loads(line)
+                                                    yield data
+                                                except json.JSONDecodeError:
+                                                    yield line.decode('utf-8')
+                                        return
+                                    last_error = f"流式工具调用失败，状态码: {response.status}"
+                            except Exception as e:
+                                last_error = str(e)
+                        
+                        raise Exception(f"所有尝试都失败: {last_error}")
                 
                 async def call_resource(self, resource_path, params):
                     path = resource_path.replace("sakura://", "")
@@ -182,6 +351,8 @@ class MCPWebSocketManager:
                         return await response.json()
                 
                 async def close(self):
+                    if self.ws_connection:
+                        await self.ws_connection.close()
                     await self.http_session.close()
             
             # 创建会话
@@ -194,7 +365,7 @@ class MCPWebSocketManager:
             logger.info(f"客户端 {client_id} 已连接到MCP服务器: {server_url}")
             return {
                 "status": "success",
-                "message": f"已连接到MCP服务器: {server_url}",
+                "message": f"已连接到MCP服务器: {server_url}" + (f", 发现 {len(tools)} 个工具" if tools else ", 未找到可用工具"),
                 "tools": tools
             }
         except Exception as e:
@@ -203,7 +374,8 @@ class MCPWebSocketManager:
             logger.error(f"连接MCP服务器失败: {str(e)}\n{traceback.format_exc()}")
             return {
                 "status": "error",
-                "message": f"连接MCP服务器失败: {str(e)}"
+                "message": f"连接MCP服务器失败: {str(e)}",
+                "error_type": "general_error"
             }
     
     async def call_tool(self, client_id: str, tool_name: str, args: Dict[str, Any]) -> Dict[str, Any]:
@@ -352,9 +524,14 @@ html = """
                 border: none;
                 cursor: pointer;
                 margin-right: 10px;
+                margin-bottom: 10px;
             }
             button:hover {
                 background-color: #45a049;
+            }
+            button:disabled {
+                background-color: #cccccc;
+                cursor: not-allowed;
             }
             .stream {
                 color: #2196F3;
@@ -365,6 +542,69 @@ html = """
             .success {
                 color: #4CAF50;
             }
+            .info {
+                color: #9c27b0;
+            }
+            .debug-panel {
+                background-color: #f5f5f5;
+                padding: 10px;
+                margin-top: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            .tabs {
+                display: flex;
+                margin-bottom: 10px;
+            }
+            .tab {
+                padding: 8px 15px;
+                cursor: pointer;
+                background-color: #eee;
+                margin-right: 5px;
+            }
+            .tab.active {
+                background-color: #4CAF50;
+                color: white;
+            }
+            .tab-content {
+                display: none;
+            }
+            .tab-content.active {
+                display: block;
+            }
+            .server-status {
+                padding: 8px;
+                margin-top: 10px;
+                border-radius: 4px;
+            }
+            .status-unknown {
+                background-color: #f5f5f5;
+                color: #666;
+            }
+            .status-online {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            .status-offline {
+                background-color: #ffebee;
+                color: #c62828;
+            }
+            .presets {
+                display: flex;
+                flex-wrap: wrap;
+                margin-bottom: 10px;
+            }
+            .preset {
+                padding: 5px 10px;
+                margin-right: 5px;
+                margin-bottom: 5px;
+                background-color: #e0e0e0;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            .preset:hover {
+                background-color: #bdbdbd;
+            }
         </style>
     </head>
     <body>
@@ -372,40 +612,282 @@ html = """
         
         <div id="log"></div>
         
-        <div class="input-group">
-            <label for="serverUrl">MCP服务器URL:</label>
-            <input type="text" id="serverUrl" value="http://localhost:8000">
+        <div class="tabs">
+            <div class="tab active" data-tab="basic">基本设置</div>
+            <div class="tab" data-tab="advanced">高级设置</div>
+            <div class="tab" data-tab="connection">连接测试</div>
         </div>
         
-        <div class="input-group">
-            <label for="toolName">工具名称:</label>
-            <input type="text" id="toolName" value="query_weather">
+        <div id="basic-tab" class="tab-content active">
+            <div class="input-group">
+                <label for="serverUrl">MCP服务器URL:</label>
+                <input type="text" id="serverUrl" value="http://localhost:8000">
+                <div class="presets">
+                    <div class="preset" data-url="http://localhost:8000">本地:8000</div>
+                    <div class="preset" data-url="http://localhost:8080">本地:8080</div>
+                    <div class="preset" data-url="http://localhost:3000">本地:3000</div>
+                    <div class="preset" data-url="http://127.0.0.1:8000">127.0.0.1:8000</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="toolsPath">API路径:</label>
+                <input type="text" id="toolsPath" placeholder="/api/tools">
+                <div class="presets">
+                    <div class="preset" data-path="/ws/chat">WebSocket API (/ws/chat)</div>
+                    <div class="preset" data-path="/tools">REST API (/tools)</div>
+                    <div class="preset" data-path="/api/tools">REST API (/api/tools)</div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label for="toolName">工具名称:</label>
+                <input type="text" id="toolName" value="query_weather">
+            </div>
+            
+            <div class="input-group">
+                <label for="args">工具参数 (JSON格式):</label>
+                <input type="text" id="args" value='{"city": "Shanghai"}'>
+            </div>
         </div>
         
-        <div class="input-group">
-            <label for="args">工具参数 (JSON格式):</label>
-            <input type="text" id="args" value='{"city": "Shanghai"}'>
+        <div id="advanced-tab" class="tab-content">
+            <div class="input-group">
+                <label for="verboseLogging">
+                    <input type="checkbox" id="verboseLogging"> 启用详细日志
+                </label>
+            </div>
+            
+            <div class="input-group">
+                <label for="connectionTimeout">
+                    连接超时 (秒):
+                    <input type="number" id="connectionTimeout" value="10" min="1" max="60">
+                </label>
+            </div>
         </div>
         
-        <button onclick="connectWebSocket()">连接WebSocket</button>
-        <button onclick="connectMCP()">连接MCP服务器</button>
-        <button onclick="callTool()">调用工具</button>
-        <button onclick="streamTool()">流式调用工具</button>
-        <button onclick="disconnect()">断开连接</button>
+        <div id="connection-tab" class="tab-content">
+            <h3>服务器连接测试</h3>
+            <div class="server-status status-unknown" id="server-status">
+                未测试连接状态
+            </div>
+            <button onclick="testServerConnection()">测试服务器连接</button>
+            <div id="connection-details"></div>
+        </div>
+        
+        <div>
+            <button onclick="connectWebSocket()">连接WebSocket</button>
+            <button onclick="connectMCP()" id="connect-mcp-btn">连接MCP服务器</button>
+            <button onclick="callTool()" id="call-tool-btn" disabled>调用工具</button>
+            <button onclick="streamTool()" id="stream-tool-btn" disabled>流式调用工具</button>
+            <button onclick="disconnect()">断开连接</button>
+            <button onclick="clearLog()">清空日志</button>
+        </div>
+        
+        <div class="debug-panel">
+            <h3>调试面板</h3>
+            <div id="debug-info"></div>
+        </div>
         
         <script>
             let ws = null;
+            let mcpConnected = false;
             const clientId = "client_" + Math.random().toString(36).substr(2, 9);
             const logElement = document.getElementById('log');
+            const debugInfoElement = document.getElementById('debug-info');
+            const callToolBtn = document.getElementById('call-tool-btn');
+            const streamToolBtn = document.getElementById('stream-tool-btn');
+            
+            // 标签页切换
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab + '-tab').classList.add('active');
+                });
+            });
+            
+            // 预设URL点击处理
+            document.querySelectorAll('.preset[data-url]').forEach(preset => {
+                preset.addEventListener('click', function() {
+                    document.getElementById('serverUrl').value = this.dataset.url;
+                });
+            });
+            
+            // API路径预设点击处理
+            document.querySelectorAll('.preset[data-path]').forEach(preset => {
+                preset.addEventListener('click', function() {
+                    document.getElementById('toolsPath').value = this.dataset.path;
+                });
+            });
             
             function log(message, className) {
                 const entry = document.createElement('div');
                 if (className) {
                     entry.className = className;
                 }
-                entry.textContent = message;
+                entry.textContent = new Date().toLocaleTimeString() + " - " + message;
                 logElement.appendChild(entry);
                 logElement.scrollTop = logElement.scrollHeight;
+            }
+            
+            function updateDebugInfo() {
+                if (!ws) {
+                    debugInfoElement.textContent = "未连接到WebSocket";
+                    return;
+                }
+                
+                const serverUrl = document.getElementById('serverUrl').value;
+                const toolsPath = document.getElementById('toolsPath').value;
+                
+                debugInfoElement.innerHTML = `
+                    <div>客户端ID: ${clientId}</div>
+                    <div>WebSocket状态: ${ws.readyState === 1 ? '已连接' : '未连接'}</div>
+                    <div>MCP连接状态: ${mcpConnected ? '已连接' : '未连接'}</div>
+                    <div>服务器URL: ${serverUrl}</div>
+                    <div>工具API路径: ${toolsPath || '(自动尝试)'}</div>
+                `;
+            }
+            
+            function clearLog() {
+                logElement.innerHTML = '';
+                log("日志已清空", "info");
+            }
+            
+            async function testServerConnection() {
+                const serverUrl = document.getElementById('serverUrl').value;
+                const statusElement = document.getElementById('server-status');
+                const detailsElement = document.getElementById('connection-details');
+                
+                statusElement.className = 'server-status status-unknown';
+                statusElement.textContent = '正在测试连接...';
+                detailsElement.innerHTML = '';
+                
+                try {
+                    const timeout = parseInt(document.getElementById('connectionTimeout').value) * 1000 || 10000;
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+                    
+                    // 先测试基本的HTTP连接
+                    const response = await fetch(serverUrl, {
+                        method: 'HEAD',
+                        signal: controller.signal
+                    }).catch(error => {
+                        throw new Error(`无法连接到服务器: ${error.message}`);
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    statusElement.className = 'server-status status-online';
+                    statusElement.textContent = '服务器在线！';
+                    
+                    // 尝试检测API路径
+                    const restPaths = ['/tools', '/api/tools', '/v1/tools', '/api/v1/tools'];
+                    let apiFound = false;
+                    
+                    detailsElement.innerHTML = '<p>正在检测API路径...</p>';
+                    
+                    // 先尝试WebSocket API
+                    try {
+                        const wsUrl = serverUrl.replace("http://", "ws://").replace("https://", "wss://") + "/ws/chat";
+                        detailsElement.innerHTML += `<p>尝试WebSocket连接: ${wsUrl}</p>`;
+                        
+                        const ws = new WebSocket(wsUrl);
+                        
+                        // 创建一个Promise来处理WebSocket连接
+                        const wsPromise = new Promise((resolve, reject) => {
+                            const wsTimeout = setTimeout(() => {
+                                ws.close();
+                                reject(new Error("WebSocket连接超时"));
+                            }, 5000);
+                            
+                            ws.onopen = () => {
+                                clearTimeout(wsTimeout);
+                                
+                                // 发送工具列表请求
+                                ws.send(JSON.stringify({type: "list_tools"}));
+                                
+                                // 等待响应
+                                ws.onmessage = (event) => {
+                                    const data = JSON.parse(event.data);
+                                    if (data.tools) {
+                                        resolve({
+                                            path: "/ws/chat",
+                                            toolCount: data.tools.length,
+                                            isWebSocket: true
+                                        });
+                                    } else {
+                                        reject(new Error("未收到有效的工具列表"));
+                                    }
+                                    ws.close();
+                                };
+                            };
+                            
+                            ws.onerror = (error) => {
+                                clearTimeout(wsTimeout);
+                                reject(error);
+                            };
+                        });
+                        
+                        try {
+                            const result = await wsPromise;
+                            detailsElement.innerHTML += `<p class="success">✅ 发现WebSocket API路径: ${result.path}</p>`;
+                            detailsElement.innerHTML += `<p>发现 ${result.toolCount} 个工具</p>`;
+                            
+                            // 自动设置路径
+                            document.getElementById('toolsPath').value = result.path;
+                            apiFound = true;
+                        } catch (e) {
+                            detailsElement.innerHTML += `<p>WebSocket API不可用: ${e.message}</p>`;
+                        }
+                    } catch (e) {
+                        detailsElement.innerHTML += `<p>WebSocket API测试失败: ${e.message}</p>`;
+                    }
+                    
+                    // 如果WebSocket API不可用，尝试REST API
+                    if (!apiFound) {
+                        for (const path of restPaths) {
+                            try {
+                                const apiResponse = await fetch(`${serverUrl}${path}`, {
+                                    method: 'GET',
+                                    headers: { 'Accept': 'application/json' }
+                                });
+                                
+                                if (apiResponse.ok) {
+                                    detailsElement.innerHTML += `<p class="success">✅ 发现REST API路径: ${path}</p>`;
+                                    apiFound = true;
+                                    
+                                    // 自动设置路径
+                                    document.getElementById('toolsPath').value = path;
+                                    
+                                    try {
+                                        const data = await apiResponse.json();
+                                        const toolCount = data.tools ? data.tools.length : 0;
+                                        detailsElement.innerHTML += `<p>发现 ${toolCount} 个工具</p>`;
+                                    } catch (e) {
+                                        detailsElement.innerHTML += `<p class="error">无法解析API响应: ${e.message}</p>`;
+                                    }
+                                    
+                                    break;
+                                }
+                            } catch (e) {
+                                // 忽略错误，继续尝试其他路径
+                            }
+                        }
+                    }
+                    
+                    if (!apiFound) {
+                        detailsElement.innerHTML += '<p class="error">未找到有效的API路径</p>';
+                        detailsElement.innerHTML += '<p>请手动设置API路径或尝试其他服务器URL</p>';
+                    }
+                    
+                } catch (error) {
+                    statusElement.className = 'server-status status-offline';
+                    statusElement.textContent = '服务器离线或无法访问';
+                    detailsElement.innerHTML = `<p class="error">${error.message}</p>`;
+                }
             }
             
             function connectWebSocket() {
@@ -422,6 +904,8 @@ html = """
                 
                 ws.onopen = function(event) {
                     log("WebSocket连接已建立", "success");
+                    document.getElementById('connect-mcp-btn').disabled = false;
+                    updateDebugInfo();
                 };
                 
                 ws.onmessage = function(event) {
@@ -440,17 +924,50 @@ html = """
                     } else if (data.type === "stream_error") {
                         log(`流式调用错误: ${data.message}`, "error");
                     } else {
-                        log(`收到消息: ${JSON.stringify(data)}`);
+                        if (document.getElementById('verboseLogging').checked) {
+                            log(`收到消息: ${JSON.stringify(data)}`, "info");
+                        } else {
+                            // 只显示关键信息
+                            if (data.status === "success") {
+                                log(`成功: ${data.message || "操作成功"}`, "success");
+                                
+                                // 处理MCP连接成功
+                                if (data.message && data.message.includes("已连接到MCP服务器")) {
+                                    mcpConnected = true;
+                                    callToolBtn.disabled = false;
+                                    streamToolBtn.disabled = false;
+                                    
+                                    if (data.tools) {
+                                        log(`获取到 ${data.tools.length} 个工具`, "info");
+                                    }
+                                }
+                            } else if (data.status === "error") {
+                                log(`错误: ${data.message}`, "error");
+                                
+                                // 特殊处理连接错误
+                                if (data.error_type === "connection_error") {
+                                    log("提示: 请检查服务器URL和端口是否正确，或使用连接测试功能", "info");
+                                }
+                            }
+                        }
                     }
+                    
+                    updateDebugInfo();
                 };
                 
                 ws.onclose = function(event) {
                     log("WebSocket连接已关闭", "error");
                     ws = null;
+                    mcpConnected = false;
+                    callToolBtn.disabled = true;
+                    streamToolBtn.disabled = true;
+                    document.getElementById('connect-mcp-btn').disabled = true;
+                    updateDebugInfo();
                 };
                 
                 ws.onerror = function(event) {
                     log("WebSocket错误", "error");
+                    updateDebugInfo();
                 };
             }
             
@@ -461,17 +978,31 @@ html = """
                 }
                 
                 const serverUrl = document.getElementById('serverUrl').value;
-                log(`正在连接到MCP服务器: ${serverUrl}`);
+                const toolsPath = document.getElementById('toolsPath').value;
                 
-                ws.send(JSON.stringify({
+                log(`正在连接到MCP服务器: ${serverUrl}${toolsPath ? ` (工具路径: ${toolsPath})` : ''}`);
+                
+                const request = {
                     action: "connect_mcp",
                     server_url: serverUrl
-                }));
+                };
+                
+                if (toolsPath) {
+                    request.tools_path = toolsPath;
+                }
+                
+                ws.send(JSON.stringify(request));
+                updateDebugInfo();
             }
             
             function callTool() {
                 if (!ws) {
                     log("请先连接WebSocket", "error");
+                    return;
+                }
+                
+                if (!mcpConnected) {
+                    log("请先连接MCP服务器", "error");
                     return;
                 }
                 
@@ -498,6 +1029,11 @@ html = """
                     return;
                 }
                 
+                if (!mcpConnected) {
+                    log("请先连接MCP服务器", "error");
+                    return;
+                }
+                
                 const toolName = document.getElementById('toolName').value;
                 const argsStr = document.getElementById('args').value;
                 
@@ -519,8 +1055,25 @@ html = """
                 if (ws) {
                     ws.close();
                     log("已断开WebSocket连接");
+                    mcpConnected = false;
+                    callToolBtn.disabled = true;
+                    streamToolBtn.disabled = true;
+                    updateDebugInfo();
                 }
             }
+            
+            // 页面加载时初始化UI
+            document.addEventListener('DOMContentLoaded', function() {
+                // 默认为详细日志关闭
+                document.getElementById('verboseLogging').checked = false;
+                
+                // 禁用工具调用按钮，直到连接成功
+                callToolBtn.disabled = true;
+                streamToolBtn.disabled = true;
+                document.getElementById('connect-mcp-btn').disabled = true;
+                
+                updateDebugInfo();
+            });
         </script>
     </body>
 </html>
@@ -554,7 +1107,9 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             # 处理不同类型的消息
             if action == "connect_mcp":
                 server_url = message.get("server_url", "http://localhost:8000")
-                result = await manager.connect_mcp(client_id, server_url)
+                tools_path = message.get("tools_path", None)
+                logger.info(f"客户端 {client_id} 请求连接到 {server_url}，工具路径: {tools_path}")
+                result = await manager.connect_mcp(client_id, server_url, tools_path)
                 await websocket.send_json(result)
             
             elif action == "call_tool":
