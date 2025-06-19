@@ -53,12 +53,12 @@ async def train_model(request: TrainRequest):
 
 
 @text2sqlController.get("/training_data")
-async def get_training_data(supplier: str = Query("")):
+async def get_training_data():
     """
     获取训练数据，包括问题-SQL对、文档、DDL等
     """
     try:
-        training_data = service.get_training_data(supplier)
+        training_data = service.get_training_data()
         return ResponseUtil.success(data=training_data)
     except Exception as e:
         return ResponseUtil.error(msg=f"获取训练数据失败: {str(e)}")
