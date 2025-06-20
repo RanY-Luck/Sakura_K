@@ -1,11 +1,10 @@
+'''
+Descripttion: Text2SQL控制器层
+version: 1.0.0
+Author: 冉勇
+Date: 2025-06-20 10:00:00
+LastEditTime: 2025-06-20 10:00:00
+'''
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time     : 2025-05-28 18:40:00
-# @Author   : 冉勇
-# @File     : __init__.py
-# @Software : PyCharm
-# @Desc     : Text2SQL控制器包初始化文件
-
-from plugin.module_text2sql.controller.text2sql_controller import text2sqlController
-
-__all__ = ['text2sqlController']
+# @desc    : Text2SQL控制器层初始化文件 
