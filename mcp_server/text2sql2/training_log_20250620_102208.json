@@ -1,0 +1,1528 @@
+[
+  {
+    "timestamp": "2025-06-20T10:20:37.734172",
+    "type": "DDL",
+    "table": "access_system",
+    "status": "success",
+    "content": "CREATE TABLE `access_system` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `name` varchar(50) DEFAULT NULL COMMENT '接入系统名称',\n  `code` char(8) DEFAULT NULL COMMENT '接入系统编码',\n  `contact_name`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:38.034757",
+    "type": "DDL",
+    "table": "alarm",
+    "status": "success",
+    "content": "CREATE TABLE `alarm` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `alarm_status` tinyint(1) DEFAULT NULL COMMENT '报警处理状态（未处理、处理中、已处理）',\n  `alarm_result`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:38.234329",
+    "type": "DDL",
+    "table": "alarm_capture",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_capture` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `alarm_id` bigint(50) DEFAULT NULL COMMENT '报警id',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `pic_url`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:38.546129",
+    "type": "DDL",
+    "table": "alarm_common_threshold",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_common_threshold` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(50) DEFAULT NULL COMMENT '设备位置号（用于区分一对多设备）',\n  `en..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:38.859564",
+    "type": "DDL",
+    "table": "alarm_history",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_history` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `alarm_status` tinyint(1) DEFAULT NULL COMMENT '报警处理状态（0：未处理 1：处理中 2：已处理）',\n  ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:39.017800",
+    "type": "DDL",
+    "table": "alarm_task",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_task` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `task_mark_id` bigint(50) DEFAULT NULL COMMENT '同一个报警任务标识Id',\n  `alarm_id` bigint(50) DEFAULT NULL COMMENT '报警Id',\n  ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:39.211929",
+    "type": "DDL",
+    "table": "alarm_threshold",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_threshold` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `enabled_config` varchar(255) DEFAULT NULL COMMENT '启用的配置项（f..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:39.495203",
+    "type": "DDL",
+    "table": "alarm_threshold_plus",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_threshold_plus` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `enabled_config` varchar(255) DEFAULT NULL COMMENT '启用的配置项',\n  `timeout..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:39.709736",
+    "type": "DDL",
+    "table": "alarm_threshold_template",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_threshold_template` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(10) NOT NULL COMMENT '所属组织',\n  `config_name` varchar(50) DEFAULT NULL COMMENT '名称',\n  `alarm_thres..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:39.944539",
+    "type": "DDL",
+    "table": "alarm_track",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_track` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT 'Id',\n  `alarm_id` bigint(50) DEFAULT NULL COMMENT '预警id',\n  `track_status` tinyint(2) DEFAULT NULL COMMENT '追踪状态（0-未处理 2..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:40.134928",
+    "type": "DDL",
+    "table": "alarm_user",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_user` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` int(50) DEFAULT NULL COMMENT '组织列表id',\n  `alarm_user_id` int(50) DEFAULT NULL COMMENT '报警处理人员',\n  PRIMA..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:40.359575",
+    "type": "DDL",
+    "table": "alarm_value_record",
+    "status": "success",
+    "content": "CREATE TABLE `alarm_value_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `alarm_value` decimal(10,6) DEFAULT NULL COMMENT '预警结果',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备IMEI',\n  `alarm_t..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:40.526500",
+    "type": "DDL",
+    "table": "algorithm",
+    "status": "success",
+    "content": "CREATE TABLE `algorithm` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `name` varchar(255) DEFAULT NULL COMMENT '算法名称',\n  `type` tinyint(2) DEFAULT NULL COMMENT '类型',\n  `identify_flag` varchar(255) DEFA..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:40.709158",
+    "type": "DDL",
+    "table": "algorithm_config",
+    "status": "success",
+    "content": "CREATE TABLE `algorithm_config` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `algorithm_id` int(11) NOT NULL COMMENT '算法id',\n  `zh_name` varchar(255) DEFAULT NULL COMMENT '配置项名称',\n  `en_name` varchar(2..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:40.884175",
+    "type": "DDL",
+    "table": "application_scene",
+    "status": "success",
+    "content": "CREATE TABLE `application_scene` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(10) NOT NULL COMMENT '所属组织',\n  `config_type` varchar(50) DEFAULT NULL COMMENT '类型',\n  `config_name` varch..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:41.117377",
+    "type": "DDL",
+    "table": "audible_alarm",
+    "status": "success",
+    "content": "CREATE TABLE `audible_alarm` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `audible_alarm_id` varchar(255) NOT NULL COMMENT '声光报警器id',\n  `audible_alarm_key` varchar(255) DEFAULT NULL COMMENT '设备key',..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:41.316814",
+    "type": "DDL",
+    "table": "audible_alarm_device",
+    "status": "success",
+    "content": "CREATE TABLE `audible_alarm_device` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `audible_alarm_id` varchar(255) NOT NULL COMMENT '声光报警器id',\n  `device_imei` varchar(255) NOT NULL COMMENT '设备imei',\n ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:41.551297",
+    "type": "DDL",
+    "table": "auth_client",
+    "status": "success",
+    "content": "CREATE TABLE `auth_client` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `code` varchar(255) DEFAULT NULL COMMENT '服务编码',\n  `secret` varchar(255) DEFAULT NULL COMMENT '服务密钥',\n  `name` varchar(255) DEFAU..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:41.715763",
+    "type": "DDL",
+    "table": "auth_client_service",
+    "status": "success",
+    "content": "CREATE TABLE `auth_client_service` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `service_id` varchar(255) DEFAULT NULL,\n  `client_id` varchar(255) DEFAULT NULL,\n  `description` varchar(255) DEFAULT NUL..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:41.959479",
+    "type": "DDL",
+    "table": "base_area",
+    "status": "success",
+    "content": "CREATE TABLE `base_area` (\n  `node_code` varchar(15) NOT NULL DEFAULT '' COMMENT '地址编码',\n  `node_name` varchar(100) NOT NULL COMMENT '地区名称',\n  `node_full_name` varchar(500) DEFAULT NULL COMMENT '地区全称'..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:42.134631",
+    "type": "DDL",
+    "table": "base_element",
+    "status": "success",
+    "content": "CREATE TABLE `base_element` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `code` varchar(255) DEFAULT NULL COMMENT '资源编码',\n  `type` varchar(255) DEFAULT NULL COMMENT '资源类型',\n  `name` varchar(255) DEFAUL..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:42.358896",
+    "type": "DDL",
+    "table": "base_group",
+    "status": "success",
+    "content": "CREATE TABLE `base_group` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `code` varchar(255) DEFAULT NULL COMMENT '部门编码',\n  `identifier_code` char(9) NOT NULL DEFAULT 'GD0000000' COMMENT '组织标识编号',\n  `nam..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:42.524776",
+    "type": "DDL",
+    "table": "base_menu",
+    "status": "success",
+    "content": "CREATE TABLE `base_menu` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `code` varchar(255) DEFAULT NULL COMMENT '路径编码',\n  `title` varchar(255) DEFAULT NULL COMMENT '标题',\n  `parent_id` int(11) NOT NULL C..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:42.683918",
+    "type": "DDL",
+    "table": "base_resource_authority",
+    "status": "success",
+    "content": "CREATE TABLE `base_resource_authority` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `role_id` varchar(255) DEFAULT NULL COMMENT '角色ID',\n  `resource_id` varchar(255) DEFAULT NULL COMMENT '资源ID',\n  `reso..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:42.920018",
+    "type": "DDL",
+    "table": "base_role",
+    "status": "success",
+    "content": "CREATE TABLE `base_role` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(10) NOT NULL COMMENT '组织Id',\n  `code` varchar(255) DEFAULT NULL COMMENT '资源编码',\n  `name` varchar(255) DEFAULT NULL C..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:43.194976",
+    "type": "DDL",
+    "table": "base_user",
+    "status": "success",
+    "content": "CREATE TABLE `base_user` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `username` varchar(255) DEFAULT NULL COMMENT '账号',\n  `password` varchar(255) DEFAULT NULL COMMENT '密码',\n  `name` varchar(255) DEFAU..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:43.400704",
+    "type": "DDL",
+    "table": "base_user_role",
+    "status": "success",
+    "content": "CREATE TABLE `base_user_role` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `role_id` varchar(255) DEFAULT NULL,\n  `user_id` varchar(255) DEFAULT NULL,\n  PRIMARY KEY (`id`) USING BTREE\n) ENGINE=InnoDB A..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:43.583999",
+    "type": "DDL",
+    "table": "batch",
+    "status": "success",
+    "content": "CREATE TABLE `batch` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `batch_code` varchar(50) DEFAULT NULL COMMENT '批次号（bd+产品型号+硬件版本+生产日期）',\n  `hard_version` int(10) DEFAULT NULL COMMENT '..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:43.758795",
+    "type": "DDL",
+    "table": "cmd_view",
+    "status": "success",
+    "content": "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `cmd_view` AS select `device_command`.`id` AS `id`,`device_command`.`command_name` AS `command_name`,`device_command`.`command_c..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:43.934330",
+    "type": "DDL",
+    "table": "common_config",
+    "status": "success",
+    "content": "CREATE TABLE `common_config` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `threshold` int(10) NOT NULL DEFAULT '0' COMMENT '报警阈值（默认0）',\n  `push_interval` int(10) NOT NULL DEFAULT '10' COMMENT '推送间隔（..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:44.095737",
+    "type": "DDL",
+    "table": "constants_config",
+    "status": "success",
+    "content": "CREATE TABLE `constants_config` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` int(10) DEFAULT NULL COMMENT '组织Id',\n  `config_key` varchar(50) DEFAULT NULL COMMENT '配置键',\n  `co..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:44.242883",
+    "type": "DDL",
+    "table": "consult_record",
+    "status": "success",
+    "content": "CREATE TABLE `consult_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `consult_content` varchar(100) DEFAULT NULL COMMENT '咨询内容',\n  `phone_number` varchar(11) DEFAULT NULL COMMENT '联系电话',\n  `co..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:44.400695",
+    "type": "DDL",
+    "table": "data_push_config",
+    "status": "success",
+    "content": "CREATE TABLE `data_push_config` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` varchar(20) DEFAULT NULL COMMENT '组织Id',\n  `remark` varchar(512) DEFAULT NULL COMMENT '备注',\n  PRI..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:44.575281",
+    "type": "DDL",
+    "table": "deep_displacement_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `deep_displacement_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `cre..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:44.808566",
+    "type": "DDL",
+    "table": "device_bind_record",
+    "status": "success",
+    "content": "CREATE TABLE `device_bind_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `group_id` int(10) NOT NULL COMMENT '所属组织',\n  `bind_time` datetime NOT NU..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:45.025054",
+    "type": "DDL",
+    "table": "device_cmd_status",
+    "status": "success",
+    "content": "CREATE TABLE `device_cmd_status` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `cmd_name` varchar(50) DEFAULT NULL COMMENT '指令名称',\n  `cmd_code` varchar(5..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:45.171255",
+    "type": "DDL",
+    "table": "device_command",
+    "status": "success",
+    "content": "CREATE TABLE `device_command` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `command_name` varchar(255) DEFAULT NULL COMMENT '指令名称',\n  `command_code` varchar(50) DEFAULT NULL COMMENT '指令编码'..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:45.346120",
+    "type": "DDL",
+    "table": "device_command_param",
+    "status": "success",
+    "content": "CREATE TABLE `device_command_param` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `command_id` int(10) DEFAULT NULL COMMENT '指令id',\n  `param_seq` int(10) DEFAULT NULL COMMENT '参数序号',\n  `par..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:45.558120",
+    "type": "DDL",
+    "table": "device_day_average_value",
+    "status": "success",
+    "content": "CREATE TABLE `device_day_average_value` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `type` int(11) DEFAULT NULL COMMENT '值的类型',\n  `average_value` decimal(1..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:45.775819",
+    "type": "DDL",
+    "table": "device_day_variation_value",
+    "status": "success",
+    "content": "CREATE TABLE `device_day_variation_value` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `type` int(11) DEFAULT NULL COMMENT '值的类型',\n  `variation_value` decim..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:45.976090",
+    "type": "DDL",
+    "table": "device_extra_config",
+    "status": "success",
+    "content": "CREATE TABLE `device_extra_config` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `config_key` varchar(50) DEFAULT NULL COMMENT '配置项',\n  `..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:46.201265",
+    "type": "DDL",
+    "table": "device_extra_config_rollback",
+    "status": "success",
+    "content": "CREATE TABLE `device_extra_config_rollback` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `config_key` varchar(50) DEFAULT NULL COMMENT '..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:46.434852",
+    "type": "DDL",
+    "table": "device_extra_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `device_extra_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `battery_level` int(10) DEFAULT NULL COMMENT '电池电量',\n  `low_power` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:46.608440",
+    "type": "DDL",
+    "table": "device_extra_platform_code_relation",
+    "status": "success",
+    "content": "CREATE TABLE `device_extra_platform_code_relation` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `platform_type` tinyint(2) NOT NULL COMMENT '外接平台类型',\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `de..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:46.825955",
+    "type": "DDL",
+    "table": "device_info",
+    "status": "success",
+    "content": "CREATE TABLE `device_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `device_name` varchar(50) DEFAULT NULL COMMENT '设备名称',\n  `info_type` varchar(255..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:47.042927",
+    "type": "DDL",
+    "table": "device_monitor_data_id_relation",
+    "status": "success",
+    "content": "CREATE TABLE `device_monitor_data_id_relation` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `identifier_code` varchar(9) NOT NULL COMMENT '组织标识编号',\n  `data_..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:47.261434",
+    "type": "DDL",
+    "table": "device_month_average_value",
+    "status": "success",
+    "content": "CREATE TABLE `device_month_average_value` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `type` int(11) DEFAULT NULL COMMENT '值的类型',\n  `average_value` decimal..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:47.448409",
+    "type": "DDL",
+    "table": "device_month_variation_value",
+    "status": "success",
+    "content": "CREATE TABLE `device_month_variation_value` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `type` int(11) DEFAULT NULL COMMENT '值的类型',\n  `variation_value` dec..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:47.808705",
+    "type": "DDL",
+    "table": "device_other_info",
+    "status": "success",
+    "content": "CREATE TABLE `device_other_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `imei` varchar(36) NOT NULL COMMENT '组织id',\n  `acquire_location` tinyint(4) NOT NULL DEFAULT '1' COMMENT '是否..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:48.044278",
+    "type": "DDL",
+    "table": "device_repair_record",
+    "status": "success",
+    "content": "CREATE TABLE `device_repair_record` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `description` varchar(512) NOT NULL COMMENT '描述',\n  `repair_start_time` dat..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:48.262836",
+    "type": "DDL",
+    "table": "device_replace_record",
+    "status": "success",
+    "content": "CREATE TABLE `device_replace_record` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `old_imei` varchar(50) DEFAULT NULL COMMENT '旧设备号',\n  `new_imei` varchar(50) DEFAULT NULL COMMENT '新设备号',\n  `group_id` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:48.458825",
+    "type": "DDL",
+    "table": "device_replace_relation",
+    "status": "success",
+    "content": "CREATE TABLE `device_replace_relation` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `old_imei` varchar(50) DEFAULT NULL COMMENT '旧设备号',\n  `new_imei` varchar(50) DEFAULT NULL COMMENT '新设备号',\n  PRIMARY K..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:48.742829",
+    "type": "DDL",
+    "table": "device_status",
+    "status": "success",
+    "content": "CREATE TABLE `device_status` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `frequency_status` tinyint(1) DEFAULT NULL COMMENT '是否频繁上报',\n ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:48.968789",
+    "type": "DDL",
+    "table": "device_status_change_record",
+    "status": "success",
+    "content": "CREATE TABLE `device_status_change_record` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `status` tinyint(1) NOT NULL COMMENT '设备状态',\n  `change_time` datetim..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:49.234382",
+    "type": "DDL",
+    "table": "device_value_renovate_record",
+    "status": "success",
+    "content": "CREATE TABLE `device_value_renovate_record` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `renovate_type` varchar(20) NOT NULL COMMENT '翻新类型',\n  `renovate_param` varchar(512) DEFAULT NULL COMMENT '翻新参数'..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:49.417140",
+    "type": "DDL",
+    "table": "displacement_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `displacement_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `length` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:49.650790",
+    "type": "DDL",
+    "table": "dtu_device",
+    "status": "success",
+    "content": "CREATE TABLE `dtu_device` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(10) DEFAULT NULL COMMENT '组织Id',\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `crt_time` datetime DEFAULT NUL..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:49.843592",
+    "type": "DDL",
+    "table": "dtu_extra_device_relation",
+    "status": "success",
+    "content": "CREATE TABLE `dtu_extra_device_relation` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'dtu的imei',\n  `extra_imei` varchar(50) NOT NULL COMMENT '外接传感器imei',\n  `rela..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:50.034305",
+    "type": "DDL",
+    "table": "earth_pressure_meter_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `earth_pressure_meter_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:50.260715",
+    "type": "DDL",
+    "table": "external_lean_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `external_lean_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `data_status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '数据状态',\n  `g..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:50.502758",
+    "type": "DDL",
+    "table": "external_subsidence_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `external_subsidence_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `data_status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '数据状态'..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:50.684342",
+    "type": "DDL",
+    "table": "extra_device_info",
+    "status": "success",
+    "content": "CREATE TABLE `extra_device_info` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `type` tinyint(1) NOT NULL COMMENT '传感器类型',\n  `address` char(2) NOT NULL COMMENT '传感器地址',\n  `customer` varchar(128) DEFAULT..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:50.853144",
+    "type": "DDL",
+    "table": "extra_platform_code_mapping",
+    "status": "success",
+    "content": "CREATE TABLE `extra_platform_code_mapping` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `platform_type` tinyint(2) NOT NULL COMMENT '外接平台类型',\n  `device_type` int(11) NOT NULL COMMENT '设备类型',\n  `monitor..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:51.003947",
+    "type": "DDL",
+    "table": "extra_platform_info",
+    "status": "success",
+    "content": "CREATE TABLE `extra_platform_info` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `platform_type` tinyint(2) NOT NULL COMMENT '外接平台类型',\n  `platform_name` varchar(50) NOT NULL COMMENT '外接平台名称',\n  PRIMARY ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:51.177573",
+    "type": "DDL",
+    "table": "fee_config",
+    "status": "success",
+    "content": "CREATE TABLE `fee_config` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备IMEI',\n  `annual_fee` decimal(8,2) DEFAULT NULL COMMENT '年费',\n  `deadline`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:51.409950",
+    "type": "DDL",
+    "table": "fee_imei",
+    "status": "success",
+    "content": "CREATE TABLE `fee_imei` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `batch` varchar(50) NOT NULL COMMENT '批次号',\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  PRIMARY KEY (`id`) USING BTREE,\n  UNIQ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:51.660955",
+    "type": "DDL",
+    "table": "file_record",
+    "status": "success",
+    "content": "CREATE TABLE `file_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(10) NOT NULL COMMENT '操作组织',\n  `file_type` tinyint(2) DEFAULT NULL COMMENT '文件类型',\n  `crt_time` datetime DEFAUL..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:51.911873",
+    "type": "DDL",
+    "table": "gap_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `gap_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `gap_length` int(1..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:52.151188",
+    "type": "DDL",
+    "table": "gate_log",
+    "status": "success",
+    "content": "CREATE TABLE `gate_log` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '序号',\n  `menu` varchar(255) DEFAULT NULL COMMENT '菜单',\n  `opt` varchar(255) DEFAULT NULL COMMENT '操作',\n  `uri` varchar(255) DEF..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:52.327966",
+    "type": "DDL",
+    "table": "gb_license",
+    "status": "success",
+    "content": "CREATE TABLE `gb_license` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `count` int(11) DEFAULT NULL COMMENT '接入监控数',\n  `crt_time` datetime DEFAULT NULL COM..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:52.493097",
+    "type": "DDL",
+    "table": "gb_license_monitor",
+    "status": "success",
+    "content": "CREATE TABLE `gb_license_monitor` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `license_id` int(11) NOT NULL COMMENT 'license_id',\n  `device_serial` varchar(255) DEFAULT NULL COMMENT '分配设备编号',\n  `statu..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:52.692703",
+    "type": "DDL",
+    "table": "gb_monitor",
+    "status": "success",
+    "content": "CREATE TABLE `gb_monitor` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '所属组织',\n  `banner_weight` int(11) DEFAULT NULL COMMENT '首页播放权重',\n  `name` varchar(255) DEFA..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:52.884551",
+    "type": "DDL",
+    "table": "gradienter_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `gradienter_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` char(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `gradienter_cu..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:53.051330",
+    "type": "DDL",
+    "table": "group_alarm",
+    "status": "success",
+    "content": "CREATE TABLE `group_alarm` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `alarm_status` tinyint(1) DEFAULT NULL COMMENT '报警处理状态',\n  `alarm_result` tinyint(1..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:53.292416",
+    "type": "DDL",
+    "table": "group_fee_config",
+    "status": "success",
+    "content": "CREATE TABLE `group_fee_config` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `batch` varchar(50) NOT NULL COMMENT '批次号',\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `annual_fee` decimal(8,2) DEF..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:53.544976",
+    "type": "DDL",
+    "table": "group_judgment_user_sms",
+    "status": "success",
+    "content": "CREATE TABLE `group_judgment_user_sms` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `user_id` int(11) NOT NULL COMMENT '用户id',\n  `template_id` varchar(36) ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:53.786104",
+    "type": "DDL",
+    "table": "group_monitor_data_id_relation",
+    "status": "success",
+    "content": "CREATE TABLE `group_monitor_data_id_relation` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(10) NOT NULL COMMENT '祖先组织',\n  `identifier_code` varchar(9) NOT NULL COMMENT '组织标识编号',\n  `data_..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:53.993734",
+    "type": "DDL",
+    "table": "group_mp",
+    "status": "success",
+    "content": "CREATE TABLE `group_mp` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `mp_id` varchar(50) NOT NULL COMMENT '公众号Id',\n  PRIMARY KEY (`id`) USING BTREE,\n  UNIQ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:54.193146",
+    "type": "DDL",
+    "table": "group_relation",
+    "status": "success",
+    "content": "CREATE TABLE `group_relation` (\n  `ancestor` int(11) NOT NULL,\n  `descendant` int(11) NOT NULL,\n  PRIMARY KEY (`ancestor`,`descendant`) USING BTREE,\n  KEY `idx1` (`ancestor`) USING BTREE,\n  KEY `idx2`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:54.375854",
+    "type": "DDL",
+    "table": "group_sms",
+    "status": "success",
+    "content": "CREATE TABLE `group_sms` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `sms_info_id` int(11) NOT NULL COMMENT '短信服务id',\n  `function_type` tinyint(2) DEFAULT..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:54.535890",
+    "type": "DDL",
+    "table": "group_user_mp",
+    "status": "success",
+    "content": "CREATE TABLE `group_user_mp` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `user_id` int(50) NOT NULL COMMENT '用户id',\n  `alarm_level` tinyint(4) NOT NULL DE..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:54.717402",
+    "type": "DDL",
+    "table": "group_user_record",
+    "status": "success",
+    "content": "CREATE TABLE `group_user_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` bigint(50) DEFAULT NULL COMMENT '组织id',\n  `user_id` bigint(50) DEFAULT NULL COMMENT '用户id',\n  `s..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:54.968093",
+    "type": "DDL",
+    "table": "group_user_role",
+    "status": "success",
+    "content": "CREATE TABLE `group_user_role` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` bigint(50) DEFAULT NULL COMMENT '组织id',\n  `user_id` bigint(50) DEFAULT NULL COMMENT '用户id',\n  `rol..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:55.226730",
+    "type": "DDL",
+    "table": "group_user_sms",
+    "status": "success",
+    "content": "CREATE TABLE `group_user_sms` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `user_id` int(11) NOT NULL COMMENT '用户id',\n  `alarm_level` tinyint(4) NOT NULL D..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:55.487420",
+    "type": "DDL",
+    "table": "history_identifier_code",
+    "status": "success",
+    "content": "CREATE TABLE `history_identifier_code` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `identifier_code` varchar(9) NOT NULL COMMENT '组织标识编号',\n  `group_name` varchar(20) NOT NULL COMMENT '组织名称',\n  `create..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:55.852974",
+    "type": "DDL",
+    "table": "initial_angle_rollback",
+    "status": "success",
+    "content": "CREATE TABLE `initial_angle_rollback` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `initial_config` text,\n  `create_time` timestamp NOT ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:56.121551",
+    "type": "DDL",
+    "table": "inspection_task_info",
+    "status": "success",
+    "content": "CREATE TABLE `inspection_task_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `group_id` int(11) DEFAULT NULL COMMENT '组织id',\n  `user_id` int(11) NOT NULL COMMENT '巡检人员id',\n  `quartz_..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:56.518281",
+    "type": "DDL",
+    "table": "inspection_task_user_relation",
+    "status": "success",
+    "content": "CREATE TABLE `inspection_task_user_relation` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `quartz_corn_id` int(11) NOT NULL COMMENT '巡检配置id',\n  `user_id` int(11) NOT NULL COMMENT '巡检人员id..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:56.864130",
+    "type": "DDL",
+    "table": "inspection_user_task_finish",
+    "status": "success",
+    "content": "CREATE TABLE `inspection_user_task_finish` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT 'Id',\n  `quartz_corn_id` int(11) DEFAULT NULL COMMENT '巡检配置id',\n  `task_id` bigint(50) DEFAULT NULL COMME..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:57.071707",
+    "type": "DDL",
+    "table": "installation_record",
+    "status": "success",
+    "content": "CREATE TABLE `installation_record` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备IMEI',\n  `installer` varchar(512) DEFAULT NULL COMMENT '安装人员',\n  ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:57.293226",
+    "type": "DDL",
+    "table": "installation_record_picture",
+    "status": "success",
+    "content": "CREATE TABLE `installation_record_picture` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `installation_record_id` bigint(50) DEFAULT NULL COMMENT '安裝记录id',\n  `imei` varchar(50) DEFAULT N..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:57.484329",
+    "type": "DDL",
+    "table": "issue_invoice_order_relation",
+    "status": "success",
+    "content": "CREATE TABLE `issue_invoice_order_relation` (\n  `id` bigint(36) NOT NULL COMMENT '数据id',\n  `issue_invoice_id` bigint(36) DEFAULT NULL COMMENT '开具发票记录id',\n  `order_no` varchar(50) NOT NULL COMMENT '支付订..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:57.690948",
+    "type": "DDL",
+    "table": "issue_invoice_record",
+    "status": "success",
+    "content": "CREATE TABLE `issue_invoice_record` (\n  `id` bigint(36) NOT NULL COMMENT '数据id',\n  `group_id` int(11) DEFAULT NULL COMMENT '组织id',\n  `tax_number` varchar(50) DEFAULT NULL COMMENT '开票税号',\n  `tax_title`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:57.858347",
+    "type": "DDL",
+    "table": "latest_device_alarm",
+    "status": "success",
+    "content": "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `latest_device_alarm` AS select `arm`.`id` AS `id`,`arm`.`imei` AS `imei`,`arm`.`alarm_status` AS `alarm_status`,`arm`.`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:58.034038",
+    "type": "DDL",
+    "table": "latest_device_status",
+    "status": "success",
+    "content": "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `latest_device_status` AS select distinct `pi`.`id` AS `id`,`pi`.`imei` AS `imei`,`pi`.`protocol` AS `protocol`,`pi`.`pr..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:58.271574",
+    "type": "DDL",
+    "table": "latest_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `latest_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:58.444152",
+    "type": "DDL",
+    "table": "licensed_group_extra_platform",
+    "status": "success",
+    "content": "CREATE TABLE `licensed_group_extra_platform` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `platform_type` tinyint(2) NOT NULL COMMENT '外接平台类型',\n  `licensed_group_id` int(11) NOT NULL COMMENT '被授权组织Id',..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:58.583403",
+    "type": "DDL",
+    "table": "licensed_group_mp",
+    "status": "success",
+    "content": "CREATE TABLE `licensed_group_mp` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `mp_id` varchar(50) NOT NULL COMMENT '公众号Id',\n  `licensed_group_id` int(11) NOT NULL COMMENT '被授权组织Id',\n  PRIMARY KEY (`id`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:58.786253",
+    "type": "DDL",
+    "table": "licensed_group_sms",
+    "status": "success",
+    "content": "CREATE TABLE `licensed_group_sms` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `sms_info_id` int(11) NOT NULL COMMENT '短信服务id',\n  `licensed_group_id` int(11) NOT NULL COMMENT '被授权组织Id',\n  PRIMARY KEY (..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:59.100676",
+    "type": "DDL",
+    "table": "location_rectify",
+    "status": "success",
+    "content": "CREATE TABLE `location_rectify` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `latitude` varchar(255) DEFAULT NULL COMMENT '维度',\n  `longi..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:59.386918",
+    "type": "DDL",
+    "table": "machine_device",
+    "status": "success",
+    "content": "CREATE TABLE `machine_device` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `machine_id` bigint(50) DEFAULT NULL COMMENT '唯一标识id',\n  `device_id` bigint(50) DEFAULT NULL COMMENT '设备id',\n  `d..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:59.558751",
+    "type": "DDL",
+    "table": "machine_info",
+    "status": "success",
+    "content": "CREATE TABLE `machine_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `algorithm_id` int(11) DEFAULT NULL COMMENT '算法id',\n  `device_name` varchar(50) DE..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:59.752792",
+    "type": "DDL",
+    "table": "max_soft_version",
+    "status": "success",
+    "content": "CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `max_soft_version` AS select `upgrader`.`id` AS `id`,`upgrader`.`publish_date` AS `publish_date`,`upgrader`.`soft_versio..."
+  },
+  {
+    "timestamp": "2025-06-20T10:20:59.942746",
+    "type": "DDL",
+    "table": "monitor",
+    "status": "success",
+    "content": "CREATE TABLE `monitor` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `monitor_name` varchar(50) DEFAULT NULL COMMENT '监控设备名称',\n  `group_id` int(10) DEFAULT NULL COMMENT '所属组织',\n  `device..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:00.150521",
+    "type": "DDL",
+    "table": "monitor_alarm",
+    "status": "success",
+    "content": "CREATE TABLE `monitor_alarm` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `device_serial` varchar(255) DEFAULT NULL COMMENT '设备编号',\n  `alarm_status` tinyint(1) DEFAULT NULL COMMENT '报警处理状态（未处理、处理中、已..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:00.324914",
+    "type": "DDL",
+    "table": "monitor_device",
+    "status": "success",
+    "content": "CREATE TABLE `monitor_device` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `monitor_id` bigint(50) DEFAULT NULL COMMENT '监控id',\n  `device_id` bigint(50) DEFAULT NULL COMMENT '设备id',\n  P..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:00.508828",
+    "type": "DDL",
+    "table": "monitor_snap_job",
+    "status": "success",
+    "content": "CREATE TABLE `monitor_snap_job` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `device_serial` varchar(255) NOT NULL COMMENT '设备编号',\n  `job_id` int(10) NOT NULL COMMENT '定时任务的id',\n  `schedule_hour` in..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:00.692842",
+    "type": "DDL",
+    "table": "monitor_snap_record",
+    "status": "success",
+    "content": "CREATE TABLE `monitor_snap_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `device_serial` varchar(255) NOT NULL COMMENT '设备编号',\n  `pic_url` varchar(200) NOT NULL COMMENT '图片地址',\n  `crt_time` d..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:00.955147",
+    "type": "DDL",
+    "table": "monitor_type_relation",
+    "status": "success",
+    "content": "CREATE TABLE `monitor_type_relation` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `identifier_code` varchar(9) NOT NULL COMMENT '组织标识编号',\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `monitory_type` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:01.141761",
+    "type": "DDL",
+    "table": "mqtt_config",
+    "status": "success",
+    "content": "CREATE TABLE `mqtt_config` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `name` varchar(30) DEFAULT NULL COMMENT 'mqtt名称',\n  `username` varchar(255) DEFAULT NULL COMMENT '用户名',\n  `password` varchar(2..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:01.410533",
+    "type": "DDL",
+    "table": "operation_latest_record",
+    "status": "success",
+    "content": "CREATE TABLE `operation_latest_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `head` varchar(64) DEFAULT NULL COMMENT '报文头',\n  `ve..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:01.593137",
+    "type": "DDL",
+    "table": "operation_log",
+    "status": "success",
+    "content": "CREATE TABLE `operation_log` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '操作人所属组织',\n  `user_id` int(11) DEFAULT NULL COMMENT '用户id',\n  `crt_time` datetime DEFAUL..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:01.784353",
+    "type": "DDL",
+    "table": "operation_log_2025_1",
+    "status": "success",
+    "content": "CREATE TABLE `operation_log_2025_1` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '操作人所属组织',\n  `user_id` int(11) DEFAULT NULL COMMENT '用户id',\n  `crt_time` datetime..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:02.036167",
+    "type": "DDL",
+    "table": "operation_log_2025_2",
+    "status": "success",
+    "content": "CREATE TABLE `operation_log_2025_2` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '操作人所属组织',\n  `user_id` int(11) DEFAULT NULL COMMENT '用户id',\n  `crt_time` datetime..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:02.224622",
+    "type": "DDL",
+    "table": "operation_log_2025_3",
+    "status": "success",
+    "content": "CREATE TABLE `operation_log_2025_3` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '操作人所属组织',\n  `user_id` int(11) DEFAULT NULL COMMENT '用户id',\n  `crt_time` datetime..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:02.493924",
+    "type": "DDL",
+    "table": "operation_record",
+    "status": "success",
+    "content": "CREATE TABLE `operation_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `head` varchar(64) DEFAULT NULL COMMENT '报文头',\n  `version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:02.683971",
+    "type": "DDL",
+    "table": "packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` int(10)..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:03.026322",
+    "type": "DDL",
+    "table": "packet_info_2025_1",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_1` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:03.268963",
+    "type": "DDL",
+    "table": "packet_info_2025_10",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_10` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:03.546633",
+    "type": "DDL",
+    "table": "packet_info_2025_11",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_11` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:03.742759",
+    "type": "DDL",
+    "table": "packet_info_2025_12",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_12` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:03.958223",
+    "type": "DDL",
+    "table": "packet_info_2025_2",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_2` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:04.132158",
+    "type": "DDL",
+    "table": "packet_info_2025_3",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_3` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:04.324953",
+    "type": "DDL",
+    "table": "packet_info_2025_4",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_4` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:04.483233",
+    "type": "DDL",
+    "table": "packet_info_2025_5",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_5` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:04.658240",
+    "type": "DDL",
+    "table": "packet_info_2025_6",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_6` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:04.875676",
+    "type": "DDL",
+    "table": "packet_info_2025_7",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_7` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:05.142258",
+    "type": "DDL",
+    "table": "packet_info_2025_8",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_8` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:05.317687",
+    "type": "DDL",
+    "table": "packet_info_2025_9",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_2025_9` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:05.485099",
+    "type": "DDL",
+    "table": "packet_info_temp",
+    "status": "success",
+    "content": "CREATE TABLE `packet_info_temp` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `protocol` varchar(10) DEFAULT NULL COMMENT '协议版本',\n  `protocol_version` in..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:05.705518",
+    "type": "DDL",
+    "table": "page_customization",
+    "status": "success",
+    "content": "CREATE TABLE `page_customization` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` int(11) DEFAULT NULL COMMENT '所属组织',\n  `type` tinyint(2) DEFAULT NULL COMMENT '类型',\n  `field_name`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:05.868493",
+    "type": "DDL",
+    "table": "people_testing_info",
+    "status": "success",
+    "content": "CREATE TABLE `people_testing_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `group_id` int(11) NOT NULL COMMENT '组织id',\n  `remark` varchar(200) DEFAULT NULL COMMENT '备注',\n  `delete_f..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:06.024124",
+    "type": "DDL",
+    "table": "permanent_staff_mp",
+    "status": "success",
+    "content": "CREATE TABLE `permanent_staff_mp` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `name` varchar(5) NOT NULL COMMENT '姓名',\n  `type` tinyint(2) DEFAULT NULL COMMENT '类型',\n  `mp_id` varchar(50) DEFAULT N..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:06.202126",
+    "type": "DDL",
+    "table": "platform_version",
+    "status": "success",
+    "content": "CREATE TABLE `platform_version` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `type` tinyint(1) DEFAULT NULL COMMENT '类型（0-平台 1-小程序）',\n  `major` int(10) DEFAULT NULL COMMENT '主版本号',\n  `m..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:06.368463",
+    "type": "DDL",
+    "table": "production_test_info",
+    "status": "success",
+    "content": "CREATE TABLE `production_test_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `battery_voltage` decimal(10,2) DEFAULT NULL COMMENT '电池电压',\n  `battery..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:06.576019",
+    "type": "DDL",
+    "table": "push_data_full",
+    "status": "success",
+    "content": "CREATE TABLE `push_data_full` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `attribute_name` varchar(50) DEFAULT NULL COMMENT '属性中文名称',\n  `attribute_value` varchar(50) DEFAULT NULL COMMENT ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:06.742224",
+    "type": "DDL",
+    "table": "push_data_option",
+    "status": "success",
+    "content": "CREATE TABLE `push_data_option` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `access_system_id` int(11) DEFAULT NULL COMMENT '接入系统id',\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `attri..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:06.915975",
+    "type": "DDL",
+    "table": "push_record",
+    "status": "success",
+    "content": "CREATE TABLE `push_record` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `access_system_id` int(11) DEFAULT NULL COMMENT '接入系统id',\n  `imei` varchar(50) NOT NULL COMMENT '设备号',\n  `push_metho..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:07.188656",
+    "type": "DDL",
+    "table": "quartz_cron_info",
+    "status": "success",
+    "content": "CREATE TABLE `quartz_cron_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `group_id` int(11) DEFAULT NULL COMMENT '组织id',\n  `user_id` int(11) NOT NULL COMMENT '巡检人员',\n  `task_name` va..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:07.405367",
+    "type": "DDL",
+    "table": "quartz_cron_info_param",
+    "status": "success",
+    "content": "CREATE TABLE `quartz_cron_info_param` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `quartz_corn_id` int(11) NOT NULL COMMENT '配置任务cron数据id',\n  `quartz_corn_param` varchar(5000) NOT NULL ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:07.635113",
+    "type": "DDL",
+    "table": "rainfall_day_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `rainfall_day_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `create_t..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:07.897200",
+    "type": "DDL",
+    "table": "rainfall_hour_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `rainfall_hour_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `create_..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:08.230003",
+    "type": "DDL",
+    "table": "rainfall_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `rainfall_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `create_time`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:08.391563",
+    "type": "DDL",
+    "table": "rebar_strain_gauge_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `rebar_strain_gauge_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `cr..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:08.540577",
+    "type": "DDL",
+    "table": "rebar_stress_meter_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `rebar_stress_meter_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `cr..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:08.715776",
+    "type": "DDL",
+    "table": "record_detail",
+    "status": "success",
+    "content": "CREATE TABLE `record_detail` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `record_id` bigint(50) DEFAULT NULL COMMENT '升级记录Id',\n  `current_packet_no` int(10) DEFAULT NULL COMMENT '当前包号'..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:08.946639",
+    "type": "DDL",
+    "table": "report_push_config",
+    "status": "success",
+    "content": "CREATE TABLE `report_push_config` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织',\n  `period_type` tinyint(2) DEFAULT NULL COMMENT '周期类型',\n  `time_content` varchar..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:09.225602",
+    "type": "DDL",
+    "table": "report_push_person_config",
+    "status": "success",
+    "content": "CREATE TABLE `report_push_person_config` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织',\n  `mounts_id` int(11) NOT NULL COMMENT '需要生成报告的安装物',\n  PRIMARY KEY (`id`)..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:09.434455",
+    "type": "DDL",
+    "table": "result_record",
+    "status": "success",
+    "content": "CREATE TABLE `result_record` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `result` varchar(512) DEFAULT NULL COMMENT '计算结果',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备IMEI',\n  `crt_time..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:09.691255",
+    "type": "DDL",
+    "table": "result_record_copy1",
+    "status": "success",
+    "content": "CREATE TABLE `result_record_copy1` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `result` varchar(512) DEFAULT NULL COMMENT '计算结果',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备IMEI',\n  `cr..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:09.874257",
+    "type": "DDL",
+    "table": "result_record_rollback",
+    "status": "success",
+    "content": "CREATE TABLE `result_record_rollback` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `result` varchar(512) DEFAULT NULL COMMENT '计算结果',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备IMEI',\n  ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:10.113595",
+    "type": "DDL",
+    "table": "rtk_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `rtk_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `data_status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '数据状态',\n  `gx` decimal..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:10.275184",
+    "type": "DDL",
+    "table": "sim_device_info",
+    "status": "success",
+    "content": "CREATE TABLE `sim_device_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `iccid` varchar(50) NOT NULL COMMENT '物联网卡',\n  `imei` varchar(50) DEFAULT NULL COMMENT 'imei',\n  `use_amount` decimal(10,2..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:10.466988",
+    "type": "DDL",
+    "table": "single_day_variation",
+    "status": "success",
+    "content": "CREATE TABLE `single_day_variation` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `report_date` date NOT NULL COMMENT '上报日期',\n  `variation` decimal(9,3) NOT..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:10.752095",
+    "type": "DDL",
+    "table": "slope_meter_average_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `slope_meter_average_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `type` int(2) DEFAULT '1' COMMENT '平均类型 1-日平均值',\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:10.997279",
+    "type": "DDL",
+    "table": "slope_meter_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `slope_meter_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `create_ti..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:11.200433",
+    "type": "DDL",
+    "table": "sms_count_config",
+    "status": "success",
+    "content": "CREATE TABLE `sms_count_config` (\n  `id` bigint(36) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `group_id` int(36) NOT NULL COMMENT '组织id',\n  `count` int(11) NOT NULL COMMENT '短信条数',\n  `remaining_count`..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:11.455559",
+    "type": "DDL",
+    "table": "sms_info",
+    "status": "success",
+    "content": "CREATE TABLE `sms_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `sms_type` tinyint(2) NOT NULL COMMENT '短信平台类型',\n  `sign_name` varchar(64) NOT NULL COMMENT '签名',\n  `secret_id` varchar(128) DEFAULT..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:11.722133",
+    "type": "DDL",
+    "table": "sms_order",
+    "status": "success",
+    "content": "CREATE TABLE `sms_order` (\n  `id` bigint(36) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `group_id` int(36) NOT NULL COMMENT '组织id',\n  `order_name` varchar(50) DEFAULT NULL COMMENT '订单名称',\n  `order_no` ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:12.008239",
+    "type": "DDL",
+    "table": "sms_order_count",
+    "status": "success",
+    "content": "CREATE TABLE `sms_order_count` (\n  `id` bigint(36) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `sms_order_id` bigint(36) NOT NULL COMMENT '短信订单信息id',\n  `group_id` int(36) NOT NULL COMMENT '组织id',\n  `typ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:12.181313",
+    "type": "DDL",
+    "table": "sms_push_info",
+    "status": "success",
+    "content": "CREATE TABLE `sms_push_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `group_id` int(11) DEFAULT NULL COMMENT '组织id',\n  `sms_platform_id` int(11) NOT NULL COMMENT '短信平台id',\n  `alarm_..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:12.365366",
+    "type": "DDL",
+    "table": "sms_push_user_relation",
+    "status": "success",
+    "content": "CREATE TABLE `sms_push_user_relation` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `business_id` int(11) DEFAULT NULL COMMENT '关联数据id',\n  `business_type` int(11) DEFAULT '1' COMMENT '业务类..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:12.616477",
+    "type": "DDL",
+    "table": "sms_send_record",
+    "status": "success",
+    "content": "CREATE TABLE `sms_send_record` (\n  `id` bigint(36) NOT NULL AUTO_INCREMENT COMMENT '数据id',\n  `imei` varchar(36) DEFAULT NULL COMMENT '设备id',\n  `data_id` varchar(36) DEFAULT NULL COMMENT '监测点id',\n  `se..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:12.841649",
+    "type": "DDL",
+    "table": "sms_template",
+    "status": "success",
+    "content": "CREATE TABLE `sms_template` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `template_type` tinyint(2) NOT NULL COMMENT '模板类型',\n  `template_id` varchar(128) NOT NULL COMMENT '模板id',\n  `sms_info_id` int(11..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:13.107633",
+    "type": "DDL",
+    "table": "sms_user",
+    "status": "success",
+    "content": "CREATE TABLE `sms_user` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `group_id` int(11) NOT NULL COMMENT '组织Id',\n  `name` varchar(10) DEFAULT NULL COMMENT '用户名',\n  `phone` varchar(11) NOT NULL COMMENT ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:13.309603",
+    "type": "DDL",
+    "table": "soil_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `soil_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `create_time` tim..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:13.554613",
+    "type": "DDL",
+    "table": "split_table_info",
+    "status": "success",
+    "content": "CREATE TABLE `split_table_info` (\n  `id` int(11) NOT NULL AUTO_INCREMENT,\n  `table_name` varchar(30) DEFAULT NULL COMMENT '表名',\n  `start_time` datetime DEFAULT NULL COMMENT '创建时间',\n  `end_time` dateti..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:13.735429",
+    "type": "DDL",
+    "table": "statistics_user",
+    "status": "success",
+    "content": "CREATE TABLE `statistics_user` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` int(50) DEFAULT NULL COMMENT '组织id',\n  `statistics_user_id` int(50) DEFAULT NULL COMMENT '报表接受人员',..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:13.917974",
+    "type": "DDL",
+    "table": "surface_strain_gauge_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `surface_strain_gauge_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:14.319068",
+    "type": "DDL",
+    "table": "sys_file_info",
+    "status": "success",
+    "content": "CREATE TABLE `sys_file_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT 'Id',\n  `business_id` bigint(50) DEFAULT NULL COMMENT '业务数据id',\n  `file_name` varchar(100) NOT NULL COMMENT '文件名称',\n  `..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:14.502178",
+    "type": "DDL",
+    "table": "system_config",
+    "status": "success",
+    "content": "CREATE TABLE `system_config` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `group_id` varchar(20) DEFAULT NULL COMMENT '组织Id',\n  `schedule_time` int(10) DEFAULT NULL COMMENT '定时执行周期时间',\n..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:14.715959",
+    "type": "DDL",
+    "table": "temp_drift_detail_record",
+    "status": "success",
+    "content": "CREATE TABLE `temp_drift_detail_record` (\n  `id` bigint(36) NOT NULL COMMENT '数据id',\n  `group_id` int(11) DEFAULT NULL COMMENT '组织id',\n  `imei` varchar(50) NOT NULL COMMENT 'imei号',\n  `type` tinyint(2..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:14.912808",
+    "type": "DDL",
+    "table": "temp_drift_record",
+    "status": "success",
+    "content": "CREATE TABLE `temp_drift_record` (\n  `id` bigint(36) NOT NULL COMMENT '数据id',\n  `group_id` int(11) DEFAULT NULL COMMENT '组织id',\n  `imei` varchar(50) NOT NULL COMMENT 'imei号',\n  `last_type` tinyint(2) ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:15.137142",
+    "type": "DDL",
+    "table": "temperature_humidity_in_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `temperature_humidity_in_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:15.332827",
+    "type": "DDL",
+    "table": "temperature_humidity_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `temperature_humidity_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:15.528685",
+    "type": "DDL",
+    "table": "template_mp",
+    "status": "success",
+    "content": "CREATE TABLE `template_mp` (\n  `id` int(50) NOT NULL AUTO_INCREMENT,\n  `template_id` varchar(50) NOT NULL COMMENT '模板id(对应微信平台模板库)',\n  `mp_id` varchar(50) NOT NULL COMMENT '微信Id(对应mp中id)',\n  `type` in..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:15.803406",
+    "type": "DDL",
+    "table": "trouble_record",
+    "status": "success",
+    "content": "CREATE TABLE `trouble_record` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `trouble_desc` varchar(512) DEFAULT NULL COMMENT '问题描述',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备IMEI',\n  `s..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:16.029665",
+    "type": "DDL",
+    "table": "trouble_record_relation",
+    "status": "success",
+    "content": "CREATE TABLE `trouble_record_relation` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `relate_id` int(11) NOT NULL COMMENT '故障记录Id',\n  `type` tinyint(2) NOT NULL COMMENT '故障类型 1低电量 2打卡超时',\n ..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:16.261072",
+    "type": "DDL",
+    "table": "trouble_threshold",
+    "status": "success",
+    "content": "CREATE TABLE `trouble_threshold` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `enabled_config` varchar(255) DEFAULT NULL COMMENT '启用的配置项',\n  `low_power_..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:16.533563",
+    "type": "DDL",
+    "table": "unofficial_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `unofficial_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `latitude` decimal(20,10) DEFAULT NULL COMMENT '纬度',\n  `longitude` de..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:16.711637",
+    "type": "DDL",
+    "table": "upgrade_record",
+    "status": "success",
+    "content": "CREATE TABLE `upgrade_record` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `task_id` bigint(50) DEFAULT NULL COMMENT '升级任务Id',\n  `imei` varchar(50) DEFAULT NULL COMMENT '设备号',\n  `previo..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:16.903578",
+    "type": "DDL",
+    "table": "upgrade_task",
+    "status": "success",
+    "content": "CREATE TABLE `upgrade_task` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `upgrader_id` bigint(50) DEFAULT NULL COMMENT '升级包Id',\n  `imeis` text COMMENT '设备号（通过逗号隔开）',\n  `upgrade_type` ti..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:17.083677",
+    "type": "DDL",
+    "table": "upgrader",
+    "status": "success",
+    "content": "CREATE TABLE `upgrader` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `publish_date` varchar(10) DEFAULT NULL COMMENT '发布日期',\n  `soft_version` int(10) DEFAULT NULL COMMENT '软件版本',\n  `har..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:17.270386",
+    "type": "DDL",
+    "table": "user_mp",
+    "status": "success",
+    "content": "CREATE TABLE `user_mp` (\n  `id` int(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `user_id` int(50) NOT NULL COMMENT '用户id',\n  `mp_id` varchar(50) NOT NULL COMMENT '该公众号的微信号',\n  `open_id` varchar(50) NO..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:17.477964",
+    "type": "DDL",
+    "table": "user_theme_relation",
+    "status": "success",
+    "content": "CREATE TABLE `user_theme_relation` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '序号',\n  `user_id` int(11) NOT NULL COMMENT '用户id',\n  `theme` text COMMENT '系统样式',\n  `crt_time` datetime DEFAULT NULL..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:17.661618",
+    "type": "DDL",
+    "table": "version_announcement",
+    "status": "success",
+    "content": "CREATE TABLE `version_announcement` (\n  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',\n  `version_no` varchar(15) NOT NULL COMMENT '版本号',\n  `version_content` varchar(1000) DEFAULT NULL COMMENT '版本..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:17.841361",
+    "type": "DDL",
+    "table": "vibration_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `vibration_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `battery_level` bigint(10) DEFAULT NULL COMMENT '电池电量',\n  `fqx` decima..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:18.028199",
+    "type": "DDL",
+    "table": "vibration_packet_info_2025_1",
+    "status": "success",
+    "content": "CREATE TABLE `vibration_packet_info_2025_1` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `temperature` decimal(5,2) DEFAULT NULL COMMENT '温度',\n  `batter..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:18.244368",
+    "type": "DDL",
+    "table": "vibration_packet_info_2025_2",
+    "status": "success",
+    "content": "CREATE TABLE `vibration_packet_info_2025_2` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `temperature` decimal(5,2) DEFAULT NULL COMMENT '温度',\n  `batter..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:18.468955",
+    "type": "DDL",
+    "table": "vibration_packet_info_2025_3",
+    "status": "success",
+    "content": "CREATE TABLE `vibration_packet_info_2025_3` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `temperature` decimal(5,2) DEFAULT NULL COMMENT '温度',\n  `batter..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:18.643461",
+    "type": "DDL",
+    "table": "water_level_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `water_level_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `temperatu..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:18.835973",
+    "type": "DDL",
+    "table": "water_pressure_meter_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `water_pressure_meter_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:19.008245",
+    "type": "DDL",
+    "table": "weixin_mp",
+    "status": "success",
+    "content": "CREATE TABLE `weixin_mp` (\n  `id` int(50) NOT NULL AUTO_INCREMENT COMMENT '主键',\n  `mp_name` varchar(255) NOT NULL COMMENT '公众号名称',\n  `mp_id` varchar(50) NOT NULL COMMENT '该公众号的微信号',\n  `app_id` varchar..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:19.174288",
+    "type": "DDL",
+    "table": "wind_speed_direction_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `wind_speed_direction_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `location` varchar(2) DEFAULT NULL COMMENT '设备地址,16进制',\n  `..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:19.333008",
+    "type": "DDL",
+    "table": "wrong_packet_info",
+    "status": "success",
+    "content": "CREATE TABLE `wrong_packet_info` (\n  `id` bigint(50) NOT NULL AUTO_INCREMENT,\n  `imei` varchar(50) NOT NULL COMMENT 'imei',\n  `original_packet` varchar(3072) DEFAULT NULL COMMENT '原始报文',\n  `report_tim..."
+  },
+  {
+    "timestamp": "2025-06-20T10:21:19.602793",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "显示数据库中所有的表",
+    "sql": "SHOW TABLES;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:19.749183",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "显示数据库信息",
+    "sql": "SELECT DATABASE() as 当前数据库, VERSION() as MySQL版本, NOW() as 当前时间;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:19.924354",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "查看数据库大小",
+    "sql": "SELECT table_schema AS '数据库', ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS '大小(MB)' FROM information_schema.tables WHERE table_schema = DATABASE() GROUP BY table_schema;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:20.121591",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "查看access_system表的所有数据",
+    "sql": "SELECT * FROM `access_system` LIMIT 100;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:20.332940",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计access_system表有多少条记录",
+    "sql": "SELECT COUNT(*) as 记录总数 FROM `access_system`;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:20.507227",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "显示access_system表的前10条记录",
+    "sql": "SELECT * FROM `access_system` LIMIT 10;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:20.701965",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "按deadline_date倒序查看access_system表的最新数据",
+    "sql": "SELECT * FROM `access_system` ORDER BY `deadline_date` DESC LIMIT 20;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:20.857434",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "查看access_system表今天的数据",
+    "sql": "SELECT * FROM `access_system` WHERE DATE(`deadline_date`) = CURDATE();",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:21.032052",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计access_system表每天的记录数",
+    "sql": "SELECT DATE(`deadline_date`) as 日期, COUNT(*) as 记录数 FROM `access_system` GROUP BY DATE(`deadline_date`) ORDER BY 日期 DESC;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:21.191745",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计access_system表不同enabled的数量",
+    "sql": "SELECT `enabled`, COUNT(*) as 数量 FROM `access_system` GROUP BY `enabled`;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:21.366320",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "查看alarm表的所有数据",
+    "sql": "SELECT * FROM `alarm` LIMIT 100;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:21.557788",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计alarm表有多少条记录",
+    "sql": "SELECT COUNT(*) as 记录总数 FROM `alarm`;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:21.757784",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "显示alarm表的前10条记录",
+    "sql": "SELECT * FROM `alarm` LIMIT 10;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:22.017710",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "按predict_complete_time倒序查看alarm表的最新数据",
+    "sql": "SELECT * FROM `alarm` ORDER BY `predict_complete_time` DESC LIMIT 20;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:22.174227",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "查看alarm表今天的数据",
+    "sql": "SELECT * FROM `alarm` WHERE DATE(`predict_complete_time`) = CURDATE();",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:22.324466",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计alarm表每天的记录数",
+    "sql": "SELECT DATE(`predict_complete_time`) as 日期, COUNT(*) as 记录数 FROM `alarm` GROUP BY DATE(`predict_complete_time`) ORDER BY 日期 DESC;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:22.474618",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计alarm表不同alarm_status的数量",
+    "sql": "SELECT `alarm_status`, COUNT(*) as 数量 FROM `alarm` GROUP BY `alarm_status`;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:22.633175",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "查看alarm_capture表的所有数据",
+    "sql": "SELECT * FROM `alarm_capture` LIMIT 100;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:22.869185",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计alarm_capture表有多少条记录",
+    "sql": "SELECT COUNT(*) as 记录总数 FROM `alarm_capture`;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:23.024186",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "显示alarm_capture表的前10条记录",
+    "sql": "SELECT * FROM `alarm_capture` LIMIT 10;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:23.174696",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "按crt_time倒序查看alarm_capture表的最新数据",
+    "sql": "SELECT * FROM `alarm_capture` ORDER BY `crt_time` DESC LIMIT 20;",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:23.341226",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "查看alarm_capture表今天的数据",
+    "sql": "SELECT * FROM `alarm_capture` WHERE DATE(`crt_time`) = CURDATE();",
+    "status": "success"
+  },
+  {
+    "timestamp": "2025-06-20T10:21:23.541585",
+    "type": "QUESTION_SQL_PAIR",
+    "question": "统计alarm_capture表每天的记录数",
+    "sql": "SELECT DATE(`crt_time`) as 日期, COUNT(*) as 记录数 FROM `alarm_capture` GROUP BY DATE(`crt_time`) ORDER BY 日期 DESC;",
+    "status": "success"
+  }
+]
