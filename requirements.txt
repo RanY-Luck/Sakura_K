@@ -30,3 +30,5 @@ beautifulsoup4==4.12.3
 mcp==1.8.1
 openai==1.72.0
 paramiko==3.5.1
+vanna[chromadb,mysql]
+chromadb
