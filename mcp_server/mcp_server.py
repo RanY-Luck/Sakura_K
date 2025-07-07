@@ -15,6 +15,7 @@ from mcp.server.fastmcp import FastMCP
 from tool_weather import WeatherTool
 from utils.log_util import logger
 from plugin.module_text2sql.service.text2sql_service import Text2SQLService
+
 # 初始化 MCP 服务器
 mcp = FastMCP("SakuraMcpServer")
 
@@ -367,14 +368,14 @@ async def text2sql_ask(
             question=question,
             auto_train=auto_train
         )
-        
+
         if not result["success"]:
             return {"success": False, "message": result.get("message", "处理问题失败")}
-        
+
         # 提取SQL和结果数据
         sql = result.get("sql", "")
         data = result.get("result", [])
-        
+
         logger.info(f"生成SQL: {sql}")
         logger.info(f"结果数据行数: {len(data) if isinstance(data, list) else 0}")
 
@@ -430,7 +431,7 @@ async def get_training_data(supplier: str = ""):
     except Exception as e:
         logger.error(f"获取训练数据失败: {str(e)}")
         return {
-            "success": False, 
+            "success": False,
             "message": f"获取训练数据失败: {str(e)}"
         }
 
