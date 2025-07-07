@@ -33,39 +33,127 @@ class MCPClient:
 
     async def connect_to_server(self, server_script_path: str):
         """连接到 MCP 服务器并列出可用工具"""
+        print(f"🔍 开始连接到 MCP 服务器: {server_script_path}")
+
         is_python = server_script_path.endswith('.py')
         is_js = server_script_path.endswith('.js')
         if not (is_python or is_js):
             raise ValueError("服务器脚本必须是 .py 或 .js 文件")
 
-        # 必须设置项目根目录，否则无法获取到其他引用代码文件
+        # 获取项目根目录
         project_root = os.path.abspath(os.getcwd())
-        python_cmd_path = os.getenv("PYTHON_PATH")
-        command = python_cmd_path if is_python else "node"
+        print(f"📁 项目根目录: {project_root}")
 
+        # 检查脚本文件是否存在
+        script_abs_path = os.path.abspath(server_script_path)
+        print(f"📄 脚本绝对路径: {script_abs_path}")
+        print(f"📄 脚本是否存在: {os.path.exists(script_abs_path)}")
+
+        if not os.path.exists(script_abs_path):
+            # 尝试在不同位置查找脚本
+            possible_paths = [
+                server_script_path,
+                os.path.join(project_root, server_script_path),
+                os.path.join(project_root, 'mcp_server', 'mcp_server.py'),
+                os.path.join(project_root, 'mcp_server.py'),
+            ]
+
+            print(f"🔍 脚本不存在，尝试在以下位置查找:")
+            found_script = None
+            for path in possible_paths:
+                abs_path = os.path.abspath(path)
+                exists = os.path.exists(abs_path)
+                print(f"   {abs_path}: {'✓' if exists else '✗'}")
+                if exists and found_script is None:
+                    found_script = abs_path
+
+            if found_script:
+                script_abs_path = found_script
+                print(f"✓ 找到脚本: {script_abs_path}")
+            else:
+                raise FileNotFoundError(f"❌ 找不到 MCP 服务器脚本: {server_script_path}")
+
+        # 确定 Python 解释器
+        if is_python:
+            python_cmd_path = os.getenv("PYTHON_PATH")
+            if python_cmd_path and os.path.exists(python_cmd_path):
+                command = python_cmd_path
+                print(f"🐍 使用环境变量中的 Python: {command}")
+            else:
+                # 优先使用虚拟环境中的 Python
+                venv_path = os.getenv("VIRTUAL_ENV")
+                if venv_path:
+                    venv_python = os.path.join(venv_path, "Scripts", "python.exe")
+                    if os.path.exists(venv_python):
+                        command = venv_python
+                        print(f"🐍 使用虚拟环境 Python: {command}")
+                    else:
+                        command = sys.executable
+                        print(f"🐍 使用当前 Python 解释器: {command}")
+                else:
+                    command = sys.executable
+                    print(f"🐍 使用当前 Python 解释器: {command}")
+        else:
+            command = "node"
+            print(f"🟢 使用 Node.js: {command}")
+
+        print(f"🔧 命令是否存在: {os.path.exists(command) if os.path.isabs(command) else 'N/A (相对路径)'}")
+
+        # 测试命令是否可执行
+        try:
+            import subprocess
+            result = subprocess.run([command, "--version"], capture_output=True, text=True, timeout=5)
+            print(f"✓ 命令测试成功: {result.stdout.strip()}")
+        except Exception as e:
+            print(f"❌ 命令测试失败: {e}")
+            # 如果是 Python 且测试失败，尝试使用完整路径
+            if is_python:
+                import shutil
+                python_from_path = shutil.which("python")
+                if python_from_path:
+                    command = python_from_path
+                    print(f"🔄 尝试使用 PATH 中的 Python: {command}")
+                else:
+                    python_exe = shutil.which("python.exe")
+                    if python_exe:
+                        command = python_exe
+                        print(f"🔄 尝试使用 PATH 中的 python.exe: {command}")
+
+        # 解析命令行参数
         parser = argparse.ArgumentParser(description='命令行参数')
         parser.add_argument('--env', type=str, default='', help='运行环境')
         args, unknown = parser.parse_known_args()
 
+        # 构建服务器参数
         server_params = StdioServerParameters(
             command=command,
-            args=[server_script_path, f'--env={args.env}'],
-            env={"PYTHONPATH": project_root}
+            args=[script_abs_path, f'--env={args.env}'],
+            env={"PYTHONPATH": project_root},
+            cwd=project_root
         )
-        # 为Windows设置正确的事件循环策略
-        if sys.platform == 'win32':
-            asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
-        # 使用原始的stdio_client，但确保在正确的事件循环策略下运行
-        stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
-        self.stdio, self.write = stdio_transport
-        self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
-        await self.session.initialize()
 
-        # 列出 MCP 服务器上的工具
-        response = await self.session.list_tools()
-        tools = response.tools
-        print("\n已连接到服务器，支持以下工具:", [tool.name for tool in tools])
+        print(f"🚀 启动参数:")
+        print(f"   command: {server_params.command}")
+        print(f"   args: {server_params.args}")
+        print(f"   cwd: {server_params.cwd}")
+        print(f"   env: {server_params.env}")
 
+        try:
+            # 连接到服务器
+            stdio_transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
+            self.stdio, self.write = stdio_transport
+            self.session = await self.exit_stack.enter_async_context(ClientSession(self.stdio, self.write))
+            await self.session.initialize()
+
+            # 列出 MCP 服务器上的工具
+            response = await self.session.list_tools()
+            tools = response.tools
+            print(f"✓ 已连接到服务器，支持以下工具: {[tool.name for tool in tools]}")
+
+        except Exception as e:
+            print(f"❌ 连接失败: {e}")
+            print(f"❌ 错误类型: {type(e).__name__}")
+            raise
     async def process_query(self, query: str):
         """
         使用大模型处理查询并调用可用的 MCP 工具 (Function Calling)
@@ -211,3 +299,8 @@ async def main(server_script_path: str):
         await client.chat_loop()
     finally:
         await client.cleanup()
+
+if __name__ == "__main__":
+
+    asyncio.run(main('mcp_server.py'))
+

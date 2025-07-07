@@ -189,6 +189,16 @@ git add .
 git commit -m "clear cached"
 ```
 
+- 其他
+
+```text
+生成Python项目的requirements.txt（包含项目实际使用的包）
+首先安装pipreqs：
+pip install pipreqs
+然后在项目根目录运行：
+bashpipreqs . --encoding=utf8
+```
+
 # 接口编写顺序
 
 ## 第一步:先去`module_admin/entity/do`写表结构
